@@ -6,16 +6,16 @@ local ABS_PATH = os.getenv('CONKY_LUA_HOME')
 package.path = ABS_PATH..'/?.lua;'..
   ABS_PATH..'/interface/?.lua;'..
   ABS_PATH..'/module/?.lua;'..
-  ABS_PATH..'/func/?.lua;'..
-  ABS_PATH..'/super/?.lua;'..
   ABS_PATH..'/schema/?.lua;'..
-  ABS_PATH..'/widget/?.lua;'..
-  ABS_PATH..'/widget/arc/?.lua;'..
-  ABS_PATH..'/widget/text/?.lua;'..
-  ABS_PATH..'/widget/plot/?.lua;'..
-  ABS_PATH..'/widget/rect/?.lua;'..
-  ABS_PATH..'/widget/poly/?.lua;'..
-  ABS_PATH..'/widget/image/?.lua;'
+  ABS_PATH..'/core/func/?.lua;'..
+  ABS_PATH..'/core/super/?.lua;'..
+  ABS_PATH..'/core/widget/?.lua;'..
+  ABS_PATH..'/core/widget/arc/?.lua;'..
+  ABS_PATH..'/core/widget/text/?.lua;'..
+  ABS_PATH..'/core/widget/plot/?.lua;'..
+  ABS_PATH..'/core/widget/rect/?.lua;'..
+  ABS_PATH..'/core/widget/poly/?.lua;'..
+  ABS_PATH..'/core/widget/image/?.lua;'
 
 local UPDATE_FREQUENCY = 1						--Hz
 
