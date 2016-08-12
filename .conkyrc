@@ -1,0 +1,36 @@
+conky.config = {
+	background = true,
+
+	--adjust cpu dial sensitivity (1-14)
+	cpu_avg_samples = 4,
+	net_avg_samples = 14,
+
+	out_to_console = false,
+
+	own_window = true,
+	own_window_type = 'desktop',
+	own_window_transparent = true,
+	own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
+
+	double_buffer = true,
+	minimum_width = 1377,
+	minimum_height = 778,
+
+	draw_shades = false,
+	draw_outline = false,
+	draw_borders = false,
+	gap_x = 0,
+	gap_y = 0,
+	alignment = 'top_left',
+
+	no_buffers = true,
+
+	--Lua Load
+	lua_load = '/home/ndwar_9355/.local/share/conky/default/main.lua',
+	lua_draw_hook_pre = 'main'
+}
+
+--control updates entirely in lua
+
+conky.text = [[]]
+
