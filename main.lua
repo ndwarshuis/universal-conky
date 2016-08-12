@@ -48,8 +48,6 @@ local FileSystem 	= require 'FileSystem'
 local Pacman 		= require 'Pacman'
 local ReadWrite		= require 'ReadWrite'
 local Memory		= require 'Memory'
---~ local USB			= require 'USB'
---~ local Remote		= require 'Remote'
 local Weather		= require 'Weather'
 
 local updates = -2
