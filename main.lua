@@ -1,5 +1,17 @@
---CONVENTIONS:
---0: true, 1: false
+--[[
+Conventions:
+0 is true, 1 is false
+
+Var names:
+- Scope:
+  - local: no underscore
+  - module: single underscore
+  - global: double underscore
+  - required (imported): no underscore (same name as file)
+- Mutability
+  - variable: lowercase
+  - constant: all caps
+--]]
 
 local ABS_PATH = os.getenv('CONKY_LUA_HOME')
 
