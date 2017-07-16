@@ -165,9 +165,9 @@ local check_interface = function()
 end
 
 function conky_main()
-	local cw = conky_window
-    if not cw then return end
-    local cs = __cairo_xlib_surface_create(cw.display, cw.drawable, cw.visual, 1920, 1080)
+	local _cw = conky_window
+    if not _cw then return end
+    local cs = __cairo_xlib_surface_create(_cw.display, _cw.drawable, _cw.visual, 1920, 1080)
     local cr = __cairo_create(cs)
 
 	updates = updates + 1
