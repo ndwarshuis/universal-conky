@@ -27,18 +27,18 @@ local __network_label_function = function(bytes)
 end
 
 local header = Widget.Header{
-	x = __G_INIT_DATA__.CENTER_RIGHT_X,
-	y = __G_INIT_DATA__.TOP_Y,
-	width = __G_INIT_DATA__.SECTION_WIDTH,
+	x = _G_INIT_DATA_.CENTER_RIGHT_X,
+	y = _G_INIT_DATA_.TOP_Y,
+	width = _G_INIT_DATA_.SECTION_WIDTH,
 	header = "NETWORK"
 }
 
-local RIGHT_X = __G_INIT_DATA__.CENTER_RIGHT_X + __G_INIT_DATA__.SECTION_WIDTH
+local RIGHT_X = _G_INIT_DATA_.CENTER_RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH
 local DOWNLOAD_PLOT_Y = header.bottom_y + PLOT_SEC_BREAK
 
 local dnload = {
 	label = Widget.Text{
-		x = __G_INIT_DATA__.CENTER_RIGHT_X,
+		x = _G_INIT_DATA_.CENTER_RIGHT_X,
 		y = header.bottom_y,
 		text = 'Download',
 	},
@@ -49,9 +49,9 @@ local dnload = {
 		text_color = schema.blue
 	},
 	plot = Widget.ScalePlot{
-		x = __G_INIT_DATA__.CENTER_RIGHT_X,
+		x = _G_INIT_DATA_.CENTER_RIGHT_X,
 		y = DOWNLOAD_PLOT_Y,
-		width = __G_INIT_DATA__.SECTION_WIDTH,
+		width = _G_INIT_DATA_.SECTION_WIDTH,
 		height = PLOT_HEIGHT,
 		y_label_func = __network_label_function
 	}
@@ -62,7 +62,7 @@ local UPLOAD_PLOT_Y = UPLOAD_Y + PLOT_SEC_BREAK
 
 local upload = {
 	label = Widget.Text{
-		x = __G_INIT_DATA__.CENTER_RIGHT_X,
+		x = _G_INIT_DATA_.CENTER_RIGHT_X,
 		y = UPLOAD_Y,
 		text = 'Upload',
 	},
@@ -73,9 +73,9 @@ local upload = {
 		text_color = schema.blue
 	},
 	plot = Widget.ScalePlot{
-		x = __G_INIT_DATA__.CENTER_RIGHT_X,
+		x = _G_INIT_DATA_.CENTER_RIGHT_X,
 		y = UPLOAD_PLOT_Y,
-		width = __G_INIT_DATA__.SECTION_WIDTH,
+		width = _G_INIT_DATA_.SECTION_WIDTH,
 		height = PLOT_HEIGHT,
 		y_label_func = __network_label_function
 	}

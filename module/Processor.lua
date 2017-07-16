@@ -23,18 +23,18 @@ for r = 1, NUM_ROWS do
 	TABLE_CONKY[3][r] = '${top cpu '..r..'}'
 end
 
-local MODULE_Y_ = 636
-local DIAL_INNER_RADIUS_ = 30
-local DIAL_OUTER_RADIUS_ = 42
-local DIAL_SPACING_ = 1
-local TEXT_Y_OFFSET_ = 15
-local SEPARATOR_SPACING_ = 20
-local PLOT_SECTION_BREAK_ = 23
-local PLOT_HEIGHT_ = 56
-local TABLE_SECTION_BREAK_ = 20
-local TABLE_HEIGHT_ = 114
+local _MODULE_Y_ = 636
+local _DIAL_INNER_RADIUS_ = 30
+local _DIAL_OUTER_RADIUS_ = 42
+local _DIAL_SPACING_ = 1
+local _TEXT_Y_OFFSET_ = 15
+local _SEPARATOR_SPACING_ = 20
+local _PLOT_SECTION_BREAK_ = 23
+local _PLOT_HEIGHT_ = 56
+local _TABLE_SECTION_BREAK_ = 20
+local _TABLE_HEIGHT_ = 114
 
-local create_core_ = function(cores, id, x, y)
+local _create_core_ = function(cores, id, x, y)
 	local conky_threads = {}
 
 	for c = 0, NUM_PHYSICAL_CORES * NUM_PHYSICAL_CORE_THREADS - 1 do
@@ -52,16 +52,16 @@ local create_core_ = function(cores, id, x, y)
 		dials = Widget.CompoundDial{
 			x 				= x,
 			y 				= y,			
-			inner_radius 	= DIAL_INNER_RADIUS_,
-			outer_radius 	= DIAL_OUTER_RADIUS_,
-			spacing 		= DIAL_SPACING_,
+			inner_radius 	= _DIAL_INNER_RADIUS_,
+			outer_radius 	= _DIAL_OUTER_RADIUS_,
+			spacing 		= _DIAL_SPACING_,
 			num_dials 		= NUM_PHYSICAL_CORE_THREADS,
 			critical_limit	= '>0.8'
 		},
 		inner_ring = Widget.Arc{
 			x = x,
 			y = y,
-			radius = DIAL_INNER_RADIUS_ - 2,
+			radius = _DIAL_INNER_RADIUS_ - 2,
 			theta0 = 0,
 			theta1 = 360
 		},
@@ -79,88 +79,86 @@ local create_core_ = function(cores, id, x, y)
 end
 
 local header = Widget.Header{
-	x = __G_INIT_DATA__.LEFT_X,
-	y = MODULE_Y_,
-	width = __G_INIT_DATA__.SECTION_WIDTH,
+	x = _G_INIT_DATA_.LEFT_X,
+	y = _MODULE_Y_,
+	width = _G_INIT_DATA_.SECTION_WIDTH,
 	header = "PROCESSOR"
 }
-
-local HEADER_BOTTOM_Y_ = header.bottom_y
 
 --we assume that this cpu has 4 physical cores with 2 logical each
 local cores = {}
 
 for c = 0, NUM_PHYSICAL_CORES - 1 do
-	local dial_x = __G_INIT_DATA__.LEFT_X + DIAL_OUTER_RADIUS_ + (__G_INIT_DATA__.SECTION_WIDTH - 2 * DIAL_OUTER_RADIUS_) * c / 3
-	create_core_(cores, c, dial_x, HEADER_BOTTOM_Y_ + DIAL_OUTER_RADIUS_)
+	local dial_x = _G_INIT_DATA_.LEFT_X + _DIAL_OUTER_RADIUS_ +
+	  (_G_INIT_DATA_.SECTION_WIDTH - 2 * _DIAL_OUTER_RADIUS_) * c / 3
+	local dial_y = header.bottom_y + _DIAL_OUTER_RADIUS_
+	_create_core_(cores, c, dial_x, dial_y)
 end
 
-local RIGHT_X = __G_INIT_DATA__.LEFT_X + __G_INIT_DATA__.SECTION_WIDTH
+local _RIGHT_X_ = _G_INIT_DATA_.LEFT_X + _G_INIT_DATA_.SECTION_WIDTH
 
-local PROCESS_Y = HEADER_BOTTOM_Y_ + DIAL_OUTER_RADIUS_ * 2 + PLOT_SECTION_BREAK_
+local _PROCESS_Y_ = header.bottom_y + _DIAL_OUTER_RADIUS_ * 2 + _PLOT_SECTION_BREAK_
 
 local process = {
 	labels = Widget.Text{
-		x 		= __G_INIT_DATA__.LEFT_X,
-		y 		= PROCESS_Y,
+		x 		= _G_INIT_DATA_.LEFT_X,
+		y 		= _PROCESS_Y_,
 		text    = 'R | S | D | T | Z'
 	},
 	values = Widget.Text{
-		x 			= RIGHT_X,
-		y 			= PROCESS_Y,
+		x 			= _RIGHT_X_,
+		y 			= _PROCESS_Y_,
 		x_align 	= 'right',
 		text_color 	= schema.blue,
 		text        = '<R.S.D.T.Z>'
 	}
 }
 
-local SEP_Y = PROCESS_Y + SEPARATOR_SPACING_
+local _SEP_Y_ = _PROCESS_Y_ + _SEPARATOR_SPACING_
 
 local separator = Widget.Line{
-	p1 = {x = __G_INIT_DATA__.LEFT_X, y = SEP_Y},
-	p2 = {x = RIGHT_X, y = SEP_Y}
+	p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_},
+	p2 = {x = _RIGHT_X_, y = _SEP_Y_}
 }
 
-local LOAD_Y = SEP_Y + SEPARATOR_SPACING_
+local _LOAD_Y_ = _SEP_Y_ + _SEPARATOR_SPACING_
 
 local total_load = {
 	label = Widget.Text{
-		x    = __G_INIT_DATA__.LEFT_X,
-		y    = LOAD_Y,
+		x    = _G_INIT_DATA_.LEFT_X,
+		y    = _LOAD_Y_,
 		text = 'Total Load'
 	},
 	value = Widget.CriticalText{
-		x 			    = RIGHT_X,
-		y 			    = LOAD_Y,
+		x 			    = _RIGHT_X_,
+		y 			    = _LOAD_Y_,
 		x_align 	    = 'right',
 		append_end 	    = '%',
 		critical_limit 	= '>80'
 	}	
 }
 
-local PLOT_Y = LOAD_Y + PLOT_SECTION_BREAK_
+local _PLOT_Y_ = _LOAD_Y_ + _PLOT_SECTION_BREAK_
 
 local plot = Widget.LabelPlot{
-	x 		= __G_INIT_DATA__.LEFT_X,
-	y 		= PLOT_Y,
-	width 	= __G_INIT_DATA__.SECTION_WIDTH,
-	height 	= PLOT_HEIGHT_
+	x 		= _G_INIT_DATA_.LEFT_X,
+	y 		= _PLOT_Y_,
+	width 	= _G_INIT_DATA_.SECTION_WIDTH,
+	height 	= _PLOT_HEIGHT_
 }
 
-local TABLE_Y = PLOT_Y + PLOT_HEIGHT_ + TABLE_SECTION_BREAK_
-
 local tbl = Widget.Table{
-	x 		 = __G_INIT_DATA__.LEFT_X,
-	y 		 = TABLE_Y,
-	width 	 = __G_INIT_DATA__.SECTION_WIDTH,
-	height 	 = TABLE_HEIGHT_,
+	x 		 = _G_INIT_DATA_.LEFT_X,
+	y 		 = _PLOT_Y_ + _PLOT_HEIGHT_ + _TABLE_SECTION_BREAK_,
+	width 	 = _G_INIT_DATA_.SECTION_WIDTH,
+	height 	 = _TABLE_HEIGHT_,
 	num_rows = NUM_ROWS,
 	'Name',
 	'PID',
 	'CPU (%)'
 }
 
-local __update = function(cr)
+local update = function(cr)
 	local conky = util.conky
 	local char_count = util.char_count
 
@@ -202,27 +200,25 @@ end
 
 Widget = nil
 schema = nil
-MODULE_Y_ = nil
-DIAL_INNER_RADIUS_ = nil
-DIAL_OUTER_RADIUS_ = nil
-DIAL_SPACING_ = nil
-TEXT_Y_OFFSET_ = nil
-SEPARATOR_SPACING_ = nil
-PLOT_SECTION_BREAK_ = nil
-PLOT_HEIGHT_ = nil
-TABLE_SECTION_BREAK_ = nil
-TABLE_HEIGHT_ = nil
-create_core_ = nil
-HEADER_BOTTOM_Y_ = nil
-LOAD_Y = nil
-RIGHT_X = nil
-SEP_Y = nil
-PROCESS_Y = nil
-PLOT_Y = nil
-TABLE_Y = nil
+_MODULE_Y_ = nil
+_DIAL_INNER_RADIUS_ = nil
+_DIAL_OUTER_RADIUS_ = nil
+_DIAL_SPACING_ = nil
+_TEXT_Y_OFFSET_ = nil
+_SEPARATOR_SPACING_ = nil
+_PLOT_SECTION_BREAK_ = nil
+_PLOT_HEIGHT_ = nil
+_TABLE_SECTION_BREAK_ = nil
+_TABLE_HEIGHT_ = nil
+_create_core_ = nil
+_LOAD_Y_ = nil
+_RIGHT_X_ = nil
+_SEP_Y_ = nil
+_PROCESS_Y_ = nil
+_PLOT_Y_ = nil
 
 local draw = function(cr, current_interface)
-	__update(cr)
+	update(cr)
 
 	if current_interface == 0 then
 		Text.draw(header.text, cr)

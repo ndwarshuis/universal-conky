@@ -22,16 +22,16 @@ local SPACING = 20
 local BAR_PAD = 100
 
 local header = Widget.Header{
-	x = __G_INIT_DATA__.RIGHT_X,
+	x = _G_INIT_DATA_.RIGHT_X,
 	y = MODULE_Y,
-	width = __G_INIT_DATA__.SECTION_WIDTH,
+	width = _G_INIT_DATA_.SECTION_WIDTH,
 	header = 'FILE SYSTEMS'
 }
 
 local HEADER_BOTTOM_Y = header.bottom_y
 
 local labels = Widget.TextColumn{
-	x 		= __G_INIT_DATA__.RIGHT_X,
+	x 		= _G_INIT_DATA_.RIGHT_X,
 	y 		= HEADER_BOTTOM_Y,
 	spacing = SPACING,
 	'root',
@@ -46,7 +46,7 @@ local labels = Widget.TextColumn{
 
 --~ for i = 1, FS_NUM do
 	--~ totals[i] = Widget.CriticalText{
-		--~ x 			= __G_INIT_DATA__.RIGHT_X + TEXT_WIDTH,
+		--~ x 			= _G_INIT_DATA_.RIGHT_X + TEXT_WIDTH,
 		--~ y 			= HEADER_BOTTOM_Y + (i - 1) * SPACING,
 		--~ x_align 	= 'right',
 		--~ text_color	= schema.blue,
@@ -66,11 +66,11 @@ for i, v in _PAIRS(FS_PATHS) do
 end
 
 local bars = Widget.CompoundBar{
-	--~ x 				= __G_INIT_DATA__.RIGHT_X + TEXT_WIDTH + BAR_PAD,
-	x 				= __G_INIT_DATA__.RIGHT_X + BAR_PAD,
+	--~ x 				= _G_INIT_DATA_.RIGHT_X + TEXT_WIDTH + BAR_PAD,
+	x 				= _G_INIT_DATA_.RIGHT_X + BAR_PAD,
 	y 				= HEADER_BOTTOM_Y,
-	--~ length 			= __G_INIT_DATA__.SECTION_WIDTH - (TEXT_WIDTH + BAR_PAD),
-	length 			= __G_INIT_DATA__.SECTION_WIDTH - BAR_PAD,
+	--~ length 			= _G_INIT_DATA_.SECTION_WIDTH - (TEXT_WIDTH + BAR_PAD),
+	length 			= _G_INIT_DATA_.SECTION_WIDTH - BAR_PAD,
 	spacing 		= SPACING,
 	num_bars 		= FS_NUM,
 	critical_limit	= '>0.8'

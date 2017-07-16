@@ -10,14 +10,14 @@ local schema		= require 'default_patterns'
 local TEXT_SPACING = 20
 
 local header = Widget.Header{
-	x = __G_INIT_DATA__.RIGHT_X,
-	y = __G_INIT_DATA__.TOP_Y,
-	width = __G_INIT_DATA__.SECTION_WIDTH,
+	x = _G_INIT_DATA_.RIGHT_X,
+	y = _G_INIT_DATA_.TOP_Y,
+	width = _G_INIT_DATA_.SECTION_WIDTH,
 	header = "PACMAN"
 }
 
 local labels = Widget.TextColumn{
-	x 		= __G_INIT_DATA__.RIGHT_X,
+	x 		= _G_INIT_DATA_.RIGHT_X,
 	y 		= header.bottom_y,
 	spacing = TEXT_SPACING,
 	'Total',
@@ -27,7 +27,7 @@ local labels = Widget.TextColumn{
 	'Local'
 }
 local info = Widget.TextColumn{
-	x 			= __G_INIT_DATA__.RIGHT_X + __G_INIT_DATA__.SECTION_WIDTH,
+	x 			= _G_INIT_DATA_.RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH,
 	y 			= header.bottom_y,
 	spacing 	= TEXT_SPACING,
 	x_align 	= 'right',

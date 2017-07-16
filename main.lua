@@ -46,7 +46,7 @@ Var names:
   - Temporal Scope
     - init: only relevent to startup (nil'ed before first rendering loop)
     - persistant: always relevent (potentially)
-    - flank init vars with __
+    - flank init vars with _
   - Mutability
     - variable: lowercase
     - constant: ALL_CAPS
@@ -58,7 +58,7 @@ Var names:
 
 local UPDATE_FREQUENCY = 1						--Hz
 
-__G_INIT_DATA__ = {
+_G_INIT_DATA_ = {
 	UPDATE_INTERVAL 	= 1 / UPDATE_FREQUENCY,
 	
 	LEFT_X 				= 32,
@@ -75,26 +75,26 @@ __G_INIT_DATA__ = {
 	ABS_PATH			= os.getenv('CONKY_LUA_HOME')
 }
 
-__G_INIT_DATA__.CENTER_LEFT_X = __G_INIT_DATA__.LEFT_X + __G_INIT_DATA__.SECTION_WIDTH + __G_INIT_DATA__.PANEL_MARGIN_X * 2 + __G_INIT_DATA__.PANEL_HORZ_SPACING
-__G_INIT_DATA__.CENTER_RIGHT_X = __G_INIT_DATA__.CENTER_LEFT_X + __G_INIT_DATA__.SECTION_WIDTH + __G_INIT_DATA__.CENTER_PAD
-__G_INIT_DATA__.CENTER_WIDTH = __G_INIT_DATA__.SECTION_WIDTH * 2 + __G_INIT_DATA__.CENTER_PAD
-__G_INIT_DATA__.RIGHT_X = __G_INIT_DATA__.CENTER_LEFT_X + __G_INIT_DATA__.CENTER_WIDTH + __G_INIT_DATA__.PANEL_MARGIN_X * 2 + __G_INIT_DATA__.PANEL_HORZ_SPACING
+_G_INIT_DATA_.CENTER_LEFT_X = _G_INIT_DATA_.LEFT_X + _G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2 + _G_INIT_DATA_.PANEL_HORZ_SPACING
+_G_INIT_DATA_.CENTER_RIGHT_X = _G_INIT_DATA_.CENTER_LEFT_X + _G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.CENTER_PAD
+_G_INIT_DATA_.CENTER_WIDTH = _G_INIT_DATA_.SECTION_WIDTH * 2 + _G_INIT_DATA_.CENTER_PAD
+_G_INIT_DATA_.RIGHT_X = _G_INIT_DATA_.CENTER_LEFT_X + _G_INIT_DATA_.CENTER_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2 + _G_INIT_DATA_.PANEL_HORZ_SPACING
 
-package.path = __G_INIT_DATA__.ABS_PATH..'/?.lua;'..
-  __G_INIT_DATA__.ABS_PATH..'/interface/?.lua;'..
-  __G_INIT_DATA__.ABS_PATH..'/module/?.lua;'..
-  __G_INIT_DATA__.ABS_PATH..'/schema/?.lua;'..
-  __G_INIT_DATA__.ABS_PATH..'/core/func/?.lua;'..
-  __G_INIT_DATA__.ABS_PATH..'/core/super/?.lua;'..
-  __G_INIT_DATA__.ABS_PATH..'/core/widget/?.lua;'..
-  __G_INIT_DATA__.ABS_PATH..'/core/widget/arc/?.lua;'..
-  __G_INIT_DATA__.ABS_PATH..'/core/widget/text/?.lua;'..
-  __G_INIT_DATA__.ABS_PATH..'/core/widget/plot/?.lua;'..
-  __G_INIT_DATA__.ABS_PATH..'/core/widget/rect/?.lua;'..
-  __G_INIT_DATA__.ABS_PATH..'/core/widget/poly/?.lua;'..
-  __G_INIT_DATA__.ABS_PATH..'/core/widget/image/?.lua;'
+package.path = _G_INIT_DATA_.ABS_PATH..'/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'/interface/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'/module/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'/schema/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'/core/func/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'/core/super/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'/core/widget/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'/core/widget/arc/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'/core/widget/text/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'/core/widget/plot/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'/core/widget/rect/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'/core/widget/poly/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'/core/widget/image/?.lua;'
 
-conky_set_update_interval(__G_INIT_DATA__.UPDATE_INTERVAL)
+conky_set_update_interval(_G_INIT_DATA_.UPDATE_INTERVAL)
 
 require 'imlib2'
 require 'cairo'
@@ -125,7 +125,7 @@ _unrequire('Gradient')
 
 _unrequire = nil
 
-__G_INIT_DATA__ = nil
+_G_INIT_DATA_ = nil
 
 local __cairo_xlib_surface_create 	= cairo_xlib_surface_create
 local __cairo_create 				= cairo_create
