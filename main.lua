@@ -182,21 +182,21 @@ function conky_main()
 		t2 = updates % (UPDATE_FREQUENCY * 300)
 	end
 
-	local log_changed = 1
-	if t2 == 0 then log_changed = check_if_log_changed() end
+	local log_is_changed = 1
+	if t2 == 0 then log_is_changed = check_if_log_changed() end
 	local interface_changed = check_interface()
 
 	Panel(cr)
 
 	--interface 0
-	System(cr, current_interface, log_changed)
+	System(cr, current_interface, log_is_changed)
 	Graphics(cr, current_interface)
 	Processor(cr, current_interface)
 
 	ReadWrite(cr, current_interface, UPDATE_FREQUENCY)
 	Network(cr, current_interface, UPDATE_FREQUENCY)
 	
-	Pacman(cr, current_interface, log_changed)
+	Pacman(cr, current_interface, log_is_changed)
 	FileSystem(cr, current_interface, t1)
 	Power(cr, current_interface, UPDATE_FREQUENCY, is_using_ac)
 	Memory(cr, current_interface)
