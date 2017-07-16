@@ -1,16 +1,59 @@
 --[[
-Conventions:
-0 is true, 1 is false
+Boolean conventions:
+  0 is true, 1 is false
+
+Module format:
+  LIBRARY STRUCTURE (a collection of functions/values in a table):
+    local M = {}  -- define module-level table to return
+
+    local modname = requires 'modname'
+    -- import all required modules
+
+    local foo = function()
+      -- code
+    end
+
+    -- define more functions
+
+    M.foo = foo -- dump all functions into table
+
+    return M  -- return entire table (use functions as modname.foo)
+
+  RENDERING MODULE STRUCTURE (only used in this module; main.lua):
+    local modname = requires 'modname'
+    -- import all required modules
+
+    local foo = function()
+      -- code
+    end
+
+    local draw = function(args)
+       -- drawing code that uses foo()
+    end
+
+    return draw -- only draw is returned (use as modname(args))
 
 Var names:
-- Scope:
-  - local: no underscore
-  - module: single underscore
-  - global: double underscore
-  - required (imported): no underscore (same name as file)
-- Mutability
-  - variable: lowercase
-  - constant: all caps
+  - delimiters: all words separated by _ (unless camalCase)
+  - booleans: preceed by is_ (as in is_awesome)
+  - Spacial scope:
+    - Everything declared local by default
+    - reassigning to local:
+      - upval to local: preceed with _
+      - global to local: preceed with __
+      - replace . with _ if callng from table
+    - global: preceed with g_
+  - Temporal Scope
+    - init: only relevent to startup (nil'ed before first rendering loop)
+    - persistant: always relevent (potentially)
+    - init vars end with _
+  - Mutability
+    - variable: lowercase
+    - constant: ALL_CAPS
+    - constants can be anything except functions
+  - Module Names:
+    - CapCamalCase
+    - var name is exactly the same as module name
 --]]
 
 local ABS_PATH = os.getenv('CONKY_LUA_HOME')
