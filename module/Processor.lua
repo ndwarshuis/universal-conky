@@ -12,7 +12,7 @@ local schema		= require 'default_patterns'
 local CORETEMP_PATH = '/sys/devices/platform/coretemp.0/hwmon/hwmon%i/%s'
 
 local NUM_PHYSICAL_CORES = 4
-local NUM_PHYSICAL_CORE_THREADS = 2
+local NUM_THREADS_PER_CORE = 2
 
 local NUM_ROWS = 5
 local TABLE_CONKY = {{}, {}, {}}
@@ -37,7 +37,7 @@ local _TABLE_HEIGHT_ = 114
 local _create_core_ = function(cores, id, x, y)
 	local conky_threads = {}
 
-	for c = 0, NUM_PHYSICAL_CORES * NUM_PHYSICAL_CORE_THREADS - 1 do
+	for c = 0, NUM_PHYSICAL_CORES * NUM_THREADS_PER_CORE - 1 do
 		if util.read_file('/sys/devices/system/cpu/cpu'..c..'/topology/core_id', nil, '*n') == id then
 			table.insert(conky_threads, '${cpu cpu'..c..'}')
 		end
@@ -55,7 +55,7 @@ local _create_core_ = function(cores, id, x, y)
 			inner_radius 	= _DIAL_INNER_RADIUS_,
 			outer_radius 	= _DIAL_OUTER_RADIUS_,
 			spacing 		= _DIAL_SPACING_,
-			num_dials 		= NUM_PHYSICAL_CORE_THREADS,
+			num_dials 		= NUM_THREADS_PER_CORE,
 			critical_limit	= '>0.8'
 		},
 		inner_ring = Widget.Arc{
@@ -167,7 +167,7 @@ local update = function(cr)
 		local core = cores[c]
 		
 		local conky_threads = core.conky_threads
-		for t = 1, NUM_PHYSICAL_CORE_THREADS do
+		for t = 1, NUM_THREADS_PER_CORE do
 			local percent = util.conky_numeric(conky_threads[t]) * 0.01
 			CompoundDial.set(core.dials, t, percent)
 			sum = sum + percent
@@ -185,7 +185,7 @@ local update = function(cr)
 								  char_count(process_glob, 'T')..' | '..
 								  char_count(process_glob, 'Z'))
 
-	local load_percent = util.round(sum / NUM_PHYSICAL_CORES / NUM_PHYSICAL_CORE_THREADS, 2)
+	local load_percent = util.round(sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE, 2)
 	CriticalText.set(total_load.value, cr, load_percent * 100)
 
 	LabelPlot.update(plot, load_percent)
