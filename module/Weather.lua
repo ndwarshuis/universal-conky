@@ -20,7 +20,7 @@ local SECTIONS = 8
 local WEATHER_UPDATE_INTERVAL = 900
 
 local WEATHER_PATH = '/tmp/weather.json'
-local ICON_PATH = G_DIMENSIONS_.ABS_PATH .. '/images/weather/'
+local ICON_PATH = __G_INIT_DATA__.ABS_PATH .. '/images/weather/'
 local RECENTLY_UPDATED_PATH = '/tmp/weather_recently_updated'
 local NA = 'N/A'
 local NA_IMAGE_PATH = ICON_PATH .. 'na.png'
@@ -46,7 +46,7 @@ local __create_side_section = function(x_offset, y_offset, section_table)
 		}
 		
 		current_widget.period = Widget.Text{
-			x 			= x_offset + G_DIMENSIONS_.SECTION_WIDTH,
+			x 			= x_offset + __G_INIT_DATA__.SECTION_WIDTH,
 			y 			= current_y,
 			x_align 	= 'right',
 			text_color 	= schema.blue
@@ -84,7 +84,7 @@ local __create_side_section = function(x_offset, y_offset, section_table)
 		}
 		
 		current_widget.info_column = Widget.TextColumn{
-			x = x_offset + G_DIMENSIONS_.SECTION_WIDTH,
+			x = x_offset + __G_INIT_DATA__.SECTION_WIDTH,
 			y = current_y + HEADER_PAD + 10,
 			spacing = SPACING,
 			x_align = 'right',
@@ -99,7 +99,7 @@ local __create_side_section = function(x_offset, y_offset, section_table)
 					y = current_y + SECTION_HEIGHT - 18
 				},
 				p2 = {
-					x = x_offset + G_DIMENSIONS_.SECTION_WIDTH,
+					x = x_offset + __G_INIT_DATA__.SECTION_WIDTH,
 					y = current_y + SECTION_HEIGHT - 18
 				},
 				line_pattern = schema.mid_grey
@@ -111,34 +111,34 @@ end
 --LEFT
 local left = {
 	header = Widget.Header{
-		x = G_DIMENSIONS_.LEFT_X,
-		y = G_DIMENSIONS_.TOP_Y,
-		width = G_DIMENSIONS_.SECTION_WIDTH,
+		x = __G_INIT_DATA__.LEFT_X,
+		y = __G_INIT_DATA__.TOP_Y,
+		width = __G_INIT_DATA__.SECTION_WIDTH,
 		header = 'HOURLY FORECAST'
 	},
 	hours = {}
 }
 
-__create_side_section(G_DIMENSIONS_.LEFT_X, left.header.bottom_y, left.hours)
+__create_side_section(__G_INIT_DATA__.LEFT_X, left.header.bottom_y, left.hours)
 
 --CENTER
 local center = {}
 
 center.header = Widget.Header{
-	x = G_DIMENSIONS_.CENTER_LEFT_X,
-	y = G_DIMENSIONS_.TOP_Y,
-	width = G_DIMENSIONS_.CENTER_WIDTH,
+	x = __G_INIT_DATA__.CENTER_LEFT_X,
+	y = __G_INIT_DATA__.TOP_Y,
+	width = __G_INIT_DATA__.CENTER_WIDTH,
 	header = 'CURRENT CONDITIONS'
 }
 
 center.current_desc = Widget.Text{
-	x 			= G_DIMENSIONS_.CENTER_LEFT_X,
+	x 			= __G_INIT_DATA__.CENTER_LEFT_X,
 	y 			= center.header.bottom_y + 8,
 	text_color 	= schema.blue,
 	font_size	= 24
 }
 
-local CENTER_X_1 = G_DIMENSIONS_.CENTER_LEFT_X + G_DIMENSIONS_.SECTION_WIDTH * 0.25
+local CENTER_X_1 = __G_INIT_DATA__.CENTER_LEFT_X + __G_INIT_DATA__.SECTION_WIDTH * 0.25
 local CENTER_ICON_WIDTH = 120
 local CENTER_ICON_Y = center.header.bottom_y + 105 - CENTER_ICON_WIDTH / 2
 
@@ -149,7 +149,7 @@ center.icon = Widget.ScaledImage{
 	height = CENTER_ICON_WIDTH
 }
 
-local CENTER_X_2 = G_DIMENSIONS_.CENTER_LEFT_X + G_DIMENSIONS_.SECTION_WIDTH * 0.70
+local CENTER_X_2 = __G_INIT_DATA__.CENTER_LEFT_X + __G_INIT_DATA__.SECTION_WIDTH * 0.70
 local INFO_Y = center.header.bottom_y + 70
 
 center.current_temp = Widget.Text{
@@ -178,7 +178,7 @@ local COLUMN_PADDING = 15
 local CENTER_SPACING = SPACING + 7
 
 center.label_column_1 = Widget.TextColumn{
-	x 			= G_DIMENSIONS_.CENTER_RIGHT_X,
+	x 			= __G_INIT_DATA__.CENTER_RIGHT_X,
 	y 			= center.header.bottom_y,
 	spacing 	= CENTER_SPACING,
 	font_size 	= 14,
@@ -192,7 +192,7 @@ center.label_column_1 = Widget.TextColumn{
 }
 
 center.info_column_1 = Widget.TextColumn{
-	x 			= G_DIMENSIONS_.CENTER_RIGHT_X + (G_DIMENSIONS_.SECTION_WIDTH - COLUMN_PADDING) / 2,
+	x 			= __G_INIT_DATA__.CENTER_RIGHT_X + (__G_INIT_DATA__.SECTION_WIDTH - COLUMN_PADDING) / 2,
 	y 			= center.header.bottom_y,
 	x_align 	= 'right',
 	text_color 	= schema.blue,
@@ -202,7 +202,7 @@ center.info_column_1 = Widget.TextColumn{
 }
 
 center.label_column_2 = Widget.TextColumn{
-	x 		= G_DIMENSIONS_.CENTER_RIGHT_X + (G_DIMENSIONS_.SECTION_WIDTH + COLUMN_PADDING) / 2,
+	x 		= __G_INIT_DATA__.CENTER_RIGHT_X + (__G_INIT_DATA__.SECTION_WIDTH + COLUMN_PADDING) / 2,
 	y 		= center.header.bottom_y,
 	spacing = CENTER_SPACING,
 	font_size 	= 14,
@@ -216,7 +216,7 @@ center.label_column_2 = Widget.TextColumn{
 }
 
 center.info_column_2 = Widget.TextColumn{
-	x 		= G_DIMENSIONS_.CENTER_RIGHT_X + G_DIMENSIONS_.SECTION_WIDTH,
+	x 		= __G_INIT_DATA__.CENTER_RIGHT_X + __G_INIT_DATA__.SECTION_WIDTH,
 	y 		= center.header.bottom_y,
 	x_align 	= 'right',
 	text_color 	= schema.blue,
@@ -229,15 +229,15 @@ center.info_column_2 = Widget.TextColumn{
 
 local right = {
 	header = Widget.Header{
-		x = G_DIMENSIONS_.RIGHT_X,
-		y = G_DIMENSIONS_.TOP_Y,
-		width = G_DIMENSIONS_.SECTION_WIDTH,
+		x = __G_INIT_DATA__.RIGHT_X,
+		y = __G_INIT_DATA__.TOP_Y,
+		width = __G_INIT_DATA__.SECTION_WIDTH,
 		header = '8 DAY FORECAST'
 	},
 	days = {}
 }
 
-__create_side_section(G_DIMENSIONS_.RIGHT_X, right.header.bottom_y, right.days)
+__create_side_section(__G_INIT_DATA__.RIGHT_X, right.header.bottom_y, right.days)
 
 Widget = nil
 schema = nil

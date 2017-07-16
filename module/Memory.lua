@@ -42,16 +42,16 @@ local TABLE_SECTION_BREAK = 20
 local TABLE_HEIGHT = 114
 
 local header = Widget.Header{
-	x = G_DIMENSIONS_.RIGHT_X,
+	x = __G_INIT_DATA__.RIGHT_X,
 	y = MODULE_Y,
-	width = G_DIMENSIONS_.SECTION_WIDTH,
+	width = __G_INIT_DATA__.SECTION_WIDTH,
 	header = "MEMORY"
 }
 
 local HEADER_BOTTOM_Y = header.bottom_y
 
 --don't nil these
-local DIAL_X = G_DIMENSIONS_.RIGHT_X + DIAL_RADIUS + DIAL_THICKNESS * 0.5
+local DIAL_X = __G_INIT_DATA__.RIGHT_X + DIAL_RADIUS + DIAL_THICKNESS * 0.5
 local DIAL_Y = HEADER_BOTTOM_Y + DIAL_RADIUS + DIAL_THICKNESS * 0.5
 
 local dial = Widget.Dial{
@@ -85,8 +85,8 @@ local inner_ring = Widget.Arc{
 }
 
 local LINE_1_Y = HEADER_BOTTOM_Y + TEXT_Y_OFFSET
-local TEXT_LEFT_X = G_DIMENSIONS_.RIGHT_X + DIAL_RADIUS * 2 + TEXT_LEFT_X_OFFSET
-local RIGHT_X = G_DIMENSIONS_.RIGHT_X + G_DIMENSIONS_.SECTION_WIDTH
+local TEXT_LEFT_X = __G_INIT_DATA__.RIGHT_X + DIAL_RADIUS * 2 + TEXT_LEFT_X_OFFSET
+local RIGHT_X = __G_INIT_DATA__.RIGHT_X + __G_INIT_DATA__.SECTION_WIDTH
 
 local swap= {
 	label = Widget.Text{
@@ -127,18 +127,18 @@ local cache = {
 local PLOT_Y = PLOT_SECTION_BREAK + HEADER_BOTTOM_Y + DIAL_RADIUS * 2
 
 local plot = Widget.LabelPlot{
-	x = G_DIMENSIONS_.RIGHT_X,
+	x = __G_INIT_DATA__.RIGHT_X,
 	y = PLOT_Y,
-	width = G_DIMENSIONS_.SECTION_WIDTH,
+	width = __G_INIT_DATA__.SECTION_WIDTH,
 	height = PLOT_HEIGHT
 }
 
 local TABLE_Y = PLOT_Y + PLOT_HEIGHT + TABLE_SECTION_BREAK
 
 local tbl = Widget.Table{
-	x = G_DIMENSIONS_.RIGHT_X,
+	x = __G_INIT_DATA__.RIGHT_X,
 	y = TABLE_Y,
-	width = G_DIMENSIONS_.SECTION_WIDTH,
+	width = __G_INIT_DATA__.SECTION_WIDTH,
 	height = TABLE_HEIGHT,
 	'Name',
 	'PID',

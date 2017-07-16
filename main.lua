@@ -39,14 +39,14 @@ Var names:
   - Spacial scope:
     - Everything declared local by default
     - reassigning to local:
-      - upval to local: preceed with _
-      - global to local: preceed with __
+      - upval to local: prefix with _
+      - global to local: prefix with __
       - replace . with _ if callng from table
     - global: preceed with g_
   - Temporal Scope
     - init: only relevent to startup (nil'ed before first rendering loop)
     - persistant: always relevent (potentially)
-    - init vars end with _
+    - flank init vars with __
   - Mutability
     - variable: lowercase
     - constant: ALL_CAPS
@@ -58,7 +58,7 @@ Var names:
 
 local UPDATE_FREQUENCY = 1						--Hz
 
-G_DIMENSIONS_ = {
+__G_INIT_DATA__ = {
 	UPDATE_INTERVAL 	= 1 / UPDATE_FREQUENCY,
 	
 	LEFT_X 				= 32,
@@ -75,26 +75,26 @@ G_DIMENSIONS_ = {
 	ABS_PATH			= os.getenv('CONKY_LUA_HOME')
 }
 
-G_DIMENSIONS_.CENTER_LEFT_X = G_DIMENSIONS_.LEFT_X + G_DIMENSIONS_.SECTION_WIDTH + G_DIMENSIONS_.PANEL_MARGIN_X * 2 + G_DIMENSIONS_.PANEL_HORZ_SPACING
-G_DIMENSIONS_.CENTER_RIGHT_X = G_DIMENSIONS_.CENTER_LEFT_X + G_DIMENSIONS_.SECTION_WIDTH + G_DIMENSIONS_.CENTER_PAD
-G_DIMENSIONS_.CENTER_WIDTH = G_DIMENSIONS_.SECTION_WIDTH * 2 + G_DIMENSIONS_.CENTER_PAD
-G_DIMENSIONS_.RIGHT_X = G_DIMENSIONS_.CENTER_LEFT_X + G_DIMENSIONS_.CENTER_WIDTH + G_DIMENSIONS_.PANEL_MARGIN_X * 2 + G_DIMENSIONS_.PANEL_HORZ_SPACING
+__G_INIT_DATA__.CENTER_LEFT_X = __G_INIT_DATA__.LEFT_X + __G_INIT_DATA__.SECTION_WIDTH + __G_INIT_DATA__.PANEL_MARGIN_X * 2 + __G_INIT_DATA__.PANEL_HORZ_SPACING
+__G_INIT_DATA__.CENTER_RIGHT_X = __G_INIT_DATA__.CENTER_LEFT_X + __G_INIT_DATA__.SECTION_WIDTH + __G_INIT_DATA__.CENTER_PAD
+__G_INIT_DATA__.CENTER_WIDTH = __G_INIT_DATA__.SECTION_WIDTH * 2 + __G_INIT_DATA__.CENTER_PAD
+__G_INIT_DATA__.RIGHT_X = __G_INIT_DATA__.CENTER_LEFT_X + __G_INIT_DATA__.CENTER_WIDTH + __G_INIT_DATA__.PANEL_MARGIN_X * 2 + __G_INIT_DATA__.PANEL_HORZ_SPACING
 
-package.path = G_DIMENSIONS_.ABS_PATH..'/?.lua;'..
-  G_DIMENSIONS_.ABS_PATH..'/interface/?.lua;'..
-  G_DIMENSIONS_.ABS_PATH..'/module/?.lua;'..
-  G_DIMENSIONS_.ABS_PATH..'/schema/?.lua;'..
-  G_DIMENSIONS_.ABS_PATH..'/core/func/?.lua;'..
-  G_DIMENSIONS_.ABS_PATH..'/core/super/?.lua;'..
-  G_DIMENSIONS_.ABS_PATH..'/core/widget/?.lua;'..
-  G_DIMENSIONS_.ABS_PATH..'/core/widget/arc/?.lua;'..
-  G_DIMENSIONS_.ABS_PATH..'/core/widget/text/?.lua;'..
-  G_DIMENSIONS_.ABS_PATH..'/core/widget/plot/?.lua;'..
-  G_DIMENSIONS_.ABS_PATH..'/core/widget/rect/?.lua;'..
-  G_DIMENSIONS_.ABS_PATH..'/core/widget/poly/?.lua;'..
-  G_DIMENSIONS_.ABS_PATH..'/core/widget/image/?.lua;'
+package.path = __G_INIT_DATA__.ABS_PATH..'/?.lua;'..
+  __G_INIT_DATA__.ABS_PATH..'/interface/?.lua;'..
+  __G_INIT_DATA__.ABS_PATH..'/module/?.lua;'..
+  __G_INIT_DATA__.ABS_PATH..'/schema/?.lua;'..
+  __G_INIT_DATA__.ABS_PATH..'/core/func/?.lua;'..
+  __G_INIT_DATA__.ABS_PATH..'/core/super/?.lua;'..
+  __G_INIT_DATA__.ABS_PATH..'/core/widget/?.lua;'..
+  __G_INIT_DATA__.ABS_PATH..'/core/widget/arc/?.lua;'..
+  __G_INIT_DATA__.ABS_PATH..'/core/widget/text/?.lua;'..
+  __G_INIT_DATA__.ABS_PATH..'/core/widget/plot/?.lua;'..
+  __G_INIT_DATA__.ABS_PATH..'/core/widget/rect/?.lua;'..
+  __G_INIT_DATA__.ABS_PATH..'/core/widget/poly/?.lua;'..
+  __G_INIT_DATA__.ABS_PATH..'/core/widget/image/?.lua;'
 
-conky_set_update_interval(G_DIMENSIONS_.UPDATE_INTERVAL)
+conky_set_update_interval(__G_INIT_DATA__.UPDATE_INTERVAL)
 
 require 'imlib2'
 require 'cairo'
@@ -125,7 +125,7 @@ _unrequire('Gradient')
 
 _unrequire = nil
 
-G_DIMENSIONS_ = nil
+__G_INIT_DATA__ = nil
 
 local __cairo_xlib_surface_create 	= cairo_xlib_surface_create
 local __cairo_create 				= cairo_create

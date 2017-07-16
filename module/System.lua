@@ -17,14 +17,14 @@ local SYNC_CMD = "sed -n '/ synchronizing package lists/p' /var/log/pacman.log |
 local TEXT_SPACING = 20
 
 local header = Widget.Header{
-	x = G_DIMENSIONS_.LEFT_X,
-	y = G_DIMENSIONS_.TOP_Y,
-	width = G_DIMENSIONS_.SECTION_WIDTH,
+	x = __G_INIT_DATA__.LEFT_X,
+	y = __G_INIT_DATA__.TOP_Y,
+	width = __G_INIT_DATA__.SECTION_WIDTH,
 	header = "SYSTEM"
 }
 
 local labels = Widget.TextColumn{
-	x 		= G_DIMENSIONS_.LEFT_X,
+	x 		= __G_INIT_DATA__.LEFT_X,
 	y 		= header.bottom_y,
 	spacing = TEXT_SPACING,
 	'Kernel',
@@ -33,7 +33,7 @@ local labels = Widget.TextColumn{
 	'Last Sync'
 }
 local info = Widget.TextColumn{
-	x 			= G_DIMENSIONS_.LEFT_X + G_DIMENSIONS_.SECTION_WIDTH,
+	x 			= __G_INIT_DATA__.LEFT_X + __G_INIT_DATA__.SECTION_WIDTH,
 	y 			= header.bottom_y,
 	spacing 	= TEXT_SPACING,
 	x_align 	= 'right',
