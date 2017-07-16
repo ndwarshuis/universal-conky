@@ -56,22 +56,6 @@ Var names:
     - var name is exactly the same as module name
 --]]
 
-local ABS_PATH = os.getenv('CONKY_LUA_HOME')
-
-package.path = ABS_PATH..'/?.lua;'..
-  ABS_PATH..'/interface/?.lua;'..
-  ABS_PATH..'/module/?.lua;'..
-  ABS_PATH..'/schema/?.lua;'..
-  ABS_PATH..'/core/func/?.lua;'..
-  ABS_PATH..'/core/super/?.lua;'..
-  ABS_PATH..'/core/widget/?.lua;'..
-  ABS_PATH..'/core/widget/arc/?.lua;'..
-  ABS_PATH..'/core/widget/text/?.lua;'..
-  ABS_PATH..'/core/widget/plot/?.lua;'..
-  ABS_PATH..'/core/widget/rect/?.lua;'..
-  ABS_PATH..'/core/widget/poly/?.lua;'..
-  ABS_PATH..'/core/widget/image/?.lua;'
-
 local UPDATE_FREQUENCY = 1						--Hz
 
 G_DIMENSIONS_ = {
@@ -88,7 +72,7 @@ G_DIMENSIONS_ = {
 	SIDE_HEIGHT 		= 1020,
 	CENTER_HEIGHT 		= 220,
 
-	ABS_PATH			= ABS_PATH
+	ABS_PATH			= os.getenv('CONKY_LUA_HOME')
 }
 
 G_DIMENSIONS_.CENTER_LEFT_X = G_DIMENSIONS_.LEFT_X + G_DIMENSIONS_.SECTION_WIDTH + G_DIMENSIONS_.PANEL_MARGIN_X * 2 + G_DIMENSIONS_.PANEL_HORZ_SPACING
@@ -96,7 +80,19 @@ G_DIMENSIONS_.CENTER_RIGHT_X = G_DIMENSIONS_.CENTER_LEFT_X + G_DIMENSIONS_.SECTI
 G_DIMENSIONS_.CENTER_WIDTH = G_DIMENSIONS_.SECTION_WIDTH * 2 + G_DIMENSIONS_.CENTER_PAD
 G_DIMENSIONS_.RIGHT_X = G_DIMENSIONS_.CENTER_LEFT_X + G_DIMENSIONS_.CENTER_WIDTH + G_DIMENSIONS_.PANEL_MARGIN_X * 2 + G_DIMENSIONS_.PANEL_HORZ_SPACING
 
-ABS_PATH = nil
+package.path = G_DIMENSIONS_.ABS_PATH..'/?.lua;'..
+  G_DIMENSIONS_.ABS_PATH..'/interface/?.lua;'..
+  G_DIMENSIONS_.ABS_PATH..'/module/?.lua;'..
+  G_DIMENSIONS_.ABS_PATH..'/schema/?.lua;'..
+  G_DIMENSIONS_.ABS_PATH..'/core/func/?.lua;'..
+  G_DIMENSIONS_.ABS_PATH..'/core/super/?.lua;'..
+  G_DIMENSIONS_.ABS_PATH..'/core/widget/?.lua;'..
+  G_DIMENSIONS_.ABS_PATH..'/core/widget/arc/?.lua;'..
+  G_DIMENSIONS_.ABS_PATH..'/core/widget/text/?.lua;'..
+  G_DIMENSIONS_.ABS_PATH..'/core/widget/plot/?.lua;'..
+  G_DIMENSIONS_.ABS_PATH..'/core/widget/rect/?.lua;'..
+  G_DIMENSIONS_.ABS_PATH..'/core/widget/poly/?.lua;'..
+  G_DIMENSIONS_.ABS_PATH..'/core/widget/image/?.lua;'
 
 conky_set_update_interval(G_DIMENSIONS_.UPDATE_INTERVAL)
 
@@ -118,25 +114,25 @@ local Weather		= require 'Weather'
 
 local updates = -2
 
-local unrequire = function(m)
+local _unrequire = function(m)
 	package.loaded[m] = nil
 	_G[m] = nil
 end
 
-unrequire('Super')
-unrequire('Color')
-unrequire('Gradient')
+_unrequire('Super')
+_unrequire('Color')
+_unrequire('Gradient')
 
-unrequire = nil
+_unrequire = nil
 
 G_DIMENSIONS_ = nil
 
-local _CAIRO_XLIB_SURFACE_CREATE 	= cairo_xlib_surface_create
-local _CAIRO_CREATE 				= cairo_create
-local _CAIRO_SURFACE_DESTROY 		= cairo_surface_destroy
-local _CAIRO_DESTROY 				= cairo_destroy
-local _COLLECTGARBAGE				= collectgarbage
-local _OS_EXECUTE					= os.execute
+local __cairo_xlib_surface_create 	= cairo_xlib_surface_create
+local __cairo_create 				= cairo_create
+local __cairo_surface_destroy 		= cairo_surface_destroy
+local __cairo_destroy 				= cairo_destroy
+local __collectgarbage				= collectgarbage
+local __os_execute					= os.execute
 
 local using_ac = function()
 	if util.conky('${acpiacadapter AC}') == 'on-line' then return 0 end
@@ -151,7 +147,7 @@ local check_if_log_changed = function()
 	return 0
 end
 
-_OS_EXECUTE('set_conky_interface.sh 0')
+__os_execute('set_conky_interface.sh 0')
 local current_interface = 0
 
 local check_interface = function()
@@ -162,7 +158,7 @@ local check_interface = function()
 		current_interface = next_interface
 		return 0
 	else
-		_OS_EXECUTE('set_conky_interface.sh 0')
+		__os_execute('set_conky_interface.sh 0')
 		current_interface = 0
 		return 0
 	end
@@ -171,17 +167,16 @@ end
 function conky_main()
 	local cw = conky_window
     if not cw then return end
-    --~ print(cw.width, cw.height)	###USE THIS TO GET WIDTH AND HEIGHT OF WINDOW
-    local cs = _CAIRO_XLIB_SURFACE_CREATE(cw.display, cw.drawable, cw.visual, 1920, 1080)
-    local cr = _CAIRO_CREATE(cs)
+    local cs = __cairo_xlib_surface_create(cw.display, cw.drawable, cw.visual, 1920, 1080)
+    local cr = __cairo_create(cs)
 
 	updates = updates + 1
 
 	local t1 = updates % (UPDATE_FREQUENCY * 10)
 	
 	local t2
-	local ac = using_ac()
-	if ac then
+	local is_using_ac = using_ac()
+	if is_using_ac then
 		t2 = updates % (UPDATE_FREQUENCY * 60)
 	else
 		t2 = updates % (UPDATE_FREQUENCY * 300)
@@ -203,13 +198,13 @@ function conky_main()
 	
 	Pacman(cr, current_interface, log_changed)
 	FileSystem(cr, current_interface, t1)
-	Power(cr, current_interface, UPDATE_FREQUENCY, ac)
+	Power(cr, current_interface, UPDATE_FREQUENCY, is_using_ac)
 	Memory(cr, current_interface)
 
 	--interface 1
 	Weather(cr, current_interface, interface_changed)
 
-    _CAIRO_SURFACE_DESTROY(cs)
-    _CAIRO_DESTROY(cr)
-    _COLLECTGARBAGE()
+    __cairo_surface_destroy(cs)
+    __cairo_destroy(cr)
+    __collectgarbage()
 end
