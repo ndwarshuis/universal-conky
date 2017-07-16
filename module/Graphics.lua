@@ -208,7 +208,7 @@ local NV_REGEX = '(%d+)\n'..
 				 '(%d+),(%d+)\n'..
 				 'graphics=(%d+), memory=%d+, video=(%d+), PCIe=(%d+)\n'
 
-local NA = 'N / A'
+local NA = 'N/A'
 
 local nvidia_off = function(cr)
 	CriticalText.set(internal_temp.value, cr, NA, 1)
@@ -227,7 +227,15 @@ local nvidia_off = function(cr)
 end
 				 
 local update = function(cr)
+    -- check if bbswitch is on
 	if util.read_file('/proc/acpi/bbswitch', '.+%s+(%u+)') == 'ON' then
+
+		-- bbswitch might be on, but only because conky is constantly querying
+		-- it and there appears to be some lag between closing all optirun
+		-- processes and flipping bbswitch off. If bbswitch is on and there are
+		-- no optirun processes, we call this "Mixed." In this case we don't
+		-- check anything (to allow bbswitch to actually switch off) and set all
+		-- values to N/A and 0.
 		if __string_find(util.execute_cmd('ps -A -o comm'), 'optirun') == nil then
 			Text.set(status.value, cr, 'Mixed')
 			nvidia_off(cr)
