@@ -20,17 +20,26 @@ package.path = ABS_PATH..'/?.lua;'..
 local UPDATE_FREQUENCY = 1						--Hz
 
 CONSTRUCTION_GLOBAL = {
-	UPDATE_INTERVAL = 1 / UPDATE_FREQUENCY,
-	LEFT_X 			= 30,
-	CENTER_X 		= 376,
-	RIGHT_X 		= 1045,
-	TOP_Y			= 21,
-	SIDE_WIDTH 		= 300,
-	SIDE_HEIGHT 	= 709,
-	CENTER_WIDTH 	= 623,
-	CENTER_HEIGHT 	= 154,
-	ABS_PATH		= ABS_PATH
+	UPDATE_INTERVAL 	= 1 / UPDATE_FREQUENCY,
+	
+	LEFT_X 				= 32,
+	SECTION_WIDTH		= 436,
+	CENTER_PAD 			= 20,
+	PANEL_HORZ_SPACING 	= 10,
+	PANEL_MARGIN_X		= 20,
+	PANEL_MARGIN_Y		= 10,
+	
+	TOP_Y				= 21,
+	SIDE_HEIGHT 		= 1020,
+	CENTER_HEIGHT 		= 220,
+
+	ABS_PATH			= ABS_PATH
 }
+
+CONSTRUCTION_GLOBAL.CENTER_LEFT_X = CONSTRUCTION_GLOBAL.LEFT_X + CONSTRUCTION_GLOBAL.SECTION_WIDTH + CONSTRUCTION_GLOBAL.PANEL_MARGIN_X * 2 + CONSTRUCTION_GLOBAL.PANEL_HORZ_SPACING
+CONSTRUCTION_GLOBAL.CENTER_RIGHT_X = CONSTRUCTION_GLOBAL.CENTER_LEFT_X + CONSTRUCTION_GLOBAL.SECTION_WIDTH + CONSTRUCTION_GLOBAL.CENTER_PAD
+CONSTRUCTION_GLOBAL.CENTER_WIDTH = CONSTRUCTION_GLOBAL.SECTION_WIDTH * 2 + CONSTRUCTION_GLOBAL.CENTER_PAD
+CONSTRUCTION_GLOBAL.RIGHT_X = CONSTRUCTION_GLOBAL.CENTER_LEFT_X + CONSTRUCTION_GLOBAL.CENTER_WIDTH + CONSTRUCTION_GLOBAL.PANEL_MARGIN_X * 2 + CONSTRUCTION_GLOBAL.PANEL_HORZ_SPACING
 
 ABS_PATH = nil
 
@@ -46,7 +55,9 @@ local Network 		= require 'Network'
 local Processor 	= require 'Processor'
 local FileSystem 	= require 'FileSystem'
 local Pacman 		= require 'Pacman'
+local Power 		= require 'Power'
 local ReadWrite		= require 'ReadWrite'
+local Graphics		= require 'Graphics'
 local Memory		= require 'Memory'
 local Weather		= require 'Weather'
 
@@ -106,7 +117,7 @@ function conky_main()
 	local cw = conky_window
     if not cw then return end
     --~ print(cw.width, cw.height)	###USE THIS TO GET WIDTH AND HEIGHT OF WINDOW
-    local cs = _CAIRO_XLIB_SURFACE_CREATE(cw.display, cw.drawable, cw.visual, 1377, 778)
+    local cs = _CAIRO_XLIB_SURFACE_CREATE(cw.display, cw.drawable, cw.visual, 1920, 1080)
     local cr = _CAIRO_CREATE(cs)
 
 	updates = updates + 1
@@ -114,7 +125,8 @@ function conky_main()
 	local t1 = updates % (UPDATE_FREQUENCY * 10)
 	
 	local t2
-	if using_ac() then
+	local ac = using_ac()
+	if ac then
 		t2 = updates % (UPDATE_FREQUENCY * 60)
 	else
 		t2 = updates % (UPDATE_FREQUENCY * 300)
@@ -128,16 +140,16 @@ function conky_main()
 
 	--interface 0
 	System(cr, current_interface, log_changed)
-	Network(cr, current_interface, UPDATE_FREQUENCY)
+	Graphics(cr, current_interface)
 	Processor(cr, current_interface)
-	FileSystem(cr, current_interface, t1)
-	Pacman(cr, current_interface, log_changed)
-	ReadWrite(cr, current_interface, UPDATE_FREQUENCY)
-	Memory(cr, current_interface)
 
-	--interface 1
-	--~ USB(cr, current_interface)
-	--~ Remote(cr, current_interface, t1)
+	ReadWrite(cr, current_interface, UPDATE_FREQUENCY)
+	Network(cr, current_interface, UPDATE_FREQUENCY)
+	
+	Pacman(cr, current_interface, log_changed)
+	FileSystem(cr, current_interface, t1)
+	Power(cr, current_interface, UPDATE_FREQUENCY, ac)
+	Memory(cr, current_interface)
 
 	--interface 1
 	Weather(cr, current_interface, interface_changed)

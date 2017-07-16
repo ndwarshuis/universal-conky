@@ -15,7 +15,7 @@ local _MATH_RAD		= math.rad
 
 local _CAIRO_PATH_DESTROY = cairo_path_destroy
 
-local MODULE_Y = 397
+local MODULE_Y = 712
 
 local MEM_TOTAL = tonumber(util.read_file('/proc/meminfo', 'MemTotal:%s+(%d+)')) 	--in kB
 
@@ -44,7 +44,7 @@ local TABLE_HEIGHT = 114
 local header = Widget.Header{
 	x = CONSTRUCTION_GLOBAL.RIGHT_X,
 	y = MODULE_Y,
-	width = CONSTRUCTION_GLOBAL.SIDE_WIDTH,
+	width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 	header = "MEMORY"
 }
 
@@ -86,7 +86,7 @@ local inner_ring = Widget.Arc{
 
 local LINE_1_Y = HEADER_BOTTOM_Y + TEXT_Y_OFFSET
 local TEXT_LEFT_X = CONSTRUCTION_GLOBAL.RIGHT_X + DIAL_RADIUS * 2 + TEXT_LEFT_X_OFFSET
-local RIGHT_X = CONSTRUCTION_GLOBAL.RIGHT_X + CONSTRUCTION_GLOBAL.SIDE_WIDTH
+local RIGHT_X = CONSTRUCTION_GLOBAL.RIGHT_X + CONSTRUCTION_GLOBAL.SECTION_WIDTH
 
 local swap= {
 	label = Widget.Text{
@@ -129,7 +129,7 @@ local PLOT_Y = PLOT_SECTION_BREAK + HEADER_BOTTOM_Y + DIAL_RADIUS * 2
 local plot = Widget.LabelPlot{
 	x = CONSTRUCTION_GLOBAL.RIGHT_X,
 	y = PLOT_Y,
-	width = CONSTRUCTION_GLOBAL.SIDE_WIDTH,
+	width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 	height = PLOT_HEIGHT
 }
 
@@ -138,7 +138,7 @@ local TABLE_Y = PLOT_Y + PLOT_HEIGHT + TABLE_SECTION_BREAK
 local tbl = Widget.Table{
 	x = CONSTRUCTION_GLOBAL.RIGHT_X,
 	y = TABLE_Y,
-	width = CONSTRUCTION_GLOBAL.SIDE_WIDTH,
+	width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 	height = TABLE_HEIGHT,
 	'Name',
 	'PID',

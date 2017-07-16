@@ -5,8 +5,6 @@ local ScalePlot = require 'ScalePlot'
 local util		= require 'util'
 local schema	= require 'default_patterns'
 
-local MODULE_Y = 165
-
 local _TONUMBER 	= tonumber
 local _STRING_MATCH = string.match
 
@@ -47,19 +45,19 @@ local __io_label_function = function(bytes)
 end
 
 local header = Widget.Header{
-	x = CONSTRUCTION_GLOBAL.RIGHT_X,
-	y = MODULE_Y,
-	width = CONSTRUCTION_GLOBAL.SIDE_WIDTH,
+	x = CONSTRUCTION_GLOBAL.CENTER_LEFT_X,
+	y = CONSTRUCTION_GLOBAL.TOP_Y,
+	width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 	header = "INPUT / OUTPUT"
 }
 
 local HEADER_BOTTOM_Y = header.bottom_y
-local RIGHT_X = CONSTRUCTION_GLOBAL.RIGHT_X + CONSTRUCTION_GLOBAL.SIDE_WIDTH
+local RIGHT_X = CONSTRUCTION_GLOBAL.CENTER_LEFT_X + CONSTRUCTION_GLOBAL.SECTION_WIDTH
 local READS_PLOT_Y = header.bottom_y + PLOT_SEC_BREAK
 
 local reads = {
 	label = Widget.Text{
-		x = CONSTRUCTION_GLOBAL.RIGHT_X,
+		x = CONSTRUCTION_GLOBAL.CENTER_LEFT_X,
 		y = HEADER_BOTTOM_Y,
 		text = 'Reads',
 	},
@@ -71,9 +69,9 @@ local reads = {
 		text_color = schema.blue
 	},
 	plot = Widget.ScalePlot{
-		x = CONSTRUCTION_GLOBAL.RIGHT_X,
+		x = CONSTRUCTION_GLOBAL.CENTER_LEFT_X,
 		y = READS_PLOT_Y,
-		width = CONSTRUCTION_GLOBAL.SIDE_WIDTH,
+		width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 		height = PLOT_HEIGHT,
 		y_label_func = __io_label_function,
 	}
@@ -84,7 +82,7 @@ local WRITES_PLOT_Y = WRITE_Y + PLOT_SEC_BREAK
 
 local writes = {
 	label = Widget.Text{
-		x = CONSTRUCTION_GLOBAL.RIGHT_X,
+		x = CONSTRUCTION_GLOBAL.CENTER_LEFT_X,
 		y = WRITE_Y,
 		text = 'Writes',
 	},
@@ -96,9 +94,9 @@ local writes = {
 		text_color = schema.blue
 	},
 	plot = Widget.ScalePlot{
-		x = CONSTRUCTION_GLOBAL.RIGHT_X,
+		x = CONSTRUCTION_GLOBAL.CENTER_LEFT_X,
 		y = WRITES_PLOT_Y,
-		width = CONSTRUCTION_GLOBAL.SIDE_WIDTH,
+		width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 		height = PLOT_HEIGHT,
 		y_label_func = __io_label_function,
 	}
@@ -106,7 +104,6 @@ local writes = {
 
 Widget = nil
 schema = nil
-MODULE_Y = nil
 PLOT_SEC_BREAK = nil
 PLOT_HEIGHT = nil
 HEADER_BOTTOM_Y = nil

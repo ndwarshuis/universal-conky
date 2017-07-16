@@ -8,8 +8,6 @@ local schema	= require 'default_patterns'
 local _STRING_GMATCH = string.gmatch
 local _IO_POPEN		= io.popen
 
-local MODULE_Y = 145
-
 --construction params
 local PLOT_SEC_BREAK = 20
 local PLOT_HEIGHT = 56
@@ -29,18 +27,18 @@ local __network_label_function = function(bytes)
 end
 
 local header = Widget.Header{
-	x = CONSTRUCTION_GLOBAL.LEFT_X,
-	y = MODULE_Y,
-	width = CONSTRUCTION_GLOBAL.SIDE_WIDTH,
+	x = CONSTRUCTION_GLOBAL.CENTER_RIGHT_X,
+	y = CONSTRUCTION_GLOBAL.TOP_Y,
+	width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 	header = "NETWORK"
 }
 
-local RIGHT_X = CONSTRUCTION_GLOBAL.LEFT_X + CONSTRUCTION_GLOBAL.SIDE_WIDTH
+local RIGHT_X = CONSTRUCTION_GLOBAL.CENTER_RIGHT_X + CONSTRUCTION_GLOBAL.SECTION_WIDTH
 local DOWNLOAD_PLOT_Y = header.bottom_y + PLOT_SEC_BREAK
 
 local dnload = {
 	label = Widget.Text{
-		x = CONSTRUCTION_GLOBAL.LEFT_X,
+		x = CONSTRUCTION_GLOBAL.CENTER_RIGHT_X,
 		y = header.bottom_y,
 		text = 'Download',
 	},
@@ -51,9 +49,9 @@ local dnload = {
 		text_color = schema.blue
 	},
 	plot = Widget.ScalePlot{
-		x = CONSTRUCTION_GLOBAL.LEFT_X,
+		x = CONSTRUCTION_GLOBAL.CENTER_RIGHT_X,
 		y = DOWNLOAD_PLOT_Y,
-		width = CONSTRUCTION_GLOBAL.SIDE_WIDTH,
+		width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 		height = PLOT_HEIGHT,
 		y_label_func = __network_label_function
 	}
@@ -64,7 +62,7 @@ local UPLOAD_PLOT_Y = UPLOAD_Y + PLOT_SEC_BREAK
 
 local upload = {
 	label = Widget.Text{
-		x = CONSTRUCTION_GLOBAL.LEFT_X,
+		x = CONSTRUCTION_GLOBAL.CENTER_RIGHT_X,
 		y = UPLOAD_Y,
 		text = 'Upload',
 	},
@@ -75,9 +73,9 @@ local upload = {
 		text_color = schema.blue
 	},
 	plot = Widget.ScalePlot{
-		x = CONSTRUCTION_GLOBAL.LEFT_X,
+		x = CONSTRUCTION_GLOBAL.CENTER_RIGHT_X,
 		y = UPLOAD_PLOT_Y,
-		width = CONSTRUCTION_GLOBAL.SIDE_WIDTH,
+		width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 		height = PLOT_HEIGHT,
 		y_label_func = __network_label_function
 	}
@@ -149,7 +147,6 @@ end
 
 Widget = nil
 schema = nil
-MODULE_Y = nil
 PLOT_SEC_BREAK = nil
 PLOT_HEIGHT = nil
 RIGHT_X = nil

@@ -14,15 +14,19 @@ ob.timestamp,\
 ob.tempF,\
 ob.dewpointF,\
 ob.sky,\
+ob.visibilityMI,\
+ob.ceilingFT,\
 ob.humidity,\
 ob.pressureMB,\
 ob.windSpeedMPH,\
+ob.windGustMPH,\
 ob.windDirDEG,\
 ob.weather,\
 ob.feelslikeF,\
 ob.icon,\
 ob.sunrise,\
 ob.sunset,\
+ob.light,\
 ob.precipIN"
 
 observations="/observations%3F$o_fields"
@@ -37,7 +41,7 @@ periods.windSpeedMPH,\
 periods.icon,\
 periods.weatherPrimary"
 
-hourly="/forecasts%3Ffilter=4hr%26limit=6%26$h_fields"
+hourly="/forecasts%3Ffilter=4hr%26limit=8%26$h_fields"
 
 d_fields="fields=\
 periods.timestamp,\
@@ -50,7 +54,7 @@ periods.icon,\
 periods.windSpeedMPH,\
 periods.weatherPrimary"
 
-daily="/forecasts%3Ffrom=tomorrow%26limit=6%26$d_fields"
+daily="/forecasts%3Ffrom=tomorrow%26limit=8%26$d_fields"
 
 alerts="/alerts"
 

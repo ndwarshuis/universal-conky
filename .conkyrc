@@ -13,8 +13,8 @@ conky.config = {
 	own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
 
 	double_buffer = true,
-	minimum_width = 1377,
-	minimum_height = 778,
+	minimum_width = 1920,
+	minimum_height = 1080,
 
 	draw_shades = false,
 	draw_outline = false,

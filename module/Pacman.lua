@@ -12,7 +12,7 @@ local TEXT_SPACING = 20
 local header = Widget.Header{
 	x = CONSTRUCTION_GLOBAL.RIGHT_X,
 	y = CONSTRUCTION_GLOBAL.TOP_Y,
-	width = CONSTRUCTION_GLOBAL.SIDE_WIDTH,
+	width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 	header = "PACMAN"
 }
 
@@ -27,7 +27,7 @@ local labels = Widget.TextColumn{
 	'Local'
 }
 local info = Widget.TextColumn{
-	x 			= CONSTRUCTION_GLOBAL.RIGHT_X + CONSTRUCTION_GLOBAL.SIDE_WIDTH,
+	x 			= CONSTRUCTION_GLOBAL.RIGHT_X + CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 	y 			= header.bottom_y,
 	spacing 	= TEXT_SPACING,
 	x_align 	= 'right',

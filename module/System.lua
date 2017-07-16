@@ -19,7 +19,7 @@ local TEXT_SPACING = 20
 local header = Widget.Header{
 	x = CONSTRUCTION_GLOBAL.LEFT_X,
 	y = CONSTRUCTION_GLOBAL.TOP_Y,
-	width = CONSTRUCTION_GLOBAL.SIDE_WIDTH,
+	width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 	header = "SYSTEM"
 }
 
@@ -33,7 +33,7 @@ local labels = Widget.TextColumn{
 	'Last Sync'
 }
 local info = Widget.TextColumn{
-	x 			= CONSTRUCTION_GLOBAL.LEFT_X + CONSTRUCTION_GLOBAL.SIDE_WIDTH,
+	x 			= CONSTRUCTION_GLOBAL.LEFT_X + CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 	y 			= header.bottom_y,
 	spacing 	= TEXT_SPACING,
 	x_align 	= 'right',

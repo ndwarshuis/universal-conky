@@ -16,21 +16,21 @@ local _OS_EXECUTE	= os.execute
 local TIME_FORMAT = '%-I:%M %p'
 local DATE_FORMAT = '%A'
 
-local SECTIONS = 6
+local SECTIONS = 8
 local WEATHER_UPDATE_INTERVAL = 900
 
 local WEATHER_PATH = '/tmp/weather.json'
 local ICON_PATH = CONSTRUCTION_GLOBAL.ABS_PATH .. '/images/weather/'
 local RECENTLY_UPDATED_PATH = '/tmp/weather_recently_updated'
-local NA = "N/A"
+local NA = 'N/A'
 local NA_IMAGE_PATH = ICON_PATH .. 'na.png'
 
 --construction params
 local SPACING = 20
 local HEADER_PAD = 20
 local ICON_PAD = 20
-local ICON_SIDE_LENGTH = 65
-local TEMP_SECTION_WIDTH = 140
+local ICON_SIDE_LENGTH = 75
+local TEMP_SECTION_WIDTH = 220
 local SECTION_HEIGHT = HEADER_PAD + ICON_SIDE_LENGTH + 30
 
 local __create_side_section = function(x_offset, y_offset, section_table)
@@ -46,17 +46,17 @@ local __create_side_section = function(x_offset, y_offset, section_table)
 		}
 		
 		current_widget.period = Widget.Text{
-			x = x_offset + CONSTRUCTION_GLOBAL.SIDE_WIDTH,
-			y = current_y,
-			x_align = 'right',
-			text_color = schema.blue
+			x 			= x_offset + CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+			y 			= current_y,
+			x_align 	= 'right',
+			text_color 	= schema.blue
 		}
 		
 		current_widget.icon = Widget.ScaledImage{
-			x = x_offset,
-			y = current_y + HEADER_PAD,
-			width = ICON_SIDE_LENGTH,
-			height = ICON_SIDE_LENGTH
+			x 		= x_offset,
+			y 		= current_y + HEADER_PAD,
+			width 	= ICON_SIDE_LENGTH,
+			height 	= ICON_SIDE_LENGTH
 		}
 
 		current_widget.temp1 = Widget.Text{
@@ -64,7 +64,7 @@ local __create_side_section = function(x_offset, y_offset, section_table)
 			y 			= current_y + HEADER_PAD + 20,
 			x_align		= 'center',
 			font_size 	= 28,
-			text_color = schema.blue
+			text_color 	= schema.blue
 		}
 		
 		current_widget.temp2 = Widget.Text{
@@ -84,7 +84,7 @@ local __create_side_section = function(x_offset, y_offset, section_table)
 		}
 		
 		current_widget.info_column = Widget.TextColumn{
-			x = x_offset + CONSTRUCTION_GLOBAL.SIDE_WIDTH,
+			x = x_offset + CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 			y = current_y + HEADER_PAD + 10,
 			spacing = SPACING,
 			x_align = 'right',
@@ -99,7 +99,7 @@ local __create_side_section = function(x_offset, y_offset, section_table)
 					y = current_y + SECTION_HEIGHT - 18
 				},
 				p2 = {
-					x = x_offset + CONSTRUCTION_GLOBAL.SIDE_WIDTH,
+					x = x_offset + CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 					y = current_y + SECTION_HEIGHT - 18
 				},
 				line_pattern = schema.mid_grey
@@ -113,8 +113,8 @@ local left = {
 	header = Widget.Header{
 		x = CONSTRUCTION_GLOBAL.LEFT_X,
 		y = CONSTRUCTION_GLOBAL.TOP_Y,
-		width = CONSTRUCTION_GLOBAL.SIDE_WIDTH,
-		header = "HOURLY FORECAST"
+		width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+		header = 'HOURLY FORECAST'
 	},
 	hours = {}
 }
@@ -125,96 +125,104 @@ __create_side_section(CONSTRUCTION_GLOBAL.LEFT_X, left.header.bottom_y, left.hou
 local center = {}
 
 center.header = Widget.Header{
-	x = CONSTRUCTION_GLOBAL.CENTER_X,
+	x = CONSTRUCTION_GLOBAL.CENTER_LEFT_X,
 	y = CONSTRUCTION_GLOBAL.TOP_Y,
 	width = CONSTRUCTION_GLOBAL.CENTER_WIDTH,
-	header = "CURRENT CONDITIONS"
+	header = 'CURRENT CONDITIONS'
 }
 
 center.current_desc = Widget.Text{
-	x 			= CONSTRUCTION_GLOBAL.CENTER_X,
-	y 			= center.header.bottom_y,
-	text_color 	= schema.blue
+	x 			= CONSTRUCTION_GLOBAL.CENTER_LEFT_X,
+	y 			= center.header.bottom_y + 8,
+	text_color 	= schema.blue,
+	font_size	= 24
 }
 
-local CENTER_SPACING = SPACING + 5
-local INFO_Y = center.header.bottom_y + CENTER_SPACING
+local CENTER_X_1 = CONSTRUCTION_GLOBAL.CENTER_LEFT_X + CONSTRUCTION_GLOBAL.SECTION_WIDTH * 0.25
+local CENTER_ICON_WIDTH = 120
+local CENTER_ICON_Y = center.header.bottom_y + 105 - CENTER_ICON_WIDTH / 2
 
 center.icon = Widget.ScaledImage{
-	x = CONSTRUCTION_GLOBAL.CENTER_X,
-	y = INFO_Y,
-	width = ICON_SIDE_LENGTH,
-	height = ICON_SIDE_LENGTH
+	x = CENTER_X_1 - CENTER_ICON_WIDTH / 2,
+	y = CENTER_ICON_Y,
+	width = CENTER_ICON_WIDTH,
+	height = CENTER_ICON_WIDTH
 }
 
-local TEXT_1_PAD = 80
-local TEXT_1_X = CONSTRUCTION_GLOBAL.CENTER_X + ICON_SIDE_LENGTH + TEXT_1_PAD
+local CENTER_X_2 = CONSTRUCTION_GLOBAL.CENTER_LEFT_X + CONSTRUCTION_GLOBAL.SECTION_WIDTH * 0.70
+local INFO_Y = center.header.bottom_y + 70
 
 center.current_temp = Widget.Text{
-	x 			= TEXT_1_X,
-	y 			= INFO_Y + 11,
+	x 			= CENTER_X_2,
+	y 			= INFO_Y,
 	x_align 	= 'center',
-	font_size 	= 32,
+	font_size 	= 48,
 	text_color 	= schema.blue
 }
 
 center.obs_time = Widget.Text{
-	x 				= TEXT_1_X,
-	y 				= INFO_Y + 39,
-	x_align 		= 'center',
-	font_size 		= 11,
+	x 			= CENTER_X_2,
+	y 			= INFO_Y + 42,
+	x_align 	= 'center',
+	font_size 	= 12,
 }
 
 center.place = Widget.Text{
-	x 				= TEXT_1_X,
-	y 				= INFO_Y + 57,
-	x_align 		= 'center',
-	font_size 		= 11,
+	x 			= CENTER_X_2,
+	y 			= INFO_Y + 66,
+	x_align 	= 'center',
+	font_size 	= 12,
 }
 
-local COLUMN_WIDTH = 189
-local LABEL_COLUMN_1_X = TEXT_1_X + TEXT_1_PAD
+local COLUMN_PADDING = 15
+local CENTER_SPACING = SPACING + 7
 
 center.label_column_1 = Widget.TextColumn{
-	x 		= LABEL_COLUMN_1_X,
-	y 		= center.header.bottom_y,
-	spacing = CENTER_SPACING,
+	x 			= CONSTRUCTION_GLOBAL.CENTER_RIGHT_X,
+	y 			= center.header.bottom_y,
+	spacing 	= CENTER_SPACING,
+	font_size 	= 14,
 	'Feels Like',
 	'Dewpoint',
-	'Sky Coverage',
 	'Humidity',
+	'Sky Coverage',
+	'Visibility',
+	'Ceiling',
 	'Precipitation'
 }
 
 center.info_column_1 = Widget.TextColumn{
-	x 			= LABEL_COLUMN_1_X + COLUMN_WIDTH,
+	x 			= CONSTRUCTION_GLOBAL.CENTER_RIGHT_X + (CONSTRUCTION_GLOBAL.SECTION_WIDTH - COLUMN_PADDING) / 2,
 	y 			= center.header.bottom_y,
 	x_align 	= 'right',
 	text_color 	= schema.blue,
 	spacing 	= CENTER_SPACING,
-	num_rows 	= 5
+	font_size 	= 14,
+	num_rows 	= 7
 }
 
-local LABEL_COLUMN_2_X = LABEL_COLUMN_1_X + COLUMN_WIDTH + 20
-
 center.label_column_2 = Widget.TextColumn{
-	x = LABEL_COLUMN_2_X,
-	y = center.header.bottom_y,
+	x 		= CONSTRUCTION_GLOBAL.CENTER_RIGHT_X + (CONSTRUCTION_GLOBAL.SECTION_WIDTH + COLUMN_PADDING) / 2,
+	y 		= center.header.bottom_y,
 	spacing = CENTER_SPACING,
+	font_size 	= 14,
 	'WindSpd',
+	'WindGust',
 	'WindDir',
 	'Pressure',
 	'Sunrise',
-	'Sunset'
+	'Sunset',
+	'Light Rate'
 }
 
 center.info_column_2 = Widget.TextColumn{
-	x 		= LABEL_COLUMN_2_X + COLUMN_WIDTH,
+	x 		= CONSTRUCTION_GLOBAL.CENTER_RIGHT_X + CONSTRUCTION_GLOBAL.SECTION_WIDTH,
 	y 		= center.header.bottom_y,
 	x_align 	= 'right',
 	text_color 	= schema.blue,
 	spacing 	= CENTER_SPACING,
-	num_rows 	= 5
+	font_size 	= 14,
+	num_rows 	= 7
 }
 
 --RIGHT
@@ -223,8 +231,8 @@ local right = {
 	header = Widget.Header{
 		x = CONSTRUCTION_GLOBAL.RIGHT_X,
 		y = CONSTRUCTION_GLOBAL.TOP_Y,
-		width = CONSTRUCTION_GLOBAL.SIDE_WIDTH,
-		header = "6 DAY FORECAST"
+		width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+		header = '8 DAY FORECAST'
 	},
 	days = {}
 }
@@ -263,8 +271,9 @@ local __populate_section = function(current_section, cr, desc, period, icon_path
 	TextColumn.set(current_section.info_column, cr, 3, wind or NA)
 end
 
-local __populate_center = function(center_section, cr, desc, icon_path, temp, obs_time, place, feels_like,
-  dewpoint, coverage, humidity, precip, wind, pressure, visibility, sunrise, sunset)
+local __populate_center = function(center_section, cr, desc, icon_path, temp,
+  obs_time, place, feels_like, dewpoint, humidity, coverage, visibility, ceiling,
+  precip, wind_spd, wind_gust_spd, wind_dir, pressure, sunrise, sunset, light)
   
 	if desc then
 		Text.set(center_section.current_desc, cr, Text.trim_to_length(desc, 20))
@@ -282,17 +291,21 @@ local __populate_center = function(center_section, cr, desc, icon_path, temp, ob
 
 	TextColumn.set(info_column_1, cr, 1, feels_like or NA)
 	TextColumn.set(info_column_1, cr, 2, dewpoint or NA)
-	TextColumn.set(info_column_1, cr, 3, coverage or NA)
-	TextColumn.set(info_column_1, cr, 4, humidity or NA)
-	TextColumn.set(info_column_1, cr, 5, precip or NA)
+	TextColumn.set(info_column_1, cr, 3, humidity or NA)
+	TextColumn.set(info_column_1, cr, 4, coverage or NA)
+	TextColumn.set(info_column_1, cr, 5, visibility or NA)
+	TextColumn.set(info_column_1, cr, 6, ceiling or NA)
+	TextColumn.set(info_column_1, cr, 7, precip or NA)
 
 	local info_column_2 = center_section.info_column_2
 
-	TextColumn.set(info_column_2, cr, 1, wind or NA)
-	TextColumn.set(info_column_2, cr, 2, pressure or NA)
-	TextColumn.set(info_column_2, cr, 3, visibility or NA)
-	TextColumn.set(info_column_2, cr, 4, sunrise or NA)
-	TextColumn.set(info_column_2, cr, 5, sunset or NA)
+	TextColumn.set(info_column_2, cr, 1, wind_spd or NA)
+	TextColumn.set(info_column_2, cr, 2, wind_gust_spd or NA)
+	TextColumn.set(info_column_2, cr, 3, wind_dir or NA)
+	TextColumn.set(info_column_2, cr, 4, pressure or NA)
+	TextColumn.set(info_column_2, cr, 5, sunrise or NA)
+	TextColumn.set(info_column_2, cr, 6, sunset or NA)
+	TextColumn.set(info_column_2, cr, 7, light or NA)
 end
 
 local __update_interface = function(cr)
@@ -359,14 +372,18 @@ local __update_interface = function(cr)
 				place,
 				ob.feelslikeF and ob.feelslikeF..'°F',
 				ob.dewpointF and ob.dewpointF..'°F',
-				ob.sky and ob.sky..' %',
 				ob.humidity and ob.humidity..' %',
+				ob.sky and ob.sky..' %',
+				ob.visibilityMI and ob.visibilityMI..' mi',
+				ob.ceilingFT and ob.ceilingFT..' ft',
 				ob.precipIN and ob.precipIN..' in',
 				ob.windSpeedMPH and ob.windSpeedMPH..' mph',
+				ob.windGustMPH and ob.windGustMPH..' mph',
 				ob.windDirDEG and ob.windDirDEG..' deg',
 				ob.pressureMB and ob.pressureMB..' mbar',
 				ob.sunrise and util.convert_unix_time(ob.sunrise, TIME_FORMAT),
-				ob.sunset and util.convert_unix_time(ob.sunset, TIME_FORMAT)
+				ob.sunset and util.convert_unix_time(ob.sunset, TIME_FORMAT),
+				ob.light and ob.light..' %'
 			)
 
 			--RIGHT
