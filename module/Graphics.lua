@@ -17,17 +17,17 @@ local PLOT_SEC_BREAK = 20
 local PLOT_HEIGHT = 56
 
 local header = Widget.Header{
-	x = CONSTRUCTION_GLOBAL.LEFT_X,
+	x = G_DIMENSIONS_.LEFT_X,
 	y = MODULE_Y,
-	width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+	width = G_DIMENSIONS_.SECTION_WIDTH,
 	header = 'NVIDIA GRAPHICS'
 }
 
-local RIGHT_X = CONSTRUCTION_GLOBAL.LEFT_X + CONSTRUCTION_GLOBAL.SECTION_WIDTH
+local RIGHT_X = G_DIMENSIONS_.LEFT_X + G_DIMENSIONS_.SECTION_WIDTH
 
 local status = {
 	label = Widget.Text{
-		x 		= CONSTRUCTION_GLOBAL.LEFT_X,
+		x 		= G_DIMENSIONS_.LEFT_X,
 		y 		= header.bottom_y,
 		text    = 'Status'
 	},
@@ -43,7 +43,7 @@ local status = {
 local SEP_Y_1 = header.bottom_y + SEPARATOR_SPACING
 
 local separator1 = Widget.Line{
-	p1 = {x = CONSTRUCTION_GLOBAL.LEFT_X, y = SEP_Y_1},
+	p1 = {x = G_DIMENSIONS_.LEFT_X, y = SEP_Y_1},
 	p2 = {x = RIGHT_X, y = SEP_Y_1}
 }
 
@@ -51,7 +51,7 @@ local INTERNAL_TEMP_Y = SEP_Y_1 + SEPARATOR_SPACING
 
 local internal_temp = {
 	label = Widget.Text{
-		x 		= CONSTRUCTION_GLOBAL.LEFT_X,
+		x 		= G_DIMENSIONS_.LEFT_X,
 		y 		= INTERNAL_TEMP_Y,
 		text    = 'Internal Temperature'
 	},
@@ -68,7 +68,7 @@ local PCI_UTIL_Y = INTERNAL_TEMP_Y + TEXT_SPACING
 
 local pci_util = {
 	label = Widget.Text{
-		x 		= CONSTRUCTION_GLOBAL.LEFT_X,
+		x 		= G_DIMENSIONS_.LEFT_X,
 		y 		= PCI_UTIL_Y,
 		text    = 'PCI Utilization'
 	},
@@ -84,7 +84,7 @@ local pci_util = {
 local SEP_Y_2 = PCI_UTIL_Y + SEPARATOR_SPACING
 
 local separator2 = Widget.Line{
-	p1 = {x = CONSTRUCTION_GLOBAL.LEFT_X, y = SEP_Y_2},
+	p1 = {x = G_DIMENSIONS_.LEFT_X, y = SEP_Y_2},
 	p2 = {x = RIGHT_X, y = SEP_Y_2}
 }
 
@@ -92,14 +92,14 @@ local CLOCK_SPEED_Y = SEP_Y_2 + SEPARATOR_SPACING
 
 local clock_speed = {
 	labels = Widget.TextColumn{
-		x 		= CONSTRUCTION_GLOBAL.LEFT_X,
+		x 		= G_DIMENSIONS_.LEFT_X,
 		y 		= CLOCK_SPEED_Y,
 		spacing = TEXT_SPACING,
 		'GPU Clock Speed',
 		'Memory Clock Speed'
 	},
 	values = Widget.TextColumn{
-		x 			= CONSTRUCTION_GLOBAL.LEFT_X + CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+		x 			= G_DIMENSIONS_.LEFT_X + G_DIMENSIONS_.SECTION_WIDTH,
 		y 			= CLOCK_SPEED_Y,
 		spacing 	= TEXT_SPACING,
 		x_align 	= 'right',
@@ -111,7 +111,7 @@ local clock_speed = {
 local SEP_Y_3 = CLOCK_SPEED_Y + TEXT_SPACING * 2
 
 local separator3 = Widget.Line{
-	p1 = {x = CONSTRUCTION_GLOBAL.LEFT_X, y = SEP_Y_3},
+	p1 = {x = G_DIMENSIONS_.LEFT_X, y = SEP_Y_3},
 	p2 = {x = RIGHT_X, y = SEP_Y_3}
 }
 
@@ -120,7 +120,7 @@ local GPU_UTIL_PLOT_Y = GPU_UTIL_Y + PLOT_SEC_BREAK
 
 local gpu_util = {
 	label = Widget.Text{
-		x 		= CONSTRUCTION_GLOBAL.LEFT_X,
+		x 		= G_DIMENSIONS_.LEFT_X,
 		y 		= GPU_UTIL_Y,
 		text    = 'GPU Utilization'
 	},
@@ -132,9 +132,9 @@ local gpu_util = {
 		text        = '<gpu_util>'
 	},
 	plot = Widget.LabelPlot{
-		x		= CONSTRUCTION_GLOBAL.LEFT_X,
+		x		= G_DIMENSIONS_.LEFT_X,
 		y		= GPU_UTIL_PLOT_Y,
-		width	= CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+		width	= G_DIMENSIONS_.SECTION_WIDTH,
 		height	= PLOT_HEIGHT
 	}
 }
@@ -144,7 +144,7 @@ local MEM_UTIL_PLOT_Y = MEM_UTIL_Y + PLOT_SEC_BREAK
 
 local mem_util = {
 	label = Widget.Text{
-		x 		= CONSTRUCTION_GLOBAL.LEFT_X,
+		x 		= G_DIMENSIONS_.LEFT_X,
 		y 		= MEM_UTIL_Y,
 		text    = 'Memory Utilization'
 	},
@@ -156,9 +156,9 @@ local mem_util = {
 		text        = '<mem_util>'
 	},
 	plot = Widget.LabelPlot{
-		x 		= CONSTRUCTION_GLOBAL.LEFT_X,
+		x 		= G_DIMENSIONS_.LEFT_X,
 		y 		= MEM_UTIL_PLOT_Y,
-		width 	= CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+		width 	= G_DIMENSIONS_.SECTION_WIDTH,
 		height 	= PLOT_HEIGHT
 	}
 }
@@ -168,7 +168,7 @@ local VID_UTIL_PLOT_Y = VID_UTIL_Y + PLOT_SEC_BREAK
 
 local vid_util = {
 	label = Widget.Text{
-		x 		= CONSTRUCTION_GLOBAL.LEFT_X,
+		x 		= G_DIMENSIONS_.LEFT_X,
 		y 		= VID_UTIL_Y,
 		text    = 'Video Utilization'
 	},
@@ -180,9 +180,9 @@ local vid_util = {
 		text        = '<vid_util>'
 	},
 	plot = Widget.LabelPlot{
-		x 		= CONSTRUCTION_GLOBAL.LEFT_X,
+		x 		= G_DIMENSIONS_.LEFT_X,
 		y 		= VID_UTIL_PLOT_Y,
-		width 	= CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+		width 	= G_DIMENSIONS_.SECTION_WIDTH,
 		height 	= PLOT_HEIGHT
 	}
 }

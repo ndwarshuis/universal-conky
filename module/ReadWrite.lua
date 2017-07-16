@@ -45,19 +45,19 @@ local __io_label_function = function(bytes)
 end
 
 local header = Widget.Header{
-	x = CONSTRUCTION_GLOBAL.CENTER_LEFT_X,
-	y = CONSTRUCTION_GLOBAL.TOP_Y,
-	width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+	x = G_DIMENSIONS_.CENTER_LEFT_X,
+	y = G_DIMENSIONS_.TOP_Y,
+	width = G_DIMENSIONS_.SECTION_WIDTH,
 	header = "INPUT / OUTPUT"
 }
 
 local HEADER_BOTTOM_Y = header.bottom_y
-local RIGHT_X = CONSTRUCTION_GLOBAL.CENTER_LEFT_X + CONSTRUCTION_GLOBAL.SECTION_WIDTH
+local RIGHT_X = G_DIMENSIONS_.CENTER_LEFT_X + G_DIMENSIONS_.SECTION_WIDTH
 local READS_PLOT_Y = header.bottom_y + PLOT_SEC_BREAK
 
 local reads = {
 	label = Widget.Text{
-		x = CONSTRUCTION_GLOBAL.CENTER_LEFT_X,
+		x = G_DIMENSIONS_.CENTER_LEFT_X,
 		y = HEADER_BOTTOM_Y,
 		text = 'Reads',
 	},
@@ -69,9 +69,9 @@ local reads = {
 		text_color = schema.blue
 	},
 	plot = Widget.ScalePlot{
-		x = CONSTRUCTION_GLOBAL.CENTER_LEFT_X,
+		x = G_DIMENSIONS_.CENTER_LEFT_X,
 		y = READS_PLOT_Y,
-		width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+		width = G_DIMENSIONS_.SECTION_WIDTH,
 		height = PLOT_HEIGHT,
 		y_label_func = __io_label_function,
 	}
@@ -82,7 +82,7 @@ local WRITES_PLOT_Y = WRITE_Y + PLOT_SEC_BREAK
 
 local writes = {
 	label = Widget.Text{
-		x = CONSTRUCTION_GLOBAL.CENTER_LEFT_X,
+		x = G_DIMENSIONS_.CENTER_LEFT_X,
 		y = WRITE_Y,
 		text = 'Writes',
 	},
@@ -94,9 +94,9 @@ local writes = {
 		text_color = schema.blue
 	},
 	plot = Widget.ScalePlot{
-		x = CONSTRUCTION_GLOBAL.CENTER_LEFT_X,
+		x = G_DIMENSIONS_.CENTER_LEFT_X,
 		y = WRITES_PLOT_Y,
-		width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+		width = G_DIMENSIONS_.SECTION_WIDTH,
 		height = PLOT_HEIGHT,
 		y_label_func = __io_label_function,
 	}

@@ -82,9 +82,9 @@ local CREATE_CORE = function(cores, id, x, y)
 end
 
 local header = Widget.Header{
-	x = CONSTRUCTION_GLOBAL.LEFT_X,
+	x = G_DIMENSIONS_.LEFT_X,
 	y = MODULE_Y,
-	width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+	width = G_DIMENSIONS_.SECTION_WIDTH,
 	header = "PROCESSOR"
 }
 
@@ -94,17 +94,17 @@ local HEADER_BOTTOM_Y = header.bottom_y
 local cores = {}
 
 for c = 0, NUM_PHYSICAL_CORES - 1 do
-	local dial_x = CONSTRUCTION_GLOBAL.LEFT_X + DIAL_OUTER_RADIUS + (CONSTRUCTION_GLOBAL.SECTION_WIDTH - 2 * DIAL_OUTER_RADIUS) * c / 3
+	local dial_x = G_DIMENSIONS_.LEFT_X + DIAL_OUTER_RADIUS + (G_DIMENSIONS_.SECTION_WIDTH - 2 * DIAL_OUTER_RADIUS) * c / 3
 	CREATE_CORE(cores, c, dial_x, HEADER_BOTTOM_Y + DIAL_OUTER_RADIUS)
 end
 
-local RIGHT_X = CONSTRUCTION_GLOBAL.LEFT_X + CONSTRUCTION_GLOBAL.SECTION_WIDTH
+local RIGHT_X = G_DIMENSIONS_.LEFT_X + G_DIMENSIONS_.SECTION_WIDTH
 
 local PROCESS_Y = HEADER_BOTTOM_Y + DIAL_OUTER_RADIUS * 2 + PLOT_SECTION_BREAK
 
 local process = {
 	labels = Widget.Text{
-		x 		= CONSTRUCTION_GLOBAL.LEFT_X,
+		x 		= G_DIMENSIONS_.LEFT_X,
 		y 		= PROCESS_Y,
 		text    = 'R | S | D | T | Z'
 	},
@@ -120,7 +120,7 @@ local process = {
 local SEP_Y = PROCESS_Y + SEPARATOR_SPACING
 
 local separator = Widget.Line{
-	p1 = {x = CONSTRUCTION_GLOBAL.LEFT_X, y = SEP_Y},
+	p1 = {x = G_DIMENSIONS_.LEFT_X, y = SEP_Y},
 	p2 = {x = RIGHT_X, y = SEP_Y}
 }
 
@@ -128,7 +128,7 @@ local LOAD_Y = SEP_Y + SEPARATOR_SPACING
 
 local total_load = {
 	label = Widget.Text{
-		x    = CONSTRUCTION_GLOBAL.LEFT_X,
+		x    = G_DIMENSIONS_.LEFT_X,
 		y    = LOAD_Y,
 		text = 'Total Load'
 	},
@@ -144,18 +144,18 @@ local total_load = {
 local PLOT_Y = LOAD_Y + PLOT_SECTION_BREAK
 
 local plot = Widget.LabelPlot{
-	x 		= CONSTRUCTION_GLOBAL.LEFT_X,
+	x 		= G_DIMENSIONS_.LEFT_X,
 	y 		= PLOT_Y,
-	width 	= CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+	width 	= G_DIMENSIONS_.SECTION_WIDTH,
 	height 	= PLOT_HEIGHT
 }
 
 local TABLE_Y = PLOT_Y + PLOT_HEIGHT + TABLE_SECTION_BREAK
 
 local tbl = Widget.Table{
-	x 		 = CONSTRUCTION_GLOBAL.LEFT_X,
+	x 		 = G_DIMENSIONS_.LEFT_X,
 	y 		 = TABLE_Y,
-	width 	 = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+	width 	 = G_DIMENSIONS_.SECTION_WIDTH,
 	height 	 = TABLE_HEIGHT,
 	num_rows = NUM_ROWS,
 	'Name',

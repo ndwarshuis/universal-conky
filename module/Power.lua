@@ -25,17 +25,17 @@ local __calculate_power = function(cr, prev_cnt, cnt, update_frequency)
 end
 
 local header = Widget.Header{
-	x = CONSTRUCTION_GLOBAL.RIGHT_X,
+	x = G_DIMENSIONS_.RIGHT_X,
 	y = MODULE_Y,
-	width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+	width = G_DIMENSIONS_.SECTION_WIDTH,
 	header = 'POWER'
 }
 
-local RIGHT_X = CONSTRUCTION_GLOBAL.RIGHT_X + CONSTRUCTION_GLOBAL.SECTION_WIDTH
+local RIGHT_X = G_DIMENSIONS_.RIGHT_X + G_DIMENSIONS_.SECTION_WIDTH
 
 local pp01 = {
 	labels = Widget.TextColumn{
-		x 		= CONSTRUCTION_GLOBAL.RIGHT_X,
+		x 		= G_DIMENSIONS_.RIGHT_X,
 		y 		= header.bottom_y,
 		spacing	= TEXT_SPACING,
 		'Core',
@@ -55,7 +55,7 @@ local pp01 = {
 local SEP_Y = header.bottom_y + TEXT_SPACING + SEPARATOR_SPACING
 
 local separator = Widget.Line{
-	p1 = {x = CONSTRUCTION_GLOBAL.RIGHT_X, y = SEP_Y},
+	p1 = {x = G_DIMENSIONS_.RIGHT_X, y = SEP_Y},
 	p2 = {x = RIGHT_X, y = SEP_Y}
 }
 
@@ -63,7 +63,7 @@ local PKG0_Y = SEP_Y + SEPARATOR_SPACING
 
 local pkg0 = {
 	label = Widget.Text{
-		x 		= CONSTRUCTION_GLOBAL.RIGHT_X,
+		x 		= G_DIMENSIONS_.RIGHT_X,
 		y 		= PKG0_Y,
 		text    = 'PKG 0'
 	},
@@ -76,9 +76,9 @@ local pkg0 = {
 		append_end	= ' W'
 	},
 	plot = Widget.ScalePlot{
-		x = CONSTRUCTION_GLOBAL.RIGHT_X,
+		x = G_DIMENSIONS_.RIGHT_X,
 		y = PKG0_Y + PLOT_SEC_BREAK,
-		width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+		width = G_DIMENSIONS_.SECTION_WIDTH,
 		height = PLOT_HEIGHT,
 		y_label_func = __power_label_function,
 	}
@@ -88,7 +88,7 @@ local DRAM_Y = PKG0_Y + PLOT_SEC_BREAK * 2 + PLOT_HEIGHT
 
 local dram = {
 	label = Widget.Text{
-		x 		= CONSTRUCTION_GLOBAL.RIGHT_X,
+		x 		= G_DIMENSIONS_.RIGHT_X,
 		y 		= DRAM_Y,
 		text    = 'DRAM'
 	},
@@ -101,9 +101,9 @@ local dram = {
 		append_end	= ' W'
 	},
 	plot = Widget.ScalePlot{
-		x = CONSTRUCTION_GLOBAL.RIGHT_X,
+		x = G_DIMENSIONS_.RIGHT_X,
 		y = DRAM_Y + PLOT_SEC_BREAK,
-		width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+		width = G_DIMENSIONS_.SECTION_WIDTH,
 		height = PLOT_HEIGHT,
 		y_label_func = __power_label_function,
 	}
@@ -113,7 +113,7 @@ local BATTERY_DRAW_Y = DRAM_Y + PLOT_SEC_BREAK * 2 + PLOT_HEIGHT
 
 local battery_draw = {
 	label = Widget.Text{
-		x 		= CONSTRUCTION_GLOBAL.RIGHT_X,
+		x 		= G_DIMENSIONS_.RIGHT_X,
 		y 		= BATTERY_DRAW_Y,
 		spacing = TEXT_SPACING,
 		text	= 'Battery Draw'
@@ -124,9 +124,9 @@ local battery_draw = {
 		x_align 	= 'right',
 	},
 	plot = Widget.ScalePlot{
-		x = CONSTRUCTION_GLOBAL.RIGHT_X,
+		x = G_DIMENSIONS_.RIGHT_X,
 		y = BATTERY_DRAW_Y + PLOT_SEC_BREAK,
-		width = CONSTRUCTION_GLOBAL.SECTION_WIDTH,
+		width = G_DIMENSIONS_.SECTION_WIDTH,
 		height = PLOT_HEIGHT,
 		y_label_func = __power_label_function,
 	}
