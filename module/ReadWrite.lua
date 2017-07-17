@@ -23,16 +23,20 @@ local read_stat_file = function()
 end
 
 local update_stat = function(cr, stat, byte_cnt, update_frequency)
-	local bytes = (byte_cnt - stat.prev_byte_cnt) * update_frequency
+	local delta_bytes = byte_cnt - stat.prev_byte_cnt
 	stat.prev_byte_cnt = byte_cnt
 	
-	if bytes < 0 then bytes = 0 end
-
-	local unit = util.get_unit(bytes)
-	
-	stat.rate.append_end = ' '..unit..'/s'
-	Text.set(stat.rate, cr, util.precision_convert_bytes(bytes, 'B', unit, 3))
-	ScalePlot.update(stat.plot, cr, bytes)	
+	if delta_bytes > 0 then
+		local bps = delta_bytes / update_frequency
+		local unit = util.get_unit(bps)
+		stat.rate.append_end = ' '..unit..'/s'
+		Text.set(stat.rate, cr, util.precision_convert_bytes(bps, 'B', unit, 3))
+		ScalePlot.update(stat.plot, cr, bps)	
+	else
+		stat.rate.append_end = ' B/s'
+		Text.set(stat.rate, cr, '0.00')
+		ScalePlot.update(stat.plot, cr, 0)	
+	end
 end
 
 local io_label_function = function(bytes)
