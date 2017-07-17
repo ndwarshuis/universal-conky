@@ -5,27 +5,28 @@ local ScalePlot = require 'ScalePlot'
 local util		= require 'util'
 local schema	= require 'default_patterns'
 
-local _TONUMBER 	= tonumber
-local _STRING_MATCH = string.match
+local __tonumber 	= tonumber
+local __string_match = string.match
 
-local HW_BLOCK_SIZE = 512 											--bytes
+local _PLOT_SEC_BREAK_ = 20
+local _PLOT_HEIGHT_ = 56
+
+local BLOCK_SIZE_BYTES = 512
 local STAT_FILE = '/sys/block/sda/stat'
-local RW_REGEX = '%s+%d+%s+%d+%s+(%d+)%s+%d+%s+%d+%s+%d+%s+(%d+)'	--fields 3 and 7 (sectors read and written)
 
---construction params
-local PLOT_SEC_BREAK = 20
-local PLOT_HEIGHT = 56
+-- fields 3 and 7 (sectors read and written)
+local RW_REGEX = '%s+%d+%s+%d+%s+(%d+)%s+%d+%s+%d+%s+%d+%s+(%d+)'
 
-local __read_stat_file = function()
-	local bytes_read, bytes_written = _STRING_MATCH(util.read_file(STAT_FILE), RW_REGEX)
-	return _TONUMBER(bytes_read) * HW_BLOCK_SIZE, _TONUMBER(bytes_written) * HW_BLOCK_SIZE
+local read_stat_file = function()
+	local bytes_r, bytes_w = __string_match(util.read_file(STAT_FILE), RW_REGEX)
+	return __tonumber(bytes_r) * BLOCK_SIZE_BYTES, __tonumber(bytes_w) * BLOCK_SIZE_BYTES
 end
 
-local __update_stat = function(cr, stat, cumulative, update_frequency)
-	local bytes = (cumulative - stat.prev_cumulative) * update_frequency
-	stat.prev_cumulative = cumulative
+local update_stat = function(cr, stat, byte_cnt, update_frequency)
+	local bytes = (byte_cnt - stat.prev_byte_cnt) * update_frequency
+	stat.prev_byte_cnt = byte_cnt
 	
-	if bytes < 0 then bytes = 0 end  --mask wrap
+	if bytes < 0 then bytes = 0 end
 
 	local unit = util.get_unit(bytes)
 	
@@ -34,7 +35,7 @@ local __update_stat = function(cr, stat, cumulative, update_frequency)
 	ScalePlot.update(stat.plot, cr, bytes)	
 end
 
-local __io_label_function = function(bytes)
+local io_label_function = function(bytes)
 	local new_unit = util.get_unit(bytes)
 	
 	local converted = util.convert_bytes(bytes, 'B', new_unit)
@@ -48,82 +49,76 @@ local header = Widget.Header{
 	x = _G_INIT_DATA_.CENTER_LEFT_X,
 	y = _G_INIT_DATA_.TOP_Y,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
-	header = "INPUT / OUTPUT"
+	header = 'INPUT / OUTPUT'
 }
 
-local HEADER_BOTTOM_Y = header.bottom_y
-local RIGHT_X = _G_INIT_DATA_.CENTER_LEFT_X + _G_INIT_DATA_.SECTION_WIDTH
-local READS_PLOT_Y = header.bottom_y + PLOT_SEC_BREAK
+local _RIGHT_X_ = _G_INIT_DATA_.CENTER_LEFT_X + _G_INIT_DATA_.SECTION_WIDTH
 
 local reads = {
 	label = Widget.Text{
 		x = _G_INIT_DATA_.CENTER_LEFT_X,
-		y = HEADER_BOTTOM_Y,
+		y = header.bottom_y,
 		text = 'Reads',
 	},
 	rate = Widget.Text{
-		x = RIGHT_X,
-		y = HEADER_BOTTOM_Y,
+		x = _RIGHT_X_,
+		y = header.bottom_y,
 		x_align = 'right',
 		append_end=' B/s',
 		text_color = schema.blue
 	},
 	plot = Widget.ScalePlot{
 		x = _G_INIT_DATA_.CENTER_LEFT_X,
-		y = READS_PLOT_Y,
+		y = header.bottom_y + _PLOT_SEC_BREAK_,
 		width = _G_INIT_DATA_.SECTION_WIDTH,
-		height = PLOT_HEIGHT,
-		y_label_func = __io_label_function,
+		height = _PLOT_HEIGHT_,
+		y_label_func = io_label_function,
 	}
 }
 
-local WRITE_Y = READS_PLOT_Y + PLOT_HEIGHT + PLOT_SEC_BREAK
-local WRITES_PLOT_Y = WRITE_Y + PLOT_SEC_BREAK
+local _WRITE_Y_ = header.bottom_y + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
 
 local writes = {
 	label = Widget.Text{
 		x = _G_INIT_DATA_.CENTER_LEFT_X,
-		y = WRITE_Y,
+		y = _WRITE_Y_,
 		text = 'Writes',
 	},
 	rate = Widget.Text{
-		x = RIGHT_X,
-		y = WRITE_Y,
+		x = _RIGHT_X_,
+		y = _WRITE_Y_,
 		x_align = 'right',
 		append_end =' B/s',
 		text_color = schema.blue
 	},
 	plot = Widget.ScalePlot{
 		x = _G_INIT_DATA_.CENTER_LEFT_X,
-		y = WRITES_PLOT_Y,
+		y = _WRITE_Y_ + _PLOT_SEC_BREAK_,
 		width = _G_INIT_DATA_.SECTION_WIDTH,
-		height = PLOT_HEIGHT,
-		y_label_func = __io_label_function,
+		height = _PLOT_HEIGHT_,
+		y_label_func = io_label_function,
 	}
 }
 
 Widget = nil
 schema = nil
-PLOT_SEC_BREAK = nil
-PLOT_HEIGHT = nil
-HEADER_BOTTOM_Y = nil
-RIGHT_X = nil
-READS_PLOT_Y = nil
-WRITE_Y = nil
-WRITES_PLOT_Y = nil
+_PLOT_SEC_BREAK_ = nil
+_PLOT_HEIGHT_ = nil
+_RIGHT_X_ = nil
+_WRITE_Y_ = nil
 
-reads.cumulative = 0
-writes.cumulative = 0
-reads.prev_cumulative, writes.prev_cumulative = __read_stat_file()
+reads.byte_cnt = 0
+writes.byte_cnt = 0
+reads.prev_byte_cnt, writes.prev_byte_cnt = read_stat_file()
 
-local __update = function(cr, update_frequency)
-	local cumulative_reads, cumulative_writes = __read_stat_file()
-	__update_stat(cr, reads, cumulative_reads, update_frequency)
-	__update_stat(cr, writes, cumulative_writes, update_frequency)
+local update = function(cr, update_frequency)
+	local read_byte_cnt, write_byte_cnt = read_stat_file()
+	update_stat(cr, reads, read_byte_cnt, update_frequency)
+	update_stat(cr, writes, write_byte_cnt, update_frequency)
 end
 
 local draw = function(cr, current_interface, update_frequency)
-	__update(cr, update_frequency)
+	update(cr, update_frequency)
 
 	if current_interface == 0 then
 		Text.draw(header.text, cr)
