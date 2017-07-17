@@ -10,18 +10,21 @@ local Table			= require 'Table'
 local util			= require 'util'
 local schema		= require 'default_patterns'
 
-local _STRING_MATCH = string.match
-local _MATH_RAD		= math.rad
+local __string_match		= string.match
+local __cairo_path_destroy 	= cairo_path_destroy
 
-local _CAIRO_PATH_DESTROY = cairo_path_destroy
+local _MODULE_Y_ = 712
+local _DIAL_THICKNESS_ = 8
+local _DIAL_SPACING_ = 1
+local _TEXT_Y_OFFSET_ = 7
+local _TEXT_LEFT_X_OFFSET_ = 30
+local _TEXT_SPACING_ = 20
+local _PLOT_SECTION_BREAK_ = 30
+local _PLOT_HEIGHT_ = 56
+local _TABLE_SECTION_BREAK_ = 20
+local _TABLE_HEIGHT_ = 114
 
-local MODULE_Y = 712
-
-local MEM_TOTAL = tonumber(util.read_file('/proc/meminfo', 'MemTotal:%s+(%d+)')) 	--in kB
-
-local DIAL_RADIUS = 32
-local DIAL_THETA0 = 90
-local DIAL_THETA1 = 360
+local MEM_TOTAL_KB = tonumber(util.read_file('/proc/meminfo', 'MemTotal:%s+(%d+)'))
 
 local TABLE_CONKY = {}
 for c = 1, 3 do TABLE_CONKY[c] = {} end
@@ -29,43 +32,31 @@ for r = 1, 5 do TABLE_CONKY[1][r] = '${top_mem name '..r..'}' end
 for r = 1, 5 do TABLE_CONKY[2][r] = '${top_mem pid '..r..'}' end
 for r = 1, 5 do TABLE_CONKY[3][r] = '${top_mem mem '..r..'}' end
 
---construction params
-local DIAL_THICKNESS = 8
-local DIAL_SPACING = 1
-local TEXT_Y_OFFSET = 7
-local TEXT_LEFT_X_OFFSET = 30
-local TEXT_SPACING = 20
-local SEPARATOR_SPACING = 15
-local PLOT_SECTION_BREAK = 30
-local PLOT_HEIGHT = 56
-local TABLE_SECTION_BREAK = 20
-local TABLE_HEIGHT = 114
-
 local header = Widget.Header{
 	x = _G_INIT_DATA_.RIGHT_X,
-	y = MODULE_Y,
+	y = _MODULE_Y_,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
-	header = "MEMORY"
+	header = 'MEMORY'
 }
 
-local HEADER_BOTTOM_Y = header.bottom_y
-
---don't nil these
-local DIAL_X = _G_INIT_DATA_.RIGHT_X + DIAL_RADIUS + DIAL_THICKNESS * 0.5
-local DIAL_Y = HEADER_BOTTOM_Y + DIAL_RADIUS + DIAL_THICKNESS * 0.5
+local DIAL_RADIUS = 32
+local DIAL_THETA_0 = math.rad(90)
+local DIAL_THETA_1 = math.rad(360)
+local DIAL_X = _G_INIT_DATA_.RIGHT_X + DIAL_RADIUS + _DIAL_THICKNESS_ / 2
+local DIAL_Y = header.bottom_y + DIAL_RADIUS + _DIAL_THICKNESS_ / 2
 
 local dial = Widget.Dial{
 	x 				= DIAL_X,
 	y 				= DIAL_Y,			
 	radius 			= DIAL_RADIUS,
-	thickness 		= DIAL_THICKNESS,
+	thickness 		= _DIAL_THICKNESS_,
 	critical_limit 	= '>0.8'
 }
 local cache_arc = Widget.Arc{
 	x 			= DIAL_X,
 	y 			= DIAL_Y,			
 	radius 		= DIAL_RADIUS,
-	thickness 	= DIAL_THICKNESS,
+	thickness 	= _DIAL_THICKNESS_,
 	arc_pattern	= schema.purple_rounded
 }
 
@@ -76,28 +67,29 @@ local total_used = Widget.CriticalText{
 	y_align 	= 'center',
 	append_end 	= '%'
 }
+
 local inner_ring = Widget.Arc{
 	x 		= DIAL_X,
 	y 		= DIAL_Y,
-	radius 	= DIAL_RADIUS - DIAL_THICKNESS / 2 - 2,
+	radius 	= DIAL_RADIUS - _DIAL_THICKNESS_ / 2 - 2,
 	theta0	= 0,
 	theta1	= 360
 }
 
-local LINE_1_Y = HEADER_BOTTOM_Y + TEXT_Y_OFFSET
-local TEXT_LEFT_X = _G_INIT_DATA_.RIGHT_X + DIAL_RADIUS * 2 + TEXT_LEFT_X_OFFSET
-local RIGHT_X = _G_INIT_DATA_.RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH
+local _LINE_1_Y_ = header.bottom_y + _TEXT_Y_OFFSET_
+local _TEXT_LEFT_X_ = _G_INIT_DATA_.RIGHT_X + DIAL_RADIUS * 2 + _TEXT_LEFT_X_OFFSET_
+local _RIGHT_X_ = _G_INIT_DATA_.RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH
 
 local swap= {
 	label = Widget.Text{
-		x 		= TEXT_LEFT_X,
-		y 		= LINE_1_Y,
-		spacing = TEXT_SPACING,
+		x 		= _TEXT_LEFT_X_,
+		y 		= _LINE_1_Y_,
+		spacing = _TEXT_SPACING_,
 		text	= 'Swap Usage'
 	},
 	percent = Widget.CriticalText{
-		x 			= RIGHT_X,
-		y 			= LINE_1_Y,
+		x 			= _RIGHT_X_,
+		y 			= _LINE_1_Y_,
 		x_align 	= 'right',
 		append_end 	= ' %',
 	},
@@ -105,16 +97,16 @@ local swap= {
 
 local cache = {
 	labels = Widget.TextColumn{
-		x 		= TEXT_LEFT_X,
-		y 		= LINE_1_Y + TEXT_SPACING,
-		spacing = TEXT_SPACING,
+		x 		= _TEXT_LEFT_X_,
+		y 		= _LINE_1_Y_ + _TEXT_SPACING_,
+		spacing = _TEXT_SPACING_,
 		'Page Cache',
 		'Buffers',
 		'Kernel Slab'
 	},
 	percents = Widget.TextColumn{
-		x 			= RIGHT_X,
-		y 			= LINE_1_Y + TEXT_SPACING,
+		x 			= _RIGHT_X_,
+		y 			= _LINE_1_Y_ + _TEXT_SPACING_,
 		x_align 	= 'right',
 		append_end 	= ' %',
 		text_color	= schema.purple,
@@ -124,32 +116,27 @@ local cache = {
 	},
 }
 
-local PLOT_Y = PLOT_SECTION_BREAK + HEADER_BOTTOM_Y + DIAL_RADIUS * 2
+local _PLOT_Y_ = _PLOT_SECTION_BREAK_ + header.bottom_y + DIAL_RADIUS * 2
 
 local plot = Widget.LabelPlot{
 	x = _G_INIT_DATA_.RIGHT_X,
-	y = PLOT_Y,
+	y = _PLOT_Y_,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
-	height = PLOT_HEIGHT
+	height = _PLOT_HEIGHT_
 }
-
-local TABLE_Y = PLOT_Y + PLOT_HEIGHT + TABLE_SECTION_BREAK
 
 local tbl = Widget.Table{
 	x = _G_INIT_DATA_.RIGHT_X,
-	y = TABLE_Y,
+	y = _PLOT_Y_ + _PLOT_HEIGHT_ + _TABLE_SECTION_BREAK_,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
-	height = TABLE_HEIGHT,
+	height = _TABLE_HEIGHT_,
 	'Name',
 	'PID',
 	'Mem (%)'
 }
 
-DIAL_THETA0 = _MATH_RAD(DIAL_THETA0)
-DIAL_THETA1 = _MATH_RAD(DIAL_THETA1)
-
 local __update = function(cr)
-	local MEM_TOTAL = MEM_TOTAL
+	local MEM_TOTAL_KB = MEM_TOTAL_KB
 
 	local round = util.round
 	local precision_round_to_string = util.precision_round_to_string
@@ -157,28 +144,28 @@ local __update = function(cr)
 
 	--see source for "free" for formulas and stuff ;)
 
-	local swap_free		= _STRING_MATCH(glob, 'SwapFree:%s+(%d+)' )
-	local swap_total 	= _STRING_MATCH(glob, 'SwapTotal:%s+(%d+)')
-	local page_cache 	= _STRING_MATCH(glob, 'Cached:%s+(%d+)'   )
-	local slab 			= _STRING_MATCH(glob, 'Slab:%s+(%d+)'     )
-	local buffers 		= _STRING_MATCH(glob, 'Buffers:%s+(%d+)'  )
-	local free 			= _STRING_MATCH(glob, 'MemFree:%s+(%d+)'  )
+	local swap_free		= __string_match(glob, 'SwapFree:%s+(%d+)' )
+	local swap_total 	= __string_match(glob, 'SwapTotal:%s+(%d+)')
+	local page_cache 	= __string_match(glob, 'Cached:%s+(%d+)'   )
+	local slab 			= __string_match(glob, 'Slab:%s+(%d+)'     )
+	local buffers 		= __string_match(glob, 'Buffers:%s+(%d+)'  )
+	local free 			= __string_match(glob, 'MemFree:%s+(%d+)'  )
 
-	local used_percent = util.round((MEM_TOTAL - free - page_cache - buffers - slab) / MEM_TOTAL, 2)
+	local used_percent = util.round((MEM_TOTAL_KB - free - page_cache - buffers - slab) / MEM_TOTAL_KB, 2)
 
 	Dial.set(dial, used_percent)
 	CriticalText.set(total_used, cr, used_percent * 100)
 
-	local cache_theta = (DIAL_THETA0 - DIAL_THETA1) / MEM_TOTAL * free + DIAL_THETA1
-	_CAIRO_PATH_DESTROY(cache_arc.path)
+	local cache_theta = (DIAL_THETA_0 - DIAL_THETA_1) / MEM_TOTAL_KB * free + DIAL_THETA_1
+	__cairo_path_destroy(cache_arc.path)
 	cache_arc.path = Arc.create_path(DIAL_X, DIAL_Y, DIAL_RADIUS, dial.dial_angle, cache_theta)
 	
 	CriticalText.set(swap.percent, cr, precision_round_to_string((swap_total - swap_free) /	swap_total * 100))
 
 	local percents = cache.percents
-	TextColumn.set(percents, cr, 1, precision_round_to_string(page_cache / MEM_TOTAL * 100))
-	TextColumn.set(percents, cr, 2, precision_round_to_string(buffers / MEM_TOTAL * 100))
-	TextColumn.set(percents, cr, 3, precision_round_to_string(slab / MEM_TOTAL * 100))
+	TextColumn.set(percents, cr, 1, precision_round_to_string(page_cache / MEM_TOTAL_KB * 100))
+	TextColumn.set(percents, cr, 2, precision_round_to_string(buffers / MEM_TOTAL_KB * 100))
+	TextColumn.set(percents, cr, 3, precision_round_to_string(slab / MEM_TOTAL_KB * 100))
 
 	LabelPlot.update(plot, used_percent)
 
@@ -192,22 +179,20 @@ end
 
 Widget = nil
 schema = nil
-MODULE_Y = nil
-DIAL_THICKNESS = nil
-DIAL_SPACING = nil
-TEXT_Y_OFFSET = nil
-TEXT_LEFT_X_OFFSET = nil
-TEXT_SPACING = nil
-PLOT_SECTION_BREAK = nil
-PLOT_HEIGHT = nil
-TABLE_SECTION_BREAK = nil
-TABLE_HEIGHT = nil
-HEADER_BOTTOM_Y = nil
-LINE_1_Y = nil
-TEXT_LEFT_X = nil
-RIGHT_X = nil
-PLOT_Y = nil
-TABLE_Y = nil
+_MODULE_Y_ = nil
+_DIAL_THICKNESS_ = nil
+_DIAL_SPACING_ = nil
+_TEXT_Y_OFFSET_ = nil
+_TEXT_LEFT_X_OFFSET_ = nil
+_TEXT_SPACING_ = nil
+_PLOT_SECTION_BREAK_ = nil
+_PLOT_HEIGHT_ = nil
+_TABLE_SECTION_BREAK_ = nil
+_TABLE_HEIGHT_ = nil
+_LINE_1_Y_ = nil
+_TEXT_LEFT_X_ = nil
+_RIGHT_X_ = nil
+_PLOT_Y_ = nil
 
 local draw = function(cr, current_interface)
 	__update(cr)
