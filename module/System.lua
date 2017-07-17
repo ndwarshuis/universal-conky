@@ -1,4 +1,3 @@
-local _CR			= require 'CR'
 local Widget		= require 'Widget'
 local Text 			= require 'Text'
 local Line 			= require 'Line'
@@ -8,12 +7,15 @@ local schema		= require 'default_patterns'
 
 local __string_match = string.match
 
-local DATE_REGEX = '%[(%d-)%-(%d-%-%d-)%s'
-
 local UPGRADE_CMD = "sed -n '/ starting full system upgrade/p' /var/log/pacman.log | tail -1"
 local SYNC_CMD = "sed -n '/ synchronizing package lists/p' /var/log/pacman.log | tail -1"
 
 local _TEXT_SPACING_ = 20
+
+local extract_date = function(cmd)
+	local yyyy, mm_dd = __string_match(util.execute_cmd(cmd), '%[(%d-)%-(%d-%-%d-)%s')
+	return mm_dd..'-'..yyyy
+end
 
 local header = Widget.Header{
 	x = _G_INIT_DATA_.LEFT_X,
@@ -37,33 +39,23 @@ local info = Widget.TextColumn{
 	spacing 	= _TEXT_SPACING_,
 	x_align 	= 'right',
 	text_color 	= schema.blue,
-	num_rows 	= 4,
+	util.conky('$kernel'),
+	util.conky('$uptime'),
+	extract_date(UPGRADE_CMD),
+	extract_date(SYNC_CMD)
 }
-
-TextColumn.set(info, _CR, 1, util.conky('$kernel'))
-
-local update_dates = function(cr)
-	local yyyy, mm_dd = __string_match(util.execute_cmd(UPGRADE_CMD), DATE_REGEX)
-	TextColumn.set(info, cr, 3, mm_dd..'-'..yyyy)
-	
-	yyyy, mm_dd = __string_match(util.execute_cmd(SYNC_CMD), DATE_REGEX)
-	TextColumn.set(info, cr, 4, mm_dd..'-'..yyyy)
-end
-
-local update_uptime = function(cr)
-	TextColumn.set(info, cr, 2, util.conky('$uptime'))
-end
-
-update_dates(_CR)
 
 Widget = nil
 schema = nil
 _TEXT_SPACING_ = nil
-_CR = nil
 
 local draw = function(cr, current_interface, trigger)
-	update_uptime(cr)
-	if trigger == 0 then update_dates(cr) end
+	TextColumn.set(info, cr, 2, util.conky('$uptime'))
+	
+	if trigger == 0 then
+		TextColumn.set(info, cr, 3, extract_date(UPGRADE_CMD))
+		TextColumn.set(info, cr, 4, extract_date(SYNC_CMD))
+	end
 
 	if current_interface == 0 then
 		Text.draw(header.text, cr)
