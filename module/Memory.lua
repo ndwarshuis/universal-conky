@@ -26,11 +26,14 @@ local _TABLE_HEIGHT_ = 114
 
 local MEM_TOTAL_KB = tonumber(util.read_file('/proc/meminfo', 'MemTotal:%s+(%d+)'))
 
-local TABLE_CONKY = {}
-for c = 1, 3 do TABLE_CONKY[c] = {} end
-for r = 1, 5 do TABLE_CONKY[1][r] = '${top_mem name '..r..'}' end
-for r = 1, 5 do TABLE_CONKY[2][r] = '${top_mem pid '..r..'}' end
-for r = 1, 5 do TABLE_CONKY[3][r] = '${top_mem mem '..r..'}' end
+local NUM_ROWS = 5
+local TABLE_CONKY = {{}, {}, {}}
+
+for r = 1, NUM_ROWS do
+	TABLE_CONKY[1][r] = '${top_mem name '..r..'}'
+	TABLE_CONKY[2][r] = '${top_mem pid '..r..'}'
+	TABLE_CONKY[3][r] = '${top_mem mem '..r..'}'
+end
 
 local header = Widget.Header{
 	x = _G_INIT_DATA_.RIGHT_X,
@@ -135,7 +138,7 @@ local tbl = Widget.Table{
 	'Mem (%)'
 }
 
-local __update = function(cr)
+local update = function(cr)
 	local MEM_TOTAL_KB = MEM_TOTAL_KB
 
 	local round = util.round
@@ -171,7 +174,7 @@ local __update = function(cr)
 
 	for c = 1, 3 do
 		local column = TABLE_CONKY[c]
-		for r = 1, 5 do
+		for r = 1, NUM_ROWS do
 			Table.set(tbl, cr, c, r, util.conky(column[r], '(%S+)'))
 		end
 	end
@@ -195,7 +198,7 @@ _RIGHT_X_ = nil
 _PLOT_Y_ = nil
 
 local draw = function(cr, current_interface)
-	__update(cr)
+	update(cr)
 
 	if current_interface == 0 then
 		Text.draw(header.text, cr)
