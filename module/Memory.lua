@@ -24,7 +24,14 @@ local _PLOT_HEIGHT_ = 56
 local _TABLE_SECTION_BREAK_ = 20
 local _TABLE_HEIGHT_ = 114
 
-local MEM_TOTAL_KB = tonumber(util.read_file('/proc/meminfo', 'MemTotal:%s+(%d+)'))
+local MEM_TOTAL_KB = tonumber(util.read_file('/proc/meminfo', '^MemTotal:%s+(%d+)'))
+
+local MEMINFO_REGEX = '\nMemFree:%s+(%d+).+'..
+                      '\nBuffers:%s+(%d+).+'..
+                      '\nCached:%s+(%d+).+'..
+                      '\nSwapTotal:%s+(%d+).+'..
+                      '\nSwapFree:%s+(%d+).+'..
+                      '\nSReclaimable:%s+(%d+)'
 
 local NUM_ROWS = 5
 local TABLE_CONKY = {{}, {}, {}}
@@ -113,8 +120,8 @@ local cache = {
 		x_align 	= 'right',
 		append_end 	= ' %',
 		text_color	= schema.purple,
-		'<page_cache>',
-		'<buffers>',
+		'<cached_kb>',
+		'<buffers_kb>',
 		'<kernel_slab>'
 	},
 }
@@ -139,36 +146,33 @@ local tbl = Widget.Table{
 }
 
 local update = function(cr)
-	local MEM_TOTAL_KB = MEM_TOTAL_KB
+	-- see source for the 'free' command (sysinfo.c) for formulas
 
-	local round = util.round
-	local precision_round_to_string = util.precision_round_to_string
-	local glob = util.read_file('/proc/meminfo')	--kB
+	local memfree_kb, buffers_kb, cached_kb, swap_total_kb, swap_free_kb,
+	  slab_reclaimable_kb = __string_match(util.read_file('/proc/meminfo'), MEMINFO_REGEX)
 
-	--see source for "free" for formulas and stuff ;)
-
-	local swap_free		= __string_match(glob, 'SwapFree:%s+(%d+)' )
-	local swap_total 	= __string_match(glob, 'SwapTotal:%s+(%d+)')
-	local page_cache 	= __string_match(glob, 'Cached:%s+(%d+)'   )
-	local slab 			= __string_match(glob, 'Slab:%s+(%d+)'     )
-	local buffers 		= __string_match(glob, 'Buffers:%s+(%d+)'  )
-	local free 			= __string_match(glob, 'MemFree:%s+(%d+)'  )
-
-	local used_percent = util.round((MEM_TOTAL_KB - free - page_cache - buffers - slab) / MEM_TOTAL_KB, 2)
+	local used_percent = (MEM_TOTAL_KB - memfree_kb - cached_kb - buffers_kb - slab_reclaimable_kb) / MEM_TOTAL_KB
 
 	Dial.set(dial, used_percent)
-	CriticalText.set(total_used, cr, used_percent * 100)
+	CriticalText.set(total_used, cr, util.round(used_percent * 100))
 
-	local cache_theta = (DIAL_THETA_0 - DIAL_THETA_1) / MEM_TOTAL_KB * free + DIAL_THETA_1
+	local cache_theta = (DIAL_THETA_0 - DIAL_THETA_1) / MEM_TOTAL_KB * memfree_kb + DIAL_THETA_1
 	__cairo_path_destroy(cache_arc.path)
 	cache_arc.path = Arc.create_path(DIAL_X, DIAL_Y, DIAL_RADIUS, dial.dial_angle, cache_theta)
 	
-	CriticalText.set(swap.percent, cr, precision_round_to_string((swap_total - swap_free) /	swap_total * 100))
+	CriticalText.set(swap.percent, cr, util.precision_round_to_string(
+	  (swap_total_kb - swap_free_kb) /	swap_total_kb * 100))
 
-	local percents = cache.percents
-	TextColumn.set(percents, cr, 1, precision_round_to_string(page_cache / MEM_TOTAL_KB * 100))
-	TextColumn.set(percents, cr, 2, precision_round_to_string(buffers / MEM_TOTAL_KB * 100))
-	TextColumn.set(percents, cr, 3, precision_round_to_string(slab / MEM_TOTAL_KB * 100))
+	local _percents = cache.percents
+	
+	TextColumn.set(_percents, cr, 1, util.precision_round_to_string(
+	  cached_kb / MEM_TOTAL_KB * 100))
+	  
+	TextColumn.set(_percents, cr, 2, util.precision_round_to_string(
+	  buffers_kb / MEM_TOTAL_KB * 100))
+	  
+	TextColumn.set(_percents, cr, 3, util.precision_round_to_string(
+	  slab_reclaimable_kb / MEM_TOTAL_KB * 100))
 
 	LabelPlot.update(plot, used_percent)
 

@@ -1,5 +1,5 @@
 conky.config = {
-	background = true,
+	background = false,
 
 	--adjust cpu dial sensitivity (1-14)
 	cpu_avg_samples = 4,
