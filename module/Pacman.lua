@@ -1,10 +1,22 @@
-local _CR			= require 'CR'
 local Widget		= require 'Widget'
 local Text 			= require 'Text'
 local Line 			= require 'Line'
 local TextColumn	= require 'TextColumn'
 local util			= require 'util'
 local schema		= require 'default_patterns'
+
+local PACMAN_TABLE = {
+	'pacman -Qq',
+	'pacman -Qeq',
+	'pacman -Quq',
+	'pacman -Qdtq',
+	'pacman -Qmq'
+}
+
+local _INITIAL_PGK_CNT_ = {}
+for i, cmd in pairs(PACMAN_TABLE) do
+	_INITIAL_PGK_CNT_[i] = util.line_count(util.execute_cmd(cmd))
+end
 
 local _TEXT_SPACING_ = 20
 
@@ -31,27 +43,19 @@ local info = Widget.TextColumn{
 	spacing 	= _TEXT_SPACING_,
 	x_align 	= 'right',
 	text_color 	= schema.blue,
-	num_rows 	= 5,
+	unpack(_INITIAL_PGK_CNT_)
 }
 
 Widget = nil
 schema = nil
 _TEXT_SPACING_ = nil
+_INITIAL_PGK_CNT_ = nil
 
 local update = function(cr)
-	local _execute_cmd = util.execute_cmd
-	local _line_count = util.line_count
-
-	TextColumn.set(info, cr, 1, _line_count(_execute_cmd('pacman -Q')))
-	TextColumn.set(info, cr, 2, _line_count(_execute_cmd('pacman -Qe')))
-	TextColumn.set(info, cr, 3, _line_count(_execute_cmd('pacman -Qu')))
-	TextColumn.set(info, cr, 4, _line_count(_execute_cmd('pacman -Qdt')))
-	TextColumn.set(info, cr, 5, _line_count(_execute_cmd('pacman -Qm')))
+	for i, cmd in pairs(PACMAN_TABLE) do
+		TextColumn.set(info, cr, i, util.line_count(util.execute_cmd(cmd)))
+	end
 end
-
-update(_CR)
-
-_CR = nil
 
 local draw = function(cr, current_interface, trigger)
 	if trigger == 0 then update(cr) end
