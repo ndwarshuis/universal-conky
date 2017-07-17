@@ -27,7 +27,7 @@ local update_stat = function(cr, stat, byte_cnt, update_frequency)
 	stat.prev_byte_cnt = byte_cnt
 	
 	if delta_bytes > 0 then
-		local bps = delta_bytes / update_frequency
+		local bps = delta_bytes * update_frequency
 		local unit = util.get_unit(bps)
 		stat.rate.append_end = ' '..unit..'/s'
 		Text.set(stat.rate, cr, util.precision_convert_bytes(bps, 'B', unit, 3))
