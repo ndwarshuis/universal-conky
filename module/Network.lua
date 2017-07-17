@@ -5,18 +5,16 @@ local ScalePlot = require 'ScalePlot'
 local util		= require 'util'
 local schema	= require 'default_patterns'
 
-local _STRING_GMATCH = string.gmatch
-local _IO_POPEN		= io.popen
+local __string_gmatch = string.gmatch
 
---construction params
-local PLOT_SEC_BREAK = 20
-local PLOT_HEIGHT = 56
+local _PLOT_SEC_BREAK_ = 20
+local _PLOT_HEIGHT_ = 56
 
 local SYSFS_NET = '/sys/class/net/'
 local STATS_RX = '/statistics/rx_bytes'
 local STATS_TX = '/statistics/tx_bytes'
 
-local __network_label_function = function(bytes)
+local network_label_function = function(bytes)
 	local new_unit = util.get_unit(bytes)
 	
 	local converted = util.convert_bytes(bytes, 'B', new_unit)
@@ -30,11 +28,10 @@ local header = Widget.Header{
 	x = _G_INIT_DATA_.CENTER_RIGHT_X,
 	y = _G_INIT_DATA_.TOP_Y,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
-	header = "NETWORK"
+	header = 'NETWORK'
 }
 
-local RIGHT_X = _G_INIT_DATA_.CENTER_RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH
-local DOWNLOAD_PLOT_Y = header.bottom_y + PLOT_SEC_BREAK
+local _RIGHT_X_ = _G_INIT_DATA_.CENTER_RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH
 
 local dnload = {
 	label = Widget.Text{
@@ -43,47 +40,46 @@ local dnload = {
 		text = 'Download',
 	},
 	speed = Widget.Text{
-		x = RIGHT_X,
+		x = _RIGHT_X_,
 		y = header.bottom_y,
 		x_align = 'right',
 		text_color = schema.blue
 	},
 	plot = Widget.ScalePlot{
 		x = _G_INIT_DATA_.CENTER_RIGHT_X,
-		y = DOWNLOAD_PLOT_Y,
+		y = header.bottom_y + _PLOT_SEC_BREAK_,
 		width = _G_INIT_DATA_.SECTION_WIDTH,
-		height = PLOT_HEIGHT,
-		y_label_func = __network_label_function
+		height = _PLOT_HEIGHT_,
+		y_label_func = network_label_function
 	}
 }
 
-local UPLOAD_Y = DOWNLOAD_PLOT_Y + PLOT_HEIGHT + PLOT_SEC_BREAK
-local UPLOAD_PLOT_Y = UPLOAD_Y + PLOT_SEC_BREAK
+local _UPLOAD_Y_ = header.bottom_y + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
 
 local upload = {
 	label = Widget.Text{
 		x = _G_INIT_DATA_.CENTER_RIGHT_X,
-		y = UPLOAD_Y,
+		y = _UPLOAD_Y_,
 		text = 'Upload',
 	},
 	speed = Widget.Text{
-		x = RIGHT_X,
-		y = UPLOAD_Y,
+		x = _RIGHT_X_,
+		y = _UPLOAD_Y_,
 		x_align = 'right',
 		text_color = schema.blue
 	},
 	plot = Widget.ScalePlot{
 		x = _G_INIT_DATA_.CENTER_RIGHT_X,
-		y = UPLOAD_PLOT_Y,
+		y = _UPLOAD_Y_ + _PLOT_SEC_BREAK_,
 		width = _G_INIT_DATA_.SECTION_WIDTH,
-		height = PLOT_HEIGHT,
-		y_label_func = __network_label_function
+		height = _PLOT_HEIGHT_,
+		y_label_func = network_label_function
 	}
 }
 
 local interfaces = {}
 
-local __add_interface = function(iface)
+local add_interface = function(iface)
 	local rx_path = SYSFS_NET..iface..STATS_RX
 	local tx_path = SYSFS_NET..iface..STATS_TX
 
@@ -97,21 +93,21 @@ local __add_interface = function(iface)
 	}
 end
 
-for iface in _IO_POPEN('ls -1 '..SYSFS_NET):lines() do
-	__add_interface(iface)
+for iface in io.popen('ls -1 '..SYSFS_NET):lines() do
+	add_interface(iface)
 end
 
-local __update = function(cr, update_frequency)
+local update = function(cr, update_frequency)
 	local dspeed, uspeed = 0, 0
 	local glob = util.execute_cmd('ip route show')
 
 	local rx_bps, tx_bps
 
-	for iface in _STRING_GMATCH(glob, 'default via %d+%.%d+%.%d+%.%d+ dev (%w+) ') do
+	for iface in __string_gmatch(glob, 'default via %d+%.%d+%.%d+%.%d+ dev (%w+) ') do
 		local current_iface = interfaces[iface]
 
 		if not current_iface then
-			__add_interface(iface)
+			add_interface(iface)
 			current_iface = interfaces[iface]
 		end
 		
@@ -147,15 +143,13 @@ end
 
 Widget = nil
 schema = nil
-PLOT_SEC_BREAK = nil
-PLOT_HEIGHT = nil
-RIGHT_X = nil
-DOWNLOAD_PLOT_Y = nil
-UPLOAD_Y = nil
-UPLOAD_PLOT_Y = nil
+_PLOT_SEC_BREAK_ = nil
+_PLOT_HEIGHT_ = nil
+_RIGHT_X_ = nil
+_UPLOAD_Y_ = nil
 
 local draw = function(cr, current_interface, update_frequency)
-	__update(cr, update_frequency)
+	update(cr, update_frequency)
 
 	if current_interface == 0 then
 		Text.draw(header.text, cr)
