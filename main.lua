@@ -42,6 +42,8 @@ Var names:
       - upval to local: prefix with _
       - global to local: prefix with __
       - replace . with _ if callng from table
+      - the only reason to do either of these is for performance, therefore
+        no need to localize variables that are only used during init
     - global: preceed with g_
   - Temporal Scope
     - init: only relevent to startup (nil'ed before first rendering loop)
