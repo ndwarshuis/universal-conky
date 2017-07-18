@@ -249,7 +249,8 @@ _INFO_Y_ = nil
 _COLUMN_PADDING_ = nil
 _CENTER_SPACING_ = nil
 
-local populate_section = function(current_section, cr, desc, period, icon_path, temp1, temp2, humidity, pop, wind)
+local populate_row = function(current_section, cr, desc, period, icon_path,
+  temp1, temp2, humidity, pop, wind)
 	if desc then
 		Text.set(current_section.desc, cr, Text.trim_to_length(desc, 20))
 	else
@@ -313,11 +314,11 @@ local update_interface = function(cr)
 		data = data.response.responses
 
 		if data[1].success == false then
-			for i = 1, NUM_ROWS do populate_section(left.hours[i], cr) end
+			for i = 1, NUM_ROWS do populate_row(left.hours[i], cr) end
 
 			populate_center(center, cr, nil, nil, nil, nil, 'Invalid Location')
 
-			for i = 1, NUM_ROWS do populate_section(right.days[i], cr) end
+			for i = 1, NUM_ROWS do populate_row(right.days[i], cr) end
 		else
 			-- LEFT
 			local hourly = data[2].response[1].periods
@@ -325,7 +326,7 @@ local update_interface = function(cr)
 			for i = 1, NUM_ROWS do
 				local hour_data = hourly[i]
 
-				populate_section(
+				populate_row(
 					left.hours[i],
 					cr,
 					hour_data.weatherPrimary,
@@ -389,7 +390,7 @@ local update_interface = function(cr)
 			for i = 1, NUM_ROWS do
 				local day_data = daily[i]
 
-				populate_section(
+				populate_row(
 					right.days[i],
 					cr,
 					day_data.weatherPrimary,
@@ -405,11 +406,12 @@ local update_interface = function(cr)
 			end
 		end
 	else
-		for i = 1, NUM_ROWS do	populate_section(left.hours[i], cr) end
+		for i = 1, NUM_ROWS do
+			populate_row(left.hours[i], cr)
+			populate_row(right.days[i], cr)
+		end
 
 		populate_center(center, cr)
-
-		for i = 1, NUM_ROWS do populate_section(right.days[i], cr) end
 	end
 end
 
