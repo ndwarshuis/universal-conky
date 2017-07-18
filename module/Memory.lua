@@ -158,7 +158,7 @@ local update = function(cr)
 
 	local cache_theta = (DIAL_THETA_0 - DIAL_THETA_1) / MEM_TOTAL_KB * memfree_kb + DIAL_THETA_1
 	__cairo_path_destroy(cache_arc.path)
-	cache_arc.path = Arc.create_path(DIAL_X, DIAL_Y, DIAL_RADIUS, dial.dial_angle, cache_theta)
+	cache_arc.path = Arc.create_path(cr, DIAL_X, DIAL_Y, DIAL_RADIUS, dial.dial_angle, cache_theta)
 	
 	CriticalText.set(swap.percent, cr, util.precision_round_to_string(
 	  (swap_total_kb - swap_free_kb) /	swap_total_kb * 100))
