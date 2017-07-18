@@ -1,4 +1,3 @@
-local _CR			= require 'CR'
 local Widget		= require 'Widget'
 local Text 			= require 'Text'
 local Line 			= require 'Line'
@@ -429,10 +428,6 @@ local draw_sections = function(section_group, cr)
 		TextColumn.draw(section.info_column, cr)
 	end
 end
-
-update_interface(_CR)
-
-_CR = nil
 
 __os_execute('get_weather.sh')
 
