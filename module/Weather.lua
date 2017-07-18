@@ -8,22 +8,22 @@ local util			= require 'util'
 local json			= require 'json'
 local schema		= require 'default_patterns'
 
-local __string_match = string.match
-local __string_sub	= string.sub
+local __string_match 	= string.match
+local __string_sub		= string.sub
 local __string_upper	= string.upper
-local __os_execute	= os.execute
+local __os_execute		= os.execute
 
 local TIME_FORMAT = '%-I:%M %p'
 local DATE_FORMAT = '%A'
 
-local NUM_SECTIONS = 8
+local NUM_ROWS = 8
 local WEATHER_UPDATE_INTERVAL = 900
 
-local WEATHER_PATH = '/tmp/weather.json'
-local ICON_PATH = _G_INIT_DATA_.ABS_PATH .. '/images/weather/'
+local WEATHER_JSON_PATH = '/tmp/weather.json'
+local ICON_DIR_PATH = _G_INIT_DATA_.ABS_PATH .. '/images/weather/'
 local RECENTLY_UPDATED_PATH = '/tmp/weather_recently_updated'
 local NA = 'N/A'
-local NA_IMAGE_PATH = ICON_PATH .. 'na.png'
+local NA_IMAGE_PATH = ICON_DIR_PATH .. 'na.png'
 
 local _SPACING_ = 20
 local _HEADER_PAD_ = 20
@@ -31,74 +31,74 @@ local _ICON_SIDE_LENGTH_ = 75
 local _TEMP_SECTION_WIDTH_ = 220
 local _SECTION_HEIGHT_ = _HEADER_PAD_ + _ICON_SIDE_LENGTH_ + 30
 
-local create_side_section = function(x_offset, y_offset, section_table)
-	for i = 1, NUM_SECTIONS do
-		section_table[i] = {}
-		local current_widget = section_table[i]
-		local current_y = y_offset + (i - 1) * _SECTION_HEIGHT_
+local create_side_rows = function(side_rows_x, side_rows_y, side_rows_tbl)
+	for i = 1, NUM_ROWS do
+		side_rows_tbl[i] = {}
+		local current_row = side_rows_tbl[i]
+		local current_row_y = side_rows_y + (i - 1) * _SECTION_HEIGHT_
 
-		current_widget.desc = Widget.Text{
-			x = x_offset,
-			y = current_y,
+		current_row.desc = Widget.Text{
+			x = side_rows_x,
+			y = current_row_y,
 			text_color = schema.blue,
 		}
 		
-		current_widget.period = Widget.Text{
-			x 			= x_offset + _G_INIT_DATA_.SECTION_WIDTH,
-			y 			= current_y,
+		current_row.period = Widget.Text{
+			x 			= side_rows_x + _G_INIT_DATA_.SECTION_WIDTH,
+			y 			= current_row_y,
 			x_align 	= 'right',
 			text_color 	= schema.blue
 		}
 		
-		current_widget.icon = Widget.ScaledImage{
-			x 		= x_offset,
-			y 		= current_y + _HEADER_PAD_,
+		current_row.icon = Widget.ScaledImage{
+			x 		= side_rows_x,
+			y 		= current_row_y + _HEADER_PAD_,
 			width 	= _ICON_SIDE_LENGTH_,
 			height 	= _ICON_SIDE_LENGTH_
 		}
 
-		current_widget.temp1 = Widget.Text{
-			x			= x_offset + _ICON_SIDE_LENGTH_ + _TEMP_SECTION_WIDTH_ / 2,
-			y 			= current_y + _HEADER_PAD_ + 25,
+		current_row.temp1 = Widget.Text{
+			x			= side_rows_x + _ICON_SIDE_LENGTH_ + _TEMP_SECTION_WIDTH_ / 2,
+			y 			= current_row_y + _HEADER_PAD_ + 25,
 			x_align		= 'center',
 			font_size 	= 28,
 			text_color 	= schema.blue
 		}
 		
-		current_widget.temp2 = Widget.Text{
-			x			= x_offset + _ICON_SIDE_LENGTH_ + 0.5 * _TEMP_SECTION_WIDTH_,
-			y 			= current_y + _HEADER_PAD_ + 55,
+		current_row.temp2 = Widget.Text{
+			x			= side_rows_x + _ICON_SIDE_LENGTH_ + _TEMP_SECTION_WIDTH_ / 2,
+			y 			= current_row_y + _HEADER_PAD_ + 55,
 			x_align		= 'center',
 			font_size 	= 11
 		}
 
-		current_widget.label_column = Widget.TextColumn{
-			x = x_offset + _ICON_SIDE_LENGTH_ + _TEMP_SECTION_WIDTH_,
-			y = current_y + _HEADER_PAD_ + 15,
+		current_row.label_column = Widget.TextColumn{
+			x = side_rows_x + _ICON_SIDE_LENGTH_ + _TEMP_SECTION_WIDTH_,
+			y = current_row_y + _HEADER_PAD_ + 15,
 			spacing = _SPACING_,
 			'H',
 			'P',
 			'W'
 		}
 		
-		current_widget.info_column = Widget.TextColumn{
-			x = x_offset + _G_INIT_DATA_.SECTION_WIDTH,
-			y = current_y + _HEADER_PAD_ + 15,
+		current_row.info_column = Widget.TextColumn{
+			x = side_rows_x + _G_INIT_DATA_.SECTION_WIDTH,
+			y = current_row_y + _HEADER_PAD_ + 15,
 			spacing = _SPACING_,
 			x_align = 'right',
 			text_color = schema.blue,
 			num_rows = 3
 		}
 		
-		if i < NUM_SECTIONS then
-			current_widget.divider = Widget.Line{
+		if i < NUM_ROWS then
+			current_row.separator = Widget.Line{
 				p1 = {
-					x = x_offset,
-					y = current_y + _SECTION_HEIGHT_ - 18
+					x = side_rows_x,
+					y = current_row_y + _SECTION_HEIGHT_ - 18
 				},
 				p2 = {
-					x = x_offset + _G_INIT_DATA_.SECTION_WIDTH,
-					y = current_y + _SECTION_HEIGHT_ - 18
+					x = side_rows_x + _G_INIT_DATA_.SECTION_WIDTH,
+					y = current_row_y + _SECTION_HEIGHT_ - 18
 				},
 				line_pattern = schema.mid_grey
 			}
@@ -117,7 +117,7 @@ local left = {
 	hours = {}
 }
 
-create_side_section(_G_INIT_DATA_.LEFT_X, left.header.bottom_y, left.hours)
+create_side_rows(_G_INIT_DATA_.LEFT_X, left.header.bottom_y, left.hours)
 
 --CENTER
 local center = {}
@@ -234,7 +234,7 @@ local right = {
 	days = {}
 }
 
-create_side_section(_G_INIT_DATA_.RIGHT_X, right.header.bottom_y, right.days)
+create_side_rows(_G_INIT_DATA_.RIGHT_X, right.header.bottom_y, right.days)
 
 Widget = nil
 schema = nil
@@ -308,23 +308,23 @@ local populate_center = function(center_section, cr, desc, icon_path, temp,
 end
 
 local update_interface = function(cr)
-	local file = util.read_file(WEATHER_PATH)
+	local file = util.read_file(WEATHER_JSON_PATH)
 	local data = (file ~= '') and json.decode(file)
 	
 	if data then
 		data = data.response.responses
 
 		if data[1].success == false then
-			for i = 1, NUM_SECTIONS do	populate_section(left.hours[i], cr) end
+			for i = 1, NUM_ROWS do	populate_section(left.hours[i], cr) end
 
 			populate_center(center, cr, nil, nil, nil, nil, 'Invalid Location')
 
-			for i = 1, NUM_SECTIONS do populate_section(right.days[i], cr) end
+			for i = 1, NUM_ROWS do populate_section(right.days[i], cr) end
 		else
 			--LEFT
 			local hourly = data[2].response[1].periods
 
-			for i = 1, NUM_SECTIONS do
+			for i = 1, NUM_ROWS do
 				local hour_data = hourly[i]
 
 				populate_section(
@@ -332,7 +332,7 @@ local update_interface = function(cr)
 					cr,
 					hour_data.weatherPrimary,
 					hour_data.timestamp and util.convert_unix_time(hour_data.timestamp, TIME_FORMAT),
-					hour_data.icon and ICON_PATH..hour_data.icon,
+					hour_data.icon and ICON_DIR_PATH..hour_data.icon,
 					hour_data.avgTempF and hour_data.avgTempF..'°F',
 					hour_data.feelslikeF  and 'Feels like '..hour_data.feelslikeF..'°F',
 					hour_data.humidity and hour_data.humidity..' %',
@@ -365,7 +365,7 @@ local update_interface = function(cr)
 				center,
 				cr,
 				ob.weather,
-				ob.icon and ICON_PATH..ob.icon,
+				ob.icon and ICON_DIR_PATH..ob.icon,
 				ob.tempF and ob.tempF..'°F',
 				ob.timestamp and util.convert_unix_time(ob.timestamp, TIME_FORMAT),
 				place,
@@ -388,7 +388,7 @@ local update_interface = function(cr)
 			--RIGHT
 			local daily = data[3].response[1].periods
 			
-			for i = 1, NUM_SECTIONS do
+			for i = 1, NUM_ROWS do
 				local day_data = daily[i]
 
 				populate_section(
@@ -397,7 +397,7 @@ local update_interface = function(cr)
 					day_data.weatherPrimary,
 					day_data.timestamp and __string_sub(util.convert_unix_time(
 					  day_data.timestamp, DATE_FORMAT), 1, 3),
-					day_data.icon and ICON_PATH..day_data.icon,
+					day_data.icon and ICON_DIR_PATH..day_data.icon,
 					day_data.maxTempF and day_data.maxTempF..'°F',
 					day_data.minTempF and 'Low of  '..day_data.minTempF..'°F',
 					day_data.humidity and day_data.humidity..' %',
@@ -407,19 +407,19 @@ local update_interface = function(cr)
 			end
 		end
 	else
-		for i = 1, NUM_SECTIONS do	populate_section(left.hours[i], cr) end
+		for i = 1, NUM_ROWS do	populate_section(left.hours[i], cr) end
 
 		populate_center(center, cr)
 
-		for i = 1, NUM_SECTIONS do populate_section(right.days[i], cr) end
+		for i = 1, NUM_ROWS do populate_section(right.days[i], cr) end
 	end
 end
 
 local draw_sections = function(section_group, cr)
-	for i = 1, NUM_SECTIONS do
+	for i = 1, NUM_ROWS do
 		local section = section_group[i]
 		
-		if i < NUM_SECTIONS then Line.draw(section.divider, cr) end
+		if i < NUM_ROWS then Line.draw(section.separator, cr) end
 		
 		Text.draw(section.desc, cr)
 		Text.draw(section.period, cr)
