@@ -106,7 +106,7 @@ local create_side_rows = function(side_rows_x, side_rows_y, side_rows_tbl)
 	end
 end
 
---LEFT
+-- LEFT
 local left = {
 	header = Widget.Header{
 		x = _G_INIT_DATA_.LEFT_X,
@@ -119,7 +119,7 @@ local left = {
 
 create_side_rows(_G_INIT_DATA_.LEFT_X, left.header.bottom_y, left.hours)
 
---CENTER
+-- CENTER
 local center = {}
 
 center.header = Widget.Header{
@@ -222,8 +222,7 @@ center.info_column_2 = Widget.TextColumn{
 	num_rows 	= 7
 }
 
---RIGHT
-
+-- RIGHT
 local right = {
 	header = Widget.Header{
 		x = _G_INIT_DATA_.RIGHT_X,
@@ -315,13 +314,13 @@ local update_interface = function(cr)
 		data = data.response.responses
 
 		if data[1].success == false then
-			for i = 1, NUM_ROWS do	populate_section(left.hours[i], cr) end
+			for i = 1, NUM_ROWS do populate_section(left.hours[i], cr) end
 
 			populate_center(center, cr, nil, nil, nil, nil, 'Invalid Location')
 
 			for i = 1, NUM_ROWS do populate_section(right.days[i], cr) end
 		else
-			--LEFT
+			-- LEFT
 			local hourly = data[2].response[1].periods
 
 			for i = 1, NUM_ROWS do
@@ -341,7 +340,7 @@ local update_interface = function(cr)
 				)
 			end
 
-			--CENTER
+			-- CENTER
 			local current_data = data[1].response
 			local ob = current_data.ob
 
@@ -385,7 +384,7 @@ local update_interface = function(cr)
 				ob.light and ob.light..' %'
 			)
 
-			--RIGHT
+			-- RIGHT
 			local daily = data[3].response[1].periods
 			
 			for i = 1, NUM_ROWS do
@@ -454,13 +453,13 @@ local draw = function(cr, interface, trigger)
 	update_cycle = update_cycle - 1
 
 	if interface == 1 then
-		--LEFT
+		-- LEFT
 		Text.draw(left.header.text, cr)
 		Line.draw(left.header.underline, cr)
 
 		draw_sections(left.hours, cr)
 
-		--CENTER
+		-- CENTER
 		Text.draw(center.header.text, cr)
 		Line.draw(center.header.underline, cr)
 
@@ -475,7 +474,7 @@ local draw = function(cr, interface, trigger)
 		TextColumn.draw(center.label_column_2, cr)
 		TextColumn.draw(center.info_column_2, cr)
 
-		--RIGHT
+		-- RIGHT
 		Text.draw(right.header.text, cr)
 		Line.draw(right.header.underline, cr)
 
