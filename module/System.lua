@@ -40,19 +40,19 @@ local info = Widget.TextColumn{
 	x_align 	= 'right',
 	text_color 	= schema.blue,
 	util.conky('$kernel'),
-	util.conky('$uptime'),
-	extract_date(UPGRADE_CMD),
-	extract_date(SYNC_CMD)
+	'<row2>',
+	'<row3>',
+	'<row4>'
 }
 
 Widget = nil
 schema = nil
 _TEXT_SPACING_ = nil
 
-local draw = function(cr, current_interface, trigger)
+local draw = function(cr, current_interface, log_is_changed)
 	TextColumn.set(info, cr, 2, util.conky('$uptime'))
 	
-	if trigger == 0 then
+	if log_is_changed then
 		TextColumn.set(info, cr, 3, extract_date(UPGRADE_CMD))
 		TextColumn.set(info, cr, 4, extract_date(SYNC_CMD))
 	end

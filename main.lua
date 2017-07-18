@@ -137,7 +137,7 @@ local __collectgarbage				= collectgarbage
 local __os_execute					= os.execute
 
 local using_ac = function()
-	if util.conky('${acpiacadapter AC}') == 'on-line' then return 0 end
+	return util.conky('${acpiacadapter AC}') == 'on-line'
 end
 
 local current_last_log_entry = util.execute_cmd('tail -1 /var/log/pacman.log')
@@ -184,7 +184,7 @@ function conky_main()
 		t2 = updates % (UPDATE_FREQUENCY * 300)
 	end
 
-	local log_is_changed = 1
+	local log_is_changed = false
 	if t2 == 0 then log_is_changed = check_if_log_changed() end
 	local interface_changed = check_interface()
 

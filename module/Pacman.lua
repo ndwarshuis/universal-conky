@@ -13,11 +13,6 @@ local PACMAN_TABLE = {
 	'pacman -Qmq'
 }
 
-local _INITIAL_PGK_CNT_ = {}
-for i, cmd in pairs(PACMAN_TABLE) do
-	_INITIAL_PGK_CNT_[i] = util.line_count(util.execute_cmd(cmd))
-end
-
 local _TEXT_SPACING_ = 20
 
 local header = Widget.Header{
@@ -43,13 +38,12 @@ local info = Widget.TextColumn{
 	spacing 	= _TEXT_SPACING_,
 	x_align 	= 'right',
 	text_color 	= schema.blue,
-	unpack(_INITIAL_PGK_CNT_)
+	num_rows 	= 5
 }
 
 Widget = nil
 schema = nil
 _TEXT_SPACING_ = nil
-_INITIAL_PGK_CNT_ = nil
 
 local update = function(cr)
 	for i, cmd in pairs(PACMAN_TABLE) do
@@ -57,8 +51,8 @@ local update = function(cr)
 	end
 end
 
-local draw = function(cr, current_interface, trigger)
-	if trigger == 0 then update(cr) end
+local draw = function(cr, current_interface, log_is_changed)
+	if log_is_changed then update(cr) end
 	
 	if current_interface == 0 then
 		Text.draw(header.text, cr)
