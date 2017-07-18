@@ -152,20 +152,6 @@ end
 __os_execute('set_conky_interface.sh 0')
 local current_interface = 0
 
-local check_interface = function()
-	local next_interface = util.read_file('/tmp/conky_interface', nil, '*n')
-
-	if next_interface ~= '' then
-		if next_interface == current_interface then return 1 end
-		current_interface = next_interface
-		return 0
-	else
-		__os_execute('set_conky_interface.sh 0')
-		current_interface = 0
-		return 0
-	end
-end
-
 function conky_main()
 	local _cw = conky_window
     if not _cw then return end
@@ -186,7 +172,19 @@ function conky_main()
 
 	local log_is_changed = false
 	if t2 == 0 then log_is_changed = check_if_log_changed() end
-	local interface_changed = check_interface()
+	
+	local interface_is_changed = false
+
+	local next_interface = util.read_file('/tmp/conky_interface', nil, '*n')
+
+	if next_interface == '' then
+		__os_execute('set_conky_interface.sh 0')
+		current_interface = 0
+		interface_is_changed = true
+	elseif next_interface ~= current_interface then
+		current_interface = next_interface
+		interface_is_changed = true
+	end
 
 	Panel(cr)
 
@@ -204,7 +202,7 @@ function conky_main()
 	Memory(cr, current_interface)
 
 	--interface 1
-	Weather(cr, current_interface, interface_changed)
+	Weather(cr, current_interface, interface_is_changed)
 
     __cairo_surface_destroy(cs)
     __cairo_destroy(cr)

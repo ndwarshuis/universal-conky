@@ -438,17 +438,17 @@ __os_execute('get_weather.sh')
 
 local update_cycle = WEATHER_UPDATE_INTERVAL
 
-local draw = function(cr, interface, trigger)
+local draw = function(cr, interface, interface_is_changed)
 	if update_cycle == 0 then __os_execute('get_weather.sh') end
 
-	local recently_updated = util.read_file(RECENTLY_UPDATED_PATH, nil, '*n')
+	local json_is_recently_updated = (util.read_file(RECENTLY_UPDATED_PATH, nil, '*l') == 'true')
 
-	if recently_updated == 1 then
+	if json_is_recently_updated then
 		update_cycle = WEATHER_UPDATE_INTERVAL
-		util.write_file(RECENTLY_UPDATED_PATH, 0)
+		util.write_file(RECENTLY_UPDATED_PATH, 'false')
 	end
 
-	if recently_updated == 1 or trigger == 0 then update_interface(cr) end
+	if json_is_recently_updated or interface_is_changed then update_interface(cr) end
 
 	update_cycle = update_cycle - 1
 

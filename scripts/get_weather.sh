@@ -62,4 +62,4 @@ id="client_id=TdJ5M1pUXWUUebhfRKSs2"
 secret="client_secret=DmI2NHCO6BQ5hSH4yAECVJlgA8gYZ1C4BvNaGEuM"
 
 curl -s "$weather_url$location_string?requests=$observations,$hourly,$daily&$id&$secret" > /tmp/weather.json && \
-echo 1 > /tmp/weather_recently_updated &
+echo true > /tmp/weather_recently_updated &
