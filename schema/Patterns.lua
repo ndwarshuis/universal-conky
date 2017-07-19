@@ -1,6 +1,7 @@
 local M = {}
 
 local Color = require 'Color'
+local Util 	= require 'Util'
 
 local WHITE = 0xffffffff
 	
@@ -64,5 +65,7 @@ M.TRANSPARENT_BLUE = Color.Gradient{
 	Color.ColorStop{hex_rgba = BLUE3, stop = 0.0, force_alpha = 0.2},
 	Color.ColorStop{hex_rgba = BLUE1, stop = 1.0, force_alpha = 1.0}
 }
+
+M = Util.set_finalizer(M, function() print('Cleaning up Patterns.lua') end)
 
 return M

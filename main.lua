@@ -123,6 +123,8 @@ end
 _unrequire('Super')
 _unrequire('Color')
 _unrequire('Gradient')
+_unrequire('Widget')
+_unrequire('Patterns')
 
 _unrequire = nil
 
