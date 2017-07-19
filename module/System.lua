@@ -35,7 +35,7 @@ local info = Widget.TextColumn{
 	y 			= header.bottom_y,
 	spacing 	= _TEXT_SPACING_,
 	x_align 	= 'right',
-	text_color 	= schema.blue,
+	text_color 	= schema.BLUE,
 	util.conky('$kernel'),
 	'<row2>',
 	'<row3>',

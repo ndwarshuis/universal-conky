@@ -119,7 +119,7 @@ local cache = {
 		y 			= _LINE_1_Y_ + _TEXT_SPACING_,
 		x_align 	= 'right',
 		append_end 	= ' %',
-		text_color	= schema.purple,
+		text_color	= schema.PURPLE,
 		'<cached_kb>',
 		'<buffers_kb>',
 		'<kernel_slab>'

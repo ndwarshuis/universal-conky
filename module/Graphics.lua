@@ -36,7 +36,7 @@ local status = {
 		x 			= _RIGHT_X_,
 		y 			= header.bottom_y,
 		x_align 	= 'right',
-		text_color 	= schema.blue,
+		text_color 	= schema.BLUE,
 		text        = '<status>'
 	}
 }
@@ -60,7 +60,7 @@ local internal_temp = {
 		x 			= _RIGHT_X_,
 		y 			= _INTERNAL_TEMP_Y_,
 		x_align 	= 'right',
-		text_color 	= schema.blue,
+		text_color 	= schema.BLUE,
 		text        = '<gpu_temp>'
 	}
 }
@@ -77,7 +77,7 @@ local pci_util = {
 		x 			= _RIGHT_X_,
 		y 			= _PCI_UTIL_Y_,
 		x_align 	= 'right',
-		text_color 	= schema.blue,
+		text_color 	= schema.BLUE,
 		text        = '<pci_util>'
 	}
 }
@@ -104,7 +104,7 @@ local clock_speed = {
 		y 			= _CLOCK_SPEED_Y_,
 		spacing 	= _TEXT_SPACING_,
 		x_align 	= 'right',
-		text_color 	= schema.blue,
+		text_color 	= schema.BLUE,
 		num_rows 	= 2
 	}
 }
@@ -128,7 +128,7 @@ local gpu_util = {
 		x 			= _RIGHT_X_,
 		y 			= _GPU_UTIL_Y_,
 		x_align 	= 'right',
-		text_color 	= schema.blue,
+		text_color 	= schema.BLUE,
 		text        = '<gpu_util>'
 	},
 	plot = Widget.LabelPlot{
@@ -151,7 +151,7 @@ local mem_util = {
 		x 			= _RIGHT_X_,
 		y 			= _MEM_UTIL_Y_,
 		x_align 	= 'right',
-		text_color 	= schema.blue,
+		text_color 	= schema.BLUE,
 		text        = '<mem_util>'
 	},
 	plot = Widget.LabelPlot{
@@ -174,7 +174,7 @@ local vid_util = {
 		x 			= _RIGHT_X_,
 		y 			= _VID_UTIL_Y_,
 		x_align 	= 'right',
-		text_color 	= schema.blue,
+		text_color 	= schema.BLUE,
 		text        = '<vid_util>'
 	},
 	plot = Widget.LabelPlot{

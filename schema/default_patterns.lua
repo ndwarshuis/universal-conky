@@ -30,9 +30,9 @@ M.LIGHT_GREY = Color.init{hex_rgba = GREY1}
 M.MID_GREY = Color.init{hex_rgba = GREY3}
 M.DARK_GREY = Color.init{hex_rgba = GREY4}
 
-M.blue = Color.init{hex_rgba = BLUE2}
-M.red = Color.init{hex_rgba = RED2}
-M.purple = Color.init{hex_rgba = PURPLE2}
+M.BLUE = Color.init{hex_rgba = BLUE2}
+M.RED = Color.init{hex_rgba = RED2}
+M.PURPLE = Color.init{hex_rgba = PURPLE2}
 
 M.GREY_ROUNDED = Color.Gradient{
 	Color.ColorStop{hex_rgba = GREY5, stop = 0.0},

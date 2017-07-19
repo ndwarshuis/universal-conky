@@ -39,14 +39,14 @@ local create_side_rows = function(side_rows_x, side_rows_y, side_rows_tbl)
 		current_row.desc = Widget.Text{
 			x = side_rows_x,
 			y = current_row_y,
-			text_color = schema.blue,
+			text_color = schema.BLUE,
 		}
 		
 		current_row.period = Widget.Text{
 			x 			= side_rows_x + _G_INIT_DATA_.SECTION_WIDTH,
 			y 			= current_row_y,
 			x_align 	= 'right',
-			text_color 	= schema.blue
+			text_color 	= schema.BLUE
 		}
 		
 		current_row.icon = Widget.ScaledImage{
@@ -61,7 +61,7 @@ local create_side_rows = function(side_rows_x, side_rows_y, side_rows_tbl)
 			y 			= current_row_y + _HEADER_PAD_ + 25,
 			x_align		= 'center',
 			font_size 	= 28,
-			text_color 	= schema.blue
+			text_color 	= schema.BLUE
 		}
 		
 		current_row.temp2 = Widget.Text{
@@ -85,7 +85,7 @@ local create_side_rows = function(side_rows_x, side_rows_y, side_rows_tbl)
 			y = current_row_y + _HEADER_PAD_ + 15,
 			spacing = _SPACING_,
 			x_align = 'right',
-			text_color = schema.blue,
+			text_color = schema.BLUE,
 			num_rows = 3
 		}
 		
@@ -131,7 +131,7 @@ center.header = Widget.Header{
 center.current_desc = Widget.Text{
 	x 			= _G_INIT_DATA_.CENTER_LEFT_X,
 	y 			= center.header.bottom_y + 8,
-	text_color 	= schema.blue,
+	text_color 	= schema.BLUE,
 	font_size	= 24
 }
 
@@ -153,7 +153,7 @@ center.current_temp = Widget.Text{
 	y 			= _INFO_Y_,
 	x_align 	= 'center',
 	font_size 	= 48,
-	text_color 	= schema.blue
+	text_color 	= schema.BLUE
 }
 
 center.obs_time = Widget.Text{
@@ -191,7 +191,7 @@ center.info_column_1 = Widget.TextColumn{
 	x 			= _G_INIT_DATA_.CENTER_RIGHT_X + (_G_INIT_DATA_.SECTION_WIDTH - _COLUMN_PADDING_) / 2,
 	y 			= center.header.bottom_y,
 	x_align 	= 'right',
-	text_color 	= schema.blue,
+	text_color 	= schema.BLUE,
 	spacing 	= _CENTER_SPACING_,
 	font_size 	= 14,
 	num_rows 	= 7
@@ -215,7 +215,7 @@ center.info_column_2 = Widget.TextColumn{
 	x 			= _G_INIT_DATA_.CENTER_RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH,
 	y 			= center.header.bottom_y,
 	x_align 	= 'right',
-	text_color 	= schema.blue,
+	text_color 	= schema.BLUE,
 	spacing 	= _CENTER_SPACING_,
 	font_size 	= 14,
 	num_rows 	= 7

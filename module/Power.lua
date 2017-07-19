@@ -44,7 +44,7 @@ local pp01 = {
 		y 			= header.bottom_y,
 		spacing		= _TEXT_SPACING_,
 		x_align 	= 'right',
-		text_color 	= schema.blue,
+		text_color 	= schema.BLUE,
 		append_end 	= ' W',
 		num_rows	= 2
 	}
@@ -69,7 +69,7 @@ local pkg0 = {
 		x 			= _RIGHT_X_,
 		y 			= _PKG0_Y_,
 		x_align 	= 'right',
-		text_color 	= schema.blue,
+		text_color 	= schema.BLUE,
 		text        = '<pkg0>',
 		append_end	= ' W'
 	},
@@ -94,7 +94,7 @@ local dram = {
 		x 			= _RIGHT_X_,
 		y 			= _DRAM_Y_,
 		x_align 	= 'right',
-		text_color 	= schema.blue,
+		text_color 	= schema.BLUE,
 		text        = '<dram>',
 		append_end	= ' W'
 	},

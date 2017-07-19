@@ -39,7 +39,7 @@ local dnload = {
 		x = _RIGHT_X_,
 		y = header.bottom_y,
 		x_align = 'right',
-		text_color = schema.blue
+		text_color = schema.BLUE
 	},
 	plot = Widget.ScalePlot{
 		x = _G_INIT_DATA_.CENTER_RIGHT_X,
@@ -62,7 +62,7 @@ local upload = {
 		x = _RIGHT_X_,
 		y = _UPLOAD_Y_,
 		x_align = 'right',
-		text_color = schema.blue
+		text_color = schema.BLUE
 	},
 	plot = Widget.ScalePlot{
 		x = _G_INIT_DATA_.CENTER_RIGHT_X,

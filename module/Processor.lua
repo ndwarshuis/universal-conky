@@ -109,7 +109,7 @@ local process = {
 		x 			= _RIGHT_X_,
 		y 			= _PROCESS_Y_,
 		x_align 	= 'right',
-		text_color 	= schema.blue,
+		text_color 	= schema.BLUE,
 		text        = '<R.S.D.T.Z>'
 	}
 }
