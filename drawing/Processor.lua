@@ -6,7 +6,7 @@ local Text			= require 'Text'
 local Line			= require 'Line'
 local LabelPlot		= require 'LabelPlot'
 local Table			= require 'Table'
-local util			= require 'util'
+local Util			= require 'Util'
 local Patterns		= require 'Patterns'
 
 local CORETEMP_PATH = '/sys/devices/platform/coretemp.0/hwmon/hwmon%i/%s'
@@ -38,13 +38,13 @@ local _create_core_ = function(cores, id, x, y)
 	local conky_threads = {}
 
 	for c = 0, NUM_PHYSICAL_CORES * NUM_THREADS_PER_CORE - 1 do
-		if util.read_file('/sys/devices/system/cpu/cpu'..c..'/topology/core_id', nil, '*n') == id then
+		if Util.read_file('/sys/devices/system/cpu/cpu'..c..'/topology/core_id', nil, '*n') == id then
 			table.insert(conky_threads, '${cpu cpu'..c..'}')
 		end
 	end
 
 	local hwmon_index = -1
-	while util.read_file(string.format(CORETEMP_PATH, hwmon_index, 'name'), nil, '*l') ~= 'coretemp' do
+	while Util.read_file(string.format(CORETEMP_PATH, hwmon_index, 'name'), nil, '*l') ~= 'coretemp' do
 		hwmon_index = hwmon_index + 1
 	end
 
@@ -159,8 +159,8 @@ local tbl = Widget.Table{
 }
 
 local update = function(cr)
-	local conky = util.conky
-	local char_count = util.char_count
+	local conky = Util.conky
+	local char_count = Util.char_count
 
 	local sum = 0
 	for c = 1, NUM_PHYSICAL_CORES do
@@ -168,15 +168,15 @@ local update = function(cr)
 		
 		local conky_threads = core.conky_threads
 		for t = 1, NUM_THREADS_PER_CORE do
-			local percent = util.conky_numeric(conky_threads[t]) * 0.01
+			local percent = Util.conky_numeric(conky_threads[t]) * 0.01
 			CompoundDial.set(core.dials, t, percent)
 			sum = sum + percent
 		end
 
-		CriticalText.set(core.coretemp_text, cr, util.round(0.001 * util.read_file(core.coretemp_path, nil, '*n')))
+		CriticalText.set(core.coretemp_text, cr, Util.round(0.001 * Util.read_file(core.coretemp_path, nil, '*n')))
 	end
 	
-	local process_glob = util.execute_cmd('ps -A -o s')
+	local process_glob = Util.execute_cmd('ps -A -o s')
 	
 	--subtract one from running b/c ps will always be "running"
 	Text.set(process.values, cr, (char_count(process_glob, 'R') - 1)..' | '..
@@ -185,7 +185,7 @@ local update = function(cr)
 								  char_count(process_glob, 'T')..' | '..
 								  char_count(process_glob, 'Z'))
 
-	local load_percent = util.round(sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE, 2)
+	local load_percent = Util.round(sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE, 2)
 	CriticalText.set(total_load.value, cr, load_percent * 100)
 
 	LabelPlot.update(plot, load_percent)

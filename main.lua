@@ -100,7 +100,7 @@ conky_set_update_interval(_G_INIT_DATA_.UPDATE_INTERVAL)
 require 'imlib2'
 require 'cairo'
 
-local util 			= require 'util'
+local Util 			= require 'Util'
 local Panel 		= require 'Panel'
 local System 		= require 'System'
 local Network 		= require 'Network'
@@ -136,13 +136,13 @@ local __collectgarbage				= collectgarbage
 local __os_execute					= os.execute
 
 local using_ac = function()
-	return util.conky('${acpiacadapter AC}') == 'on-line'
+	return Util.conky('${acpiacadapter AC}') == 'on-line'
 end
 
-local current_last_log_entry = util.execute_cmd('tail -1 /var/log/pacman.log')
+local current_last_log_entry = Util.execute_cmd('tail -1 /var/log/pacman.log')
 
 local check_if_log_changed = function()
-	local new_last_log_entry = util.execute_cmd('tail -1 /var/log/pacman.log')
+	local new_last_log_entry = Util.execute_cmd('tail -1 /var/log/pacman.log')
 	if new_last_log_entry == current_last_log_entry then return 1 end
 	current_last_log_entry = new_last_log_entry
 	return 0
@@ -174,7 +174,7 @@ function conky_main()
 	
 	local interface_is_changed = false
 
-	local next_interface = util.read_file('/tmp/conky_interface', nil, '*n')
+	local next_interface = Util.read_file('/tmp/conky_interface', nil, '*n')
 
 	if next_interface == '' then
 		__os_execute('set_conky_interface.sh 0')

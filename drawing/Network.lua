@@ -2,7 +2,7 @@ local Widget	= require 'Widget'
 local Text		= require 'Text'
 local Line		= require 'Line'
 local ScalePlot = require 'ScalePlot'
-local util		= require 'util'
+local Util		= require 'Util'
 local Patterns	= require 'Patterns'
 
 local __string_gmatch = string.gmatch
@@ -11,13 +11,13 @@ local _PLOT_SEC_BREAK_ = 20
 local _PLOT_HEIGHT_ = 56
 
 local network_label_function = function(bytes)
-	local new_unit = util.get_unit(bytes)
+	local new_unit = Util.get_unit(bytes)
 	
-	local converted = util.convert_bytes(bytes, 'B', new_unit)
+	local converted = Util.convert_bytes(bytes, 'B', new_unit)
 	local precision = 0
 	if converted < 10 then precision = 1 end
 	
-	return util.round_to_string(converted, precision)..' '..new_unit..'/s'
+	return Util.round_to_string(converted, precision)..' '..new_unit..'/s'
 end
 
 local header = Widget.Header{
@@ -81,7 +81,7 @@ local update = function(cr, update_frequency)
 	local rx_delta, tx_delta
 
 	-- iterate through the route file and filter on interfaces that are gateways (flag = 0003)
-	local iterator = __string_gmatch(util.read_file('/proc/net/route'),
+	local iterator = __string_gmatch(Util.read_file('/proc/net/route'),
 	  '(%w+)%s+%w+%s+%w+%s+0003%s+')
 
 	for interface in iterator do
@@ -94,14 +94,14 @@ local update = function(cr, update_frequency)
 			interface_counters = {
 				rx_path = rx_path,
 				tx_path = tx_path,
-				prev_rx_byte_cnt = util.read_file(rx_path, nil, '*n'),
-				prev_tx_byte_cnt = util.read_file(tx_path, nil, '*n'),
+				prev_rx_byte_cnt = Util.read_file(rx_path, nil, '*n'),
+				prev_tx_byte_cnt = Util.read_file(tx_path, nil, '*n'),
 			}
 			interface_counters_tbl[interface] = interface_counters
 		end
 		
-		local rx_byte_cnt = util.read_file(interface_counters.rx_path, nil, '*n')
-		local tx_byte_cnt = util.read_file(interface_counters.tx_path, nil, '*n')
+		local rx_byte_cnt = Util.read_file(interface_counters.rx_path, nil, '*n')
+		local tx_byte_cnt = Util.read_file(interface_counters.tx_path, nil, '*n')
 		
 		rx_delta = rx_byte_cnt - interface_counters.prev_rx_byte_cnt
 		tx_delta = tx_byte_cnt - interface_counters.prev_tx_byte_cnt
@@ -114,14 +114,14 @@ local update = function(cr, update_frequency)
 		if tx_delta > 0 then uspeed = uspeed + tx_delta * update_frequency end
 	end
 
-	local dspeed_unit = util.get_unit(dspeed)
-	local uspeed_unit = util.get_unit(uspeed)
+	local dspeed_unit = Util.get_unit(dspeed)
+	local uspeed_unit = Util.get_unit(uspeed)
 	
 	dnload.speed.append_end = ' '..dspeed_unit..'/s'
 	upload.speed.append_end = ' '..uspeed_unit..'/s'
 	
-	Text.set(dnload.speed, cr, util.precision_convert_bytes(dspeed, 'B', dspeed_unit, 3))
-	Text.set(upload.speed, cr, util.precision_convert_bytes(uspeed, 'B', uspeed_unit, 3))
+	Text.set(dnload.speed, cr, Util.precision_convert_bytes(dspeed, 'B', dspeed_unit, 3))
+	Text.set(upload.speed, cr, Util.precision_convert_bytes(uspeed, 'B', uspeed_unit, 3))
 	
 	ScalePlot.update(dnload.plot, cr, dspeed)
 	ScalePlot.update(upload.plot, cr, uspeed)

@@ -2,7 +2,7 @@ local Widget		= require 'Widget'
 local Text 			= require 'Text'
 local Line 			= require 'Line'
 local TextColumn	= require 'TextColumn'
-local util			= require 'util'
+local Util			= require 'Util'
 local Patterns		= require 'Patterns'
 
 local __string_match = string.match
@@ -10,7 +10,7 @@ local __string_match = string.match
 local _TEXT_SPACING_ = 20
 
 local extract_date = function(cmd)
-	local yyyy, mm_dd = __string_match(util.execute_cmd(cmd), '%[(%d-)%-(%d-%-%d-)%s')
+	local yyyy, mm_dd = __string_match(Util.execute_cmd(cmd), '%[(%d-)%-(%d-%-%d-)%s')
 	return mm_dd..'-'..yyyy
 end
 
@@ -36,7 +36,7 @@ local info = Widget.TextColumn{
 	spacing 	= _TEXT_SPACING_,
 	x_align 	= 'right',
 	text_color 	= Patterns.BLUE,
-	util.conky('$kernel'),
+	Util.conky('$kernel'),
 	'<row2>',
 	'<row3>',
 	'<row4>'
@@ -47,7 +47,7 @@ Patterns = nil
 _TEXT_SPACING_ = nil
 
 local draw = function(cr, current_interface, log_is_changed)
-	TextColumn.set(info, cr, 2, util.conky('$uptime'))
+	TextColumn.set(info, cr, 2, Util.conky('$uptime'))
 	
 	if log_is_changed then
 		TextColumn.set(info, cr, 3, extract_date("sed -n "..

@@ -4,7 +4,7 @@ local Text			= require 'Text'
 local TextColumn	= require 'TextColumn'
 local Line			= require 'Line'
 local LabelPlot		= require 'LabelPlot'
-local util			= require 'util'
+local Util			= require 'Util'
 local Patterns		= require 'Patterns'
 
 local __tonumber		= tonumber
@@ -228,7 +228,7 @@ end
 				 
 local update = function(cr)
     -- check if bbswitch is on
-	if util.read_file('/proc/acpi/bbswitch', '.+%s+(%u+)') == 'ON' then
+	if Util.read_file('/proc/acpi/bbswitch', '.+%s+(%u+)') == 'ON' then
 
 		-- bbswitch might be on, but only because conky is constantly querying
 		-- it and there appears to be some lag between closing all optirun
@@ -236,12 +236,12 @@ local update = function(cr)
 		-- no optirun processes, we call this "Mixed." In this case we don't
 		-- check anything (to allow bbswitch to actually switch off) and set all
 		-- values to N/A and 0.
-		if __string_find(util.execute_cmd('ps -A -o comm'), 'optirun') == nil then
+		if __string_find(Util.execute_cmd('ps -A -o comm'), 'optirun') == nil then
 			Text.set(status.value, cr, 'Mixed')
 			nvidia_off(cr)
 		else
 			Text.set(status.value, cr, 'On')
-			local nvidia_settings_glob = util.execute_cmd(NV_QUERY)
+			local nvidia_settings_glob = Util.execute_cmd(NV_QUERY)
 
 			local used_memory, total_memory, temp_reading, gpu_frequency,
 				memory_frequency, gpu_utilization, vid_utilization,
@@ -259,7 +259,7 @@ local update = function(cr)
 			local percent_used_memory = used_memory / total_memory
 
 			Text.set(gpu_util.value, cr, gpu_utilization..'%')
-			Text.set(mem_util.value, cr, util.round(percent_used_memory * 100)..'%')
+			Text.set(mem_util.value, cr, Util.round(percent_used_memory * 100)..'%')
 			Text.set(vid_util.value, cr, vid_utilization..'%')
 
 			LabelPlot.update(gpu_util.plot, gpu_utilization * 0.01)

@@ -2,7 +2,7 @@ local Widget	= require 'Widget'
 local Text		= require 'Text'
 local Line		= require 'Line'
 local ScalePlot = require 'ScalePlot'
-local util		= require 'util'
+local Util		= require 'Util'
 local Patterns	= require 'Patterns'
 
 local __tonumber 	= tonumber
@@ -18,7 +18,7 @@ local STAT_FILE = '/sys/block/sda/stat'
 local RW_REGEX = '%s+%d+%s+%d+%s+(%d+)%s+%d+%s+%d+%s+%d+%s+(%d+)'
 
 local read_stat_file = function()
-	local bytes_r, bytes_w = __string_match(util.read_file(STAT_FILE), RW_REGEX)
+	local bytes_r, bytes_w = __string_match(Util.read_file(STAT_FILE), RW_REGEX)
 	return __tonumber(bytes_r) * BLOCK_SIZE_BYTES, __tonumber(bytes_w) * BLOCK_SIZE_BYTES
 end
 
@@ -28,9 +28,9 @@ local update_stat = function(cr, stat, byte_cnt, update_frequency)
 	
 	if delta_bytes > 0 then
 		local bps = delta_bytes * update_frequency
-		local unit = util.get_unit(bps)
+		local unit = Util.get_unit(bps)
 		stat.rate.append_end = ' '..unit..'/s'
-		Text.set(stat.rate, cr, util.precision_convert_bytes(bps, 'B', unit, 3))
+		Text.set(stat.rate, cr, Util.precision_convert_bytes(bps, 'B', unit, 3))
 		ScalePlot.update(stat.plot, cr, bps)	
 	else
 		stat.rate.append_end = ' B/s'
@@ -40,13 +40,13 @@ local update_stat = function(cr, stat, byte_cnt, update_frequency)
 end
 
 local io_label_function = function(bytes)
-	local new_unit = util.get_unit(bytes)
+	local new_unit = Util.get_unit(bytes)
 	
-	local converted = util.convert_bytes(bytes, 'B', new_unit)
+	local converted = Util.convert_bytes(bytes, 'B', new_unit)
 	local precision = 0
 	if converted < 10 then precision = 1 end
 	
-	return util.round_to_string(converted, precision)..' '..new_unit..'/s'
+	return Util.round_to_string(converted, precision)..' '..new_unit..'/s'
 end
 
 local header = Widget.Header{

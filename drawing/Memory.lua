@@ -7,7 +7,7 @@ local TextColumn	= require 'TextColumn'
 local Line			= require 'Line'
 local LabelPlot		= require 'LabelPlot'
 local Table			= require 'Table'
-local util			= require 'util'
+local Util			= require 'Util'
 local Patterns		= require 'Patterns'
 
 local __string_match		= string.match
@@ -24,7 +24,7 @@ local _PLOT_HEIGHT_ = 56
 local _TABLE_SECTION_BREAK_ = 20
 local _TABLE_HEIGHT_ = 114
 
-local MEM_TOTAL_KB = tonumber(util.read_file('/proc/meminfo', '^MemTotal:%s+(%d+)'))
+local MEM_TOTAL_KB = tonumber(Util.read_file('/proc/meminfo', '^MemTotal:%s+(%d+)'))
 
 local MEMINFO_REGEX = '\nMemFree:%s+(%d+).+'..
                       '\nBuffers:%s+(%d+).+'..
@@ -149,29 +149,29 @@ local update = function(cr)
 	-- see source for the 'free' command (sysinfo.c) for formulas
 
 	local memfree_kb, buffers_kb, cached_kb, swap_total_kb, swap_free_kb,
-	  slab_reclaimable_kb = __string_match(util.read_file('/proc/meminfo'), MEMINFO_REGEX)
+	  slab_reclaimable_kb = __string_match(Util.read_file('/proc/meminfo'), MEMINFO_REGEX)
 
 	local used_percent = (MEM_TOTAL_KB - memfree_kb - cached_kb - buffers_kb - slab_reclaimable_kb) / MEM_TOTAL_KB
 
 	Dial.set(dial, used_percent)
-	CriticalText.set(total_used, cr, util.round(used_percent * 100))
+	CriticalText.set(total_used, cr, Util.round(used_percent * 100))
 
 	local cache_theta = (DIAL_THETA_0 - DIAL_THETA_1) / MEM_TOTAL_KB * memfree_kb + DIAL_THETA_1
 	__cairo_path_destroy(cache_arc.path)
 	cache_arc.path = Arc.create_path(cr, DIAL_X, DIAL_Y, DIAL_RADIUS, dial.dial_angle, cache_theta)
 	
-	CriticalText.set(swap.percent, cr, util.precision_round_to_string(
+	CriticalText.set(swap.percent, cr, Util.precision_round_to_string(
 	  (swap_total_kb - swap_free_kb) /	swap_total_kb * 100))
 
 	local _percents = cache.percents
 	
-	TextColumn.set(_percents, cr, 1, util.precision_round_to_string(
+	TextColumn.set(_percents, cr, 1, Util.precision_round_to_string(
 	  cached_kb / MEM_TOTAL_KB * 100))
 	  
-	TextColumn.set(_percents, cr, 2, util.precision_round_to_string(
+	TextColumn.set(_percents, cr, 2, Util.precision_round_to_string(
 	  buffers_kb / MEM_TOTAL_KB * 100))
 	  
-	TextColumn.set(_percents, cr, 3, util.precision_round_to_string(
+	TextColumn.set(_percents, cr, 3, Util.precision_round_to_string(
 	  slab_reclaimable_kb / MEM_TOTAL_KB * 100))
 
 	LabelPlot.update(plot, used_percent)
@@ -179,7 +179,7 @@ local update = function(cr)
 	for c = 1, 3 do
 		local column = TABLE_CONKY[c]
 		for r = 1, NUM_ROWS do
-			Table.set(tbl, cr, c, r, util.conky(column[r], '(%S+)'))
+			Table.set(tbl, cr, c, r, Util.conky(column[r], '(%S+)'))
 		end
 	end
 end

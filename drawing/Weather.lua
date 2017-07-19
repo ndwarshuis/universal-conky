@@ -3,8 +3,8 @@ local Text 			= require 'Text'
 local Line 			= require 'Line'
 local TextColumn	= require 'TextColumn'
 local ScaledImage	= require 'ScaledImage'
-local util			= require 'util'
-local json			= require 'json'
+local Util			= require 'Util'
+local Json			= require 'Json'
 local Patterns		= require 'Patterns'
 
 local __string_match 	= string.match
@@ -307,8 +307,8 @@ local populate_center = function(center_section, cr, desc, icon_path, temp,
 end
 
 local update_interface = function(cr)
-	local file = util.read_file(WEATHER_JSON_PATH)
-	local data = (file ~= '') and json.decode(file)
+	local file = Util.read_file(WEATHER_JSON_PATH)
+	local data = (file ~= '') and Json.decode(file)
 	
 	if data then
 		data = data.response.responses
@@ -330,7 +330,7 @@ local update_interface = function(cr)
 					left.hours[i],
 					cr,
 					hour_data.weatherPrimary,
-					hour_data.timestamp and util.convert_unix_time(hour_data.timestamp, TIME_FORMAT),
+					hour_data.timestamp and Util.convert_unix_time(hour_data.timestamp, TIME_FORMAT),
 					hour_data.icon and ICON_DIR_PATH..hour_data.icon,
 					hour_data.avgTempF and hour_data.avgTempF..'°F',
 					hour_data.feelslikeF  and 'Feels like '..hour_data.feelslikeF..'°F',
@@ -347,7 +347,7 @@ local update_interface = function(cr)
 			local place
 			if current_data.place then
 				place = current_data.place.name
-				if place then place = util.capitalize_each_word(__string_match(place, '([%w%s]+)/?')) end
+				if place then place = Util.capitalize_each_word(__string_match(place, '([%w%s]+)/?')) end
 
 				local state = current_data.place.state
 				if state == '' then state = nil end
@@ -366,7 +366,7 @@ local update_interface = function(cr)
 				ob.weather,
 				ob.icon and ICON_DIR_PATH..ob.icon,
 				ob.tempF and ob.tempF..'°F',
-				ob.timestamp and util.convert_unix_time(ob.timestamp, TIME_FORMAT),
+				ob.timestamp and Util.convert_unix_time(ob.timestamp, TIME_FORMAT),
 				place,
 				ob.feelslikeF and ob.feelslikeF..'°F',
 				ob.dewpointF and ob.dewpointF..'°F',
@@ -379,8 +379,8 @@ local update_interface = function(cr)
 				ob.windGustMPH and ob.windGustMPH..' mph',
 				ob.windDirDEG and ob.windDirDEG..' deg',
 				ob.pressureMB and ob.pressureMB..' mbar',
-				ob.sunrise and util.convert_unix_time(ob.sunrise, TIME_FORMAT),
-				ob.sunset and util.convert_unix_time(ob.sunset, TIME_FORMAT),
+				ob.sunrise and Util.convert_unix_time(ob.sunrise, TIME_FORMAT),
+				ob.sunset and Util.convert_unix_time(ob.sunset, TIME_FORMAT),
 				ob.light and ob.light..' %'
 			)
 
@@ -394,7 +394,7 @@ local update_interface = function(cr)
 					right.days[i],
 					cr,
 					day_data.weatherPrimary,
-					day_data.timestamp and __string_sub(util.convert_unix_time(
+					day_data.timestamp and __string_sub(Util.convert_unix_time(
 					  day_data.timestamp, DATE_FORMAT), 1, 3),
 					day_data.icon and ICON_DIR_PATH..day_data.icon,
 					day_data.maxTempF and day_data.maxTempF..'°F',
@@ -438,11 +438,11 @@ local update_cycle = WEATHER_UPDATE_INTERVAL
 local draw = function(cr, interface, interface_is_changed)
 	if update_cycle == 0 then __os_execute('get_weather.sh') end
 
-	local json_is_recently_updated = (util.read_file(RECENTLY_UPDATED_PATH, nil, '*l') == 'true')
+	local json_is_recently_updated = (Util.read_file(RECENTLY_UPDATED_PATH, nil, '*l') == 'true')
 
 	if json_is_recently_updated then
 		update_cycle = WEATHER_UPDATE_INTERVAL
-		util.write_file(RECENTLY_UPDATED_PATH, 'false')
+		Util.write_file(RECENTLY_UPDATED_PATH, 'false')
 	end
 
 	if json_is_recently_updated or interface_is_changed then update_interface(cr) end

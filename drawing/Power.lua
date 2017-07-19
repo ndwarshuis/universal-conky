@@ -3,7 +3,7 @@ local Text			= require 'Text'
 local TextColumn	= require 'TextColumn'
 local Line			= require 'Line'
 local ScalePlot 	= require 'ScalePlot'
-local util			= require 'util'
+local Util			= require 'Util'
 local Patterns		= require 'Patterns'
 
 local _MODULE_Y_ = 328
@@ -135,30 +135,30 @@ local CORE_PATH = '/sys/class/powercap/intel-rapl:0:0/energy_uj'
 local IGPU_PATH = '/sys/class/powercap/intel-rapl:0:1/energy_uj'
 local DRAM_PATH = '/sys/class/powercap/intel-rapl:0:2/energy_uj'
 
-local prev_pkg0_uj_cnt = util.read_file(PKG0_PATH, nil, '*n')
-local prev_core_uj_cnt = util.read_file(CORE_PATH, nil, '*n')
-local prev_igpu_uj_cnt = util.read_file(IGPU_PATH, nil, '*n')
-local prev_dram_uj_cnt = util.read_file(DRAM_PATH, nil, '*n')
+local prev_pkg0_uj_cnt = Util.read_file(PKG0_PATH, nil, '*n')
+local prev_core_uj_cnt = Util.read_file(CORE_PATH, nil, '*n')
+local prev_igpu_uj_cnt = Util.read_file(IGPU_PATH, nil, '*n')
+local prev_dram_uj_cnt = Util.read_file(DRAM_PATH, nil, '*n')
 
 local update = function(cr, update_frequency, is_using_ac)
-	local pkg0_uj_cnt = util.read_file(PKG0_PATH, nil, '*n')
-	local core_uj_cnt = util.read_file(CORE_PATH, nil, '*n')
-	local igpu_uj_cnt = util.read_file(IGPU_PATH, nil, '*n')
-	local dram_uj_cnt = util.read_file(DRAM_PATH, nil, '*n')
+	local pkg0_uj_cnt = Util.read_file(PKG0_PATH, nil, '*n')
+	local core_uj_cnt = Util.read_file(CORE_PATH, nil, '*n')
+	local igpu_uj_cnt = Util.read_file(IGPU_PATH, nil, '*n')
+	local dram_uj_cnt = Util.read_file(DRAM_PATH, nil, '*n')
 
-	TextColumn.set(pp01.values, cr, 1, util.precision_round_to_string(
+	TextColumn.set(pp01.values, cr, 1, Util.precision_round_to_string(
 		calculate_power(cr, prev_core_uj_cnt, core_uj_cnt, update_frequency), 3))
 
-	TextColumn.set(pp01.values, cr, 2, util.precision_round_to_string(
+	TextColumn.set(pp01.values, cr, 2, Util.precision_round_to_string(
 		calculate_power(cr, prev_igpu_uj_cnt, igpu_uj_cnt, update_frequency), 3))
 
 	local pkg0_power = calculate_power(cr, prev_pkg0_uj_cnt, pkg0_uj_cnt, update_frequency)
 	local dram_power = calculate_power(cr, prev_dram_uj_cnt, dram_uj_cnt, update_frequency)
 
-	Text.set(pkg0.value, cr, util.precision_round_to_string(pkg0_power, 3))
+	Text.set(pkg0.value, cr, Util.precision_round_to_string(pkg0_power, 3))
 	ScalePlot.update(pkg0.plot, cr, pkg0_power)
 
-	Text.set(dram.value, cr, util.precision_round_to_string(dram_power, 3))
+	Text.set(dram.value, cr, Util.precision_round_to_string(dram_power, 3))
 	ScalePlot.update(dram.plot, cr, dram_power)
 
 	prev_pkg0_uj_cnt = pkg0_uj_cnt
@@ -170,11 +170,11 @@ local update = function(cr, update_frequency, is_using_ac)
 		Text.set(battery_draw.value, cr, 'A/C')
 		ScalePlot.update(battery_draw.plot, cr, 0)
 	else
-		local current = util.read_file('/sys/class/power_supply/BAT0/current_now', nil, '*n')
-		local voltage = util.read_file('/sys/class/power_supply/BAT0/voltage_now', nil, '*n')
+		local current = Util.read_file('/sys/class/power_supply/BAT0/current_now', nil, '*n')
+		local voltage = Util.read_file('/sys/class/power_supply/BAT0/voltage_now', nil, '*n')
 		local power = current * voltage * 0.000000000001
 
-		Text.set(battery_draw.value, cr, util.precision_round_to_string(power, 3)..' W')
+		Text.set(battery_draw.value, cr, Util.precision_round_to_string(power, 3)..' W')
 		ScalePlot.update(battery_draw.plot, cr, power)
 	end
 end

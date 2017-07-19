@@ -3,8 +3,7 @@ local Text 			= require 'Text'
 local Line 			= require 'Line'
 local TextColumn	= require 'TextColumn'
 local CompoundBar	= require 'CompoundBar'
-local util			= require 'util'
-local Patterns		= require 'Patterns'
+local Util			= require 'Util'
 
 local __string_match 	= string.match
 
@@ -50,7 +49,6 @@ local bars = Widget.CompoundBar{
 }
 
 Widget = nil
-Patterns = nil
 
 _SPACING_ = nil
 _BAR_PAD_ = nil
@@ -58,7 +56,7 @@ _FS_PATHS_ = nil
 
 local update = function(cr)
 	for i = 1, FS_NUM do
-		local percent = util.conky_numeric(conky_used_perc[i])
+		local percent = Util.conky_numeric(conky_used_perc[i])
 		CompoundBar.set(bars, i, percent * 0.01)
 	end
 end

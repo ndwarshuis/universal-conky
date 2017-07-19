@@ -2,7 +2,7 @@ local Widget		= require 'Widget'
 local Text 			= require 'Text'
 local Line 			= require 'Line'
 local TextColumn	= require 'TextColumn'
-local util			= require 'util'
+local Util			= require 'Util'
 local Patterns		= require 'Patterns'
 
 local PACMAN_TABLE = {
@@ -47,7 +47,7 @@ _TEXT_SPACING_ = nil
 
 local update = function(cr)
 	for i, cmd in pairs(PACMAN_TABLE) do
-		TextColumn.set(info, cr, i, util.line_count(util.execute_cmd(cmd)))
+		TextColumn.set(info, cr, i, Util.line_count(Util.execute_cmd(cmd)))
 	end
 end
 
