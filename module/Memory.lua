@@ -67,7 +67,7 @@ local cache_arc = Widget.Arc{
 	y 			= DIAL_Y,			
 	radius 		= DIAL_RADIUS,
 	thickness 	= _DIAL_THICKNESS_,
-	arc_pattern	= schema.purple_rounded
+	arc_pattern	= schema.PURPLE_ROUNDED
 }
 
 local total_used = Widget.CriticalText{

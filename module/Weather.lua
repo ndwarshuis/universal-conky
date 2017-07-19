@@ -99,7 +99,7 @@ local create_side_rows = function(side_rows_x, side_rows_y, side_rows_tbl)
 					x = side_rows_x + _G_INIT_DATA_.SECTION_WIDTH,
 					y = current_row_y + _SECTION_HEIGHT_ - 18
 				},
-				line_pattern = schema.mid_grey
+				line_pattern = schema.MID_GREY
 			}
 		end
 	end
