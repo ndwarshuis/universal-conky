@@ -83,8 +83,7 @@ _G_INIT_DATA_.CENTER_WIDTH = _G_INIT_DATA_.SECTION_WIDTH * 2 + _G_INIT_DATA_.CEN
 _G_INIT_DATA_.RIGHT_X = _G_INIT_DATA_.CENTER_LEFT_X + _G_INIT_DATA_.CENTER_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2 + _G_INIT_DATA_.PANEL_HORZ_SPACING
 
 package.path = _G_INIT_DATA_.ABS_PATH..'/?.lua;'..
-  _G_INIT_DATA_.ABS_PATH..'/interface/?.lua;'..
-  _G_INIT_DATA_.ABS_PATH..'/module/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'/drawing/?.lua;'..
   _G_INIT_DATA_.ABS_PATH..'/schema/?.lua;'..
   _G_INIT_DATA_.ABS_PATH..'/core/func/?.lua;'..
   _G_INIT_DATA_.ABS_PATH..'/core/super/?.lua;'..
