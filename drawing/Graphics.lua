@@ -1,11 +1,9 @@
-local Widget		= require 'Widget'
 local CriticalText	= require 'CriticalText'
 local Text			= require 'Text'
 local TextColumn	= require 'TextColumn'
 local Line			= require 'Line'
 local LabelPlot		= require 'LabelPlot'
 local Util			= require 'Util'
-local Patterns		= require 'Patterns'
 
 local __tonumber		= tonumber
 local __string_find 	= string.find
@@ -17,7 +15,7 @@ local _TEXT_SPACING_ = 20
 local _PLOT_SEC_BREAK_ = 20
 local _PLOT_HEIGHT_ = 56
 
-local header = Widget.Header{
+local header = _G_Widget_.Header{
 	x = _G_INIT_DATA_.LEFT_X,
 	y = _MODULE_Y_,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
@@ -27,23 +25,23 @@ local header = Widget.Header{
 local _RIGHT_X_ = _G_INIT_DATA_.LEFT_X + _G_INIT_DATA_.SECTION_WIDTH
 
 local status = {
-	label = Widget.Text{
+	label = _G_Widget_.Text{
 		x 		= _G_INIT_DATA_.LEFT_X,
 		y 		= header.bottom_y,
 		text    = 'Status'
 	},
-	value = Widget.Text{
+	value = _G_Widget_.Text{
 		x 			= _RIGHT_X_,
 		y 			= header.bottom_y,
 		x_align 	= 'right',
-		text_color 	= Patterns.BLUE,
+		text_color 	= _G_Patterns_.BLUE,
 		text        = '<status>'
 	}
 }
 
 local _SEP_Y_1_ = header.bottom_y + _SEPARATOR_SPACING_
 
-local separator1 = Widget.Line{
+local separator1 = _G_Widget_.Line{
 	p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_1_},
 	p2 = {x = _RIGHT_X_, y = _SEP_Y_1_}
 }
@@ -51,16 +49,16 @@ local separator1 = Widget.Line{
 local _INTERNAL_TEMP_Y_ = _SEP_Y_1_ + _SEPARATOR_SPACING_
 
 local internal_temp = {
-	label = Widget.Text{
+	label = _G_Widget_.Text{
 		x 		= _G_INIT_DATA_.LEFT_X,
 		y 		= _INTERNAL_TEMP_Y_,
 		text    = 'Internal Temperature'
 	},
-	value = Widget.CriticalText{
+	value = _G_Widget_.CriticalText{
 		x 			= _RIGHT_X_,
 		y 			= _INTERNAL_TEMP_Y_,
 		x_align 	= 'right',
-		text_color 	= Patterns.BLUE,
+		text_color 	= _G_Patterns_.BLUE,
 		text        = '<gpu_temp>'
 	}
 }
@@ -68,23 +66,23 @@ local internal_temp = {
 local _PCI_UTIL_Y_ = _INTERNAL_TEMP_Y_ + _TEXT_SPACING_
 
 local pci_util = {
-	label = Widget.Text{
+	label = _G_Widget_.Text{
 		x 		= _G_INIT_DATA_.LEFT_X,
 		y 		= _PCI_UTIL_Y_,
 		text    = 'PCI Utilization'
 	},
-	value = Widget.Text{
+	value = _G_Widget_.Text{
 		x 			= _RIGHT_X_,
 		y 			= _PCI_UTIL_Y_,
 		x_align 	= 'right',
-		text_color 	= Patterns.BLUE,
+		text_color 	= _G_Patterns_.BLUE,
 		text        = '<pci_util>'
 	}
 }
 
 local _SEP_Y_2_ = _PCI_UTIL_Y_ + _SEPARATOR_SPACING_
 
-local separator2 = Widget.Line{
+local separator2 = _G_Widget_.Line{
 	p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_2_},
 	p2 = {x = _RIGHT_X_, y = _SEP_Y_2_}
 }
@@ -92,26 +90,26 @@ local separator2 = Widget.Line{
 local _CLOCK_SPEED_Y_ = _SEP_Y_2_ + _SEPARATOR_SPACING_
 
 local clock_speed = {
-	labels = Widget.TextColumn{
+	labels = _G_Widget_.TextColumn{
 		x 		= _G_INIT_DATA_.LEFT_X,
 		y 		= _CLOCK_SPEED_Y_,
 		spacing = _TEXT_SPACING_,
 		'GPU Clock Speed',
 		'Memory Clock Speed'
 	},
-	values = Widget.TextColumn{
+	values = _G_Widget_.TextColumn{
 		x 			= _G_INIT_DATA_.LEFT_X + _G_INIT_DATA_.SECTION_WIDTH,
 		y 			= _CLOCK_SPEED_Y_,
 		spacing 	= _TEXT_SPACING_,
 		x_align 	= 'right',
-		text_color 	= Patterns.BLUE,
+		text_color 	= _G_Patterns_.BLUE,
 		num_rows 	= 2
 	}
 }
 
 local _SEP_Y_3_ = _CLOCK_SPEED_Y_ + _TEXT_SPACING_ * 2
 
-local separator3 = Widget.Line{
+local separator3 = _G_Widget_.Line{
 	p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_3_},
 	p2 = {x = _RIGHT_X_, y = _SEP_Y_3_}
 }
@@ -119,19 +117,19 @@ local separator3 = Widget.Line{
 local _GPU_UTIL_Y_ = _SEP_Y_3_ + _SEPARATOR_SPACING_
 
 local gpu_util = {
-	label = Widget.Text{
+	label = _G_Widget_.Text{
 		x 		= _G_INIT_DATA_.LEFT_X,
 		y 		= _GPU_UTIL_Y_,
 		text    = 'GPU Utilization'
 	},
-	value = Widget.Text{
+	value = _G_Widget_.Text{
 		x 			= _RIGHT_X_,
 		y 			= _GPU_UTIL_Y_,
 		x_align 	= 'right',
-		text_color 	= Patterns.BLUE,
+		text_color 	= _G_Patterns_.BLUE,
 		text        = '<gpu_util>'
 	},
-	plot = Widget.LabelPlot{
+	plot = _G_Widget_.LabelPlot{
 		x		= _G_INIT_DATA_.LEFT_X,
 		y		= _GPU_UTIL_Y_ + _PLOT_SEC_BREAK_,
 		width	= _G_INIT_DATA_.SECTION_WIDTH,
@@ -142,19 +140,19 @@ local gpu_util = {
 local _MEM_UTIL_Y_ = _GPU_UTIL_Y_ + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
 
 local mem_util = {
-	label = Widget.Text{
+	label = _G_Widget_.Text{
 		x 		= _G_INIT_DATA_.LEFT_X,
 		y 		= _MEM_UTIL_Y_,
 		text    = 'Memory Utilization'
 	},
-	value = Widget.Text{
+	value = _G_Widget_.Text{
 		x 			= _RIGHT_X_,
 		y 			= _MEM_UTIL_Y_,
 		x_align 	= 'right',
-		text_color 	= Patterns.BLUE,
+		text_color 	= _G_Patterns_.BLUE,
 		text        = '<mem_util>'
 	},
-	plot = Widget.LabelPlot{
+	plot = _G_Widget_.LabelPlot{
 		x 		= _G_INIT_DATA_.LEFT_X,
 		y 		= _MEM_UTIL_Y_ + _PLOT_SEC_BREAK_,
 		width 	= _G_INIT_DATA_.SECTION_WIDTH,
@@ -165,19 +163,19 @@ local mem_util = {
 local _VID_UTIL_Y_ = _MEM_UTIL_Y_ + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
 
 local vid_util = {
-	label = Widget.Text{
+	label = _G_Widget_.Text{
 		x 		= _G_INIT_DATA_.LEFT_X,
 		y 		= _VID_UTIL_Y_,
 		text    = 'Video Utilization'
 	},
-	value = Widget.Text{
+	value = _G_Widget_.Text{
 		x 			= _RIGHT_X_,
 		y 			= _VID_UTIL_Y_,
 		x_align 	= 'right',
-		text_color 	= Patterns.BLUE,
+		text_color 	= _G_Patterns_.BLUE,
 		text        = '<vid_util>'
 	},
-	plot = Widget.LabelPlot{
+	plot = _G_Widget_.LabelPlot{
 		x 		= _G_INIT_DATA_.LEFT_X,
 		y 		= _VID_UTIL_Y_ + _PLOT_SEC_BREAK_,
 		width 	= _G_INIT_DATA_.SECTION_WIDTH,
@@ -272,8 +270,6 @@ local update = function(cr)
 	end
 end
 
-Widget = nil
-Patterns = nil
 _MODULE_Y_ = nil
 _SEPARATOR_SPACING_ = nil
 _TEXT_SPACING_ = nil

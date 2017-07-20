@@ -1,10 +1,8 @@
-local Widget		= require 'Widget'
 local Text			= require 'Text'
 local TextColumn	= require 'TextColumn'
 local Line			= require 'Line'
 local ScalePlot 	= require 'ScalePlot'
 local Util			= require 'Util'
-local Patterns		= require 'Patterns'
 
 local _MODULE_Y_ = 328
 local _SEPARATOR_SPACING_ = 20
@@ -22,7 +20,7 @@ local calculate_power = function(cr, prev_cnt, cnt, update_frequency)
 	end
 end
 
-local header = Widget.Header{
+local header = _G_Widget_.Header{
 	x = _G_INIT_DATA_.RIGHT_X,
 	y = _MODULE_Y_,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
@@ -32,19 +30,19 @@ local header = Widget.Header{
 local _RIGHT_X_ = _G_INIT_DATA_.RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH
 
 local pp01 = {
-	labels = Widget.TextColumn{
+	labels = _G_Widget_.TextColumn{
 		x 		= _G_INIT_DATA_.RIGHT_X,
 		y 		= header.bottom_y,
 		spacing	= _TEXT_SPACING_,
 		'Core',
 		'iGPU'
 	},
-	values = Widget.TextColumn{
+	values = _G_Widget_.TextColumn{
 		x 			= _RIGHT_X_,
 		y 			= header.bottom_y,
 		spacing		= _TEXT_SPACING_,
 		x_align 	= 'right',
-		text_color 	= Patterns.BLUE,
+		text_color 	= _G_Patterns_.BLUE,
 		append_end 	= ' W',
 		num_rows	= 2
 	}
@@ -52,7 +50,7 @@ local pp01 = {
 
 local _SEP_Y_ = header.bottom_y + _TEXT_SPACING_ + _SEPARATOR_SPACING_
 
-local separator = Widget.Line{
+local separator = _G_Widget_.Line{
 	p1 = {x = _G_INIT_DATA_.RIGHT_X, y = _SEP_Y_},
 	p2 = {x = _RIGHT_X_, y = _SEP_Y_}
 }
@@ -60,20 +58,20 @@ local separator = Widget.Line{
 local _PKG0_Y_ = _SEP_Y_ + _SEPARATOR_SPACING_
 
 local pkg0 = {
-	label = Widget.Text{
+	label = _G_Widget_.Text{
 		x 		= _G_INIT_DATA_.RIGHT_X,
 		y 		= _PKG0_Y_,
 		text    = 'PKG 0'
 	},
-	value = Widget.Text{
+	value = _G_Widget_.Text{
 		x 			= _RIGHT_X_,
 		y 			= _PKG0_Y_,
 		x_align 	= 'right',
-		text_color 	= Patterns.BLUE,
+		text_color 	= _G_Patterns_.BLUE,
 		text        = '<pkg0>',
 		append_end	= ' W'
 	},
-	plot = Widget.ScalePlot{
+	plot = _G_Widget_.ScalePlot{
 		x = _G_INIT_DATA_.RIGHT_X,
 		y = _PKG0_Y_ + _PLOT_SEC_BREAK_,
 		width = _G_INIT_DATA_.SECTION_WIDTH,
@@ -85,20 +83,20 @@ local pkg0 = {
 local _DRAM_Y_ = _PKG0_Y_ + _PLOT_SEC_BREAK_ * 2 + _PLOT_HEIGHT_
 
 local dram = {
-	label = Widget.Text{
+	label = _G_Widget_.Text{
 		x 		= _G_INIT_DATA_.RIGHT_X,
 		y 		= _DRAM_Y_,
 		text    = 'DRAM'
 	},
-	value = Widget.Text{
+	value = _G_Widget_.Text{
 		x 			= _RIGHT_X_,
 		y 			= _DRAM_Y_,
 		x_align 	= 'right',
-		text_color 	= Patterns.BLUE,
+		text_color 	= _G_Patterns_.BLUE,
 		text        = '<dram>',
 		append_end	= ' W'
 	},
-	plot = Widget.ScalePlot{
+	plot = _G_Widget_.ScalePlot{
 		x = _G_INIT_DATA_.RIGHT_X,
 		y = _DRAM_Y_ + _PLOT_SEC_BREAK_,
 		width = _G_INIT_DATA_.SECTION_WIDTH,
@@ -110,18 +108,18 @@ local dram = {
 local _BATTERY_DRAW_Y_ = _DRAM_Y_ + _PLOT_SEC_BREAK_ * 2 + _PLOT_HEIGHT_
 
 local battery_draw = {
-	label = Widget.Text{
+	label = _G_Widget_.Text{
 		x 		= _G_INIT_DATA_.RIGHT_X,
 		y 		= _BATTERY_DRAW_Y_,
 		spacing = _TEXT_SPACING_,
 		text	= 'Battery Draw'
 	},
-	value = Widget.CriticalText{
+	value = _G_Widget_.CriticalText{
 		x 			= _RIGHT_X_,
 		y 			= _BATTERY_DRAW_Y_,
 		x_align 	= 'right',
 	},
-	plot = Widget.ScalePlot{
+	plot = _G_Widget_.ScalePlot{
 		x = _G_INIT_DATA_.RIGHT_X,
 		y = _BATTERY_DRAW_Y_ + _PLOT_SEC_BREAK_,
 		width = _G_INIT_DATA_.SECTION_WIDTH,
@@ -179,8 +177,6 @@ local update = function(cr, update_frequency, is_using_ac)
 	end
 end
 
-Widget = nil
-Patterns = nil
 _MODULE_Y_ = nil
 _SEPARATOR_SPACING_ = nil
 _TEXT_SPACING_ = nil

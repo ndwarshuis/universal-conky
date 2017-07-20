@@ -1,9 +1,7 @@
-local Widget		= require 'Widget'
 local Text 			= require 'Text'
 local Line 			= require 'Line'
 local TextColumn	= require 'TextColumn'
 local Util			= require 'Util'
-local Patterns		= require 'Patterns'
 
 local __string_match = string.match
 
@@ -14,14 +12,14 @@ local extract_date = function(cmd)
 	return mm_dd..'-'..yyyy
 end
 
-local header = Widget.Header{
+local header = _G_Widget_.Header{
 	x = _G_INIT_DATA_.LEFT_X,
 	y = _G_INIT_DATA_.TOP_Y,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
 	header = 'SYSTEM'
 }
 
-local labels = Widget.TextColumn{
+local labels = _G_Widget_.TextColumn{
 	x 		= _G_INIT_DATA_.LEFT_X,
 	y 		= header.bottom_y,
 	spacing = _TEXT_SPACING_,
@@ -30,20 +28,18 @@ local labels = Widget.TextColumn{
 	'Last Upgrade',
 	'Last Sync'
 }
-local info = Widget.TextColumn{
+local info = _G_Widget_.TextColumn{
 	x 			= _G_INIT_DATA_.LEFT_X + _G_INIT_DATA_.SECTION_WIDTH,
 	y 			= header.bottom_y,
 	spacing 	= _TEXT_SPACING_,
 	x_align 	= 'right',
-	text_color 	= Patterns.BLUE,
+	text_color 	= _G_Patterns_.BLUE,
 	Util.conky('$kernel'),
 	'<row2>',
 	'<row3>',
 	'<row4>'
 }
 
-Widget = nil
-Patterns = nil
 _TEXT_SPACING_ = nil
 
 local draw = function(cr, current_interface, log_is_changed)

@@ -1,4 +1,3 @@
-local Widget		= require 'Widget'
 local Arc 			= require 'Arc'
 local CompoundDial 	= require 'CompoundDial'
 local CriticalText	= require 'CriticalText'
@@ -7,7 +6,6 @@ local Line			= require 'Line'
 local LabelPlot		= require 'LabelPlot'
 local Table			= require 'Table'
 local Util			= require 'Util'
-local Patterns		= require 'Patterns'
 
 local CORETEMP_PATH = '/sys/devices/platform/coretemp.0/hwmon/hwmon%i/%s'
 
@@ -49,7 +47,7 @@ local _create_core_ = function(cores, id, x, y)
 	end
 
 	cores[id +1] = {
-		dials = Widget.CompoundDial{
+		dials = _G_Widget_.CompoundDial{
 			x 				= x,
 			y 				= y,			
 			inner_radius 	= _DIAL_INNER_RADIUS_,
@@ -58,14 +56,14 @@ local _create_core_ = function(cores, id, x, y)
 			num_dials 		= NUM_THREADS_PER_CORE,
 			critical_limit	= '>0.8'
 		},
-		inner_ring = Widget.Arc{
+		inner_ring = _G_Widget_.Arc{
 			x = x,
 			y = y,
 			radius = _DIAL_INNER_RADIUS_ - 2,
 			theta0 = 0,
 			theta1 = 360
 		},
-		coretemp_text = Widget.CriticalText{
+		coretemp_text = _G_Widget_.CriticalText{
 			x 				= x,
 			y 				= y,
 			x_align 	    = 'center',
@@ -78,7 +76,7 @@ local _create_core_ = function(cores, id, x, y)
 	}
 end
 
-local header = Widget.Header{
+local header = _G_Widget_.Header{
 	x = _G_INIT_DATA_.LEFT_X,
 	y = _MODULE_Y_,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
@@ -100,23 +98,23 @@ local _RIGHT_X_ = _G_INIT_DATA_.LEFT_X + _G_INIT_DATA_.SECTION_WIDTH
 local _PROCESS_Y_ = header.bottom_y + _DIAL_OUTER_RADIUS_ * 2 + _PLOT_SECTION_BREAK_
 
 local process = {
-	labels = Widget.Text{
+	labels = _G_Widget_.Text{
 		x 		= _G_INIT_DATA_.LEFT_X,
 		y 		= _PROCESS_Y_,
 		text    = 'R | S | D | T | Z'
 	},
-	values = Widget.Text{
+	values = _G_Widget_.Text{
 		x 			= _RIGHT_X_,
 		y 			= _PROCESS_Y_,
 		x_align 	= 'right',
-		text_color 	= Patterns.BLUE,
+		text_color 	= _G_Patterns_.BLUE,
 		text        = '<R.S.D.T.Z>'
 	}
 }
 
 local _SEP_Y_ = _PROCESS_Y_ + _SEPARATOR_SPACING_
 
-local separator = Widget.Line{
+local separator = _G_Widget_.Line{
 	p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_},
 	p2 = {x = _RIGHT_X_, y = _SEP_Y_}
 }
@@ -124,12 +122,12 @@ local separator = Widget.Line{
 local _LOAD_Y_ = _SEP_Y_ + _SEPARATOR_SPACING_
 
 local total_load = {
-	label = Widget.Text{
+	label = _G_Widget_.Text{
 		x    = _G_INIT_DATA_.LEFT_X,
 		y    = _LOAD_Y_,
 		text = 'Total Load'
 	},
-	value = Widget.CriticalText{
+	value = _G_Widget_.CriticalText{
 		x 			    = _RIGHT_X_,
 		y 			    = _LOAD_Y_,
 		x_align 	    = 'right',
@@ -140,14 +138,14 @@ local total_load = {
 
 local _PLOT_Y_ = _LOAD_Y_ + _PLOT_SECTION_BREAK_
 
-local plot = Widget.LabelPlot{
+local plot = _G_Widget_.LabelPlot{
 	x 		= _G_INIT_DATA_.LEFT_X,
 	y 		= _PLOT_Y_,
 	width 	= _G_INIT_DATA_.SECTION_WIDTH,
 	height 	= _PLOT_HEIGHT_
 }
 
-local tbl = Widget.Table{
+local tbl = _G_Widget_.Table{
 	x 		 = _G_INIT_DATA_.LEFT_X,
 	y 		 = _PLOT_Y_ + _PLOT_HEIGHT_ + _TABLE_SECTION_BREAK_,
 	width 	 = _G_INIT_DATA_.SECTION_WIDTH,
@@ -198,8 +196,6 @@ local update = function(cr)
 	end
 end
 
-Widget = nil
-Patterns = nil
 _MODULE_Y_ = nil
 _DIAL_INNER_RADIUS_ = nil
 _DIAL_OUTER_RADIUS_ = nil

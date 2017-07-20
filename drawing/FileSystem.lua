@@ -1,4 +1,3 @@
-local Widget		= require 'Widget'
 local Text 			= require 'Text'
 local Line 			= require 'Line'
 local TextColumn	= require 'TextColumn'
@@ -14,14 +13,14 @@ local _BAR_PAD_ = 100
 
 local FS_NUM = #_FS_PATHS_
 
-local header = Widget.Header{
+local header = _G_Widget_.Header{
 	x = _G_INIT_DATA_.RIGHT_X,
 	y = _MODULE_Y_,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
 	header = 'FILE SYSTEMS'
 }
 
-local labels = Widget.TextColumn{
+local labels = _G_Widget_.TextColumn{
 	x 		= _G_INIT_DATA_.RIGHT_X,
 	y 		= header.bottom_y,
 	spacing = _SPACING_,
@@ -39,7 +38,7 @@ for i, v in pairs(_FS_PATHS_) do
 	conky_used_perc[i] = '${fs_used_perc '..v..'}'
 end
 
-local bars = Widget.CompoundBar{
+local bars = _G_Widget_.CompoundBar{
 	x 				= _G_INIT_DATA_.RIGHT_X + _BAR_PAD_,
 	y 				= header.bottom_y,
 	length 			= _G_INIT_DATA_.SECTION_WIDTH - _BAR_PAD_,
@@ -47,8 +46,6 @@ local bars = Widget.CompoundBar{
 	num_bars 		= FS_NUM,
 	critical_limit	= '>0.8'
 }
-
-Widget = nil
 
 _SPACING_ = nil
 _BAR_PAD_ = nil

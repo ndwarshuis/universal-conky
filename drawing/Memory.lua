@@ -1,4 +1,3 @@
-local Widget		= require 'Widget'
 local Arc			= require 'Arc'
 local Dial 			= require 'Dial'
 local CriticalText	= require 'CriticalText'
@@ -8,7 +7,6 @@ local Line			= require 'Line'
 local LabelPlot		= require 'LabelPlot'
 local Table			= require 'Table'
 local Util			= require 'Util'
-local Patterns		= require 'Patterns'
 
 local __string_match		= string.match
 local __cairo_path_destroy 	= cairo_path_destroy
@@ -42,7 +40,7 @@ for r = 1, NUM_ROWS do
 	TABLE_CONKY[3][r] = '${top_mem mem '..r..'}'
 end
 
-local header = Widget.Header{
+local header = _G_Widget_.Header{
 	x = _G_INIT_DATA_.RIGHT_X,
 	y = _MODULE_Y_,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
@@ -55,22 +53,22 @@ local DIAL_THETA_1 = math.rad(360)
 local DIAL_X = _G_INIT_DATA_.RIGHT_X + DIAL_RADIUS + _DIAL_THICKNESS_ / 2
 local DIAL_Y = header.bottom_y + DIAL_RADIUS + _DIAL_THICKNESS_ / 2
 
-local dial = Widget.Dial{
+local dial = _G_Widget_.Dial{
 	x 				= DIAL_X,
 	y 				= DIAL_Y,			
 	radius 			= DIAL_RADIUS,
 	thickness 		= _DIAL_THICKNESS_,
 	critical_limit 	= '>0.8'
 }
-local cache_arc = Widget.Arc{
+local cache_arc = _G_Widget_.Arc{
 	x 			= DIAL_X,
 	y 			= DIAL_Y,			
 	radius 		= DIAL_RADIUS,
 	thickness 	= _DIAL_THICKNESS_,
-	arc_pattern	= Patterns.PURPLE_ROUNDED
+	arc_pattern	= _G_Patterns_.PURPLE_ROUNDED
 }
 
-local total_used = Widget.CriticalText{
+local total_used = _G_Widget_.CriticalText{
 	x 			= DIAL_X,
 	y 			= DIAL_Y,
 	x_align 	= 'center',
@@ -78,7 +76,7 @@ local total_used = Widget.CriticalText{
 	append_end 	= '%'
 }
 
-local inner_ring = Widget.Arc{
+local inner_ring = _G_Widget_.Arc{
 	x 		= DIAL_X,
 	y 		= DIAL_Y,
 	radius 	= DIAL_RADIUS - _DIAL_THICKNESS_ / 2 - 2,
@@ -91,13 +89,13 @@ local _TEXT_LEFT_X_ = _G_INIT_DATA_.RIGHT_X + DIAL_RADIUS * 2 + _TEXT_LEFT_X_OFF
 local _RIGHT_X_ = _G_INIT_DATA_.RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH
 
 local swap= {
-	label = Widget.Text{
+	label = _G_Widget_.Text{
 		x 		= _TEXT_LEFT_X_,
 		y 		= _LINE_1_Y_,
 		spacing = _TEXT_SPACING_,
 		text	= 'Swap Usage'
 	},
-	percent = Widget.CriticalText{
+	percent = _G_Widget_.CriticalText{
 		x 			= _RIGHT_X_,
 		y 			= _LINE_1_Y_,
 		x_align 	= 'right',
@@ -106,7 +104,7 @@ local swap= {
 }
 
 local cache = {
-	labels = Widget.TextColumn{
+	labels = _G_Widget_.TextColumn{
 		x 		= _TEXT_LEFT_X_,
 		y 		= _LINE_1_Y_ + _TEXT_SPACING_,
 		spacing = _TEXT_SPACING_,
@@ -114,12 +112,12 @@ local cache = {
 		'Buffers',
 		'Kernel Slab'
 	},
-	percents = Widget.TextColumn{
+	percents = _G_Widget_.TextColumn{
 		x 			= _RIGHT_X_,
 		y 			= _LINE_1_Y_ + _TEXT_SPACING_,
 		x_align 	= 'right',
 		append_end 	= ' %',
-		text_color	= Patterns.PURPLE,
+		text_color	= _G_Patterns_.PURPLE,
 		'<cached_kb>',
 		'<buffers_kb>',
 		'<kernel_slab>'
@@ -128,14 +126,14 @@ local cache = {
 
 local _PLOT_Y_ = _PLOT_SECTION_BREAK_ + header.bottom_y + DIAL_RADIUS * 2
 
-local plot = Widget.LabelPlot{
+local plot = _G_Widget_.LabelPlot{
 	x = _G_INIT_DATA_.RIGHT_X,
 	y = _PLOT_Y_,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
 	height = _PLOT_HEIGHT_
 }
 
-local tbl = Widget.Table{
+local tbl = _G_Widget_.Table{
 	x = _G_INIT_DATA_.RIGHT_X,
 	y = _PLOT_Y_ + _PLOT_HEIGHT_ + _TABLE_SECTION_BREAK_,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
@@ -184,8 +182,6 @@ local update = function(cr)
 	end
 end
 
-Widget = nil
-Patterns = nil
 _MODULE_Y_ = nil
 _DIAL_THICKNESS_ = nil
 _DIAL_SPACING_ = nil

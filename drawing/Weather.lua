@@ -1,11 +1,9 @@
-local Widget		= require 'Widget'
 local Text 			= require 'Text'
 local Line 			= require 'Line'
 local TextColumn	= require 'TextColumn'
 local ScaledImage	= require 'ScaledImage'
 local Util			= require 'Util'
 local Json			= require 'Json'
-local Patterns		= require 'Patterns'
 
 local __string_match 	= string.match
 local __string_sub		= string.sub
@@ -36,42 +34,42 @@ local create_side_rows = function(side_rows_x, side_rows_y, side_rows_tbl)
 		local current_row = side_rows_tbl[i]
 		local current_row_y = side_rows_y + (i - 1) * _SECTION_HEIGHT_
 
-		current_row.desc = Widget.Text{
+		current_row.desc = _G_Widget_.Text{
 			x = side_rows_x,
 			y = current_row_y,
-			text_color = Patterns.BLUE,
+			text_color = _G_Patterns_.BLUE,
 		}
 		
-		current_row.period = Widget.Text{
+		current_row.period = _G_Widget_.Text{
 			x 			= side_rows_x + _G_INIT_DATA_.SECTION_WIDTH,
 			y 			= current_row_y,
 			x_align 	= 'right',
-			text_color 	= Patterns.BLUE
+			text_color 	= _G_Patterns_.BLUE
 		}
 		
-		current_row.icon = Widget.ScaledImage{
+		current_row.icon = _G_Widget_.ScaledImage{
 			x 		= side_rows_x,
 			y 		= current_row_y + _HEADER_PAD_,
 			width 	= _ICON_SIDE_LENGTH_,
 			height 	= _ICON_SIDE_LENGTH_
 		}
 
-		current_row.temp1 = Widget.Text{
+		current_row.temp1 = _G_Widget_.Text{
 			x			= side_rows_x + _ICON_SIDE_LENGTH_ + _TEMP_SECTION_WIDTH_ / 2,
 			y 			= current_row_y + _HEADER_PAD_ + 25,
 			x_align		= 'center',
 			font_size 	= 28,
-			text_color 	= Patterns.BLUE
+			text_color 	= _G_Patterns_.BLUE
 		}
 		
-		current_row.temp2 = Widget.Text{
+		current_row.temp2 = _G_Widget_.Text{
 			x			= side_rows_x + _ICON_SIDE_LENGTH_ + _TEMP_SECTION_WIDTH_ / 2,
 			y 			= current_row_y + _HEADER_PAD_ + 55,
 			x_align		= 'center',
 			font_size 	= 11
 		}
 
-		current_row.label_column = Widget.TextColumn{
+		current_row.label_column = _G_Widget_.TextColumn{
 			x = side_rows_x + _ICON_SIDE_LENGTH_ + _TEMP_SECTION_WIDTH_,
 			y = current_row_y + _HEADER_PAD_ + 15,
 			spacing = _SPACING_,
@@ -80,17 +78,17 @@ local create_side_rows = function(side_rows_x, side_rows_y, side_rows_tbl)
 			'W'
 		}
 		
-		current_row.info_column = Widget.TextColumn{
+		current_row.info_column = _G_Widget_.TextColumn{
 			x = side_rows_x + _G_INIT_DATA_.SECTION_WIDTH,
 			y = current_row_y + _HEADER_PAD_ + 15,
 			spacing = _SPACING_,
 			x_align = 'right',
-			text_color = Patterns.BLUE,
+			text_color = _G_Patterns_.BLUE,
 			num_rows = 3
 		}
 		
 		if i < NUM_ROWS then
-			current_row.separator = Widget.Line{
+			current_row.separator = _G_Widget_.Line{
 				p1 = {
 					x = side_rows_x,
 					y = current_row_y + _SECTION_HEIGHT_ - 18
@@ -99,7 +97,7 @@ local create_side_rows = function(side_rows_x, side_rows_y, side_rows_tbl)
 					x = side_rows_x + _G_INIT_DATA_.SECTION_WIDTH,
 					y = current_row_y + _SECTION_HEIGHT_ - 18
 				},
-				line_pattern = Patterns.MID_GREY
+				line_pattern = _G_Patterns_.MID_GREY
 			}
 		end
 	end
@@ -107,7 +105,7 @@ end
 
 -- LEFT
 local left = {
-	header = Widget.Header{
+	header = _G_Widget_.Header{
 		x = _G_INIT_DATA_.LEFT_X,
 		y = _G_INIT_DATA_.TOP_Y,
 		width = _G_INIT_DATA_.SECTION_WIDTH,
@@ -121,24 +119,24 @@ create_side_rows(_G_INIT_DATA_.LEFT_X, left.header.bottom_y, left.hours)
 -- CENTER
 local center = {}
 
-center.header = Widget.Header{
+center.header = _G_Widget_.Header{
 	x = _G_INIT_DATA_.CENTER_LEFT_X,
 	y = _G_INIT_DATA_.TOP_Y,
 	width = _G_INIT_DATA_.CENTER_WIDTH,
 	header = 'CURRENT CONDITIONS'
 }
 
-center.current_desc = Widget.Text{
+center.current_desc = _G_Widget_.Text{
 	x 			= _G_INIT_DATA_.CENTER_LEFT_X,
 	y 			= center.header.bottom_y + 8,
-	text_color 	= Patterns.BLUE,
+	text_color 	= _G_Patterns_.BLUE,
 	font_size	= 24
 }
 
 local _CENTER_X_1_ = _G_INIT_DATA_.CENTER_LEFT_X + _G_INIT_DATA_.SECTION_WIDTH * 0.25
 local _CENTER_ICON_WIDTH_ = 120
 
-center.icon = Widget.ScaledImage{
+center.icon = _G_Widget_.ScaledImage{
 	x = _CENTER_X_1_ - _CENTER_ICON_WIDTH_ / 2,
 	y = center.header.bottom_y + 105 - _CENTER_ICON_WIDTH_ / 2,
 	width = _CENTER_ICON_WIDTH_,
@@ -148,22 +146,22 @@ center.icon = Widget.ScaledImage{
 local _CENTER_X_2_ = _G_INIT_DATA_.CENTER_LEFT_X + _G_INIT_DATA_.SECTION_WIDTH * 0.70
 local _INFO_Y_ = center.header.bottom_y + 70
 
-center.current_temp = Widget.Text{
+center.current_temp = _G_Widget_.Text{
 	x 			= _CENTER_X_2_,
 	y 			= _INFO_Y_,
 	x_align 	= 'center',
 	font_size 	= 48,
-	text_color 	= Patterns.BLUE
+	text_color 	= _G_Patterns_.BLUE
 }
 
-center.obs_time = Widget.Text{
+center.obs_time = _G_Widget_.Text{
 	x 			= _CENTER_X_2_,
 	y 			= _INFO_Y_ + 42,
 	x_align 	= 'center',
 	font_size 	= 12,
 }
 
-center.place = Widget.Text{
+center.place = _G_Widget_.Text{
 	x 			= _CENTER_X_2_,
 	y 			= _INFO_Y_ + 66,
 	x_align 	= 'center',
@@ -173,7 +171,7 @@ center.place = Widget.Text{
 local _COLUMN_PADDING_ = 15
 local _CENTER_SPACING_ = _SPACING_ + 7
 
-center.label_column_1 = Widget.TextColumn{
+center.label_column_1 = _G_Widget_.TextColumn{
 	x 			= _G_INIT_DATA_.CENTER_RIGHT_X,
 	y 			= center.header.bottom_y,
 	spacing 	= _CENTER_SPACING_,
@@ -187,17 +185,17 @@ center.label_column_1 = Widget.TextColumn{
 	'Precipitation'
 }
 
-center.info_column_1 = Widget.TextColumn{
+center.info_column_1 = _G_Widget_.TextColumn{
 	x 			= _G_INIT_DATA_.CENTER_RIGHT_X + (_G_INIT_DATA_.SECTION_WIDTH - _COLUMN_PADDING_) / 2,
 	y 			= center.header.bottom_y,
 	x_align 	= 'right',
-	text_color 	= Patterns.BLUE,
+	text_color 	= _G_Patterns_.BLUE,
 	spacing 	= _CENTER_SPACING_,
 	font_size 	= 14,
 	num_rows 	= 7
 }
 
-center.label_column_2 = Widget.TextColumn{
+center.label_column_2 = _G_Widget_.TextColumn{
 	x 			= _G_INIT_DATA_.CENTER_RIGHT_X + (_G_INIT_DATA_.SECTION_WIDTH + _COLUMN_PADDING_) / 2,
 	y 			= center.header.bottom_y,
 	spacing 	= _CENTER_SPACING_,
@@ -211,11 +209,11 @@ center.label_column_2 = Widget.TextColumn{
 	'Light Rate'
 }
 
-center.info_column_2 = Widget.TextColumn{
+center.info_column_2 = _G_Widget_.TextColumn{
 	x 			= _G_INIT_DATA_.CENTER_RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH,
 	y 			= center.header.bottom_y,
 	x_align 	= 'right',
-	text_color 	= Patterns.BLUE,
+	text_color 	= _G_Patterns_.BLUE,
 	spacing 	= _CENTER_SPACING_,
 	font_size 	= 14,
 	num_rows 	= 7
@@ -223,7 +221,7 @@ center.info_column_2 = Widget.TextColumn{
 
 -- RIGHT
 local right = {
-	header = Widget.Header{
+	header = _G_Widget_.Header{
 		x = _G_INIT_DATA_.RIGHT_X,
 		y = _G_INIT_DATA_.TOP_Y,
 		width = _G_INIT_DATA_.SECTION_WIDTH,
@@ -233,9 +231,6 @@ local right = {
 }
 
 create_side_rows(_G_INIT_DATA_.RIGHT_X, right.header.bottom_y, right.days)
-
-Widget = nil
-Patterns = nil
 
 _SPACING_ = nil
 _HEADER_PAD_ = nil

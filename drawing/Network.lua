@@ -1,9 +1,7 @@
-local Widget	= require 'Widget'
 local Text		= require 'Text'
 local Line		= require 'Line'
 local ScalePlot = require 'ScalePlot'
 local Util		= require 'Util'
-local Patterns	= require 'Patterns'
 
 local __string_gmatch = string.gmatch
 
@@ -20,7 +18,7 @@ local network_label_function = function(bytes)
 	return Util.round_to_string(converted, precision)..' '..new_unit..'/s'
 end
 
-local header = Widget.Header{
+local header = _G_Widget_.Header{
 	x = _G_INIT_DATA_.CENTER_RIGHT_X,
 	y = _G_INIT_DATA_.TOP_Y,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
@@ -30,18 +28,18 @@ local header = Widget.Header{
 local _RIGHT_X_ = _G_INIT_DATA_.CENTER_RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH
 
 local dnload = {
-	label = Widget.Text{
+	label = _G_Widget_.Text{
 		x = _G_INIT_DATA_.CENTER_RIGHT_X,
 		y = header.bottom_y,
 		text = 'Download',
 	},
-	speed = Widget.Text{
+	speed = _G_Widget_.Text{
 		x = _RIGHT_X_,
 		y = header.bottom_y,
 		x_align = 'right',
-		text_color = Patterns.BLUE
+		text_color = _G_Patterns_.BLUE
 	},
-	plot = Widget.ScalePlot{
+	plot = _G_Widget_.ScalePlot{
 		x = _G_INIT_DATA_.CENTER_RIGHT_X,
 		y = header.bottom_y + _PLOT_SEC_BREAK_,
 		width = _G_INIT_DATA_.SECTION_WIDTH,
@@ -53,18 +51,18 @@ local dnload = {
 local _UPLOAD_Y_ = header.bottom_y + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
 
 local upload = {
-	label = Widget.Text{
+	label = _G_Widget_.Text{
 		x = _G_INIT_DATA_.CENTER_RIGHT_X,
 		y = _UPLOAD_Y_,
 		text = 'Upload',
 	},
-	speed = Widget.Text{
+	speed = _G_Widget_.Text{
 		x = _RIGHT_X_,
 		y = _UPLOAD_Y_,
 		x_align = 'right',
-		text_color = Patterns.BLUE
+		text_color = _G_Patterns_.BLUE
 	},
-	plot = Widget.ScalePlot{
+	plot = _G_Widget_.ScalePlot{
 		x = _G_INIT_DATA_.CENTER_RIGHT_X,
 		y = _UPLOAD_Y_ + _PLOT_SEC_BREAK_,
 		width = _G_INIT_DATA_.SECTION_WIDTH,
@@ -127,8 +125,6 @@ local update = function(cr, update_frequency)
 	ScalePlot.update(upload.plot, cr, uspeed)
 end
 
-Widget = nil
-Patterns = nil
 _PLOT_SEC_BREAK_ = nil
 _PLOT_HEIGHT_ = nil
 _RIGHT_X_ = nil

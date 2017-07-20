@@ -100,6 +100,9 @@ conky_set_update_interval(_G_INIT_DATA_.UPDATE_INTERVAL)
 require 'imlib2'
 require 'cairo'
 
+_G_Widget_ 		= require 'Widget'
+_G_Patterns_ 	= require 'Patterns'
+
 local Util 			= require 'Util'
 local Panel 		= require 'Panel'
 local System 		= require 'System'
@@ -113,12 +116,10 @@ local Graphics		= require 'Graphics'
 local Memory		= require 'Memory'
 local Weather		= require 'Weather'
 
-local updates = -2
+local _unrequire = function(m) package.loaded[m] = nil end
 
-local _unrequire = function(m)
-	package.loaded[m] = nil
-	_G[m] = nil
-end
+_G_Widget_ = nil
+_G_Patterns_ = nil
 
 _unrequire('Super')
 _unrequire('Color')
@@ -129,6 +130,8 @@ _unrequire('Patterns')
 _unrequire = nil
 
 _G_INIT_DATA_ = nil
+
+local updates = -2
 
 local __cairo_xlib_surface_create 	= cairo_xlib_surface_create
 local __cairo_create 				= cairo_create

@@ -1,9 +1,7 @@
-local Widget		= require 'Widget'
 local Text 			= require 'Text'
 local Line 			= require 'Line'
 local TextColumn	= require 'TextColumn'
 local Util			= require 'Util'
-local Patterns		= require 'Patterns'
 
 local PACMAN_TABLE = {
 	'pacman -Qq',
@@ -15,14 +13,14 @@ local PACMAN_TABLE = {
 
 local _TEXT_SPACING_ = 20
 
-local header = Widget.Header{
+local header = _G_Widget_.Header{
 	x = _G_INIT_DATA_.RIGHT_X,
 	y = _G_INIT_DATA_.TOP_Y,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
 	header = 'PACMAN'
 }
 
-local labels = Widget.TextColumn{
+local labels = _G_Widget_.TextColumn{
 	x 		= _G_INIT_DATA_.RIGHT_X,
 	y 		= header.bottom_y,
 	spacing = _TEXT_SPACING_,
@@ -32,17 +30,15 @@ local labels = Widget.TextColumn{
 	'Orphaned',
 	'Local'
 }
-local info = Widget.TextColumn{
+local info = _G_Widget_.TextColumn{
 	x 			= _G_INIT_DATA_.RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH,
 	y 			= header.bottom_y,
 	spacing 	= _TEXT_SPACING_,
 	x_align 	= 'right',
-	text_color 	= Patterns.BLUE,
+	text_color 	= _G_Patterns_.BLUE,
 	num_rows 	= 5
 }
 
-Widget = nil
-Patterns = nil
 _TEXT_SPACING_ = nil
 
 local update = function(cr)
