@@ -234,7 +234,7 @@ local update = function(cr)
 		-- no optirun processes, we call this "Mixed." In this case we don't
 		-- check anything (to allow bbswitch to actually switch off) and set all
 		-- values to N/A and 0.
-		if __string_find(Util.execute_cmd('ps -A -o comm'), 'optirun') == nil then
+		if not __string_find(Util.execute_cmd('ps -A -o comm'), 'optirun') then
 			Text.set(status.value, cr, 'Mixed')
 			nvidia_off(cr)
 		else
