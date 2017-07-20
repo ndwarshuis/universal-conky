@@ -209,7 +209,7 @@ local NV_REGEX = '(%d+)\n'..
 local NA = 'N/A'
 
 local nvidia_off = function(cr)
-	CriticalText.set(internal_temp.value, cr, NA, 1)
+	CriticalText.set(internal_temp.value, cr, NA, false)
 	Text.set(pci_util.value, cr, NA)
 
 	TextColumn.set(clock_speed.values, cr, 1, NA)
@@ -245,8 +245,8 @@ local update = function(cr)
 				memory_frequency, gpu_utilization, vid_utilization,
 				pci_utilization = __string_match(nvidia_settings_glob, NV_REGEX)
 
-			local is_critical = 1
-			if __tonumber(temp_reading) > 80 then is_critical = 0 end
+			local is_critical = false
+			if __tonumber(temp_reading) > 80 then is_critical = true end
 
 			CriticalText.set(internal_temp.value, cr, temp_reading..'°C', is_critical)
 			Text.set(pci_util.value, cr, pci_utilization..'%')
