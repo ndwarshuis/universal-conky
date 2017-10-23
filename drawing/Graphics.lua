@@ -63,24 +63,7 @@ local internal_temp = {
 	}
 }
 
-local _PCI_UTIL_Y_ = _INTERNAL_TEMP_Y_ + _TEXT_SPACING_
-
-local pci_util = {
-	label = _G_Widget_.Text{
-		x 		= _G_INIT_DATA_.LEFT_X,
-		y 		= _PCI_UTIL_Y_,
-		text    = 'PCI Utilization'
-	},
-	value = _G_Widget_.Text{
-		x 			= _RIGHT_X_,
-		y 			= _PCI_UTIL_Y_,
-		x_align 	= 'right',
-		text_color 	= _G_Patterns_.BLUE,
-		text        = '<pci_util>'
-	}
-}
-
-local _SEP_Y_2_ = _PCI_UTIL_Y_ + _SEPARATOR_SPACING_
+local _SEP_Y_2_ = _INTERNAL_TEMP_Y_ + _SEPARATOR_SPACING_
 
 local separator2 = _G_Widget_.Line{
 	p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_2_},
@@ -204,13 +187,12 @@ local NV_REGEX = '(%d+)\n'..
 				 '(%d+)\n'..
 				 '(%d+)\n'..
 				 '(%d+),(%d+)\n'..
-				 'graphics=(%d+), memory=%d+, video=(%d+), PCIe=(%d+)\n'
+				 'graphics=(%d+), memory=%d+, video=(%d+), PCIe=%d+\n'
 
 local NA = 'N/A'
 
 local nvidia_off = function(cr)
 	CriticalText.set(internal_temp.value, cr, NA, false)
-	Text.set(pci_util.value, cr, NA)
 
 	TextColumn.set(clock_speed.values, cr, 1, NA)
 	TextColumn.set(clock_speed.values, cr, 2, NA)
@@ -242,14 +224,13 @@ local update = function(cr)
 			local nvidia_settings_glob = Util.execute_cmd(NV_QUERY)
 
 			local used_memory, total_memory, temp_reading, gpu_frequency,
-				memory_frequency, gpu_utilization, vid_utilization,
-				pci_utilization = __string_match(nvidia_settings_glob, NV_REGEX)
+				memory_frequency, gpu_utilization, vid_utilization
+				= __string_match(nvidia_settings_glob, NV_REGEX)
 
 			local is_critical = false
 			if __tonumber(temp_reading) > 80 then is_critical = true end
 
 			CriticalText.set(internal_temp.value, cr, temp_reading..'°C', is_critical)
-			Text.set(pci_util.value, cr, pci_utilization..'%')
 
 			TextColumn.set(clock_speed.values, cr, 1, gpu_frequency..' Mhz')
 			TextColumn.set(clock_speed.values, cr, 2, memory_frequency..' Mhz')
@@ -280,7 +261,6 @@ _SEP_Y_1_ = nil
 _SEP_Y_2_ = nil
 _SEP_Y_3_ = nil
 _INTERNAL_TEMP_Y_ = nil
-_PCI_UTIL_Y_ = nil
 _CLOCK_SPEED_Y_ = nil
 _GPU_UTIL_Y_ = nil
 _MEM_UTIL_Y_ = nil
@@ -301,9 +281,6 @@ local draw = function(cr, current_interface)
 		Text.draw(internal_temp.label, cr)
 		Text.draw(internal_temp.value, cr)
 		
-		Text.draw(pci_util.label, cr)
-		Text.draw(pci_util.value, cr)
-
 		Line.draw(separator2, cr)
 		
 		TextColumn.draw(clock_speed.labels, cr)

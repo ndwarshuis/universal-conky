@@ -21,23 +21,26 @@ for r = 1, NUM_ROWS do
 	TABLE_CONKY[3][r] = '${top cpu '..r..'}'
 end
 
-local _MODULE_Y_ = 636
+local _MODULE_Y_ = 614
 local _DIAL_INNER_RADIUS_ = 30
 local _DIAL_OUTER_RADIUS_ = 42
 local _DIAL_SPACING_ = 1
 local _TEXT_Y_OFFSET_ = 15
 local _SEPARATOR_SPACING_ = 20
+local _TEXT_SPACING_ = 22
 local _PLOT_SECTION_BREAK_ = 23
 local _PLOT_HEIGHT_ = 56
 local _TABLE_SECTION_BREAK_ = 20
 local _TABLE_HEIGHT_ = 114
 
 local _create_core_ = function(cores, id, x, y)
-	local conky_threads = {}
+	local conky_loads = {}
+	local conky_freqs = {}
 
 	for c = 0, NUM_PHYSICAL_CORES * NUM_THREADS_PER_CORE - 1 do
 		if Util.read_file('/sys/devices/system/cpu/cpu'..c..'/topology/core_id', nil, '*n') == id then
-			table.insert(conky_threads, '${cpu cpu'..c..'}')
+			table.insert(conky_loads, '${cpu cpu'..c..'}')
+			table.insert(conky_freqs, '${freq '..c..'}')
 		end
 	end
 
@@ -72,7 +75,8 @@ local _create_core_ = function(cores, id, x, y)
 			critical_limit 	= '>90'
 		},
 		coretemp_path = string.format(CORETEMP_PATH, hwmon_index, 'temp'..(id + 2)..'_input'),
-		conky_threads = conky_threads
+		conky_loads = conky_loads,
+		conky_freqs = conky_freqs
 	}
 end
 
@@ -80,7 +84,7 @@ local header = _G_Widget_.Header{
 	x = _G_INIT_DATA_.LEFT_X,
 	y = _MODULE_Y_,
 	width = _G_INIT_DATA_.SECTION_WIDTH,
-	header = "PROCESSOR"
+	header = 'PROCESSOR'
 }
 
 --we assume that this cpu has 4 physical cores with 2 logical each
@@ -98,21 +102,38 @@ local _RIGHT_X_ = _G_INIT_DATA_.LEFT_X + _G_INIT_DATA_.SECTION_WIDTH
 local _PROCESS_Y_ = header.bottom_y + _DIAL_OUTER_RADIUS_ * 2 + _PLOT_SECTION_BREAK_
 
 local process = {
-	labels = _G_Widget_.Text{
+	label = _G_Widget_.Text{
 		x 		= _G_INIT_DATA_.LEFT_X,
 		y 		= _PROCESS_Y_,
-		text    = 'R | S | D | T | Z'
+		text 	= 'R | S | D | T | Z'
 	},
-	values = _G_Widget_.Text{
+	value = _G_Widget_.Text{
 		x 			= _RIGHT_X_,
 		y 			= _PROCESS_Y_,
 		x_align 	= 'right',
 		text_color 	= _G_Patterns_.BLUE,
-		text        = '<R.S.D.T.Z>'
+		text		= '<R> | <S> | <D> | <T> | <Z>'
 	}
 }
 
-local _SEP_Y_ = _PROCESS_Y_ + _SEPARATOR_SPACING_
+local _FREQ_Y_ = _PROCESS_Y_ + _TEXT_SPACING_
+
+local ave_freq = {
+	label = _G_Widget_.Text{
+		x 		= _G_INIT_DATA_.LEFT_X,
+		y 		= _FREQ_Y_,
+		text 	= 'Ave Freq'
+	},
+	value = _G_Widget_.Text{
+		x 			= _RIGHT_X_,
+		y 			= _FREQ_Y_,
+		x_align 	= 'right',
+		text_color 	= _G_Patterns_.BLUE,
+		text		= '<freq>'
+	}
+}
+
+local _SEP_Y_ = _FREQ_Y_ + _SEPARATOR_SPACING_
 
 local separator = _G_Widget_.Line{
 	p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_},
@@ -160,30 +181,39 @@ local update = function(cr)
 	local conky = Util.conky
 	local char_count = Util.char_count
 
-	local sum = 0
+	local load_sum = 0
+	local freq_sum = 0
+	
 	for c = 1, NUM_PHYSICAL_CORES do
 		local core = cores[c]
 		
-		local conky_threads = core.conky_threads
+		
+		local conky_loads = core.conky_loads
+		local conky_freqs = core.conky_freqs
+		
 		for t = 1, NUM_THREADS_PER_CORE do
-			local percent = Util.conky_numeric(conky_threads[t]) * 0.01
+			local percent = Util.conky_numeric(conky_loads[t]) * 0.01
 			CompoundDial.set(core.dials, t, percent)
-			sum = sum + percent
+			load_sum = load_sum + percent
+
+			freq_sum = freq_sum + Util.conky_numeric(conky_freqs[t])
 		end
 
 		CriticalText.set(core.coretemp_text, cr, Util.round(0.001 * Util.read_file(core.coretemp_path, nil, '*n')))
 	end
-	
+
 	local process_glob = Util.execute_cmd('ps -A -o s')
 	
 	--subtract one from running b/c ps will always be "running"
-	Text.set(process.values, cr, (char_count(process_glob, 'R') - 1)..' | '..
+	Text.set(process.value, cr, (char_count(process_glob, 'R') - 1)..' | '..
 								  char_count(process_glob, 'S')..' | '..
 								  char_count(process_glob, 'D')..' | '..
 								  char_count(process_glob, 'T')..' | '..
 								  char_count(process_glob, 'Z'))
 
-	local load_percent = Util.round(sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE, 2)
+	Text.set(ave_freq.value, cr, Util.round(freq_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE) .. ' MHz')
+
+	local load_percent = Util.round(load_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE, 2)
 	CriticalText.set(total_load.value, cr, load_percent * 100)
 
 	LabelPlot.update(plot, load_percent)
@@ -202,11 +232,13 @@ _DIAL_OUTER_RADIUS_ = nil
 _DIAL_SPACING_ = nil
 _TEXT_Y_OFFSET_ = nil
 _SEPARATOR_SPACING_ = nil
+_TEXT_SPACING_ = nil
 _PLOT_SECTION_BREAK_ = nil
 _PLOT_HEIGHT_ = nil
 _TABLE_SECTION_BREAK_ = nil
 _TABLE_HEIGHT_ = nil
 _create_core_ = nil
+_FREQ_Y_ = nil
 _LOAD_Y_ = nil
 _RIGHT_X_ = nil
 _SEP_Y_ = nil
@@ -227,8 +259,11 @@ local draw = function(cr, current_interface)
 			CriticalText.draw(core.coretemp_text, cr)
 		end
 
-		Text.draw(process.labels, cr)
-		Text.draw(process.values, cr)
+		Text.draw(process.label, cr)
+		Text.draw(process.value, cr)
+		
+		Text.draw(ave_freq.label, cr)
+		Text.draw(ave_freq.value, cr)
 
 		Line.draw(separator, cr)
 		
