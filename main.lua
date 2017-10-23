@@ -97,7 +97,6 @@ package.path = _G_INIT_DATA_.ABS_PATH..'/?.lua;'..
 
 conky_set_update_interval(_G_INIT_DATA_.UPDATE_INTERVAL)
 
-require 'imlib2'
 require 'cairo'
 
 _G_Widget_ 		= require 'Widget'
@@ -114,7 +113,6 @@ local Power 		= require 'Power'
 local ReadWrite		= require 'ReadWrite'
 local Graphics		= require 'Graphics'
 local Memory		= require 'Memory'
-local Weather		= require 'Weather'
 
 local _unrequire = function(m) package.loaded[m] = nil end
 
@@ -138,7 +136,6 @@ local __cairo_create 				= cairo_create
 local __cairo_surface_destroy 		= cairo_surface_destroy
 local __cairo_destroy 				= cairo_destroy
 local __collectgarbage				= collectgarbage
-local __os_execute					= os.execute
 
 local using_ac = function()
 	return Util.conky('${acpiacadapter AC}') == 'on-line'
@@ -153,7 +150,8 @@ local check_if_log_changed = function()
 	return 0
 end
 
-__os_execute('set_conky_interface.sh 0')
+-- kept for historic reasons, if we choose to make another panel then this
+-- will be useful
 local current_interface = 0
 
 function conky_main()
@@ -177,22 +175,8 @@ function conky_main()
 	local log_is_changed = false
 	if t2 == 0 then log_is_changed = check_if_log_changed() end
 	
-	local interface_is_changed = false
-
-	local next_interface = Util.read_file('/tmp/conky_interface', nil, '*n')
-
-	if next_interface == '' then
-		__os_execute('set_conky_interface.sh 0')
-		current_interface = 0
-		interface_is_changed = true
-	elseif next_interface ~= current_interface then
-		current_interface = next_interface
-		interface_is_changed = true
-	end
-
 	Panel(cr)
 
-	--interface 0
 	System(cr, current_interface, log_is_changed)
 	Graphics(cr, current_interface)
 	Processor(cr, current_interface)
@@ -204,9 +188,6 @@ function conky_main()
 	FileSystem(cr, current_interface, t1)
 	Power(cr, current_interface, UPDATE_FREQUENCY, is_using_ac)
 	Memory(cr, current_interface)
-
-	--interface 1
-	Weather(cr, current_interface, interface_is_changed)
 
     __cairo_surface_destroy(cs)
     __cairo_destroy(cr)
