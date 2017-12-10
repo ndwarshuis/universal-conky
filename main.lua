@@ -57,7 +57,6 @@ Var names:
     - CapCamalCase
     - var name is exactly the same as module name
 --]]
-
 local UPDATE_FREQUENCY = 1						--Hz
 
 _G_INIT_DATA_ = {
@@ -74,7 +73,8 @@ _G_INIT_DATA_ = {
 	SIDE_HEIGHT 		= 1020,
 	CENTER_HEIGHT 		= 220,
 
-	ABS_PATH			= os.getenv('CONKY_LUA_HOME')
+	-- silly hack, the price of a litewait language
+	ABS_PATH			= debug.getinfo(1).source:match("@?(.*/)")
 }
 
 _G_INIT_DATA_.CENTER_LEFT_X = _G_INIT_DATA_.LEFT_X + _G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2 + _G_INIT_DATA_.PANEL_HORZ_SPACING
