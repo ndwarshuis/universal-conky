@@ -34,67 +34,67 @@ local _TABLE_SECTION_BREAK_ = 20
 local _TABLE_HEIGHT_ = 114
 
 local _create_core_ = function(cores, id, x, y)
-	local conky_loads = {}
-	local conky_freqs = {}
+   local conky_loads = {}
+   local conky_freqs = {}
+	
+   for c = 0, NUM_PHYSICAL_CORES * NUM_THREADS_PER_CORE - 1 do
+	  if Util.read_file('/sys/devices/system/cpu/cpu'..c..'/topology/core_id', nil, '*n') == id then
+		 table.insert(conky_loads, '${cpu cpu'..(c+1)..'}')
+		 table.insert(conky_freqs, '${freq '..c..'}')
+	  end
+   end
 
-	for c = 0, NUM_PHYSICAL_CORES * NUM_THREADS_PER_CORE - 1 do
-		if Util.read_file('/sys/devices/system/cpu/cpu'..c..'/topology/core_id', nil, '*n') == id then
-			table.insert(conky_loads, '${cpu cpu'..c..'}')
-			table.insert(conky_freqs, '${freq '..c..'}')
-		end
-	end
+   local hwmon_index = -1
+   while Util.read_file(string.format(CORETEMP_PATH, hwmon_index, 'name'), nil, '*l') ~= 'coretemp' do
+	  hwmon_index = hwmon_index + 1
+   end
 
-	local hwmon_index = -1
-	while Util.read_file(string.format(CORETEMP_PATH, hwmon_index, 'name'), nil, '*l') ~= 'coretemp' do
-		hwmon_index = hwmon_index + 1
-	end
-
-	cores[id +1] = {
-		dials = _G_Widget_.CompoundDial{
-			x 				= x,
-			y 				= y,			
-			inner_radius 	= _DIAL_INNER_RADIUS_,
-			outer_radius 	= _DIAL_OUTER_RADIUS_,
-			spacing 		= _DIAL_SPACING_,
-			num_dials 		= NUM_THREADS_PER_CORE,
-			critical_limit	= '>0.8'
-		},
-		inner_ring = _G_Widget_.Arc{
-			x = x,
-			y = y,
-			radius = _DIAL_INNER_RADIUS_ - 2,
-			theta0 = 0,
-			theta1 = 360
-		},
-		coretemp_text = _G_Widget_.CriticalText{
-			x 				= x,
-			y 				= y,
-			x_align 	    = 'center',
-			y_align 	    = 'center',
-			append_end 		= '°C',
-			critical_limit 	= '>90'
-		},
-		coretemp_path = string.format(CORETEMP_PATH, hwmon_index, 'temp'..(id + 2)..'_input'),
-		conky_loads = conky_loads,
-		conky_freqs = conky_freqs
-	}
+   cores[id +1] = {
+	  dials = _G_Widget_.CompoundDial{
+		 x 				= x,
+		 y 				= y,			
+		 inner_radius 	= _DIAL_INNER_RADIUS_,
+		 outer_radius 	= _DIAL_OUTER_RADIUS_,
+		 spacing 		= _DIAL_SPACING_,
+		 num_dials 		= NUM_THREADS_PER_CORE,
+		 critical_limit	= '>0.8'
+	  },
+	  inner_ring = _G_Widget_.Arc{
+		 x = x,
+		 y = y,
+		 radius = _DIAL_INNER_RADIUS_ - 2,
+		 theta0 = 0,
+		 theta1 = 360
+	  },
+	  coretemp_text = _G_Widget_.CriticalText{
+		 x 				= x,
+		 y 				= y,
+		 x_align 	    = 'center',
+		 y_align 	    = 'center',
+		 append_end 		= '°C',
+		 critical_limit 	= '>90'
+	  },
+	  coretemp_path = string.format(CORETEMP_PATH, hwmon_index, 'temp'..(id + 2)..'_input'),
+	  conky_loads = conky_loads,
+	  conky_freqs = conky_freqs
+   }
 end
 
 local header = _G_Widget_.Header{
-	x = _G_INIT_DATA_.LEFT_X,
-	y = _MODULE_Y_,
-	width = _G_INIT_DATA_.SECTION_WIDTH,
-	header = 'PROCESSOR'
+   x = _G_INIT_DATA_.LEFT_X,
+   y = _MODULE_Y_,
+   width = _G_INIT_DATA_.SECTION_WIDTH,
+   header = 'PROCESSOR'
 }
 
 --we assume that this cpu has 4 physical cores with 2 logical each
 local cores = {}
 
 for c = 0, NUM_PHYSICAL_CORES - 1 do
-	local dial_x = _G_INIT_DATA_.LEFT_X + _DIAL_OUTER_RADIUS_ +
+   local dial_x = _G_INIT_DATA_.LEFT_X + _DIAL_OUTER_RADIUS_ +
 	  (_G_INIT_DATA_.SECTION_WIDTH - 2 * _DIAL_OUTER_RADIUS_) * c / 3
-	local dial_y = header.bottom_y + _DIAL_OUTER_RADIUS_
-	_create_core_(cores, c, dial_x, dial_y)
+   local dial_y = header.bottom_y + _DIAL_OUTER_RADIUS_
+   _create_core_(cores, c, dial_x, dial_y)
 end
 
 local _RIGHT_X_ = _G_INIT_DATA_.LEFT_X + _G_INIT_DATA_.SECTION_WIDTH
@@ -102,128 +102,128 @@ local _RIGHT_X_ = _G_INIT_DATA_.LEFT_X + _G_INIT_DATA_.SECTION_WIDTH
 local _PROCESS_Y_ = header.bottom_y + _DIAL_OUTER_RADIUS_ * 2 + _PLOT_SECTION_BREAK_
 
 local process = {
-	label = _G_Widget_.Text{
-		x 		= _G_INIT_DATA_.LEFT_X,
-		y 		= _PROCESS_Y_,
-		text 	= 'R | S | D | T | Z'
-	},
-	value = _G_Widget_.Text{
-		x 			= _RIGHT_X_,
-		y 			= _PROCESS_Y_,
-		x_align 	= 'right',
-		text_color 	= _G_Patterns_.BLUE,
-		text		= '<R> | <S> | <D> | <T> | <Z>'
-	}
+   label = _G_Widget_.Text{
+	  x 		= _G_INIT_DATA_.LEFT_X,
+	  y 		= _PROCESS_Y_,
+	  text 	= 'R | S | D | T | Z'
+   },
+   value = _G_Widget_.Text{
+	  x 			= _RIGHT_X_,
+	  y 			= _PROCESS_Y_,
+	  x_align 	= 'right',
+	  text_color 	= _G_Patterns_.BLUE,
+	  text		= '<R> | <S> | <D> | <T> | <Z>'
+   }
 }
 
 local _FREQ_Y_ = _PROCESS_Y_ + _TEXT_SPACING_
 
 local ave_freq = {
-	label = _G_Widget_.Text{
-		x 		= _G_INIT_DATA_.LEFT_X,
-		y 		= _FREQ_Y_,
-		text 	= 'Ave Freq'
-	},
-	value = _G_Widget_.Text{
-		x 			= _RIGHT_X_,
-		y 			= _FREQ_Y_,
-		x_align 	= 'right',
-		text_color 	= _G_Patterns_.BLUE,
-		text		= '<freq>'
-	}
+   label = _G_Widget_.Text{
+	  x 		= _G_INIT_DATA_.LEFT_X,
+	  y 		= _FREQ_Y_,
+	  text 	= 'Ave Freq'
+   },
+   value = _G_Widget_.Text{
+	  x 			= _RIGHT_X_,
+	  y 			= _FREQ_Y_,
+	  x_align 	= 'right',
+	  text_color 	= _G_Patterns_.BLUE,
+	  text		= '<freq>'
+   }
 }
 
 local _SEP_Y_ = _FREQ_Y_ + _SEPARATOR_SPACING_
 
 local separator = _G_Widget_.Line{
-	p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_},
-	p2 = {x = _RIGHT_X_, y = _SEP_Y_}
+   p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_},
+   p2 = {x = _RIGHT_X_, y = _SEP_Y_}
 }
 
 local _LOAD_Y_ = _SEP_Y_ + _SEPARATOR_SPACING_
 
 local total_load = {
-	label = _G_Widget_.Text{
-		x    = _G_INIT_DATA_.LEFT_X,
-		y    = _LOAD_Y_,
-		text = 'Total Load'
-	},
-	value = _G_Widget_.CriticalText{
-		x 			    = _RIGHT_X_,
-		y 			    = _LOAD_Y_,
-		x_align 	    = 'right',
-		append_end 	    = '%',
-		critical_limit 	= '>80'
-	}	
+   label = _G_Widget_.Text{
+	  x    = _G_INIT_DATA_.LEFT_X,
+	  y    = _LOAD_Y_,
+	  text = 'Total Load'
+   },
+   value = _G_Widget_.CriticalText{
+	  x 			    = _RIGHT_X_,
+	  y 			    = _LOAD_Y_,
+	  x_align 	    = 'right',
+	  append_end 	    = '%',
+	  critical_limit 	= '>80'
+   }	
 }
 
 local _PLOT_Y_ = _LOAD_Y_ + _PLOT_SECTION_BREAK_
 
 local plot = _G_Widget_.LabelPlot{
-	x 		= _G_INIT_DATA_.LEFT_X,
-	y 		= _PLOT_Y_,
-	width 	= _G_INIT_DATA_.SECTION_WIDTH,
-	height 	= _PLOT_HEIGHT_
+   x 		= _G_INIT_DATA_.LEFT_X,
+   y 		= _PLOT_Y_,
+   width 	= _G_INIT_DATA_.SECTION_WIDTH,
+   height 	= _PLOT_HEIGHT_
 }
 
 local tbl = _G_Widget_.Table{
-	x 		 = _G_INIT_DATA_.LEFT_X,
-	y 		 = _PLOT_Y_ + _PLOT_HEIGHT_ + _TABLE_SECTION_BREAK_,
-	width 	 = _G_INIT_DATA_.SECTION_WIDTH,
-	height 	 = _TABLE_HEIGHT_,
-	num_rows = NUM_ROWS,
-	'Name',
-	'PID',
-	'CPU (%)'
+   x 		 = _G_INIT_DATA_.LEFT_X,
+   y 		 = _PLOT_Y_ + _PLOT_HEIGHT_ + _TABLE_SECTION_BREAK_,
+   width 	 = _G_INIT_DATA_.SECTION_WIDTH,
+   height 	 = _TABLE_HEIGHT_,
+   num_rows = NUM_ROWS,
+   'Name',
+   'PID',
+   'CPU (%)'
 }
 
 local update = function(cr)
-	local conky = Util.conky
-	local char_count = Util.char_count
+   local conky = Util.conky
+   local char_count = Util.char_count
 
-	local load_sum = 0
-	local freq_sum = 0
-	
-	for c = 1, NUM_PHYSICAL_CORES do
-		local core = cores[c]
-		
-		
-		local conky_loads = core.conky_loads
-		local conky_freqs = core.conky_freqs
-		
-		for t = 1, NUM_THREADS_PER_CORE do
-			local percent = Util.conky_numeric(conky_loads[t]) * 0.01
-			CompoundDial.set(core.dials, t, percent)
-			load_sum = load_sum + percent
+   local load_sum = 0
+   local freq_sum = 0
+   
+   for c = 1, NUM_PHYSICAL_CORES do
+	  local core = cores[c]
+	  
+	  
+	  local conky_loads = core.conky_loads
+	  local conky_freqs = core.conky_freqs
+	  
+	  for t = 1, NUM_THREADS_PER_CORE do
+		 local percent = Util.conky_numeric(conky_loads[t]) * 0.01
+		 CompoundDial.set(core.dials, t, percent)
+		 load_sum = load_sum + percent
 
-			freq_sum = freq_sum + Util.conky_numeric(conky_freqs[t])
-		end
+		 freq_sum = freq_sum + Util.conky_numeric(conky_freqs[t])
+	  end
 
-		CriticalText.set(core.coretemp_text, cr, Util.round(0.001 * Util.read_file(core.coretemp_path, nil, '*n')))
-	end
+	  CriticalText.set(core.coretemp_text, cr, Util.round(0.001 * Util.read_file(core.coretemp_path, nil, '*n')))
+   end
 
-	local process_glob = Util.execute_cmd('ps -A -o s')
-	
-	--subtract one from running b/c ps will always be "running"
-	Text.set(process.value, cr, (char_count(process_glob, 'R') - 1)..' | '..
-								  char_count(process_glob, 'S')..' | '..
-								  char_count(process_glob, 'D')..' | '..
-								  char_count(process_glob, 'T')..' | '..
-								  char_count(process_glob, 'Z'))
+   local process_glob = Util.execute_cmd('ps -A -o s')
+   
+   --subtract one from running b/c ps will always be "running"
+   Text.set(process.value, cr, (char_count(process_glob, 'R') - 1)..' | '..
+			   char_count(process_glob, 'S')..' | '..
+			   char_count(process_glob, 'D')..' | '..
+			   char_count(process_glob, 'T')..' | '..
+			   char_count(process_glob, 'Z'))
 
-	Text.set(ave_freq.value, cr, Util.round(freq_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE) .. ' MHz')
+   Text.set(ave_freq.value, cr, Util.round(freq_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE) .. ' MHz')
 
-	local load_percent = Util.round(load_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE, 2)
-	CriticalText.set(total_load.value, cr, load_percent * 100)
+   local load_percent = Util.round(load_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE, 2)
+   CriticalText.set(total_load.value, cr, load_percent * 100)
 
-	LabelPlot.update(plot, load_percent)
+   LabelPlot.update(plot, load_percent)
 
-	for c = 1, 3 do
-		local column = TABLE_CONKY[c]
-		for r = 1, NUM_ROWS do
-			Table.set(tbl, cr, c, r, conky(column[r], '(%S+)'))
-		end
-	end
+   for c = 1, 3 do
+	  local column = TABLE_CONKY[c]
+	  for r = 1, NUM_ROWS do
+		 Table.set(tbl, cr, c, r, conky(column[r], '(%S+)'))
+	  end
+   end
 end
 
 _MODULE_Y_ = nil
@@ -246,34 +246,34 @@ _PROCESS_Y_ = nil
 _PLOT_Y_ = nil
 
 local draw = function(cr, current_interface)
-	update(cr)
+   update(cr)
 
-	if current_interface == 0 then
-		Text.draw(header.text, cr)
-		Line.draw(header.underline, cr)
-		
-		for c = 1, NUM_PHYSICAL_CORES do
-			local core = cores[c]
-			CompoundDial.draw(core.dials, cr)
-			Arc.draw(core.inner_ring, cr)
-			CriticalText.draw(core.coretemp_text, cr)
-		end
+   if current_interface == 0 then
+	  Text.draw(header.text, cr)
+	  Line.draw(header.underline, cr)
+	  
+	  for c = 1, NUM_PHYSICAL_CORES do
+		 local core = cores[c]
+		 CompoundDial.draw(core.dials, cr)
+		 Arc.draw(core.inner_ring, cr)
+		 CriticalText.draw(core.coretemp_text, cr)
+	  end
 
-		Text.draw(process.label, cr)
-		Text.draw(process.value, cr)
-		
-		Text.draw(ave_freq.label, cr)
-		Text.draw(ave_freq.value, cr)
+	  Text.draw(process.label, cr)
+	  Text.draw(process.value, cr)
+	  
+	  Text.draw(ave_freq.label, cr)
+	  Text.draw(ave_freq.value, cr)
 
-		Line.draw(separator, cr)
-		
-		Text.draw(total_load.label, cr)
-		CriticalText.draw(total_load.value, cr)
+	  Line.draw(separator, cr)
+	  
+	  Text.draw(total_load.label, cr)
+	  CriticalText.draw(total_load.value, cr)
 
-		LabelPlot.draw(plot, cr)
+	  LabelPlot.draw(plot, cr)
 
-		Table.draw(tbl, cr)
-	end
+	  Table.draw(tbl, cr)
+   end
 end
 
 return draw
