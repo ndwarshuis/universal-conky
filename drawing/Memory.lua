@@ -10,6 +10,7 @@ local Util			= require 'Util'
 
 local __string_match		= string.match
 local __cairo_path_destroy 	= cairo_path_destroy
+local __io_popen            = io.popen
 
 local _MODULE_Y_ = 712
 local _DIAL_THICKNESS_ = 8
@@ -32,13 +33,6 @@ local MEMINFO_REGEX = '\nMemFree:%s+(%d+).+'..
                       '\nSReclaimable:%s+(%d+)'
 
 local NUM_ROWS = 5
-local TABLE_CONKY = {{}, {}, {}}
-
-for r = 1, NUM_ROWS do
-	TABLE_CONKY[1][r] = '${top_mem name '..r..'}'
-	TABLE_CONKY[2][r] = '${top_mem pid '..r..'}'
-	TABLE_CONKY[3][r] = '${top_mem mem '..r..'}'
-end
 
 local header = _G_Widget_.Header{
 	x = _G_INIT_DATA_.RIGHT_X,
@@ -174,12 +168,17 @@ local update = function(cr)
 
 	LabelPlot.update(plot, used_percent)
 
-	for c = 1, 3 do
-		local column = TABLE_CONKY[c]
-		for r = 1, NUM_ROWS do
-			Table.set(tbl, cr, c, r, Util.conky(column[r], '(%S+)'))
-		end
+	local ps_glob = __io_popen('ps -A -o "pmem,pid,comm" --sort=-pmem h')
+
+	for r = 1, NUM_ROWS do
+	   local ps_line = ps_glob:read()
+	   local pmem, pid, comm = __string_match(ps_line, '(%d+%.%d+)%s+(%d+)%s+(.+)$')
+	   Table.set(tbl, cr, 1, r, comm)
+	   Table.set(tbl, cr, 2, r, pid)
+	   Table.set(tbl, cr, 3, r, pmem)
 	end
+
+	ps_glob:close()
 end
 
 _MODULE_Y_ = nil
