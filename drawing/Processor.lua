@@ -13,12 +13,13 @@ local NUM_PHYSICAL_CORES = 4
 local NUM_THREADS_PER_CORE = 2
 
 local NUM_ROWS = 5
-local TABLE_CONKY = {{}, {}, {}}
+
+local TABLE_CONKY = {}
 
 for r = 1, NUM_ROWS do
-	TABLE_CONKY[1][r] = '${top name '..r..'}'
-	TABLE_CONKY[2][r] = '${top pid '..r..'}'
-	TABLE_CONKY[3][r] = '${top cpu '..r..'}'
+   TABLE_CONKY[r] = {}
+   TABLE_CONKY[r].pid = '${top pid '..r..'}'
+   TABLE_CONKY[r].cpu = '${top cpu '..r..'}'
 end
 
 local _MODULE_Y_ = 614
@@ -187,7 +188,6 @@ local update = function(cr)
    for c = 1, NUM_PHYSICAL_CORES do
 	  local core = cores[c]
 	  
-	  
 	  local conky_loads = core.conky_loads
 	  local conky_freqs = core.conky_freqs
 	  
@@ -218,11 +218,15 @@ local update = function(cr)
 
    LabelPlot.update(plot, load_percent)
 
-   for c = 1, 3 do
-	  local column = TABLE_CONKY[c]
-	  for r = 1, NUM_ROWS do
-		 Table.set(tbl, cr, c, r, conky(column[r], '(%S+)'))
-	  end
+   for r = 1, NUM_ROWS do
+   	  local pid = conky(TABLE_CONKY[r].pid, '(%S+)')
+   	  if pid ~= '' then
+   		 local cpu = conky(TABLE_CONKY[r].cpu)
+   	  	 local comm = Util.read_file('/proc/'..pid..'/stat', '%d+%s+%((.+)%)')
+   	  	 Table.set(tbl, cr, 1, r, comm)
+   	  	 Table.set(tbl, cr, 2, r, pid)
+   	  	 Table.set(tbl, cr, 3, r, cpu)
+   	  end
    end
 end
 
