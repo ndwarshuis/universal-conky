@@ -131,10 +131,10 @@ local draw_dynamic = function(cr, update_frequency)
    update(cr, update_frequency)
 
    Text.draw(reads.rate, cr)
-   ScalePlot.draw(reads.plot, cr)
+   ScalePlot.draw_dynamic(reads.plot, cr)
 		
    Text.draw(writes.rate, cr)
-   ScalePlot.draw(writes.plot, cr)
+   ScalePlot.draw_dynamic(writes.plot, cr)
 end
 
 M.draw_static = draw_static

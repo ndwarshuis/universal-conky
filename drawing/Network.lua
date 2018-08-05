@@ -144,10 +144,10 @@ local draw_dynamic = function(cr, update_frequency)
    update(cr, update_frequency)
 
    Text.draw(dnload.speed, cr)
-   ScalePlot.draw(dnload.plot, cr)
+   ScalePlot.draw_dynamic(dnload.plot, cr)
    
    Text.draw(upload.speed, cr)
-   ScalePlot.draw(upload.plot, cr)
+   ScalePlot.draw_dynamic(upload.plot, cr)
 end
 
 M.draw_static = draw_static

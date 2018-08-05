@@ -206,6 +206,7 @@ local draw_static = function(cr)
 
    Text.draw(swap.label, cr)
    TextColumn.draw(cache.labels, cr)
+   LabelPlot.draw_static(plot, cr)
 
    Table.draw_static(tbl, cr)
 end
@@ -220,7 +221,7 @@ local draw_dynamic = function(cr)
    CriticalText.draw(swap.percent, cr)
    TextColumn.draw(cache.percents, cr)
    
-   LabelPlot.draw(plot, cr)
+   LabelPlot.draw_dynamic(plot, cr)
 		
    Table.draw_dynamic(tbl, cr)
 end

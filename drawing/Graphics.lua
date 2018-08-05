@@ -282,8 +282,13 @@ local draw_static = function(cr)
    Line.draw(separator3, cr)
 
    Text.draw(gpu_util.label, cr)
+   LabelPlot.draw_static(gpu_util.plot, cr)
+
    Text.draw(mem_util.label, cr)
+   LabelPlot.draw_static(mem_util.plot, cr)
+
    Text.draw(vid_util.label, cr)
+   LabelPlot.draw_static(vid_util.plot, cr)
 end
 
 local draw_dynamic = function(cr)
@@ -294,13 +299,13 @@ local draw_dynamic = function(cr)
    TextColumn.draw(clock_speed.values, cr)
    
    Text.draw(gpu_util.value, cr)
-   LabelPlot.draw(gpu_util.plot, cr)
+   LabelPlot.draw_dynamic(gpu_util.plot, cr)
    
    Text.draw(mem_util.value, cr)
-   LabelPlot.draw(mem_util.plot, cr)
+   LabelPlot.draw_dynamic(mem_util.plot, cr)
 	
    Text.draw(vid_util.value, cr)
-   LabelPlot.draw(vid_util.plot, cr)
+   LabelPlot.draw_dynamic(vid_util.plot, cr)
 end
 
 M.draw_static = draw_static

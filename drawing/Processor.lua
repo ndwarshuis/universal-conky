@@ -265,6 +265,7 @@ local draw_static = function(cr)
    Line.draw(separator, cr)
 
    Text.draw(total_load.label, cr)
+   LabelPlot.draw_static(plot, cr)
 
    Table.draw_static(tbl, cr)
 end
@@ -282,7 +283,7 @@ local draw_dynamic = function(cr)
    Text.draw(ave_freq.value, cr)
    
    CriticalText.draw(total_load.value, cr)
-   LabelPlot.draw(plot, cr)
+   LabelPlot.draw_dynamic(plot, cr)
    
    Table.draw_dynamic(tbl, cr)
 end
