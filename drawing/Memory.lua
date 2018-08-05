@@ -196,26 +196,24 @@ _TEXT_LEFT_X_ = nil
 _RIGHT_X_ = nil
 _PLOT_Y_ = nil
 
-local draw = function(cr, current_interface)
-	update(cr)
+local draw = function(cr)
+   update(cr)
 
-	if current_interface == 0 then
-		Text.draw(header.text, cr)
-		Line.draw(header.underline, cr)
-		Dial.draw(dial, cr)
-		Arc.draw(cache_arc, cr)
-		Arc.draw(inner_ring, cr)
-		CriticalText.draw(total_used, cr)
+   Text.draw(header.text, cr)
+   Line.draw(header.underline, cr)
+   Dial.draw(dial, cr)
+   Arc.draw(cache_arc, cr)
+   Arc.draw(inner_ring, cr)
+   CriticalText.draw(total_used, cr)
 
-		Text.draw(swap.label, cr)
-		CriticalText.draw(swap.percent, cr)
-		TextColumn.draw(cache.labels, cr)
-		TextColumn.draw(cache.percents, cr)
-
-		LabelPlot.draw(plot, cr)
-
-		Table.draw(tbl, cr)
-	end
+   Text.draw(swap.label, cr)
+   CriticalText.draw(swap.percent, cr)
+   TextColumn.draw(cache.labels, cr)
+   TextColumn.draw(cache.percents, cr)
+   
+   LabelPlot.draw(plot, cr)
+		
+   Table.draw(tbl, cr)
 end
 
 return draw

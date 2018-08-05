@@ -117,21 +117,19 @@ local update = function(cr, update_frequency)
 	update_stat(cr, writes, write_byte_cnt, update_frequency)
 end
 
-local draw = function(cr, current_interface, update_frequency)
-	update(cr, update_frequency)
+local draw = function(cr, update_frequency)
+   update(cr, update_frequency)
 
-	if current_interface == 0 then
-		Text.draw(header.text, cr)
-		Line.draw(header.underline, cr)
+   Text.draw(header.text, cr)
+   Line.draw(header.underline, cr)
 		
-		Text.draw(reads.label, cr)
-		Text.draw(reads.rate, cr)
-		ScalePlot.draw(reads.plot, cr)
+   Text.draw(reads.label, cr)
+   Text.draw(reads.rate, cr)
+   ScalePlot.draw(reads.plot, cr)
 		
-		Text.draw(writes.label, cr)
-		Text.draw(writes.rate, cr)
-		ScalePlot.draw(writes.plot, cr)
-	end
+   Text.draw(writes.label, cr)
+   Text.draw(writes.rate, cr)
+   ScalePlot.draw(writes.plot, cr)
 end
 
 return draw

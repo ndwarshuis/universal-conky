@@ -249,35 +249,33 @@ _SEP_Y_ = nil
 _PROCESS_Y_ = nil
 _PLOT_Y_ = nil
 
-local draw = function(cr, current_interface)
+local draw = function(cr)
    update(cr)
 
-   if current_interface == 0 then
-	  Text.draw(header.text, cr)
-	  Line.draw(header.underline, cr)
+   Text.draw(header.text, cr)
+   Line.draw(header.underline, cr)
 	  
-	  for c = 1, NUM_PHYSICAL_CORES do
-		 local core = cores[c]
-		 CompoundDial.draw(core.dials, cr)
-		 Arc.draw(core.inner_ring, cr)
-		 CriticalText.draw(core.coretemp_text, cr)
-	  end
-
-	  Text.draw(process.label, cr)
-	  Text.draw(process.value, cr)
-	  
-	  Text.draw(ave_freq.label, cr)
-	  Text.draw(ave_freq.value, cr)
-
-	  Line.draw(separator, cr)
-	  
-	  Text.draw(total_load.label, cr)
-	  CriticalText.draw(total_load.value, cr)
-
-	  LabelPlot.draw(plot, cr)
-
-	  Table.draw(tbl, cr)
+   for c = 1, NUM_PHYSICAL_CORES do
+	  local core = cores[c]
+	  CompoundDial.draw(core.dials, cr)
+	  Arc.draw(core.inner_ring, cr)
+	  CriticalText.draw(core.coretemp_text, cr)
    end
+
+   Text.draw(process.label, cr)
+   Text.draw(process.value, cr)
+   
+   Text.draw(ave_freq.label, cr)
+   Text.draw(ave_freq.value, cr)
+
+   Line.draw(separator, cr)
+   
+   Text.draw(total_load.label, cr)
+   CriticalText.draw(total_load.value, cr)
+
+   LabelPlot.draw(plot, cr)
+   
+   Table.draw(tbl, cr)
 end
 
 return draw

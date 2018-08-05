@@ -209,27 +209,25 @@ _RIGHT_X_ = nil
 _CORE_Y_ = nil
 _BATTERY_DRAW_Y_ = nil
 
-local draw = function(cr, current_interface, update_frequency, is_using_ac)
-	update(cr, update_frequency, is_using_ac)
+local draw = function(cr, update_frequency, is_using_ac)
+   update(cr, update_frequency, is_using_ac)
 
-	if current_interface == 0 then
-		Text.draw(header.text, cr)
-		Line.draw(header.underline, cr)
+   Text.draw(header.text, cr)
+   Line.draw(header.underline, cr)
 
-		TextColumn.draw(pkg0.labels, cr)
-		Text.draw(pkg0.llcmc_value, cr)
-		Text.draw(pkg0.core_value, cr)
-		Text.draw(pkg0.igpu_value, cr)
-		ScalePlot.draw(pkg0.plot, cr)
+   TextColumn.draw(pkg0.labels, cr)
+   Text.draw(pkg0.llcmc_value, cr)
+   Text.draw(pkg0.core_value, cr)
+   Text.draw(pkg0.igpu_value, cr)
+   ScalePlot.draw(pkg0.plot, cr)
 		
-		Text.draw(dram.label, cr)
-		Text.draw(dram.value, cr)
-		ScalePlot.draw(dram.plot, cr)
+   Text.draw(dram.label, cr)
+   Text.draw(dram.value, cr)
+   ScalePlot.draw(dram.plot, cr)
 
-		Text.draw(battery_draw.label, cr)
-		Text.draw(battery_draw.value, cr)
-		ScalePlot.draw(battery_draw.plot, cr)
-	end
+   Text.draw(battery_draw.label, cr)
+   Text.draw(battery_draw.value, cr)
+   ScalePlot.draw(battery_draw.plot, cr)
 end
 
 return draw

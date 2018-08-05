@@ -59,15 +59,13 @@ local update = function(cr)
 	end
 end
 
-local draw = function(cr, current_interface, trigger)
-	if trigger == 0 then update(cr) end
+local draw = function(cr, trigger)
+   if trigger == 0 then update(cr) end
 
-	if current_interface == 0 then
-		Text.draw(header.text, cr)
-		Line.draw(header.underline, cr)
-		TextColumn.draw(labels, cr)
-		CompoundBar.draw(bars, cr)
-	end
+   Text.draw(header.text, cr)
+   Line.draw(header.underline, cr)
+   TextColumn.draw(labels, cr)
+   CompoundBar.draw(bars, cr)
 end
 
 return draw

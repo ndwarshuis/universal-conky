@@ -42,22 +42,20 @@ local info = _G_Widget_.TextColumn{
 
 _TEXT_SPACING_ = nil
 
-local draw = function(cr, current_interface, log_is_changed)
-	TextColumn.set(info, cr, 2, Util.conky('$uptime'))
-	
-	if log_is_changed then
-		TextColumn.set(info, cr, 3, extract_date("sed -n "..
-		  "'/ starting full system upgrade/p' /var/log/pacman.log | tail -1"))
-		TextColumn.set(info, cr, 4, extract_date("sed -n "..
-		  "'/ synchronizing package lists/p' /var/log/pacman.log | tail -1"))
-	end
-
-	if current_interface == 0 then
-		Text.draw(header.text, cr)
-		Line.draw(header.underline, cr)
-		TextColumn.draw(labels, cr)
-		TextColumn.draw(info, cr)
-	end
+local draw = function(cr, log_is_changed)
+   TextColumn.set(info, cr, 2, Util.conky('$uptime'))
+   
+   if log_is_changed then
+	  TextColumn.set(info, cr, 3, extract_date("sed -n "..
+	    "'/ starting full system upgrade/p' /var/log/pacman.log | tail -1"))
+	  TextColumn.set(info, cr, 4, extract_date("sed -n "..
+		"'/ synchronizing package lists/p' /var/log/pacman.log | tail -1"))
+   end
+   
+   Text.draw(header.text, cr)
+   Line.draw(header.underline, cr)
+   TextColumn.draw(labels, cr)
+   TextColumn.draw(info, cr)
 end
 
 return draw

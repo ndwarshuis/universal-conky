@@ -130,21 +130,19 @@ _PLOT_HEIGHT_ = nil
 _RIGHT_X_ = nil
 _UPLOAD_Y_ = nil
 
-local draw = function(cr, current_interface, update_frequency)
-	update(cr, update_frequency)
+local draw = function(cr, update_frequency)
+   update(cr, update_frequency)
 
-	if current_interface == 0 then
-		Text.draw(header.text, cr)
-		Line.draw(header.underline, cr)
-		
-		Text.draw(dnload.label, cr)
-		Text.draw(dnload.speed, cr)
-		ScalePlot.draw(dnload.plot, cr)
-		
-		Text.draw(upload.label, cr)
-		Text.draw(upload.speed, cr)
-		ScalePlot.draw(upload.plot, cr)
-	end
+   Text.draw(header.text, cr)
+   Line.draw(header.underline, cr)
+   
+   Text.draw(dnload.label, cr)
+   Text.draw(dnload.speed, cr)
+   ScalePlot.draw(dnload.plot, cr)
+   
+   Text.draw(upload.label, cr)
+   Text.draw(upload.speed, cr)
+   ScalePlot.draw(upload.plot, cr)
 end
 
 return draw

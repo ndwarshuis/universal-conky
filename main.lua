@@ -132,6 +132,8 @@ _G_INIT_DATA_ = nil
 local updates = -2
 
 local __cairo_xlib_surface_create 	= cairo_xlib_surface_create
+local __cairo_set_source_surface    = cairo_set_source_surface
+local __cairo_paint                 = cairo_paint
 local __cairo_create 				= cairo_create
 local __cairo_surface_destroy 		= cairo_surface_destroy
 local __cairo_destroy 				= cairo_destroy
@@ -150,10 +152,6 @@ local check_if_log_changed = function()
 	return 0
 end
 
--- kept for historic reasons, if we choose to make another panel then this
--- will be useful
-local current_interface = 0
-
 local cs_p
 local uninit = 1
 
@@ -166,8 +164,10 @@ end
 
 function conky_main()
    if uninit then return end
+
    local _cw = conky_window
    if not _cw then return end
+
    local cs = __cairo_xlib_surface_create(_cw.display, _cw.drawable, _cw.visual, 1920, 1080)
    local cr = __cairo_create(cs)
    
@@ -191,17 +191,17 @@ function conky_main()
    
    -- local pt1 = os.clock()
    
-   System(cr, current_interface, log_is_changed)
-   Graphics(cr, current_interface)
-   Processor(cr, current_interface)
+   System(cr, log_is_changed)
+   Graphics(cr)
+   Processor(cr)
    
-   ReadWrite(cr, current_interface, UPDATE_FREQUENCY)
-   Network(cr, current_interface, UPDATE_FREQUENCY)
+   ReadWrite(cr, UPDATE_FREQUENCY)
+   Network(cr, UPDATE_FREQUENCY)
    
-   Pacman(cr, current_interface, log_is_changed)
-   FileSystem(cr, current_interface, t1)
-   Power(cr, current_interface, UPDATE_FREQUENCY, is_using_ac)
-   Memory(cr, current_interface)
+   Pacman(cr, log_is_changed)
+   FileSystem(cr, t1)
+   Power(cr, UPDATE_FREQUENCY, is_using_ac)
+   Memory(cr)
    
    -- local pt2 = os.clock() - pt1
    -- print(pt2)

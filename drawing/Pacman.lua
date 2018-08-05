@@ -47,15 +47,13 @@ local update = function(cr)
 	end
 end
 
-local draw = function(cr, current_interface, log_is_changed)
-	if log_is_changed then update(cr) end
+local draw = function(cr, log_is_changed)
+   if log_is_changed then update(cr) end
 	
-	if current_interface == 0 then
-		Text.draw(header.text, cr)
-		Line.draw(header.underline, cr)
-		TextColumn.draw(labels, cr)
-		TextColumn.draw(info, cr)
-	end
+   Text.draw(header.text, cr)
+   Line.draw(header.underline, cr)
+   TextColumn.draw(labels, cr)
+   TextColumn.draw(info, cr)
 end
 
 return draw
