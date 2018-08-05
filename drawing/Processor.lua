@@ -258,6 +258,7 @@ local draw_static = function(cr)
    for c = 1, NUM_PHYSICAL_CORES do
 	  local this_core = cores[c]
 	  Arc.draw(this_core.inner_ring, cr)
+	  CompoundDial.draw_static(this_core.dials, cr)
    end
 
    Text.draw(process.label, cr)
@@ -275,7 +276,7 @@ local draw_dynamic = function(cr)
 
    for c = 1, NUM_PHYSICAL_CORES do
 	  local this_core = cores[c]
-	  CompoundDial.draw(this_core.dials, cr)
+	  CompoundDial.draw_dynamic(this_core.dials, cr)
 	  CriticalText.draw(this_core.coretemp_text, cr)
    end
 

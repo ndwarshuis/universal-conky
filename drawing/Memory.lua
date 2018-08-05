@@ -203,6 +203,7 @@ local draw_static = function(cr)
    Line.draw(header.underline, cr)
 
    Arc.draw(inner_ring, cr)
+   Dial.draw_static(dial, cr)
 
    Text.draw(swap.label, cr)
    TextColumn.draw(cache.labels, cr)
@@ -214,7 +215,7 @@ end
 local draw_dynamic = function(cr)
    update(cr)
 
-   Dial.draw(dial, cr)
+   Dial.draw_dynamic(dial, cr)
    Arc.draw(cache_arc, cr)
    CriticalText.draw(total_used, cr)
 
