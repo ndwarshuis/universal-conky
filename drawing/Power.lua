@@ -1,3 +1,5 @@
+local M = {}
+
 local Patterns      = require 'Patterns'
 local Text			= require 'Text'
 local TextColumn	= require 'TextColumn'
@@ -209,7 +211,11 @@ _RIGHT_X_ = nil
 _CORE_Y_ = nil
 _BATTERY_DRAW_Y_ = nil
 
-local draw = function(cr, update_frequency, is_using_ac)
+local draw_static = function(cr)
+
+end
+
+local draw_dynamic = function(cr, update_frequency, is_using_ac)
    update(cr, update_frequency, is_using_ac)
 
    Text.draw(header.text, cr)
@@ -230,4 +236,7 @@ local draw = function(cr, update_frequency, is_using_ac)
    ScalePlot.draw(battery_draw.plot, cr)
 end
 
-return draw
+M.draw_static = draw_static
+M.draw_dynamic = draw_dynamic
+
+return M

@@ -158,7 +158,21 @@ local uninit = 1
 conky_startup = function()
    cs_p = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 1920, 1080)
    local cr = __cairo_create(cs_p)
-   Panel(cr)
+
+   Panel.draw_static(cr)
+
+   System.draw_static(cr)
+   Graphics.draw_static(cr)
+   Processor.draw_static(cr)
+   
+   ReadWrite.draw_static(cr)
+   Network.draw_static(cr)
+   
+   Pacman.draw_static(cr)
+   FileSystem.draw_static(cr)
+   Power.draw_static(cr)
+   Memory.draw_static(cr)
+
    uninit = nil
 end
 
@@ -170,6 +184,8 @@ function conky_main()
 
    local cs = __cairo_xlib_surface_create(_cw.display, _cw.drawable, _cw.visual, 1920, 1080)
    local cr = __cairo_create(cs)
+
+   local pt1 = os.clock()
    
    cairo_set_source_surface(cr, cs_p, 0, 0)
    cairo_paint(cr)
@@ -189,22 +205,20 @@ function conky_main()
    local log_is_changed = false
    if t2 == 0 then log_is_changed = check_if_log_changed() end
    
-   -- local pt1 = os.clock()
+   System.draw_dynamic(cr, log_is_changed)
+   Graphics.draw_dynamic(cr)
+   Processor.draw_dynamic(cr)
    
-   System(cr, log_is_changed)
-   Graphics(cr)
-   Processor(cr)
+   ReadWrite.draw_dynamic(cr, UPDATE_FREQUENCY)
+   Network.draw_dynamic(cr, UPDATE_FREQUENCY)
    
-   ReadWrite(cr, UPDATE_FREQUENCY)
-   Network(cr, UPDATE_FREQUENCY)
+   Pacman.draw_dynamic(cr, log_is_changed)
+   FileSystem.draw_dynamic(cr, t1)
+   Power.draw_dynamic(cr, UPDATE_FREQUENCY, is_using_ac)
+   Memory.draw_dynamic(cr)
    
-   Pacman(cr, log_is_changed)
-   FileSystem(cr, t1)
-   Power(cr, UPDATE_FREQUENCY, is_using_ac)
-   Memory(cr)
-   
-   -- local pt2 = os.clock() - pt1
-   -- print(pt2)
+   local pt2 = os.clock() - pt1
+   print(pt2)
    
    __cairo_surface_destroy(cs)
    __cairo_destroy(cr)

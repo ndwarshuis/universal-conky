@@ -1,3 +1,5 @@
+local M = {}
+
 local Text		= require 'Text'
 local Line		= require 'Line'
 local ScalePlot = require 'ScalePlot'
@@ -117,7 +119,11 @@ local update = function(cr, update_frequency)
 	update_stat(cr, writes, write_byte_cnt, update_frequency)
 end
 
-local draw = function(cr, update_frequency)
+local draw_static = function(cr)
+
+end
+
+local draw_dynamic = function(cr, update_frequency)
    update(cr, update_frequency)
 
    Text.draw(header.text, cr)
@@ -132,4 +138,7 @@ local draw = function(cr, update_frequency)
    ScalePlot.draw(writes.plot, cr)
 end
 
-return draw
+M.draw_static = draw_static
+M.draw_dynamic = draw_dynamic
+
+return M

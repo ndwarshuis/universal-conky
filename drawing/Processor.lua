@@ -1,3 +1,5 @@
+local M = {}
+
 local Arc 			= require 'Arc'
 local CompoundDial 	= require 'CompoundDial'
 local CriticalText	= require 'CriticalText'
@@ -249,7 +251,11 @@ _SEP_Y_ = nil
 _PROCESS_Y_ = nil
 _PLOT_Y_ = nil
 
-local draw = function(cr)
+local draw_static = function(cr)
+
+end
+
+local draw_dynamic = function(cr)
    update(cr)
 
    Text.draw(header.text, cr)
@@ -278,4 +284,7 @@ local draw = function(cr)
    Table.draw(tbl, cr)
 end
 
-return draw
+M.draw_static = draw_static
+M.draw_dynamic = draw_dynamic
+
+return M

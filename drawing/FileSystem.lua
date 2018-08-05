@@ -1,3 +1,5 @@
+local M = {}
+
 local Text 			= require 'Text'
 local Line 			= require 'Line'
 local TextColumn	= require 'TextColumn'
@@ -59,7 +61,11 @@ local update = function(cr)
 	end
 end
 
-local draw = function(cr, trigger)
+local draw_static = function(cr)
+
+end
+
+local draw_dynamic = function(cr, trigger)
    if trigger == 0 then update(cr) end
 
    Text.draw(header.text, cr)
@@ -68,4 +74,7 @@ local draw = function(cr, trigger)
    CompoundBar.draw(bars, cr)
 end
 
-return draw
+M.draw_static = draw_static
+M.draw_dynamic = draw_dynamic
+
+return M

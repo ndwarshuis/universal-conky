@@ -1,3 +1,5 @@
+local M = {}
+
 local Text 			= require 'Text'
 local Line 			= require 'Line'
 local TextColumn	= require 'TextColumn'
@@ -42,7 +44,11 @@ local info = _G_Widget_.TextColumn{
 
 _TEXT_SPACING_ = nil
 
-local draw = function(cr, log_is_changed)
+local draw_static = function(cr)
+
+end
+
+local draw_dynamic = function(cr, log_is_changed)
    TextColumn.set(info, cr, 2, Util.conky('$uptime'))
    
    if log_is_changed then
@@ -58,4 +64,7 @@ local draw = function(cr, log_is_changed)
    TextColumn.draw(info, cr)
 end
 
-return draw
+M.draw_static = draw_static
+M.draw_dynamic = draw_dynamic
+
+return M

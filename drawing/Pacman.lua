@@ -1,3 +1,5 @@
+local M = {}
+
 local Text 			= require 'Text'
 local Line 			= require 'Line'
 local TextColumn	= require 'TextColumn'
@@ -47,7 +49,11 @@ local update = function(cr)
 	end
 end
 
-local draw = function(cr, log_is_changed)
+local draw_static = function(cr)
+
+end
+
+local draw_dynamic = function(cr, log_is_changed)
    if log_is_changed then update(cr) end
 	
    Text.draw(header.text, cr)
@@ -56,4 +62,7 @@ local draw = function(cr, log_is_changed)
    TextColumn.draw(info, cr)
 end
 
-return draw
+M.draw_static = draw_static
+M.draw_dynamic = draw_dynamic
+
+return M

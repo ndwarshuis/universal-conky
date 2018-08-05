@@ -1,3 +1,5 @@
+local M = {}
+
 local Widget 	= require 'Widget'	
 local FillRect 	= require 'FillRect'
 
@@ -22,10 +24,12 @@ local right = Widget.Panel{
 
 Widget = nil
 
-local draw = function(cr)
+local draw_static = function(cr)
 	FillRect.draw(left, cr)
 	FillRect.draw(center, cr)
 	FillRect.draw(right, cr)
 end
 
-return draw
+M.draw_static = draw_static
+
+return M

@@ -1,3 +1,5 @@
+local M = {}
+
 local CriticalText	= require 'CriticalText'
 local Text			= require 'Text'
 local TextColumn	= require 'TextColumn'
@@ -266,7 +268,11 @@ _GPU_UTIL_Y_ = nil
 _MEM_UTIL_Y_ = nil
 _VID_UTIL_Y_ = nil
 
-local draw = function(cr)
+local draw_static = function(cr)
+
+end
+
+local draw_dynamic = function(cr)
    update(cr)
 
    Text.draw(header.text, cr)
@@ -300,5 +306,7 @@ local draw = function(cr)
    LabelPlot.draw(vid_util.plot, cr)
 end
 
-return draw
+M.draw_static = draw_static
+M.draw_dynamic = draw_dynamic
 
+return M
