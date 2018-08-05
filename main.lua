@@ -169,7 +169,7 @@ cr_static = nil
 -- create some useful functions
 -- 
 local using_ac = function()
-   return Util.read_file('/sys/class/power_supply/AC/online') == '1'
+   return Util.read_file('/sys/class/power_supply/AC/online', nil, '*n') == 1
 end
 
 local LASTLOG_CMD = 'tail -1 /var/log/pacman.log'
