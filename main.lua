@@ -19,20 +19,6 @@ Module format:
 
     return M  -- return entire table (use functions as modname.foo)
 
-  RENDERING MODULE STRUCTURE (only used in this module; main.lua):
-    local modname = requires 'modname'
-    -- import all required modules
-
-    local foo = function()
-      -- code
-    end
-
-    local draw = function(args)
-       -- drawing code that uses foo()
-    end
-
-    return draw -- only draw is returned (use as modname(args))
-
 Var names:
   - delimiters: all words separated by _ (unless camalCase)
   - booleans: preceed by is_ (as in is_awesome)
@@ -57,7 +43,11 @@ Var names:
     - CapCamalCase
     - var name is exactly the same as module name
 --]]
-local UPDATE_FREQUENCY = 1						--Hz
+
+--
+-- initialialize global geometric data
+--
+local UPDATE_FREQUENCY = 1 --Hz
 
 _G_INIT_DATA_ = {
 	UPDATE_INTERVAL 	= 1 / UPDATE_FREQUENCY,
@@ -77,11 +67,37 @@ _G_INIT_DATA_ = {
 	ABS_PATH			= debug.getinfo(1).source:match("@?(.*/)")
 }
 
-_G_INIT_DATA_.CENTER_LEFT_X = _G_INIT_DATA_.LEFT_X + _G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2 + _G_INIT_DATA_.PANEL_HORZ_SPACING
-_G_INIT_DATA_.CENTER_RIGHT_X = _G_INIT_DATA_.CENTER_LEFT_X + _G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.CENTER_PAD
-_G_INIT_DATA_.CENTER_WIDTH = _G_INIT_DATA_.SECTION_WIDTH * 2 + _G_INIT_DATA_.CENTER_PAD
-_G_INIT_DATA_.RIGHT_X = _G_INIT_DATA_.CENTER_LEFT_X + _G_INIT_DATA_.CENTER_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2 + _G_INIT_DATA_.PANEL_HORZ_SPACING
+_G_INIT_DATA_.CENTER_LEFT_X = _G_INIT_DATA_.LEFT_X +
+   _G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2 +
+   _G_INIT_DATA_.PANEL_HORZ_SPACING
 
+_G_INIT_DATA_.CENTER_RIGHT_X = _G_INIT_DATA_.CENTER_LEFT_X +
+   _G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.CENTER_PAD
+
+_G_INIT_DATA_.CENTER_WIDTH = _G_INIT_DATA_.SECTION_WIDTH * 2 +
+   _G_INIT_DATA_.CENTER_PAD
+
+_G_INIT_DATA_.RIGHT_X = _G_INIT_DATA_.CENTER_LEFT_X +
+   _G_INIT_DATA_.CENTER_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2 +
+   _G_INIT_DATA_.PANEL_HORZ_SPACING
+
+conky_set_update_interval(_G_INIT_DATA_.UPDATE_INTERVAL)
+
+--
+-- init cairo
+--
+require 'cairo'
+local __cairo_xlib_surface_create 	= cairo_xlib_surface_create
+local __cairo_set_source_surface    = cairo_set_source_surface
+local __cairo_image_surface_create  = cairo_image_surface_create
+local __cairo_paint                 = cairo_paint
+local __cairo_create 				= cairo_create
+local __cairo_surface_destroy 		= cairo_surface_destroy
+local __cairo_destroy 				= cairo_destroy
+
+--
+-- import all packages and init with global geometric data
+--
 package.path = _G_INIT_DATA_.ABS_PATH..'/?.lua;'..
   _G_INIT_DATA_.ABS_PATH..'/drawing/?.lua;'..
   _G_INIT_DATA_.ABS_PATH..'/schema/?.lua;'..
@@ -94,10 +110,6 @@ package.path = _G_INIT_DATA_.ABS_PATH..'/?.lua;'..
   _G_INIT_DATA_.ABS_PATH..'/core/widget/rect/?.lua;'..
   _G_INIT_DATA_.ABS_PATH..'/core/widget/poly/?.lua;'..
   _G_INIT_DATA_.ABS_PATH..'/core/widget/image/?.lua;'
-
-conky_set_update_interval(_G_INIT_DATA_.UPDATE_INTERVAL)
-
-require 'cairo'
 
 _G_Widget_ 		= require 'Widget'
 _G_Patterns_ 	= require 'Patterns'
@@ -129,66 +141,63 @@ _unrequire = nil
 
 _G_INIT_DATA_ = nil
 
-local updates = -2
+--
+-- initialize static surface
+--
+local cs_static = __cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 1920, 1080)
+local cr_static = __cairo_create(cs_static)
 
-local __cairo_xlib_surface_create 	= cairo_xlib_surface_create
-local __cairo_set_source_surface    = cairo_set_source_surface
-local __cairo_paint                 = cairo_paint
-local __cairo_create 				= cairo_create
-local __cairo_surface_destroy 		= cairo_surface_destroy
-local __cairo_destroy 				= cairo_destroy
-local __collectgarbage				= collectgarbage
+Panel.draw_static(cr_static)
 
+System.draw_static(cr_static)
+Graphics.draw_static(cr_static)
+Processor.draw_static(cr_static)
+
+ReadWrite.draw_static(cr_static)
+Network.draw_static(cr_static)
+
+Pacman.draw_static(cr_static)
+FileSystem.draw_static(cr_static)
+Power.draw_static(cr_static)
+Memory.draw_static(cr_static)
+
+__cairo_destroy(cr_static)
+
+cr_static = nil
+
+--
+-- create some useful functions
+-- 
 local using_ac = function()
-	return Util.read_file('/sys/class/power_supply/AC/online') == '1'
+   return Util.read_file('/sys/class/power_supply/AC/online') == '1'
 end
 
-local current_last_log_entry = Util.execute_cmd('tail -1 /var/log/pacman.log')
+local LASTLOG_CMD = 'tail -1 /var/log/pacman.log'
+local current_last_log_entry = Util.execute_cmd(LASTLOG_CMD)
 
 local check_if_log_changed = function()
-	local new_last_log_entry = Util.execute_cmd('tail -1 /var/log/pacman.log')
-	if new_last_log_entry == current_last_log_entry then return 1 end
-	current_last_log_entry = new_last_log_entry
-	return 0
+   local new_last_log_entry = Util.execute_cmd(LASTLOG_CMD)
+   if new_last_log_entry == current_last_log_entry then return 1 end
+   current_last_log_entry = new_last_log_entry
+   return 0
 end
 
-local cs_p
-local uninit = 1
-
-conky_startup = function()
-   cs_p = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 1920, 1080)
-   local cr = __cairo_create(cs_p)
-
-   Panel.draw_static(cr)
-
-   System.draw_static(cr)
-   Graphics.draw_static(cr)
-   Processor.draw_static(cr)
-   
-   ReadWrite.draw_static(cr)
-   Network.draw_static(cr)
-   
-   Pacman.draw_static(cr)
-   FileSystem.draw_static(cr)
-   Power.draw_static(cr)
-   Memory.draw_static(cr)
-
-   uninit = nil
-end
+--
+-- main loop
+--
+local updates = -2 -- this accounts for the first few spazzy iterations
+local __collectgarbage = collectgarbage
 
 function conky_main()
-   if uninit then return end
-
    local _cw = conky_window
    if not _cw then return end
 
-   local cs = __cairo_xlib_surface_create(_cw.display, _cw.drawable, _cw.visual, 1920, 1080)
+   local cs = __cairo_xlib_surface_create(_cw.display, _cw.drawable,
+										  _cw.visual, 1920, 1080)
    local cr = __cairo_create(cs)
 
-   local pt1 = os.clock()
-   
-   cairo_set_source_surface(cr, cs_p, 0, 0)
-   cairo_paint(cr)
+   __cairo_set_source_surface(cr, cs_static, 0, 0)
+   __cairo_paint(cr)
    
    updates = updates + 1
    
@@ -216,9 +225,6 @@ function conky_main()
    FileSystem.draw_dynamic(cr, t1)
    Power.draw_dynamic(cr, UPDATE_FREQUENCY, is_using_ac)
    Memory.draw_dynamic(cr)
-   
-   local pt2 = os.clock() - pt1
-   print(pt2)
    
    __cairo_surface_destroy(cs)
    __cairo_destroy(cr)
