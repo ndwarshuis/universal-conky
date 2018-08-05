@@ -140,7 +140,7 @@ local __cairo_destroy 				= cairo_destroy
 local __collectgarbage				= collectgarbage
 
 local using_ac = function()
-	return Util.conky('${acpiacadapter AC}') == 'on-line'
+	return Util.read_file('/sys/class/power_supply/AC/online') == '1'
 end
 
 local current_last_log_entry = Util.execute_cmd('tail -1 /var/log/pacman.log')
