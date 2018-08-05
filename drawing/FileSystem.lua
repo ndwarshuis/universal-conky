@@ -66,12 +66,13 @@ local draw_static = function(cr)
    Line.draw(header.underline, cr)
 
    TextColumn.draw(labels, cr)
+   CompoundBar.draw_static(bars, cr)
 end
 
 local draw_dynamic = function(cr, trigger)
    if trigger == 0 then update(cr) end
 
-   CompoundBar.draw(bars, cr)
+   CompoundBar.draw_dynamic(bars, cr)
 end
 
 M.draw_static = draw_static
