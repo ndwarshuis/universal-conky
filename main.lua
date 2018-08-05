@@ -98,18 +98,18 @@ local __cairo_destroy 				= cairo_destroy
 --
 -- import all packages and init with global geometric data
 --
-package.path = _G_INIT_DATA_.ABS_PATH..'/?.lua;'..
-  _G_INIT_DATA_.ABS_PATH..'/drawing/?.lua;'..
-  _G_INIT_DATA_.ABS_PATH..'/schema/?.lua;'..
-  _G_INIT_DATA_.ABS_PATH..'/core/func/?.lua;'..
-  _G_INIT_DATA_.ABS_PATH..'/core/super/?.lua;'..
-  _G_INIT_DATA_.ABS_PATH..'/core/widget/?.lua;'..
-  _G_INIT_DATA_.ABS_PATH..'/core/widget/arc/?.lua;'..
-  _G_INIT_DATA_.ABS_PATH..'/core/widget/text/?.lua;'..
-  _G_INIT_DATA_.ABS_PATH..'/core/widget/plot/?.lua;'..
-  _G_INIT_DATA_.ABS_PATH..'/core/widget/rect/?.lua;'..
-  _G_INIT_DATA_.ABS_PATH..'/core/widget/poly/?.lua;'..
-  _G_INIT_DATA_.ABS_PATH..'/core/widget/image/?.lua;'
+package.path = _G_INIT_DATA_.ABS_PATH..'?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'drawing/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'schema/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'core/func/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'core/super/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'core/widget/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'core/widget/arc/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'core/widget/text/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'core/widget/plot/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'core/widget/rect/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'core/widget/poly/?.lua;'..
+  _G_INIT_DATA_.ABS_PATH..'core/widget/image/?.lua;'
 
 _G_Widget_ 		= require 'Widget'
 _G_Patterns_ 	= require 'Patterns'
