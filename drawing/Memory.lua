@@ -206,6 +206,8 @@ local draw_static = function(cr)
 
    Text.draw(swap.label, cr)
    TextColumn.draw(cache.labels, cr)
+
+   Table.draw_static(tbl, cr)
 end
 
 local draw_dynamic = function(cr)
@@ -220,7 +222,7 @@ local draw_dynamic = function(cr)
    
    LabelPlot.draw(plot, cr)
 		
-   Table.draw(tbl, cr)
+   Table.draw_dynamic(tbl, cr)
 end
 
 M.draw_static = draw_static

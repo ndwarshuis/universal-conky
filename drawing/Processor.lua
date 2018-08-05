@@ -265,6 +265,8 @@ local draw_static = function(cr)
    Line.draw(separator, cr)
 
    Text.draw(total_load.label, cr)
+
+   Table.draw_static(tbl, cr)
 end
 
 local draw_dynamic = function(cr)
@@ -282,7 +284,7 @@ local draw_dynamic = function(cr)
    CriticalText.draw(total_load.value, cr)
    LabelPlot.draw(plot, cr)
    
-   Table.draw(tbl, cr)
+   Table.draw_dynamic(tbl, cr)
 end
 
 M.draw_static = draw_static
