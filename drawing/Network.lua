@@ -133,20 +133,19 @@ _RIGHT_X_ = nil
 _UPLOAD_Y_ = nil
 
 local draw_static = function(cr)
+   Text.draw(header.text, cr)
+   Line.draw(header.underline, cr)
 
+   Text.draw(dnload.label, cr)
+   Text.draw(upload.label, cr)
 end
 
 local draw_dynamic = function(cr, update_frequency)
    update(cr, update_frequency)
 
-   Text.draw(header.text, cr)
-   Line.draw(header.underline, cr)
-   
-   Text.draw(dnload.label, cr)
    Text.draw(dnload.speed, cr)
    ScalePlot.draw(dnload.plot, cr)
    
-   Text.draw(upload.label, cr)
    Text.draw(upload.speed, cr)
    ScalePlot.draw(upload.plot, cr)
 end

@@ -120,20 +120,19 @@ local update = function(cr, update_frequency)
 end
 
 local draw_static = function(cr)
+   Text.draw(header.text, cr)
+   Line.draw(header.underline, cr)
 
+   Text.draw(reads.label, cr)
+   Text.draw(writes.label, cr)
 end
 
 local draw_dynamic = function(cr, update_frequency)
    update(cr, update_frequency)
 
-   Text.draw(header.text, cr)
-   Line.draw(header.underline, cr)
-		
-   Text.draw(reads.label, cr)
    Text.draw(reads.rate, cr)
    ScalePlot.draw(reads.plot, cr)
 		
-   Text.draw(writes.label, cr)
    Text.draw(writes.rate, cr)
    ScalePlot.draw(writes.plot, cr)
 end

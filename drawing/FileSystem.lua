@@ -62,15 +62,15 @@ local update = function(cr)
 end
 
 local draw_static = function(cr)
+   Text.draw(header.text, cr)
+   Line.draw(header.underline, cr)
 
+   TextColumn.draw(labels, cr)
 end
 
 local draw_dynamic = function(cr, trigger)
    if trigger == 0 then update(cr) end
 
-   Text.draw(header.text, cr)
-   Line.draw(header.underline, cr)
-   TextColumn.draw(labels, cr)
    CompoundBar.draw(bars, cr)
 end
 

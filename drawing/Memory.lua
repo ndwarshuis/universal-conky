@@ -199,22 +199,23 @@ _RIGHT_X_ = nil
 _PLOT_Y_ = nil
 
 local draw_static = function(cr)
+   Text.draw(header.text, cr)
+   Line.draw(header.underline, cr)
 
+   Arc.draw(inner_ring, cr)
+
+   Text.draw(swap.label, cr)
+   TextColumn.draw(cache.labels, cr)
 end
 
 local draw_dynamic = function(cr)
    update(cr)
 
-   Text.draw(header.text, cr)
-   Line.draw(header.underline, cr)
    Dial.draw(dial, cr)
    Arc.draw(cache_arc, cr)
-   Arc.draw(inner_ring, cr)
    CriticalText.draw(total_used, cr)
 
-   Text.draw(swap.label, cr)
    CriticalText.draw(swap.percent, cr)
-   TextColumn.draw(cache.labels, cr)
    TextColumn.draw(cache.percents, cr)
    
    LabelPlot.draw(plot, cr)

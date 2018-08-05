@@ -269,39 +269,36 @@ _MEM_UTIL_Y_ = nil
 _VID_UTIL_Y_ = nil
 
 local draw_static = function(cr)
+   Text.draw(header.text, cr)
+   Line.draw(header.underline, cr)
 
+   Text.draw(status.label, cr)
+   Line.draw(separator1, cr)
+
+   Text.draw(internal_temp.label, cr)
+   Line.draw(separator2, cr)
+
+   TextColumn.draw(clock_speed.labels, cr)
+   Line.draw(separator3, cr)
+
+   Text.draw(gpu_util.label, cr)
+   Text.draw(mem_util.label, cr)
+   Text.draw(vid_util.label, cr)
 end
 
 local draw_dynamic = function(cr)
    update(cr)
 
-   Text.draw(header.text, cr)
-   Line.draw(header.underline, cr)
-   
-   Text.draw(status.label, cr)
    Text.draw(status.value, cr)
-   
-   Line.draw(separator1, cr)
-   
-   Text.draw(internal_temp.label, cr)
    Text.draw(internal_temp.value, cr)
-   
-   Line.draw(separator2, cr)
-   
-   TextColumn.draw(clock_speed.labels, cr)
    TextColumn.draw(clock_speed.values, cr)
    
-   Line.draw(separator3, cr)
-   
-   Text.draw(gpu_util.label, cr)
    Text.draw(gpu_util.value, cr)
    LabelPlot.draw(gpu_util.plot, cr)
    
-   Text.draw(mem_util.label, cr)
    Text.draw(mem_util.value, cr)
    LabelPlot.draw(mem_util.plot, cr)
 	
-   Text.draw(vid_util.label, cr)
    Text.draw(vid_util.value, cr)
    LabelPlot.draw(vid_util.plot, cr)
 end

@@ -45,7 +45,9 @@ local info = _G_Widget_.TextColumn{
 _TEXT_SPACING_ = nil
 
 local draw_static = function(cr)
-
+   Text.draw(header.text, cr)
+   Line.draw(header.underline, cr)
+   TextColumn.draw(labels, cr)
 end
 
 local draw_dynamic = function(cr, log_is_changed)
@@ -58,9 +60,6 @@ local draw_dynamic = function(cr, log_is_changed)
 		"'/ synchronizing package lists/p' /var/log/pacman.log | tail -1"))
    end
    
-   Text.draw(header.text, cr)
-   Line.draw(header.underline, cr)
-   TextColumn.draw(labels, cr)
    TextColumn.draw(info, cr)
 end
 
