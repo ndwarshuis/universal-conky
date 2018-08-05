@@ -154,42 +154,59 @@ end
 -- will be useful
 local current_interface = 0
 
+local cs_p
+local uninit = 1
+
+conky_startup = function()
+   cs_p = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 1920, 1080)
+   local cr = __cairo_create(cs_p)
+   Panel(cr)
+   uninit = nil
+end
+
 function conky_main()
-	local _cw = conky_window
-    if not _cw then return end
-    local cs = __cairo_xlib_surface_create(_cw.display, _cw.drawable, _cw.visual, 1920, 1080)
-    local cr = __cairo_create(cs)
-
-	updates = updates + 1
-
-	local t1 = updates % (UPDATE_FREQUENCY * 10)
-	
-	local t2
-	local is_using_ac = using_ac()
-	if is_using_ac then
-		t2 = updates % (UPDATE_FREQUENCY * 60)
-	else
-		t2 = updates % (UPDATE_FREQUENCY * 300)
-	end
-
-	local log_is_changed = false
-	if t2 == 0 then log_is_changed = check_if_log_changed() end
-	
-	Panel(cr)
-
-	System(cr, current_interface, log_is_changed)
-	Graphics(cr, current_interface)
-	Processor(cr, current_interface)
-
-	ReadWrite(cr, current_interface, UPDATE_FREQUENCY)
-	Network(cr, current_interface, UPDATE_FREQUENCY)
-	
-	Pacman(cr, current_interface, log_is_changed)
-	FileSystem(cr, current_interface, t1)
-	Power(cr, current_interface, UPDATE_FREQUENCY, is_using_ac)
-	Memory(cr, current_interface)
-
-    __cairo_surface_destroy(cs)
-    __cairo_destroy(cr)
-    __collectgarbage()
+   if uninit then return end
+   local _cw = conky_window
+   if not _cw then return end
+   local cs = __cairo_xlib_surface_create(_cw.display, _cw.drawable, _cw.visual, 1920, 1080)
+   local cr = __cairo_create(cs)
+   
+   cairo_set_source_surface(cr, cs_p, 0, 0)
+   cairo_paint(cr)
+   
+   updates = updates + 1
+   
+   local t1 = updates % (UPDATE_FREQUENCY * 10)
+   
+   local t2
+   local is_using_ac = using_ac()
+   if is_using_ac then
+	  t2 = updates % (UPDATE_FREQUENCY * 60)
+   else
+	  t2 = updates % (UPDATE_FREQUENCY * 300)
+   end
+   
+   local log_is_changed = false
+   if t2 == 0 then log_is_changed = check_if_log_changed() end
+   
+   -- local pt1 = os.clock()
+   
+   System(cr, current_interface, log_is_changed)
+   Graphics(cr, current_interface)
+   Processor(cr, current_interface)
+   
+   ReadWrite(cr, current_interface, UPDATE_FREQUENCY)
+   Network(cr, current_interface, UPDATE_FREQUENCY)
+   
+   Pacman(cr, current_interface, log_is_changed)
+   FileSystem(cr, current_interface, t1)
+   Power(cr, current_interface, UPDATE_FREQUENCY, is_using_ac)
+   Memory(cr, current_interface)
+   
+   -- local pt2 = os.clock() - pt1
+   -- print(pt2)
+   
+   __cairo_surface_destroy(cs)
+   __cairo_destroy(cr)
+   __collectgarbage()
 end
