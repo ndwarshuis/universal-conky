@@ -1,5 +1,7 @@
 Conky config used for main machine
 
+[[./screen.png]]
+
 * overview
 for sager np5855
 - i7-7700hq
