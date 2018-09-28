@@ -28,7 +28,7 @@ local labels = _G_Widget_.TextColumn{
 	spacing = _SPACING_,
 	'root',
 	'boot',
-	'var',
+	'vcache',
 	'home',
 	'data',
 	'dcache',
