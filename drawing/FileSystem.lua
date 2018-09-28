@@ -8,7 +8,7 @@ local Util			= require 'Util'
 
 local __string_match 	= string.match
 
-local _FS_PATHS_ = {'/', '/boot', '/var', '/home', '/mnt/data', '/mnt/dcache', '/usr/local/opt'}
+local _FS_PATHS_ = {'/', '/boot', '/var/cache', '/home', '/mnt/data', '/mnt/dcache', '/usr/local/opt'}
 local _MODULE_Y_ = 170
 local _SPACING_ = 22
 local _BAR_PAD_ = 100
