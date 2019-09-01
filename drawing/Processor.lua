@@ -9,6 +9,8 @@ local LabelPlot		= require 'LabelPlot'
 local Table			= require 'Table'
 local Util			= require 'Util'
 
+local __string_format = string.format
+
 local CORETEMP_PATH = '/sys/devices/platform/coretemp.0/hwmon/hwmon%i/%s'
 
 local NUM_PHYSICAL_CORES = 4
@@ -28,7 +30,6 @@ local _MODULE_Y_ = 614
 local _DIAL_INNER_RADIUS_ = 30
 local _DIAL_OUTER_RADIUS_ = 42
 local _DIAL_SPACING_ = 1
-local _TEXT_Y_OFFSET_ = 15
 local _SEPARATOR_SPACING_ = 20
 local _TEXT_SPACING_ = 22
 local _PLOT_SECTION_BREAK_ = 23
@@ -39,7 +40,7 @@ local _TABLE_HEIGHT_ = 114
 local _create_core_ = function(cores, id, x, y)
    local conky_loads = {}
    local conky_freqs = {}
-	
+
    for c = 0, NUM_PHYSICAL_CORES * NUM_THREADS_PER_CORE - 1 do
 	  if Util.read_file('/sys/devices/system/cpu/cpu'..c..'/topology/core_id', nil, '*n') == id then
 		 table.insert(conky_loads, '${cpu cpu'..(c+1)..'}')
@@ -55,7 +56,7 @@ local _create_core_ = function(cores, id, x, y)
    cores[id +1] = {
 	  dials = _G_Widget_.CompoundDial{
 		 x 				= x,
-		 y 				= y,			
+		 y 				= y,
 		 inner_radius 	= _DIAL_INNER_RADIUS_,
 		 outer_radius 	= _DIAL_OUTER_RADIUS_,
 		 spacing 		= _DIAL_SPACING_,
@@ -157,7 +158,7 @@ local total_load = {
 	  x_align 	    = 'right',
 	  append_end 	    = '%',
 	  critical_limit 	= '>80'
-   }	
+   }
 }
 
 local _PLOT_Y_ = _LOAD_Y_ + _PLOT_SECTION_BREAK_
@@ -186,13 +187,13 @@ local update = function(cr)
 
    local load_sum = 0
    local freq_sum = 0
-   
+
    for c = 1, NUM_PHYSICAL_CORES do
 	  local core = cores[c]
-	  
+
 	  local conky_loads = core.conky_loads
 	  local conky_freqs = core.conky_freqs
-	  
+
 	  for t = 1, NUM_THREADS_PER_CORE do
 		 local percent = Util.conky_numeric(conky_loads[t]) * 0.01
 		 CompoundDial.set(core.dials, t, percent)
@@ -201,34 +202,37 @@ local update = function(cr)
 		 freq_sum = freq_sum + Util.conky_numeric(conky_freqs[t])
 	  end
 
-	  CriticalText.set(core.coretemp_text, cr, Util.round(0.001 * Util.read_file(core.coretemp_path, nil, '*n')))
+	  CriticalText.set(core.coretemp_text, cr, Util.round_to_string(0.001 * Util.read_file(core.coretemp_path, nil, '*n')))
    end
 
    local process_glob = Util.execute_cmd('ps -A -o s')
-   
-   --subtract one from running b/c ps will always be "running"
-   Text.set(process.value, cr, (char_count(process_glob, 'R') - 1)..' | '..
-			   char_count(process_glob, 'S')..' | '..
-			   char_count(process_glob, 'D')..' | '..
-			   char_count(process_glob, 'T')..' | '..
-			   char_count(process_glob, 'Z'))
 
-   Text.set(ave_freq.value, cr, Util.round(freq_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE) .. ' MHz')
+   --subtract one from running b/c ps will always be "running"
+   Text.set(process.value, cr,
+            __string_format('%s | %s | %s | %s | %s',
+                            (char_count(process_glob, 'R') - 1),
+                            char_count(process_glob, 'S'),
+                            char_count(process_glob, 'D'),
+                            char_count(process_glob, 'T'),
+                            char_count(process_glob, 'Z')))
+
+   Text.set(ave_freq.value, cr, Util.round_to_string(freq_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE) .. ' MHz')
 
    local load_percent = Util.round(load_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE, 2)
-   CriticalText.set(total_load.value, cr, load_percent * 100)
+   CriticalText.set(total_load.value, cr,
+                    Util.round_to_string(load_percent * 100))
 
    LabelPlot.update(plot, load_percent)
 
    for r = 1, NUM_ROWS do
-   	  local pid = conky(TABLE_CONKY[r].pid, '(%S+)')
-   	  if pid ~= '' then
-   		 local cpu = conky(TABLE_CONKY[r].cpu)
-   	  	 local comm = Util.read_file('/proc/'..pid..'/stat', '%d+%s+%((.+)%)')
-   	  	 Table.set(tbl, cr, 1, r, comm)
-   	  	 Table.set(tbl, cr, 2, r, pid)
-   	  	 Table.set(tbl, cr, 3, r, cpu)
-   	  end
+      local pid = conky(TABLE_CONKY[r].pid, '(%S+)')
+      if pid ~= '' then
+         local cpu = conky(TABLE_CONKY[r].cpu)
+         local comm = Util.read_file('/proc/'..pid..'/stat', '%d+%s+%((.+)%)')
+         Table.set(tbl, cr, 1, r, comm)
+         Table.set(tbl, cr, 2, r, pid)
+         Table.set(tbl, cr, 3, r, cpu)
+      end
    end
 end
 
@@ -254,7 +258,7 @@ _PLOT_Y_ = nil
 local draw_static = function(cr)
    Text.draw(header.text, cr)
    Line.draw(header.underline, cr)
-	  
+
    for c = 1, NUM_PHYSICAL_CORES do
 	  local this_core = cores[c]
 	  Arc.draw(this_core.inner_ring, cr)
@@ -282,10 +286,10 @@ local draw_dynamic = function(cr)
 
    Text.draw(process.value, cr)
    Text.draw(ave_freq.value, cr)
-   
+
    CriticalText.draw(total_load.value, cr)
    LabelPlot.draw_dynamic(plot, cr)
-   
+
    Table.draw_dynamic(tbl, cr)
 end
 

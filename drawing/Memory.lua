@@ -148,7 +148,7 @@ local update = function(cr)
 	local used_percent = (MEM_TOTAL_KB - memfree_kb - cached_kb - buffers_kb - slab_reclaimable_kb) / MEM_TOTAL_KB
 
 	Dial.set(dial, used_percent)
-	CriticalText.set(total_used, cr, Util.round(used_percent * 100))
+	CriticalText.set(total_used, cr, Util.round_to_string(used_percent * 100))
 
 	local cache_theta = (DIAL_THETA_0 - DIAL_THETA_1) / MEM_TOTAL_KB * memfree_kb + DIAL_THETA_1
 	__cairo_path_destroy(cache_arc.path)

@@ -51,14 +51,14 @@ local UPDATE_FREQUENCY = 1 --Hz
 
 _G_INIT_DATA_ = {
 	UPDATE_INTERVAL 	= 1 / UPDATE_FREQUENCY,
-	
+
 	LEFT_X 				= 32,
 	SECTION_WIDTH		= 436,
 	CENTER_PAD 			= 20,
 	PANEL_HORZ_SPACING 	= 10,
 	PANEL_MARGIN_X		= 20,
 	PANEL_MARGIN_Y		= 10,
-	
+
 	TOP_Y				= 21,
 	SIDE_HEIGHT 		= 1020,
 	CENTER_HEIGHT 		= 220,
@@ -167,7 +167,7 @@ cr_static = nil
 
 --
 -- create some useful functions
--- 
+--
 local using_ac = function()
    return Util.read_file('/sys/class/power_supply/AC/online', nil, '*n') == 1
 end
@@ -198,11 +198,11 @@ function conky_main()
 
    __cairo_set_source_surface(cr, cs_static, 0, 0)
    __cairo_paint(cr)
-   
+
    updates = updates + 1
-   
+
    local t1 = updates % (UPDATE_FREQUENCY * 10)
-   
+
    local t2
    local is_using_ac = using_ac()
    if is_using_ac then
@@ -210,22 +210,22 @@ function conky_main()
    else
 	  t2 = updates % (UPDATE_FREQUENCY * 300)
    end
-   
+
    local log_is_changed = false
    if t2 == 0 then log_is_changed = check_if_log_changed() end
-   
+
    System.draw_dynamic(cr, log_is_changed)
    Graphics.draw_dynamic(cr)
    Processor.draw_dynamic(cr)
-   
+
    ReadWrite.draw_dynamic(cr, UPDATE_FREQUENCY)
    Network.draw_dynamic(cr, UPDATE_FREQUENCY)
-   
+
    Pacman.draw_dynamic(cr, log_is_changed)
    FileSystem.draw_dynamic(cr, t1)
    Power.draw_dynamic(cr, UPDATE_FREQUENCY, is_using_ac)
    Memory.draw_dynamic(cr)
-   
+
    __cairo_surface_destroy(cs)
    __cairo_destroy(cr)
    __collectgarbage()

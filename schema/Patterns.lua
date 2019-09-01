@@ -101,5 +101,4 @@ M.TRANSPARENT_BLACK = Color.init{hex_rgba = 0x000000, alpha = 0.7}
 
 M = Util.set_finalizer(M, function() print('Cleaning up Patterns.lua') end)
 
-
 return M

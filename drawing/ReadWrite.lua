@@ -25,27 +25,27 @@ end
 local update_stat = function(cr, stat, byte_cnt, update_frequency)
 	local delta_bytes = byte_cnt - stat.prev_byte_cnt
 	stat.prev_byte_cnt = byte_cnt
-	
+
 	if delta_bytes > 0 then
 		local bps = delta_bytes * update_frequency
 		local unit = Util.get_unit(bps)
 		stat.rate.append_end = ' '..unit..'/s'
 		Text.set(stat.rate, cr, Util.precision_convert_bytes(bps, 'B', unit, 3))
-		ScalePlot.update(stat.plot, cr, bps)	
+		ScalePlot.update(stat.plot, cr, bps)
 	else
 		stat.rate.append_end = ' B/s'
 		Text.set(stat.rate, cr, '0.00')
-		ScalePlot.update(stat.plot, cr, 0)	
+		ScalePlot.update(stat.plot, cr, 0)
 	end
 end
 
 local io_label_function = function(bytes)
 	local new_unit = Util.get_unit(bytes)
-	
+
 	local converted = Util.convert_bytes(bytes, 'B', new_unit)
 	local precision = 0
 	if converted < 10 then precision = 1 end
-	
+
 	return Util.round_to_string(converted, precision)..' '..new_unit..'/s'
 end
 
@@ -132,7 +132,7 @@ local draw_dynamic = function(cr, update_frequency)
 
    Text.draw(reads.rate, cr)
    ScalePlot.draw_dynamic(reads.plot, cr)
-		
+
    Text.draw(writes.rate, cr)
    ScalePlot.draw_dynamic(writes.plot, cr)
 end
