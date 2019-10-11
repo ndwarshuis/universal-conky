@@ -1,0 +1,25 @@
+#! /bin/bash
+
+stat_file=/tmp/.conky_pacman
+log_file=/var/log/pacman.log
+
+write_stats() {
+    now=$(date +%s)
+    tot=$(pacman -Qq | wc -l)
+    exp=$(pacman -Qeq | wc -l)
+    out=$(pacman -Quq | wc -l)
+    orp=$(pacman -Qdtq | wc -l)
+    loc=$(pacman -Qmq | wc -l)
+    echo "$now" "$tot" "$exp" "$out" "$orp" "$loc" > "$stat_file"
+}
+
+if [[ -f "$stat_file" ]]; then
+    last_pacman_update=$(stat -c %Y "$log_file")
+    last_stat_update=$(awk '{ print $1 }' "$stat_file")
+    if (( last_pacman_update > last_stat_update )); then
+        write_stats 
+    fi
+else
+    write_stats 
+fi
+

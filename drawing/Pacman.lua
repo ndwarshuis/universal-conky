@@ -5,13 +5,10 @@ local Line 			= require 'Line'
 local TextColumn	= require 'TextColumn'
 local Util			= require 'Util'
 
-local PACMAN_TABLE = {
-	'pacman -Qq',
-	'pacman -Qeq',
-	'pacman -Quq',
-	'pacman -Qdtq',
-	'pacman -Qmq'
-}
+local __string_match = string.match
+local __string_gmatch = string.gmatch
+
+local STATS_FILE = '/tmp/.conky_pacman'
 
 local _TEXT_SPACING_ = 20
 
@@ -44,9 +41,18 @@ local info = _G_Widget_.TextColumn{
 _TEXT_SPACING_ = nil
 
 local update = function(cr)
-	for i, cmd in pairs(PACMAN_TABLE) do
-		TextColumn.set(info, cr, i, Util.line_count(Util.execute_cmd(cmd)))
-	end
+   local stats = __string_match(Util.read_file(STATS_FILE), '%d+%s+(.*)$')
+   if stats then
+      local i = 1
+      for v in __string_gmatch(stats, '[^%s]+') do
+         TextColumn.set(info, cr, i, v)
+         i = i + 1
+      end
+   else
+      for i=1,5 do
+         TextColumn.set(info, cr, i, 'N/A')
+      end
+   end
 end
 
 local draw_static = function(cr)
@@ -57,7 +63,7 @@ end
 
 local draw_dynamic = function(cr, log_is_changed)
    if log_is_changed then update(cr) end
-	
+
    TextColumn.draw(info, cr)
 end
 
