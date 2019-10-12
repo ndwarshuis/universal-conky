@@ -172,25 +172,19 @@ local using_ac = function()
    return Util.read_file('/sys/class/power_supply/AC/online', nil, '*n') == 1
 end
 
-local LASTLOG_CMD = 'tail -1 /var/log/pacman.log'
-local current_last_log_entry = Util.execute_cmd(LASTLOG_CMD)
-
-local check_if_log_changed = function()
-   local new_last_log_entry = Util.execute_cmd(LASTLOG_CMD)
-   if new_last_log_entry == current_last_log_entry then return 1 end
-   current_last_log_entry = new_last_log_entry
-   return 0
-end
-
 --
 -- main loop
 --
 local updates = -2 -- this accounts for the first few spazzy iterations
 local __collectgarbage = collectgarbage
 
+local STATS_FILE = '/tmp/.conky_pacman'
+
 function conky_main()
    local _cw = conky_window
    if not _cw then return end
+
+   -- local time = os.clock()
 
    local cs = __cairo_xlib_surface_create(_cw.display, _cw.drawable,
 										  _cw.visual, 1920, 1080)
@@ -203,25 +197,17 @@ function conky_main()
 
    local t1 = updates % (UPDATE_FREQUENCY * 10)
 
-   local t2
    local is_using_ac = using_ac()
-   if is_using_ac then
-	  t2 = updates % (UPDATE_FREQUENCY * 60)
-   else
-	  t2 = updates % (UPDATE_FREQUENCY * 300)
-   end
+   local pacman_stats = Util.read_file(STATS_FILE)
 
-   local log_is_changed = false
-   if t2 == 0 then log_is_changed = check_if_log_changed() end
-
-   System.draw_dynamic(cr, log_is_changed)
+   System.draw_dynamic(cr, pacman_stats)
    Graphics.draw_dynamic(cr)
    Processor.draw_dynamic(cr)
 
    ReadWrite.draw_dynamic(cr, UPDATE_FREQUENCY)
    Network.draw_dynamic(cr, UPDATE_FREQUENCY)
 
-   Pacman.draw_dynamic(cr, log_is_changed)
+   Pacman.draw_dynamic(cr, pacman_stats)
    FileSystem.draw_dynamic(cr, t1)
    Power.draw_dynamic(cr, UPDATE_FREQUENCY, is_using_ac)
    Memory.draw_dynamic(cr)
@@ -229,4 +215,6 @@ function conky_main()
    __cairo_surface_destroy(cs)
    __cairo_destroy(cr)
    __collectgarbage()
+
+   -- print(os.clock() - time)
 end

@@ -3,14 +3,24 @@
 stat_file=/tmp/.conky_pacman
 log_file=/var/log/pacman.log
 
+get_log_date() {
+    sed -n "s/\[\(.*\)\] \[PACMAN\] $1/\1/p" \
+    /var/log/pacman.log | \
+    tail -1 \
+    | { read -r f; date -d "$f" +%m-%d-%Y; }
+}
+
 write_stats() {
     now=$(date +%s)
+    last_upgrade=$(get_log_date "starting full system upgrade")
+    last_sync=$(get_log_date "synchronizing package lists")
     tot=$(pacman -Qq | wc -l)
     exp=$(pacman -Qeq | wc -l)
     out=$(pacman -Quq | wc -l)
     orp=$(pacman -Qdtq | wc -l)
     loc=$(pacman -Qmq | wc -l)
-    echo "$now" "$tot" "$exp" "$out" "$orp" "$loc" > "$stat_file"
+    echo "$now" "$last_upgrade" "$last_sync" "$tot" "$exp" "$out" \
+         "$orp" "$loc" > "$stat_file"
 }
 
 if [[ -f "$stat_file" ]]; then

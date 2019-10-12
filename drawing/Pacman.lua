@@ -8,8 +8,6 @@ local Util			= require 'Util'
 local __string_match = string.match
 local __string_gmatch = string.gmatch
 
-local STATS_FILE = '/tmp/.conky_pacman'
-
 local _TEXT_SPACING_ = 20
 
 local header = _G_Widget_.Header{
@@ -40,11 +38,11 @@ local info = _G_Widget_.TextColumn{
 
 _TEXT_SPACING_ = nil
 
-local update = function(cr)
-   local stats = __string_match(Util.read_file(STATS_FILE), '%d+%s+(.*)$')
+local update = function(cr, pacman_stats)
+   local stats = __string_match(pacman_stats, '%d+%s+[^%s]+%s+[^%s]+%s+(.*)$')
    if stats then
       local i = 1
-      for v in __string_gmatch(stats, '[^%s]+') do
+      for v in __string_gmatch(stats, '%d+') do
          TextColumn.set(info, cr, i, v)
          i = i + 1
       end
@@ -61,9 +59,8 @@ local draw_static = function(cr)
    TextColumn.draw(labels, cr)
 end
 
-local draw_dynamic = function(cr, log_is_changed)
-   if log_is_changed then update(cr) end
-
+local draw_dynamic = function(cr, pacman_stats)
+   update(cr, pacman_stats)
    TextColumn.draw(info, cr)
 end
 
