@@ -229,7 +229,7 @@ local update = function(cr)
       local pid = conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
       if pid ~= '' then
          local cpu = conky(TABLE_CONKY[r].cpu)
-         local comm = Util.read_file('/proc/'..pid..'/comm')
+         local comm = Util.read_file('/proc/'..pid..'/comm', '(%C+)')
          Table.set(tbl, cr, 1, r, comm)
          Table.set(tbl, cr, 2, r, pid)
          Table.set(tbl, cr, 3, r, cpu)
