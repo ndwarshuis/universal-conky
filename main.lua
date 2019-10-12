@@ -171,23 +171,23 @@ cr_static = nil
 local using_ac = function()
    -- for some reason it is much more efficient to test if the battery
    -- is off than if the ac is on
-   return Util.read_file('/sys/class/power_supply/BAT0/status') ~= 'Discharging'
+   return Util.read_file('/sys/class/power_supply/BAT0/status', nil, '*l') ~= 'Discharging'
 end
 
 --
 -- main loop
 --
 local updates = -2 -- this accounts for the first few spazzy iterations
-local __collectgarbage = collectgarbage
-
 local STATS_FILE = '/tmp/.conky_pacman'
+
+collectgarbage() -- clear out the widget constructors
 
 function conky_main()
    local _cw = conky_window
    if not _cw then return end
 
    local cs = __cairo_xlib_surface_create(_cw.display, _cw.drawable,
-										  _cw.visual, 1920, 1080)
+                                          _cw.visual, 1920, 1080)
    local cr = __cairo_create(cs)
 
    __cairo_set_source_surface(cr, cs_static, 0, 0)
@@ -214,5 +214,4 @@ function conky_main()
 
    __cairo_surface_destroy(cs)
    __cairo_destroy(cr)
-   __collectgarbage()
 end
