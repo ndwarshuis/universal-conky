@@ -205,7 +205,8 @@ local update = function(cr)
 	  CriticalText.set(core.coretemp_text, cr, Util.round_to_string(0.001 * Util.read_file(core.coretemp_path, nil, '*n')))
    end
 
-   local process_glob = Util.execute_cmd('ps -A -o s h')
+   -- trimming the string actually helps performance
+   local process_glob = Util.execute_cmd('ps -A -o s h | tr -d "I\n"')
 
    -- subtract one from running b/c ps will always be "running"
    Text.set(process.value, cr,
@@ -225,7 +226,7 @@ local update = function(cr)
    LabelPlot.update(plot, load_percent)
 
    for r = 1, NUM_ROWS do
-      local pid = conky(TABLE_CONKY[r].pid, '(%S+)')
+      local pid = conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
       if pid ~= '' then
          local cpu = conky(TABLE_CONKY[r].cpu)
          local comm = Util.read_file('/proc/'..pid..'/comm')
