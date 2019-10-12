@@ -169,7 +169,9 @@ cr_static = nil
 -- create some useful functions
 --
 local using_ac = function()
-   return Util.read_file('/sys/class/power_supply/AC/online', nil, '*n') == 1
+   -- for some reason it is much more efficient to test if the battery
+   -- is off than if the ac is on
+   return Util.read_file('/sys/class/power_supply/BAT0/status') ~= 'Discharging'
 end
 
 --
@@ -183,8 +185,6 @@ local STATS_FILE = '/tmp/.conky_pacman'
 function conky_main()
    local _cw = conky_window
    if not _cw then return end
-
-   -- local time = os.clock()
 
    local cs = __cairo_xlib_surface_create(_cw.display, _cw.drawable,
 										  _cw.visual, 1920, 1080)
@@ -215,6 +215,4 @@ function conky_main()
    __cairo_surface_destroy(cs)
    __cairo_destroy(cr)
    __collectgarbage()
-
-   -- print(os.clock() - time)
 end

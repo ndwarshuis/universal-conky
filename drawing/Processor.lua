@@ -205,9 +205,9 @@ local update = function(cr)
 	  CriticalText.set(core.coretemp_text, cr, Util.round_to_string(0.001 * Util.read_file(core.coretemp_path, nil, '*n')))
    end
 
-   local process_glob = Util.execute_cmd('ps -A -o s')
+   local process_glob = Util.execute_cmd('ps -A -o s h')
 
-   --subtract one from running b/c ps will always be "running"
+   -- subtract one from running b/c ps will always be "running"
    Text.set(process.value, cr,
             __string_format('%s | %s | %s | %s | %s',
                             (char_count(process_glob, 'R') - 1),
