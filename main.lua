@@ -94,6 +94,7 @@ local __cairo_paint                 = cairo_paint
 local __cairo_create 				= cairo_create
 local __cairo_surface_destroy 		= cairo_surface_destroy
 local __cairo_destroy 				= cairo_destroy
+local __cairo_translate 			= cairo_translate
 
 --
 -- import all packages and init with global geometric data
@@ -115,7 +116,7 @@ _G_Widget_ 		= require 'Widget'
 _G_Patterns_ 	= require 'Patterns'
 
 local Util 			= require 'Util'
-local Panel 		= require 'Panel'
+local FillRect      = require 'FillRect'
 local System 		= require 'System'
 local Network 		= require 'Network'
 local Processor 	= require 'Processor'
@@ -126,6 +127,70 @@ local ReadWrite		= require 'ReadWrite'
 local Graphics		= require 'Graphics'
 local Memory		= require 'Memory'
 
+--
+-- initialize static surfaces
+--
+local left = _G_Widget_.Panel{
+	x = _G_INIT_DATA_.LEFT_X - _G_INIT_DATA_.PANEL_MARGIN_X,
+	y = _G_INIT_DATA_.TOP_Y - _G_INIT_DATA_.PANEL_MARGIN_Y,
+	width = _G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2,
+	height = _G_INIT_DATA_.SIDE_HEIGHT + _G_INIT_DATA_.PANEL_MARGIN_Y * 2,
+}
+local center = _G_Widget_.Panel{
+	x = _G_INIT_DATA_.CENTER_LEFT_X - _G_INIT_DATA_.PANEL_MARGIN_X,
+	y = _G_INIT_DATA_.TOP_Y - _G_INIT_DATA_.PANEL_MARGIN_Y,
+	width = _G_INIT_DATA_.CENTER_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_Y * 2 + _G_INIT_DATA_.CENTER_PAD,
+	height = _G_INIT_DATA_.CENTER_HEIGHT + _G_INIT_DATA_.PANEL_MARGIN_Y * 2,
+}
+local right = _G_Widget_.Panel{
+	x = _G_INIT_DATA_.RIGHT_X - _G_INIT_DATA_.PANEL_MARGIN_X,
+	y = _G_INIT_DATA_.TOP_Y - _G_INIT_DATA_.PANEL_MARGIN_Y,
+	width = _G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2,
+	height = _G_INIT_DATA_.SIDE_HEIGHT + _G_INIT_DATA_.PANEL_MARGIN_Y * 2,
+}
+
+local _make_static_surface = function(panel, ...)
+   local x = panel.x - panel.thickness * 0.5
+   local y = panel.y - panel.thickness * 0.5
+   local w = panel.width + panel.thickness
+   local h = panel.height + panel.thickness
+
+   local cs = __cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h)
+   local cr = __cairo_create(cs)
+
+   __cairo_translate(cr, -x, -y)
+
+   FillRect.draw(panel, cr)
+   for _, f in pairs({...}) do
+      f(cr)
+   end
+   __cairo_destroy(cr)
+   return { x = x, y = y, s = cs }
+end
+
+local draw_static_surface = function(cr, cs_obj)
+   __cairo_set_source_surface(cr, cs_obj.s, cs_obj.x, cs_obj.y)
+   __cairo_paint(cr)
+end
+
+local cs_left = _make_static_surface(left,
+                                     System.draw_static,
+                                     Graphics.draw_static,
+                                     Processor.draw_static)
+
+local cs_center = _make_static_surface(center,
+                                       ReadWrite.draw_static,
+                                       Network.draw_static)
+
+local cs_right = _make_static_surface(right,
+                                      Pacman.draw_static,
+                                      FileSystem.draw_static,
+                                      Power.draw_static,
+                                      Memory.draw_static)
+
+--
+-- kill all the stuff we don't need for the main loop
+--
 local _unrequire = function(m) package.loaded[m] = nil end
 
 _G_Widget_ = nil
@@ -138,35 +203,13 @@ _unrequire('Widget')
 _unrequire('Patterns')
 
 _unrequire = nil
-
+_make_static_surface = nil
+FillRect = nil
 _G_INIT_DATA_ = nil
+collectgarbage()
 
 --
--- initialize static surface
---
-local cs_static = __cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 1920, 1080)
-local cr_static = __cairo_create(cs_static)
-
-Panel.draw_static(cr_static)
-
-System.draw_static(cr_static)
-Graphics.draw_static(cr_static)
-Processor.draw_static(cr_static)
-
-ReadWrite.draw_static(cr_static)
-Network.draw_static(cr_static)
-
-Pacman.draw_static(cr_static)
-FileSystem.draw_static(cr_static)
-Power.draw_static(cr_static)
-Memory.draw_static(cr_static)
-
-__cairo_destroy(cr_static)
-
-cr_static = nil
-
---
--- create some useful functions
+-- main loop
 --
 local using_ac = function()
    -- for some reason it is much more efficient to test if the battery
@@ -174,13 +217,8 @@ local using_ac = function()
    return Util.read_file('/sys/class/power_supply/BAT0/status', nil, '*l') ~= 'Discharging'
 end
 
---
--- main loop
---
 local updates = -2 -- this accounts for the first few spazzy iterations
 local STATS_FILE = '/tmp/.conky_pacman'
-
-collectgarbage() -- clear out the widget constructors
 
 function conky_main()
    local _cw = conky_window
@@ -190,8 +228,9 @@ function conky_main()
                                           _cw.visual, 1920, 1080)
    local cr = __cairo_create(cs)
 
-   __cairo_set_source_surface(cr, cs_static, 0, 0)
-   __cairo_paint(cr)
+   draw_static_surface(cr, cs_left)
+   draw_static_surface(cr, cs_center)
+   draw_static_surface(cr, cs_right)
 
    updates = updates + 1
 
