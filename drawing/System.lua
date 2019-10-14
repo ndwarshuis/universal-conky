@@ -59,6 +59,9 @@ local draw_dynamic = function(cr, pacman_stats)
       local last_update, last_sync = __string_match(pacman_stats, "^%d+%s+([^%s]+)%s+([^%s]+).*")
       TextColumn.set(info, cr, 2, last_update)
       TextColumn.set(info, cr, 3, last_sync)
+   else
+      TextColumn.set(info, cr, 2, "N/A")
+      TextColumn.set(info, cr, 3, "N/A")
    end
 
    TextColumn.draw(info, cr)
