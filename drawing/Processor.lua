@@ -18,6 +18,13 @@ local NUM_THREADS_PER_CORE = 2
 
 local NUM_ROWS = 5
 
+local HWP_PATHS = {}
+
+for i = 1, NUM_ROWS do
+   HWP_PATHS[i] = '/sys/devices/system/cpu/cpu' .. i ..
+      '/cpufreq/energy_performance_preference'
+end
+
 local TABLE_CONKY = {}
 
 for r = 1, NUM_ROWS do
@@ -103,24 +110,29 @@ end
 
 local _RIGHT_X_ = _G_INIT_DATA_.LEFT_X + _G_INIT_DATA_.SECTION_WIDTH
 
-local _PROCESS_Y_ = header.bottom_y + _DIAL_OUTER_RADIUS_ * 2 + _PLOT_SECTION_BREAK_
+local _HWP_Y_ = header.bottom_y + _DIAL_OUTER_RADIUS_ * 2 + _PLOT_SECTION_BREAK_
 
-local process = {
+local hwp = {
    label = _G_Widget_.Text{
 	  x 		= _G_INIT_DATA_.LEFT_X,
-	  y 		= _PROCESS_Y_,
-	  text 	= 'R | S | D | T | Z'
+	  y 		= _HWP_Y_,
+	  text 	= 'HWP Preference'
    },
    value = _G_Widget_.Text{
 	  x 			= _RIGHT_X_,
-	  y 			= _PROCESS_Y_,
+	  y 			= _HWP_Y_,
 	  x_align 	= 'right',
+<<<<<<< HEAD
 	  text_color 	= _G_Patterns_.PURPLE,
 	  text		= '<R> | <S> | <D> | <T> | <Z>'
+=======
+	  text_color 	= _G_Patterns_.BLUE,
+	  text		= '<hwp_pref>'
+>>>>>>> tmp
    }
 }
 
-local _FREQ_Y_ = _PROCESS_Y_ + _TEXT_SPACING_
+local _FREQ_Y_ = _HWP_Y_ + _TEXT_SPACING_
 
 local ave_freq = {
    label = _G_Widget_.Text{
@@ -202,20 +214,39 @@ local update = function(cr)
 		 freq_sum = freq_sum + Util.conky_numeric(conky_freqs[t])
 	  end
 
-	  CriticalText.set(core.coretemp_text, cr, Util.round_to_string(0.001 * Util.read_file(core.coretemp_path, nil, '*n')))
+	  CriticalText.set(
+         core.coretemp_text, cr,
+         Util.round_to_string(
+            0.001 * Util.read_file(core.coretemp_path, nil, '*n')))
    end
 
-   -- trimming the string actually helps performance
-   local process_glob = Util.execute_cmd('ps -A -o s h | tr -d "I\n"')
+   -- read HWP of first cpu, then test all others to see if they match
+   local hwp_pref = Util.read_file(HWP_PATHS[1], nil, "*l")
+   local mixed = nil
+   local i = 2
 
-   -- subtract one from running b/c ps will always be "running"
-   Text.set(process.value, cr,
-            __string_format('%s | %s | %s | %s | %s',
-                            (char_count(process_glob, 'R') - 1),
-                            char_count(process_glob, 'S'),
-                            char_count(process_glob, 'D'),
-                            char_count(process_glob, 'T'),
-                            char_count(process_glob, 'Z')))
+   while not mixed and i <= #HWP_PATHS do
+      if hwp_pref ~= Util.read_file(HWP_PATHS[i], nil, '*l') then
+         mixed = 0
+      end
+      i = i + 1
+   end
+
+   if mixed then
+      Text.set(hwp.value, cr, "Mixed")
+   elseif hwp_pref == "power" then
+      Text.set(hwp.value, cr, "Power")
+   elseif hwp_pref == "balance_power" then
+      Text.set(hwp.value, cr, "Bal. Power")
+   elseif hwp_pref == "balance_performance" then
+      Text.set(hwp.value, cr, "Bal. Performance")
+   elseif hwp_pref == "performance" then
+      Text.set(hwp.value, cr, "Performance")
+   elseif hwp_pref == "default" then
+      Text.set(hwp.value, cr, "Default")
+   else
+      Text.set(hwp.value, cr, "Unknown")
+   end
 
    Text.set(ave_freq.value, cr, Util.round_to_string(freq_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE) .. ' MHz')
 
@@ -253,7 +284,7 @@ _FREQ_Y_ = nil
 _LOAD_Y_ = nil
 _RIGHT_X_ = nil
 _SEP_Y_ = nil
-_PROCESS_Y_ = nil
+_HWP_Y_ = nil
 _PLOT_Y_ = nil
 
 local draw_static = function(cr)
@@ -266,7 +297,7 @@ local draw_static = function(cr)
 	  CompoundDial.draw_static(this_core.dials, cr)
    end
 
-   Text.draw(process.label, cr)
+   Text.draw(hwp.label, cr)
    Text.draw(ave_freq.label, cr)
    Line.draw(separator, cr)
 
@@ -285,7 +316,7 @@ local draw_dynamic = function(cr)
 	  CriticalText.draw(this_core.coretemp_text, cr)
    end
 
-   Text.draw(process.value, cr)
+   Text.draw(hwp.value, cr)
    Text.draw(ave_freq.value, cr)
 
    CriticalText.draw(total_load.value, cr)
