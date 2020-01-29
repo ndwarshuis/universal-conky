@@ -122,13 +122,8 @@ local hwp = {
 	  x 			= _RIGHT_X_,
 	  y 			= _HWP_Y_,
 	  x_align 	= 'right',
-<<<<<<< HEAD
-	  text_color 	= _G_Patterns_.PURPLE,
-	  text		= '<R> | <S> | <D> | <T> | <Z>'
-=======
 	  text_color 	= _G_Patterns_.BLUE,
 	  text		= '<hwp_pref>'
->>>>>>> tmp
    }
 }
 
