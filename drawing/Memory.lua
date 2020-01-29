@@ -61,7 +61,7 @@ local cache_arc = _G_Widget_.Arc{
 	y 			= DIAL_Y,			
 	radius 		= DIAL_RADIUS,
 	thickness 	= _DIAL_THICKNESS_,
-	arc_pattern	= _G_Patterns_.BLUE_ROUNDED
+	arc_pattern	= _G_Patterns_.PURPLE_ROUNDED
 }
 
 local total_used = _G_Widget_.CriticalText{
@@ -113,7 +113,7 @@ local cache = {
 		y 			= _LINE_1_Y_ + _TEXT_SPACING_,
 		x_align 	= 'right',
 		append_end 	= ' %',
-		text_color	= _G_Patterns_.BLUE,
+		text_color	= _G_Patterns_.PURPLE,
 		'<cached_kb>',
 		'<buffers_kb>',
 		'<kernel_slab>'

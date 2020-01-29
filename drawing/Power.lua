@@ -41,7 +41,7 @@ local pkg0 = {
 	  x 			= _RIGHT_X_,
 	  y 			= header.bottom_y,
 	  x_align 	= 'right',
-	  text_color  = Patterns.PURPLE,
+	  text_color  = Patterns.BLUE,
 	  text        = '<core>',
 	  append_end	= ' W',
    },
@@ -66,7 +66,7 @@ local dram = {
 		x 			= _RIGHT_X_,
 		y 			= _CORE_Y_,
 		x_align 	= 'right',
-		text_color 	= _G_Patterns_.PURPLE,
+		text_color 	= _G_Patterns_.BLUE,
 		text        = '<dram>',
 		append_end	= ' W'
 	},

@@ -30,14 +30,14 @@ local kernel = _G_Widget_.Text{
    y          = header.bottom_y,
    x_align    = 'right',
    text       = Util.conky('$kernel'),
-   text_color = _G_Patterns_.PURPLE
+   text_color = _G_Patterns_.BLUE
 }
 local info = _G_Widget_.TextColumn{
 	x 			= _G_INIT_DATA_.LEFT_X + _G_INIT_DATA_.SECTION_WIDTH,
 	y 			= header.bottom_y + _TEXT_SPACING_,
 	spacing 	= _TEXT_SPACING_,
 	x_align 	= 'right',
-	text_color 	= _G_Patterns_.PURPLE,
+	text_color 	= _G_Patterns_.BLUE,
 	'<row1>',
 	'<row2>',
 	'<row3>'

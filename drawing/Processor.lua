@@ -139,7 +139,7 @@ local ave_freq = {
 	  x 			= _RIGHT_X_,
 	  y 			= _FREQ_Y_,
 	  x_align 	= 'right',
-	  text_color 	= _G_Patterns_.PURPLE,
+	  text_color 	= _G_Patterns_.BLUE,
 	  text		= '<freq>'
    }
 }

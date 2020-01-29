@@ -32,7 +32,7 @@ local info = _G_Widget_.TextColumn{
 	y 			= header.bottom_y,
 	spacing 	= _TEXT_SPACING_,
 	x_align 	= 'right',
-	text_color 	= _G_Patterns_.PURPLE,
+	text_color 	= _G_Patterns_.BLUE,
 	num_rows 	= 5
 }
 
