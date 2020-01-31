@@ -8,7 +8,6 @@ local LabelPlot		= require 'LabelPlot'
 local Util			= require 'Util'
 
 local __tonumber		= tonumber
-local __string_find 	= string.find
 local __string_match	= string.match
 
 local _MODULE_Y_ = 145
@@ -178,7 +177,7 @@ glob will be of the form:
 	<gpu_freq>,<mem_freq>
 	graphics=<gpu_util>, memory=<mem_util>, video=<vid_util>, PCIe=<pci_util>
 --]]
-local NV_QUERY = 'optirun nvidia-settings -c :8 -t'..
+local NV_QUERY = 'nvidia-settings -t'..
 	' -q UsedDedicatedGPUMemory'..
 	' -q TotalDedicatedGPUMemory'..
 	' -q ThermalSensorReading'..
@@ -194,63 +193,57 @@ local NV_REGEX = '(%d+)\n'..
 local NA = 'N/A'
 
 local nvidia_off = function(cr)
-	CriticalText.set(internal_temp.value, cr, NA, false)
+   CriticalText.set(internal_temp.value, cr, NA, false)
 
-	TextColumn.set(clock_speed.values, cr, 1, NA)
-	TextColumn.set(clock_speed.values, cr, 2, NA)
+   TextColumn.set(clock_speed.values, cr, 1, NA)
+   TextColumn.set(clock_speed.values, cr, 2, NA)
 
-	Text.set(gpu_util.value, cr, NA)
-	Text.set(mem_util.value, cr, NA)
-	Text.set(vid_util.value, cr, NA)
+   Text.set(gpu_util.value, cr, NA)
+   Text.set(mem_util.value, cr, NA)
+   Text.set(vid_util.value, cr, NA)
 
-	LabelPlot.update(gpu_util.plot, 0)
-	LabelPlot.update(mem_util.plot, 0)
-	LabelPlot.update(vid_util.plot, 0)
+   LabelPlot.update(gpu_util.plot, 0)
+   LabelPlot.update(mem_util.plot, 0)
+   LabelPlot.update(vid_util.plot, 0)
 end
-				 
+
+local gpu_bus_ctrl = '/sys/bus/pci/devices/0000:01:00.0/power/control'
+
 local update = function(cr)
-    -- check if bbswitch is on
-	if Util.read_file('/proc/acpi/bbswitch', '.+%s+(%u+)') == 'ON' then
+   if Util.read_file(gpu_bus_ctrl, nil, '*l') == 'on' then
+      local nvidia_settings_glob = Util.execute_cmd(NV_QUERY)
+      if nvidia_settings_glob == '' then
+         Text.set(status.value, cr, 'Error')
+         nvidia_off(cr)
+      else
+         Text.set(status.value, cr, 'On')
 
-		-- bbswitch might be on, but only because conky is constantly querying
-		-- it and there appears to be some lag between closing all optirun
-		-- processes and flipping bbswitch off. If bbswitch is on and there are
-		-- no optirun processes, we call this "Mixed." In this case we don't
-		-- check anything (to allow bbswitch to actually switch off) and set all
-		-- values to N/A and 0.
-		if not __string_find(Util.execute_cmd('ps -A -o comm'), 'optirun') then
-			Text.set(status.value, cr, 'Mixed')
-			nvidia_off(cr)
-		else
-			Text.set(status.value, cr, 'On')
-			local nvidia_settings_glob = Util.execute_cmd(NV_QUERY)
+         local used_memory, total_memory, temp_reading, gpu_frequency,
+         memory_frequency, gpu_utilization, vid_utilization
+            = __string_match(nvidia_settings_glob, NV_REGEX)
 
-			local used_memory, total_memory, temp_reading, gpu_frequency,
-				memory_frequency, gpu_utilization, vid_utilization
-				= __string_match(nvidia_settings_glob, NV_REGEX)
+         local is_critical = false
+         if __tonumber(temp_reading) > 80 then is_critical = true end
 
-			local is_critical = false
-			if __tonumber(temp_reading) > 80 then is_critical = true end
+         CriticalText.set(internal_temp.value, cr, temp_reading..'°C', is_critical)
 
-			CriticalText.set(internal_temp.value, cr, temp_reading..'°C', is_critical)
+         TextColumn.set(clock_speed.values, cr, 1, gpu_frequency..' Mhz')
+         TextColumn.set(clock_speed.values, cr, 2, memory_frequency..' Mhz')
 
-			TextColumn.set(clock_speed.values, cr, 1, gpu_frequency..' Mhz')
-			TextColumn.set(clock_speed.values, cr, 2, memory_frequency..' Mhz')
+         local percent_used_memory = used_memory / total_memory
 
-			local percent_used_memory = used_memory / total_memory
+         Text.set(gpu_util.value, cr, gpu_utilization..'%')
+         Text.set(mem_util.value, cr, Util.round(percent_used_memory * 100)..'%')
+         Text.set(vid_util.value, cr, vid_utilization..'%')
 
-			Text.set(gpu_util.value, cr, gpu_utilization..'%')
-			Text.set(mem_util.value, cr, Util.round(percent_used_memory * 100)..'%')
-			Text.set(vid_util.value, cr, vid_utilization..'%')
-
-			LabelPlot.update(gpu_util.plot, gpu_utilization * 0.01)
-			LabelPlot.update(mem_util.plot, percent_used_memory)
-			LabelPlot.update(vid_util.plot, vid_utilization * 0.01)
-		end
-	else
-		Text.set(status.value, cr, 'Off')
-		nvidia_off(cr)
-	end
+         LabelPlot.update(gpu_util.plot, gpu_utilization * 0.01)
+         LabelPlot.update(mem_util.plot, percent_used_memory)
+         LabelPlot.update(vid_util.plot, vid_utilization * 0.01)
+      end
+   else
+      Text.set(status.value, cr, 'Off')
+      nvidia_off(cr)
+   end
 end
 
 _MODULE_Y_ = nil
@@ -297,13 +290,13 @@ local draw_dynamic = function(cr)
    Text.draw(status.value, cr)
    Text.draw(internal_temp.value, cr)
    TextColumn.draw(clock_speed.values, cr)
-   
+
    Text.draw(gpu_util.value, cr)
    LabelPlot.draw_dynamic(gpu_util.plot, cr)
-   
+
    Text.draw(mem_util.value, cr)
    LabelPlot.draw_dynamic(mem_util.plot, cr)
-	
+
    Text.draw(vid_util.value, cr)
    LabelPlot.draw_dynamic(vid_util.plot, cr)
 end
