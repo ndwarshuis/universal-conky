@@ -233,7 +233,7 @@ local update = function(cr)
          local percent_used_memory = used_memory / total_memory
 
          Text.set(gpu_util.value, cr, gpu_utilization..'%')
-         Text.set(mem_util.value, cr, Util.round(percent_used_memory * 100)..'%')
+         Text.set(mem_util.value, cr, Util.round_to_string(percent_used_memory * 100)..'%')
          Text.set(vid_util.value, cr, vid_utilization..'%')
 
          LabelPlot.update(gpu_util.plot, gpu_utilization * 0.01)
