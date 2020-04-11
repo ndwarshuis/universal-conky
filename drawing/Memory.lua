@@ -36,6 +36,15 @@ local MEMINFO_REGEX = '\nMemFree:%s+(%d+).+'..
 
 local NUM_ROWS = 5
 
+local TABLE_CONKY = {}
+
+for r = 1, NUM_ROWS do
+   TABLE_CONKY[r] = {}
+   TABLE_CONKY[r].comm = '${top_mem name '..r..'}'
+   TABLE_CONKY[r].pid = '${top_mem pid '..r..'}'
+   TABLE_CONKY[r].mem = '${top_mem mem '..r..'}'
+end
+
 local header = _G_Widget_.Header{
 	x = _G_INIT_DATA_.RIGHT_X,
 	y = _MODULE_Y_,
@@ -140,47 +149,45 @@ local tbl = _G_Widget_.Table{
 }
 
 local update = function(cr)
-	-- see source for the 'free' command (sysinfo.c) for formulas
+   local conky = Util.conky
+   -- see source for the 'free' command (sysinfo.c) for formulas
 
-	local memfree_kb, buffers_kb, cached_kb, swap_total_kb, swap_free_kb,
-	  slab_reclaimable_kb = __string_match(Util.read_file('/proc/meminfo'), MEMINFO_REGEX)
+   local memfree_kb, buffers_kb, cached_kb, swap_total_kb, swap_free_kb,
+       slab_reclaimable_kb = __string_match(Util.read_file('/proc/meminfo'), MEMINFO_REGEX)
 
-	local used_percent = (MEM_TOTAL_KB - memfree_kb - cached_kb - buffers_kb - slab_reclaimable_kb) / MEM_TOTAL_KB
+   local used_percent = (MEM_TOTAL_KB - memfree_kb - cached_kb - buffers_kb - slab_reclaimable_kb) / MEM_TOTAL_KB
 
-	Dial.set(dial, used_percent)
-	CriticalText.set(total_used, cr, Util.round_to_string(used_percent * 100))
+   Dial.set(dial, used_percent)
+   CriticalText.set(total_used, cr, Util.round_to_string(used_percent * 100))
 
-	local cache_theta = (DIAL_THETA_0 - DIAL_THETA_1) / MEM_TOTAL_KB * memfree_kb + DIAL_THETA_1
-	__cairo_path_destroy(cache_arc.path)
-	cache_arc.path = Arc.create_path(cr, DIAL_X, DIAL_Y, DIAL_RADIUS, dial.dial_angle, cache_theta)
-	
-	CriticalText.set(swap.percent, cr, Util.precision_round_to_string(
-	  (swap_total_kb - swap_free_kb) /	swap_total_kb * 100))
+   local cache_theta = (DIAL_THETA_0 - DIAL_THETA_1) / MEM_TOTAL_KB * memfree_kb + DIAL_THETA_1
+   __cairo_path_destroy(cache_arc.path)
+   cache_arc.path = Arc.create_path(cr, DIAL_X, DIAL_Y, DIAL_RADIUS, dial.dial_angle, cache_theta)
 
-	local _percents = cache.percents
-	
-	TextColumn.set(_percents, cr, 1, Util.precision_round_to_string(
-	  cached_kb / MEM_TOTAL_KB * 100))
-	  
-	TextColumn.set(_percents, cr, 2, Util.precision_round_to_string(
-	  buffers_kb / MEM_TOTAL_KB * 100))
-	  
-	TextColumn.set(_percents, cr, 3, Util.precision_round_to_string(
-	  slab_reclaimable_kb / MEM_TOTAL_KB * 100))
+   CriticalText.set(swap.percent, cr, Util.precision_round_to_string(
+       (swap_total_kb - swap_free_kb) /	swap_total_kb * 100))
 
-	LabelPlot.update(plot, used_percent)
+   local _percents = cache.percents
 
-	local ps_glob = __io_popen('ps -A -o "pmem,pid,comm" --sort=-pmem h')
+   TextColumn.set(_percents, cr, 1, Util.precision_round_to_string(
+       cached_kb / MEM_TOTAL_KB * 100))
 
-	for r = 1, NUM_ROWS do
-	   local ps_line = ps_glob:read()
-	   local pmem, pid, comm = __string_match(ps_line, '(%d+%.%d+)%s+(%d+)%s+(.+)$')
-	   Table.set(tbl, cr, 1, r, comm)
-	   Table.set(tbl, cr, 2, r, pid)
-	   Table.set(tbl, cr, 3, r, pmem)
-	end
+   TextColumn.set(_percents, cr, 2, Util.precision_round_to_string(
+       buffers_kb / MEM_TOTAL_KB * 100))
 
-	ps_glob:close()
+   TextColumn.set(_percents, cr, 3, Util.precision_round_to_string(
+       slab_reclaimable_kb / MEM_TOTAL_KB * 100))
+
+   LabelPlot.update(plot, used_percent)
+
+   for r = 1, NUM_ROWS do
+      local comm = conky(TABLE_CONKY[r].comm, '(%S+)') -- may have trailing space
+      local pid = conky(TABLE_CONKY[r].pid)
+      local mem = conky(TABLE_CONKY[r].mem)
+      Table.set(tbl, cr, 1, r, comm)
+      Table.set(tbl, cr, 2, r, pid)
+      Table.set(tbl, cr, 3, r, mem)
+   end
 end
 
 _MODULE_Y_ = nil
