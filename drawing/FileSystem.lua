@@ -8,9 +8,9 @@ local Util			= require 'Util'
 
 local __string_match 	= string.match
 
-local _FS_PATHS_ = {'/', '/boot', '/var/cache', '/home', '/mnt/data', '/mnt/dcache', '/usr/local/opt'}
+local _FS_PATHS_ = {'/', '/boot', '/home', '/mnt/data', '/mnt/dcache'}
 local _MODULE_Y_ = 170
-local _SPACING_ = 22
+local _SPACING_ = 20
 local _BAR_PAD_ = 100
 
 local FS_NUM = #_FS_PATHS_
@@ -28,11 +28,9 @@ local labels = _G_Widget_.TextColumn{
 	spacing = _SPACING_,
 	'root',
 	'boot',
-	'vcache',
 	'home',
 	'data',
 	'dcache',
-	'lopt'
 }
 
 local conky_used_perc = {}
@@ -47,6 +45,7 @@ local bars = _G_Widget_.CompoundBar{
 	length 			= _G_INIT_DATA_.SECTION_WIDTH - _BAR_PAD_,
 	spacing 		= _SPACING_,
 	num_bars 		= FS_NUM,
+    -- thickness       = 12,
 	critical_limit	= '>0.8'
 }
 

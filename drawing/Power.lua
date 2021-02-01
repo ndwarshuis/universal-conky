@@ -7,10 +7,10 @@ local Line			= require 'Line'
 local ScalePlot 	= require 'ScalePlot'
 local Util			= require 'Util'
 
-local _MODULE_Y_ = 373
+local _MODULE_Y_ = 320
 local _TEXT_SPACING_ = 20
 local _PLOT_SEC_BREAK_ = 20
-local _PLOT_HEIGHT_ = 56
+local _PLOT_HEIGHT_ = 73
 
 local power_label_function = function(watts) return watts..' W' end
 
@@ -51,6 +51,7 @@ local pkg0 = {
 	  width = _G_INIT_DATA_.SECTION_WIDTH,
 	  height = _PLOT_HEIGHT_,
 	  y_label_func = power_label_function,
+      num_y_intrvl = 5,
    },
 }
 
@@ -76,6 +77,7 @@ local dram = {
 		width = _G_INIT_DATA_.SECTION_WIDTH,
 		height = _PLOT_HEIGHT_,
 		y_label_func = power_label_function,
+        num_y_intrvl = 5,
 	}
 }
 
@@ -99,6 +101,7 @@ local battery_draw = {
 		width = _G_INIT_DATA_.SECTION_WIDTH,
 		height = _PLOT_HEIGHT_,
 		y_label_func = power_label_function,
+        num_y_intrvl = 5,
 	}
 }
 
