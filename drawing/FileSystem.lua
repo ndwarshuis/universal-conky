@@ -9,7 +9,7 @@ local Util			= require 'Util'
 
 local __string_match 	= string.match
 
-local _FS_PATHS_ = {'/', '/boot', '/home', '/mnt/data', '/mnt/dcache'}
+local _FS_PATHS_ = {'/', '/boot', '/home', '/mnt/data', '/mnt/dcache', "/tmp"}
 local _MODULE_Y_ = 170
 local _SPACING_ = 20
 local _BAR_PAD_ = 100
@@ -79,6 +79,7 @@ local labels = _G_Widget_.TextColumn{
 	'home',
 	'data',
 	'dcache',
+	'tmpfs',
 }
 
 _SPACING_ = nil

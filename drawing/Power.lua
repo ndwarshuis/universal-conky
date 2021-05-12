@@ -7,7 +7,7 @@ local Line			= require 'Line'
 local ScalePlot 	= require 'ScalePlot'
 local Util			= require 'Util'
 
-local _MODULE_Y_ = 364
+local _MODULE_Y_ = 380
 local _TEXT_SPACING_ = 20
 local _PLOT_SEC_BREAK_ = 20
 local _PLOT_HEIGHT_ = 56
