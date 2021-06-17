@@ -28,9 +28,9 @@ local update_stat = function(cr, stat, byte_cnt, update_frequency)
 
 	if delta_bytes > 0 then
 		local bps = delta_bytes * update_frequency
-		local unit = Util.get_unit(bps)
-		stat.rate.append_end = ' '..unit..'/s'
-		Text.set(stat.rate, cr, Util.precision_convert_bytes(bps, 'B', unit, 3))
+		local unit, value = Util.convert_data_val(bps)
+		stat.rate.append_end = ' '..unit..'B/s'
+		Text.set(stat.rate, cr, Util.precision_round_to_string(value, 3))
 		ScalePlot.update(stat.plot, cr, bps)
 	else
 		stat.rate.append_end = ' B/s'
@@ -40,13 +40,12 @@ local update_stat = function(cr, stat, byte_cnt, update_frequency)
 end
 
 local io_label_function = function(bytes)
-	local new_unit = Util.get_unit(bytes)
+	local new_unit, new_value = Util.convert_data_val(bytes)
 
-	local converted = Util.convert_bytes(bytes, 'B', new_unit)
 	local precision = 0
-	if converted < 10 then precision = 1 end
+	if new_value < 10 then precision = 1 end
 
-	return Util.round_to_string(converted, precision)..' '..new_unit..'/s'
+	return Util.round_to_string(new_value, precision)..' '..new_unit..'B/s'
 end
 
 local header = _G_Widget_.Header{

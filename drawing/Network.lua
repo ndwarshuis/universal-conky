@@ -10,14 +10,10 @@ local __string_gmatch = string.gmatch
 local _PLOT_SEC_BREAK_ = 20
 local _PLOT_HEIGHT_ = 56
 
-local network_label_function = function(bytes)
-	local new_unit = Util.get_unit(bytes)
-	
-	local converted = Util.convert_bytes(bytes, 'B', new_unit)
-	local precision = 0
-	if converted < 10 then precision = 1 end
-	
-	return Util.round_to_string(converted, precision)..' '..new_unit..'/s'
+local network_label_function = function(bits)
+	local new_unit, new_value = Util.convert_data_val(bits)
+	local precision = new_value < 10 and 1 or 0
+	return Util.round_to_string(new_value, precision)..' '..new_unit..'b/s'
 end
 
 local header = _G_Widget_.Header{
@@ -75,6 +71,10 @@ local upload = {
 
 local interface_counters_tbl = {}
 
+local get_bits = function(path)
+   return Util.read_file(path, nil, '*n') * 8
+end
+
 local update = function(cr, update_frequency)
 	local dspeed, uspeed = 0, 0
 
@@ -94,15 +94,15 @@ local update = function(cr, update_frequency)
 			interface_counters = {
 				rx_path = rx_path,
 				tx_path = tx_path,
-				prev_rx_byte_cnt = Util.read_file(rx_path, nil, '*n'),
-				prev_tx_byte_cnt = Util.read_file(tx_path, nil, '*n'),
+				prev_rx_byte_cnt = get_bits(rx_path, nil, '*n'),
+				prev_tx_byte_cnt = get_bits(tx_path, nil, '*n'),
 			}
 			interface_counters_tbl[interface] = interface_counters
 		end
-		
-		local rx_byte_cnt = Util.read_file(interface_counters.rx_path, nil, '*n')
-		local tx_byte_cnt = Util.read_file(interface_counters.tx_path, nil, '*n')
-		
+
+		local rx_byte_cnt = get_bits(interface_counters.rx_path, nil, '*n')
+		local tx_byte_cnt = get_bits(interface_counters.tx_path, nil, '*n')
+
 		rx_delta = rx_byte_cnt - interface_counters.prev_rx_byte_cnt
 		tx_delta = tx_byte_cnt - interface_counters.prev_tx_byte_cnt
 
@@ -114,15 +114,15 @@ local update = function(cr, update_frequency)
 		if tx_delta > 0 then uspeed = uspeed + tx_delta * update_frequency end
 	end
 
-	local dspeed_unit = Util.get_unit(dspeed)
-	local uspeed_unit = Util.get_unit(uspeed)
-	
-	dnload.speed.append_end = ' '..dspeed_unit..'/s'
-	upload.speed.append_end = ' '..uspeed_unit..'/s'
-	
-	Text.set(dnload.speed, cr, Util.precision_convert_bytes(dspeed, 'B', dspeed_unit, 3))
-	Text.set(upload.speed, cr, Util.precision_convert_bytes(uspeed, 'B', uspeed_unit, 3))
-	
+	local dspeed_unit, dspeed_value = Util.convert_data_val(dspeed)
+	local uspeed_unit, uspeed_value = Util.convert_data_val(uspeed)
+
+	dnload.speed.append_end = ' '..dspeed_unit..'b/s'
+	upload.speed.append_end = ' '..uspeed_unit..'b/s'
+
+	Text.set(dnload.speed, cr, Util.precision_round_to_string(dspeed_value, 3))
+	Text.set(upload.speed, cr, Util.precision_round_to_string(uspeed_value, 3))
+
 	ScalePlot.update(dnload.plot, cr, dspeed)
 	ScalePlot.update(upload.plot, cr, uspeed)
 end
