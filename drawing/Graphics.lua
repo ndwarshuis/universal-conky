@@ -35,7 +35,7 @@ local status = {
 		x 			= _RIGHT_X_,
 		y 			= header.bottom_y,
 		x_align 	= 'right',
-		text_color 	= _G_Patterns_.BLUE,
+		text_color 	= _G_Patterns_.PRIMARY_FG,
 		text        = '<status>'
 	}
 }
@@ -59,7 +59,7 @@ local internal_temp = {
 		x 			= _RIGHT_X_,
 		y 			= _INTERNAL_TEMP_Y_,
 		x_align 	= 'right',
-		text_color 	= _G_Patterns_.BLUE,
+		text_color 	= _G_Patterns_.PRIMARY_FG,
 		text        = '<gpu_temp>'
 	}
 }
@@ -86,7 +86,7 @@ local clock_speed = {
 		y 			= _CLOCK_SPEED_Y_,
 		spacing 	= _TEXT_SPACING_,
 		x_align 	= 'right',
-		text_color 	= _G_Patterns_.BLUE,
+		text_color 	= _G_Patterns_.PRIMARY_FG,
 		num_rows 	= 2
 	}
 }
@@ -110,7 +110,7 @@ local gpu_util = {
 		x 			= _RIGHT_X_,
 		y 			= _GPU_UTIL_Y_,
 		x_align 	= 'right',
-		text_color 	= _G_Patterns_.BLUE,
+		text_color 	= _G_Patterns_.PRIMARY_FG,
 		text        = '<gpu_util>'
 	},
 	plot = _G_Widget_.LabelPlot{
@@ -133,7 +133,7 @@ local mem_util = {
 		x 			= _RIGHT_X_,
 		y 			= _MEM_UTIL_Y_,
 		x_align 	= 'right',
-		text_color 	= _G_Patterns_.BLUE,
+		text_color 	= _G_Patterns_.PRIMARY_FG,
 		text        = '<mem_util>'
 	},
 	plot = _G_Widget_.LabelPlot{
@@ -156,7 +156,7 @@ local vid_util = {
 		x 			= _RIGHT_X_,
 		y 			= _VID_UTIL_Y_,
 		x_align 	= 'right',
-		text_color 	= _G_Patterns_.BLUE,
+		text_color 	= _G_Patterns_.PRIMARY_FG,
 		text        = '<vid_util>'
 	},
 	plot = _G_Widget_.LabelPlot{

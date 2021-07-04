@@ -75,7 +75,8 @@ local _create_core_ = function(cores, id, x, y)
 		 y = y,
 		 radius = _DIAL_INNER_RADIUS_ - 2,
 		 theta0 = 0,
-		 theta1 = 360
+		 theta1 = 360,
+         arc_pattern = _G_Patterns_.BORDER_FG
 	  },
 	  coretemp_text = _G_Widget_.CriticalText{
 		 x 				= x,
@@ -122,7 +123,7 @@ local hwp = {
 	  x 			= _RIGHT_X_,
 	  y 			= _HWP_Y_,
 	  x_align 	= 'right',
-	  text_color 	= _G_Patterns_.BLUE,
+	  text_color 	= _G_Patterns_.PRIMARY_FG,
 	  text		= '<hwp_pref>'
    }
 }
@@ -139,7 +140,7 @@ local ave_freq = {
 	  x 			= _RIGHT_X_,
 	  y 			= _FREQ_Y_,
 	  x_align 	= 'right',
-	  text_color 	= _G_Patterns_.BLUE,
+	  text_color 	= _G_Patterns_.PRIMARY_FG,
 	  text		= '<freq>'
    }
 }

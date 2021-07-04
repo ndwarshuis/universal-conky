@@ -68,7 +68,7 @@ local reads = {
 		y = header.bottom_y,
 		x_align = 'right',
 		append_end=' B/s',
-		text_color = _G_Patterns_.BLUE
+		text_color = _G_Patterns_.PRIMARY_FG
 	},
 	plot = _G_Widget_.ScalePlot{
 		x = _G_INIT_DATA_.CENTER_LEFT_X,
@@ -92,7 +92,7 @@ local writes = {
 		y = _WRITE_Y_,
 		x_align = 'right',
 		append_end =' B/s',
-		text_color = _G_Patterns_.BLUE
+		text_color = _G_Patterns_.PRIMARY_FG
 	},
 	plot = _G_Widget_.ScalePlot{
 		x = _G_INIT_DATA_.CENTER_LEFT_X,

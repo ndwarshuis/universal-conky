@@ -35,7 +35,7 @@ local dnload = {
 		x = _RIGHT_X_,
 		y = header.bottom_y,
 		x_align = 'right',
-		text_color = _G_Patterns_.BLUE
+		text_color = _G_Patterns_.PRIMARY_FG
 	},
 	plot = _G_Widget_.ScalePlot{
 		x = _G_INIT_DATA_.CENTER_RIGHT_X,
@@ -58,7 +58,7 @@ local upload = {
 		x = _RIGHT_X_,
 		y = _UPLOAD_Y_,
 		x_align = 'right',
-		text_color = _G_Patterns_.BLUE
+		text_color = _G_Patterns_.PRIMARY_FG
 	},
 	plot = _G_Widget_.ScalePlot{
 		x = _G_INIT_DATA_.CENTER_RIGHT_X,

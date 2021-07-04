@@ -70,7 +70,7 @@ local cache_arc = _G_Widget_.Arc{
 	y 			= DIAL_Y,			
 	radius 		= DIAL_RADIUS,
 	thickness 	= _DIAL_THICKNESS_,
-	arc_pattern	= _G_Patterns_.PURPLE_ROUNDED
+	arc_pattern	= _G_Patterns_.INDICATOR_FG_SECONDARY
 }
 
 local total_used = _G_Widget_.CriticalText{
@@ -86,7 +86,8 @@ local inner_ring = _G_Widget_.Arc{
 	y 		= DIAL_Y,
 	radius 	= DIAL_RADIUS - _DIAL_THICKNESS_ / 2 - 2,
 	theta0	= 0,
-	theta1	= 360
+	theta1	= 360,
+    arc_pattern = _G_Patterns_.BORDER_FG
 }
 
 local _LINE_1_Y_ = header.bottom_y + _TEXT_Y_OFFSET_
@@ -122,7 +123,7 @@ local cache = {
 		y 			= _LINE_1_Y_ + _TEXT_SPACING_,
 		x_align 	= 'right',
 		append_end 	= ' %',
-		text_color	= _G_Patterns_.PURPLE,
+		text_color	= _G_Patterns_.SECONDARY_FG,
 		'<cached_kb>',
 		'<buffers_kb>',
 		'<kernel_slab>'

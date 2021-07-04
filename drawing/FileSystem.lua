@@ -40,7 +40,7 @@ local smart = {
 	  x          = _G_INIT_DATA_.RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH,
 	  y 	     = header.bottom_y,
 	  x_align 	 = 'right',
-	  text_color = Patterns.BLUE,
+	  text_color = Patterns.PRIMARY_FG,
 	  text       = '<smartd>',
    }
 }
