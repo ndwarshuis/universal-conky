@@ -68,7 +68,9 @@ local _create_core_ = function(cores, id, x, y)
 		 outer_radius 	= _DIAL_OUTER_RADIUS_,
 		 spacing 		= _DIAL_SPACING_,
 		 num_dials 		= NUM_THREADS_PER_CORE,
-		 critical_limit	= '>0.8'
+		 critical_limit	= '>0.8',
+         dial_pattern    = _G_Patterns_.INDICATOR_FG_PRIMARY,
+         arc_pattern   = _G_Patterns_.INDICATOR_BG
 	  },
 	  inner_ring = _G_Widget_.Arc{
 		 x = x,
@@ -149,7 +151,8 @@ local _SEP_Y_ = _FREQ_Y_ + _SEPARATOR_SPACING_
 
 local separator = _G_Widget_.Line{
    p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_},
-   p2 = {x = _RIGHT_X_, y = _SEP_Y_}
+   p2 = {x = _RIGHT_X_, y = _SEP_Y_},
+   line_pattern = _G_Patterns_.BORDER_FG,
 }
 
 local _LOAD_Y_ = _SEP_Y_ + _SEPARATOR_SPACING_
@@ -175,7 +178,11 @@ local plot = _G_Widget_.LabelPlot{
    x 		= _G_INIT_DATA_.LEFT_X,
    y 		= _PLOT_Y_,
    width 	= _G_INIT_DATA_.SECTION_WIDTH,
-   height 	= _PLOT_HEIGHT_
+   height 	= _PLOT_HEIGHT_,
+   outline_pattern = _G_Patterns_.BORDER_FG,
+   intrvl_pattern = _G_Patterns_.BORDER_FG,
+   data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
+   data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
 }
 
 local tbl = _G_Widget_.Table{
@@ -184,6 +191,10 @@ local tbl = _G_Widget_.Table{
    width 	 = _G_INIT_DATA_.SECTION_WIDTH,
    height 	 = _TABLE_HEIGHT_,
    num_rows = NUM_ROWS,
+   body_color = _G_Patterns_.INACTIVE_TEXT_FG,
+   header_color = _G_Patterns_.ACTIVE_FG,
+   line_pattern = _G_Patterns_.BORDER_FG,
+   separator_pattern = _G_Patterns_.BORDER_FG,
    'Name',
    'PID',
    'CPU (%)'

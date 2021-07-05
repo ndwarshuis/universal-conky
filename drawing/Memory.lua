@@ -63,7 +63,9 @@ local dial = _G_Widget_.Dial{
 	y 				= DIAL_Y,			
 	radius 			= DIAL_RADIUS,
 	thickness 		= _DIAL_THICKNESS_,
-	critical_limit 	= '>0.8'
+	critical_limit 	= '>0.8',
+	dial_pattern	= _G_Patterns_.INDICATOR_FG_PRIMARY,
+    arc_pattern     = _G_Patterns_.INDICATOR_BG
 }
 local cache_arc = _G_Widget_.Arc{
 	x 			= DIAL_X,
@@ -133,20 +135,28 @@ local cache = {
 local _PLOT_Y_ = _PLOT_SECTION_BREAK_ + header.bottom_y + DIAL_RADIUS * 2
 
 local plot = _G_Widget_.LabelPlot{
-	x = _G_INIT_DATA_.RIGHT_X,
-	y = _PLOT_Y_,
-	width = _G_INIT_DATA_.SECTION_WIDTH,
-	height = _PLOT_HEIGHT_
+   x = _G_INIT_DATA_.RIGHT_X,
+   y = _PLOT_Y_,
+   width = _G_INIT_DATA_.SECTION_WIDTH,
+   height = _PLOT_HEIGHT_,
+   outline_pattern = _G_Patterns_.BORDER_FG,
+   intrvl_pattern = _G_Patterns_.BORDER_FG,
+   data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
+   data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
 }
 
 local tbl = _G_Widget_.Table{
-	x = _G_INIT_DATA_.RIGHT_X,
-	y = _PLOT_Y_ + _PLOT_HEIGHT_ + _TABLE_SECTION_BREAK_,
-	width = _G_INIT_DATA_.SECTION_WIDTH,
-	height = _TABLE_HEIGHT_,
-	'Name',
-	'PID',
-	'Mem (%)'
+   x = _G_INIT_DATA_.RIGHT_X,
+   y = _PLOT_Y_ + _PLOT_HEIGHT_ + _TABLE_SECTION_BREAK_,
+   width = _G_INIT_DATA_.SECTION_WIDTH,
+   height = _TABLE_HEIGHT_,
+   body_color = _G_Patterns_.INACTIVE_TEXT_FG,
+   header_color = _G_Patterns_.PRIMARY_FG,
+   line_pattern = _G_Patterns_.BORDER_FG,
+   separator_pattern = _G_Patterns_.BORDER_FG,
+   'Name',
+   'PID',
+   'Mem (%)'
 }
 
 local update = function(cr)

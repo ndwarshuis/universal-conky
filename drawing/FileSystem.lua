@@ -55,7 +55,8 @@ local separator = _G_Widget_.Line{
    p2 = {
       x = _G_INIT_DATA_.RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH,
       y = _SEP_Y_,
-   }
+   },
+   line_pattern = _G_Patterns_.BORDER_FG,
 }
 
 local _BAR_Y_ = _SEP_Y_ + _SEPARATOR_SPACING_
@@ -67,7 +68,9 @@ local bars = _G_Widget_.CompoundBar{
 	spacing 		= _SPACING_,
 	num_bars 		= FS_NUM,
     -- thickness       = 12,
-	critical_limit	= '>0.8'
+	critical_limit	= '>0.8',
+    indicator_pattern = Patterns.INDICATOR_FG_PRIMARY,
+    line_pattern = Patterns.INDICATOR_BG,
 }
 
 local labels = _G_Widget_.TextColumn{

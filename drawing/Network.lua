@@ -26,47 +26,55 @@ local header = _G_Widget_.Header{
 local _RIGHT_X_ = _G_INIT_DATA_.CENTER_RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH
 
 local dnload = {
-	label = _G_Widget_.Text{
-		x = _G_INIT_DATA_.CENTER_RIGHT_X,
-		y = header.bottom_y,
-		text = 'Download',
-	},
-	speed = _G_Widget_.Text{
-		x = _RIGHT_X_,
-		y = header.bottom_y,
-		x_align = 'right',
-		text_color = _G_Patterns_.PRIMARY_FG
-	},
-	plot = _G_Widget_.ScalePlot{
-		x = _G_INIT_DATA_.CENTER_RIGHT_X,
-		y = header.bottom_y + _PLOT_SEC_BREAK_,
-		width = _G_INIT_DATA_.SECTION_WIDTH,
-		height = _PLOT_HEIGHT_,
-		y_label_func = network_label_function
-	}
+   label = _G_Widget_.Text{
+      x = _G_INIT_DATA_.CENTER_RIGHT_X,
+      y = header.bottom_y,
+      text = 'Download',
+   },
+   speed = _G_Widget_.Text{
+      x = _RIGHT_X_,
+      y = header.bottom_y,
+      x_align = 'right',
+      text_color = _G_Patterns_.PRIMARY_FG
+   },
+   plot = _G_Widget_.ScalePlot{
+      x = _G_INIT_DATA_.CENTER_RIGHT_X,
+      y = header.bottom_y + _PLOT_SEC_BREAK_,
+      width = _G_INIT_DATA_.SECTION_WIDTH,
+      height = _PLOT_HEIGHT_,
+      y_label_func = network_label_function,
+      outline_pattern = _G_Patterns_.BORDER_FG,
+      intrvl_pattern = _G_Patterns_.BORDER_FG,
+      data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
+      data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
+   }
 }
 
 local _UPLOAD_Y_ = header.bottom_y + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
 
 local upload = {
-	label = _G_Widget_.Text{
-		x = _G_INIT_DATA_.CENTER_RIGHT_X,
-		y = _UPLOAD_Y_,
-		text = 'Upload',
-	},
-	speed = _G_Widget_.Text{
-		x = _RIGHT_X_,
-		y = _UPLOAD_Y_,
-		x_align = 'right',
-		text_color = _G_Patterns_.PRIMARY_FG
-	},
-	plot = _G_Widget_.ScalePlot{
-		x = _G_INIT_DATA_.CENTER_RIGHT_X,
-		y = _UPLOAD_Y_ + _PLOT_SEC_BREAK_,
-		width = _G_INIT_DATA_.SECTION_WIDTH,
-		height = _PLOT_HEIGHT_,
-		y_label_func = network_label_function
-	}
+   label = _G_Widget_.Text{
+      x = _G_INIT_DATA_.CENTER_RIGHT_X,
+      y = _UPLOAD_Y_,
+      text = 'Upload',
+   },
+   speed = _G_Widget_.Text{
+      x = _RIGHT_X_,
+      y = _UPLOAD_Y_,
+      x_align = 'right',
+      text_color = _G_Patterns_.PRIMARY_FG
+   },
+   plot = _G_Widget_.ScalePlot{
+      x = _G_INIT_DATA_.CENTER_RIGHT_X,
+      y = _UPLOAD_Y_ + _PLOT_SEC_BREAK_,
+      width = _G_INIT_DATA_.SECTION_WIDTH,
+      height = _PLOT_HEIGHT_,
+      y_label_func = network_label_function,
+      outline_pattern = _G_Patterns_.BORDER_FG,
+      intrvl_pattern = _G_Patterns_.BORDER_FG,
+      data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
+      data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
+   }
 }
 
 local interface_counters_tbl = {}

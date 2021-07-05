@@ -33,73 +33,85 @@ local _RIGHT_X_ = _G_INIT_DATA_.RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH
 
 local pkg0 = {
    label = _G_Widget_.Text{
-	  x    = _G_INIT_DATA_.RIGHT_X,
-	  y    = header.bottom_y,
-	  text = 'PKG0',
+      x    = _G_INIT_DATA_.RIGHT_X,
+      y    = header.bottom_y,
+      text = 'PKG0',
    },
    value = _G_Widget_.Text{
-	  x          = _RIGHT_X_,
-	  y          = header.bottom_y,
-	  x_align 	 = 'right',
-	  text_color = Patterns.PRIMARY_FG,
-	  text       = '<core>',
-	  append_end = ' W',
+      x          = _RIGHT_X_,
+      y          = header.bottom_y,
+      x_align 	 = 'right',
+      text_color = Patterns.PRIMARY_FG,
+      text       = '<core>',
+      append_end = ' W',
    },
    plot = _G_Widget_.ScalePlot{
-	  x = _G_INIT_DATA_.RIGHT_X,
-	  y = header.bottom_y + _PLOT_SEC_BREAK_,
-	  width = _G_INIT_DATA_.SECTION_WIDTH,
-	  height = _PLOT_HEIGHT_,
-	  y_label_func = power_label_function,
+      x = _G_INIT_DATA_.RIGHT_X,
+      y = header.bottom_y + _PLOT_SEC_BREAK_,
+      width = _G_INIT_DATA_.SECTION_WIDTH,
+      height = _PLOT_HEIGHT_,
+      y_label_func = power_label_function,
+      outline_pattern = _G_Patterns_.BORDER_FG,
+      intrvl_pattern = _G_Patterns_.BORDER_FG,
+      data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
+      data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
    },
 }
 
 local _CORE_Y_ = header.bottom_y + _TEXT_SPACING_ + _PLOT_SEC_BREAK_ + _PLOT_HEIGHT_
 
 local dram = {
-	label = _G_Widget_.Text{
-		x 		= _G_INIT_DATA_.RIGHT_X,
-		y 		= _CORE_Y_,
-		text    = 'DRAM'
-	},
-	value = _G_Widget_.Text{
-		x 			= _RIGHT_X_,
-		y 			= _CORE_Y_,
-		x_align 	= 'right',
-		text_color 	= _G_Patterns_.PRIMARY_FG,
-		text        = '<dram>',
-		append_end	= ' W'
-	},
-	plot = _G_Widget_.ScalePlot{
-		x = _G_INIT_DATA_.RIGHT_X,
-		y = _CORE_Y_ + _PLOT_SEC_BREAK_,
-		width = _G_INIT_DATA_.SECTION_WIDTH,
-		height = _PLOT_HEIGHT_,
-		y_label_func = power_label_function,
-	}
+   label = _G_Widget_.Text{
+      x 		= _G_INIT_DATA_.RIGHT_X,
+      y 		= _CORE_Y_,
+      text    = 'DRAM'
+   },
+   value = _G_Widget_.Text{
+      x 			= _RIGHT_X_,
+      y 			= _CORE_Y_,
+      x_align 	= 'right',
+      text_color 	= _G_Patterns_.PRIMARY_FG,
+      text        = '<dram>',
+      append_end	= ' W'
+   },
+   plot = _G_Widget_.ScalePlot{
+      x = _G_INIT_DATA_.RIGHT_X,
+      y = _CORE_Y_ + _PLOT_SEC_BREAK_,
+      width = _G_INIT_DATA_.SECTION_WIDTH,
+      height = _PLOT_HEIGHT_,
+      y_label_func = power_label_function,
+      outline_pattern = _G_Patterns_.BORDER_FG,
+      intrvl_pattern = _G_Patterns_.BORDER_FG,
+      data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
+      data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
+   }
 }
 
 local _BATTERY_DRAW_Y_ = _CORE_Y_ + _PLOT_SEC_BREAK_ * 2 + _PLOT_HEIGHT_
 
 local battery_draw = {
-	label = _G_Widget_.Text{
-		x 		= _G_INIT_DATA_.RIGHT_X,
-		y 		= _BATTERY_DRAW_Y_,
-		spacing = _TEXT_SPACING_,
-		text	= 'Battery Draw'
-	},
-	value = _G_Widget_.CriticalText{
-		x 			= _RIGHT_X_,
-		y 			= _BATTERY_DRAW_Y_,
-		x_align 	= 'right',
-	},
-	plot = _G_Widget_.ScalePlot{
-		x = _G_INIT_DATA_.RIGHT_X,
-		y = _BATTERY_DRAW_Y_ + _PLOT_SEC_BREAK_,
-		width = _G_INIT_DATA_.SECTION_WIDTH,
-		height = _PLOT_HEIGHT_,
-		y_label_func = power_label_function,
-	}
+   label = _G_Widget_.Text{
+      x 		= _G_INIT_DATA_.RIGHT_X,
+      y 		= _BATTERY_DRAW_Y_,
+      spacing = _TEXT_SPACING_,
+      text	= 'Battery Draw'
+   },
+   value = _G_Widget_.CriticalText{
+      x 			= _RIGHT_X_,
+      y 			= _BATTERY_DRAW_Y_,
+      x_align 	= 'right',
+   },
+   plot = _G_Widget_.ScalePlot{
+      x = _G_INIT_DATA_.RIGHT_X,
+      y = _BATTERY_DRAW_Y_ + _PLOT_SEC_BREAK_,
+      width = _G_INIT_DATA_.SECTION_WIDTH,
+      height = _PLOT_HEIGHT_,
+      y_label_func = power_label_function,
+      outline_pattern = _G_Patterns_.BORDER_FG,
+      intrvl_pattern = _G_Patterns_.BORDER_FG,
+      data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
+      data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
+   }
 }
 
 local PKG0_PATH = '/sys/class/powercap/intel-rapl:0/energy_uj'

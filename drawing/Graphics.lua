@@ -43,8 +43,9 @@ local status = {
 local _SEP_Y_1_ = header.bottom_y + _SEPARATOR_SPACING_
 
 local separator1 = _G_Widget_.Line{
-	p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_1_},
-	p2 = {x = _RIGHT_X_, y = _SEP_Y_1_}
+   p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_1_},
+   p2 = {x = _RIGHT_X_, y = _SEP_Y_1_},
+   line_pattern = _G_Patterns_.BORDER_FG,
 }
 
 local _INTERNAL_TEMP_Y_ = _SEP_Y_1_ + _SEPARATOR_SPACING_
@@ -67,8 +68,9 @@ local internal_temp = {
 local _SEP_Y_2_ = _INTERNAL_TEMP_Y_ + _SEPARATOR_SPACING_
 
 local separator2 = _G_Widget_.Line{
-	p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_2_},
-	p2 = {x = _RIGHT_X_, y = _SEP_Y_2_}
+   p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_2_},
+   p2 = {x = _RIGHT_X_, y = _SEP_Y_2_},
+   line_pattern = _G_Patterns_.BORDER_FG,
 }
 
 local _CLOCK_SPEED_Y_ = _SEP_Y_2_ + _SEPARATOR_SPACING_
@@ -94,8 +96,9 @@ local clock_speed = {
 local _SEP_Y_3_ = _CLOCK_SPEED_Y_ + _TEXT_SPACING_ * 2
 
 local separator3 = _G_Widget_.Line{
-	p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_3_},
-	p2 = {x = _RIGHT_X_, y = _SEP_Y_3_}
+   p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_3_},
+   p2 = {x = _RIGHT_X_, y = _SEP_Y_3_},
+   line_pattern = _G_Patterns_.BORDER_FG,
 }
 
 local _GPU_UTIL_Y_ = _SEP_Y_3_ + _SEPARATOR_SPACING_
@@ -117,7 +120,11 @@ local gpu_util = {
 		x		= _G_INIT_DATA_.LEFT_X,
 		y		= _GPU_UTIL_Y_ + _PLOT_SEC_BREAK_,
 		width	= _G_INIT_DATA_.SECTION_WIDTH,
-		height	= _PLOT_HEIGHT_
+		height	= _PLOT_HEIGHT_,
+        outline_pattern = _G_Patterns_.BORDER_FG,
+        intrvl_pattern = _G_Patterns_.BORDER_FG,
+        data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
+        data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
 	}
 }
 
@@ -140,7 +147,11 @@ local mem_util = {
 		x 		= _G_INIT_DATA_.LEFT_X,
 		y 		= _MEM_UTIL_Y_ + _PLOT_SEC_BREAK_,
 		width 	= _G_INIT_DATA_.SECTION_WIDTH,
-		height 	= _PLOT_HEIGHT_
+		height 	= _PLOT_HEIGHT_,
+        outline_pattern = _G_Patterns_.BORDER_FG,
+        intrvl_pattern = _G_Patterns_.BORDER_FG,
+        data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
+        data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
 	}
 }
 
@@ -163,7 +174,11 @@ local vid_util = {
 		x 		= _G_INIT_DATA_.LEFT_X,
 		y 		= _VID_UTIL_Y_ + _PLOT_SEC_BREAK_,
 		width 	= _G_INIT_DATA_.SECTION_WIDTH,
-		height 	= _PLOT_HEIGHT_
+		height 	= _PLOT_HEIGHT_,
+        outline_pattern = _G_Patterns_.BORDER_FG,
+        intrvl_pattern = _G_Patterns_.BORDER_FG,
+        data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
+        data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
 	}
 }
 

@@ -58,49 +58,57 @@ local header = _G_Widget_.Header{
 local _RIGHT_X_ = _G_INIT_DATA_.CENTER_LEFT_X + _G_INIT_DATA_.SECTION_WIDTH
 
 local reads = {
-	label = _G_Widget_.Text{
-		x = _G_INIT_DATA_.CENTER_LEFT_X,
-		y = header.bottom_y,
-		text = 'Reads',
-	},
-	rate = _G_Widget_.Text{
-		x = _RIGHT_X_,
-		y = header.bottom_y,
-		x_align = 'right',
-		append_end=' B/s',
-		text_color = _G_Patterns_.PRIMARY_FG
-	},
-	plot = _G_Widget_.ScalePlot{
-		x = _G_INIT_DATA_.CENTER_LEFT_X,
-		y = header.bottom_y + _PLOT_SEC_BREAK_,
-		width = _G_INIT_DATA_.SECTION_WIDTH,
-		height = _PLOT_HEIGHT_,
-		y_label_func = io_label_function,
-	}
+   label = _G_Widget_.Text{
+      x = _G_INIT_DATA_.CENTER_LEFT_X,
+      y = header.bottom_y,
+      text = 'Reads',
+   },
+   rate = _G_Widget_.Text{
+      x = _RIGHT_X_,
+      y = header.bottom_y,
+      x_align = 'right',
+      append_end=' B/s',
+      text_color = _G_Patterns_.PRIMARY_FG
+   },
+   plot = _G_Widget_.ScalePlot{
+      x = _G_INIT_DATA_.CENTER_LEFT_X,
+      y = header.bottom_y + _PLOT_SEC_BREAK_,
+      width = _G_INIT_DATA_.SECTION_WIDTH,
+      height = _PLOT_HEIGHT_,
+      y_label_func = io_label_function,
+      outline_pattern = _G_Patterns_.BORDER_FG,
+      intrvl_pattern = _G_Patterns_.BORDER_FG,
+      data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
+      data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
+   }
 }
 
 local _WRITE_Y_ = header.bottom_y + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
 
 local writes = {
-	label = _G_Widget_.Text{
-		x = _G_INIT_DATA_.CENTER_LEFT_X,
-		y = _WRITE_Y_,
-		text = 'Writes',
-	},
-	rate = _G_Widget_.Text{
-		x = _RIGHT_X_,
-		y = _WRITE_Y_,
-		x_align = 'right',
-		append_end =' B/s',
-		text_color = _G_Patterns_.PRIMARY_FG
-	},
-	plot = _G_Widget_.ScalePlot{
-		x = _G_INIT_DATA_.CENTER_LEFT_X,
-		y = _WRITE_Y_ + _PLOT_SEC_BREAK_,
-		width = _G_INIT_DATA_.SECTION_WIDTH,
-		height = _PLOT_HEIGHT_,
-		y_label_func = io_label_function,
-	}
+   label = _G_Widget_.Text{
+      x = _G_INIT_DATA_.CENTER_LEFT_X,
+      y = _WRITE_Y_,
+      text = 'Writes',
+   },
+   rate = _G_Widget_.Text{
+      x = _RIGHT_X_,
+      y = _WRITE_Y_,
+      x_align = 'right',
+      append_end =' B/s',
+      text_color = _G_Patterns_.PRIMARY_FG
+   },
+   plot = _G_Widget_.ScalePlot{
+      x = _G_INIT_DATA_.CENTER_LEFT_X,
+      y = _WRITE_Y_ + _PLOT_SEC_BREAK_,
+      width = _G_INIT_DATA_.SECTION_WIDTH,
+      height = _PLOT_HEIGHT_,
+      y_label_func = io_label_function,
+      outline_pattern = _G_Patterns_.BORDER_FG,
+      intrvl_pattern = _G_Patterns_.BORDER_FG,
+      data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
+      data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
+   }
 }
 
 _PLOT_SEC_BREAK_ = nil
