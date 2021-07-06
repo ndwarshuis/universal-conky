@@ -59,7 +59,7 @@ local dial = _G_Widget_.Dial{
 	y 				= DIAL_Y,
 	radius 			= DIAL_RADIUS,
 	thickness 		= _DIAL_THICKNESS_,
-	critical_limit 	= '>0.8',
+	critical_limit 	= 0.8,
 	dial_pattern	= _G_Patterns_.INDICATOR_FG_PRIMARY,
 	critical_pattern = _G_Patterns_.INDICATOR_FG_CRITICAL,
     arc_pattern     = _G_Patterns_.INDICATOR_BG
@@ -77,7 +77,7 @@ local text_ring = Common.initTextRing(
    DIAL_Y,
    DIAL_RADIUS - _DIAL_THICKNESS_ / 2 - 2,
    '%',
-   '>80'
+   80
 )
 
 local _LINE_1_Y_ = header.bottom_y + _TEXT_Y_OFFSET_
@@ -91,7 +91,7 @@ local swap = Common.initTextRowCrit(
    _RIGHT_X_ - _TEXT_LEFT_X_,
    'Swap Usage',
    ' %',
-   '80'
+   80
 )
 
 local cache = {

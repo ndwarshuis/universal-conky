@@ -44,7 +44,7 @@ local internal_temp = Common.initTextRowCrit(
    _G_INIT_DATA_.SECTION_WIDTH,
    'Internal Temperature',
    '°C',
-   '>80'
+   80
 )
 
 local _SEP_Y_2_ = _INTERNAL_TEMP_Y_ + _SEPARATOR_SPACING_
