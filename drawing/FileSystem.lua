@@ -54,6 +54,7 @@ local bars = _G_Widget_.CompoundBar{
     -- thickness       = 12,
 	critical_limit	= '>0.8',
     indicator_pattern = Patterns.INDICATOR_FG_PRIMARY,
+    critical_pattern = Patterns.INDICATOR_FG_CRITICAL,
     line_pattern = Patterns.INDICATOR_BG,
 }
 

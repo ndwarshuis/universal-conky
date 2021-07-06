@@ -64,6 +64,7 @@ local _create_core_ = function(cores, id, x, y)
 		 spacing 		= _DIAL_SPACING_,
 		 num_dials 		= NUM_THREADS_PER_CORE,
 		 critical_limit	= '>0.8',
+		 critical_pattern = _G_Patterns_.INDICATOR_FG_CRITICAL,
          dial_pattern    = _G_Patterns_.INDICATOR_FG_PRIMARY,
          arc_pattern   = _G_Patterns_.INDICATOR_BG
 	  },

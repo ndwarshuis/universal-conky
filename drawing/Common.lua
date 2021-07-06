@@ -11,8 +11,8 @@ local ScalePlot = require 'ScalePlot'
 local HEADER_HEIGHT = 45
 local HEADER_FONT_SIZE = 15
 -- TODO move all this font stuff to the theme file
-local HEADER_FONT_SLANT = CAIRO_FONT_SLANT_NORMAL
-local HEADER_FONT_WEIGHT = CAIRO_FONT_WEIGHT_BOLD
+-- local HEADER_FONT_SLANT = CAIRO_FONT_SLANT_NORMAL
+-- local HEADER_FONT_WEIGHT = CAIRO_FONT_WEIGHT_BOLD
 local HEADER_UNDERLINE_CAP = CAIRO_LINE_CAP_ROUND
 local HEADER_UNDERLINE_OFFSET = -20
 local HEADER_UNDERLINE_THICKNESS = 3
@@ -280,7 +280,7 @@ end
 -- text row with critical indicator
 
 -- TODO add limit to this
-M.initTextRowCrit = function(x, y, w, label, append_end)
+M.initTextRowCrit = function(x, y, w, label, append_end, limit)
    return{
       label = _G_Widget_.Text{
          x = x,
@@ -295,6 +295,7 @@ M.initTextRowCrit = function(x, y, w, label, append_end)
          x_align = 'right',
          text_color = _G_Patterns_.PRIMARY_FG,
          critical_color = _G_Patterns_.CRITICAL_FG,
+         critical_limit = limit,
          append_end = append_end,
          text = '<NA>',
          font_spec = M.normal_font_spec,

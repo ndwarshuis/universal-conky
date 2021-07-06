@@ -61,6 +61,7 @@ local dial = _G_Widget_.Dial{
 	thickness 		= _DIAL_THICKNESS_,
 	critical_limit 	= '>0.8',
 	dial_pattern	= _G_Patterns_.INDICATOR_FG_PRIMARY,
+	critical_pattern = _G_Patterns_.INDICATOR_FG_CRITICAL,
     arc_pattern     = _G_Patterns_.INDICATOR_BG
 }
 local cache_arc = _G_Widget_.Arc{
@@ -89,7 +90,8 @@ local swap = Common.initTextRowCrit(
    -- TODO this is silly
    _RIGHT_X_ - _TEXT_LEFT_X_,
    'Swap Usage',
-   ' %'
+   ' %',
+   '80'
 )
 
 local cache = {
