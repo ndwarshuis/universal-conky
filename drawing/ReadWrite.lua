@@ -1,9 +1,7 @@
 local M = {}
 
-local Text		= require 'Text'
-local Line		= require 'Line'
-local ScalePlot = require 'ScalePlot'
 local Util		= require 'Util'
+local Common	= require 'Common'
 
 local __tonumber 	= tonumber
 local __string_match = string.match
@@ -26,17 +24,15 @@ local update_stat = function(cr, stat, byte_cnt, update_frequency)
 	local delta_bytes = byte_cnt - stat.prev_byte_cnt
 	stat.prev_byte_cnt = byte_cnt
 
+    local text_value = '0.00 B/s'
+    local plot_value = 0
 	if delta_bytes > 0 then
 		local bps = delta_bytes * update_frequency
 		local unit, value = Util.convert_data_val(bps)
-		stat.rate.append_end = ' '..unit..'B/s'
-		Text.set(stat.rate, cr, Util.precision_round_to_string(value, 3))
-		ScalePlot.update(stat.plot, cr, bps)
-	else
-		stat.rate.append_end = ' B/s'
-		Text.set(stat.rate, cr, '0.00')
-		ScalePlot.update(stat.plot, cr, 0)
+        text_value = Util.precision_round_to_string(value, 3)..' '..unit..'B/s'
+        plot_value = bps
 	end
+    Common.annotated_scale_plot_set(stat, cr, text_value, plot_value)
 end
 
 local io_label_function = function(bytes)
@@ -48,73 +44,35 @@ local io_label_function = function(bytes)
 	return Util.round_to_string(new_value, precision)..' '..new_unit..'B/s'
 end
 
-local header = _G_Widget_.Header{
-	x = _G_INIT_DATA_.CENTER_LEFT_X,
-	y = _G_INIT_DATA_.TOP_Y,
-	width = _G_INIT_DATA_.SECTION_WIDTH,
-	header = 'INPUT / OUTPUT'
-}
+local header = Common.Header(
+	_G_INIT_DATA_.CENTER_LEFT_X,
+	_G_INIT_DATA_.TOP_Y,
+	_G_INIT_DATA_.SECTION_WIDTH,
+	'INPUT / OUTPUT'
+)
 
-local _RIGHT_X_ = _G_INIT_DATA_.CENTER_LEFT_X + _G_INIT_DATA_.SECTION_WIDTH
+local reads = Common.initLabeledScalePlot(
+      _G_INIT_DATA_.CENTER_LEFT_X,
+      header.bottom_y,
+      _G_INIT_DATA_.SECTION_WIDTH,
+      _PLOT_HEIGHT_,
+      io_label_function,
+      _PLOT_SEC_BREAK_,
+      'Reads'
+)
 
-local reads = {
-   label = _G_Widget_.Text{
-      x = _G_INIT_DATA_.CENTER_LEFT_X,
-      y = header.bottom_y,
-      text = 'Reads',
-   },
-   rate = _G_Widget_.Text{
-      x = _RIGHT_X_,
-      y = header.bottom_y,
-      x_align = 'right',
-      append_end=' B/s',
-      text_color = _G_Patterns_.PRIMARY_FG
-   },
-   plot = _G_Widget_.ScalePlot{
-      x = _G_INIT_DATA_.CENTER_LEFT_X,
-      y = header.bottom_y + _PLOT_SEC_BREAK_,
-      width = _G_INIT_DATA_.SECTION_WIDTH,
-      height = _PLOT_HEIGHT_,
-      y_label_func = io_label_function,
-      outline_pattern = _G_Patterns_.BORDER_FG,
-      intrvl_pattern = _G_Patterns_.BORDER_FG,
-      data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
-      data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
-   }
-}
-
-local _WRITE_Y_ = header.bottom_y + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
-
-local writes = {
-   label = _G_Widget_.Text{
-      x = _G_INIT_DATA_.CENTER_LEFT_X,
-      y = _WRITE_Y_,
-      text = 'Writes',
-   },
-   rate = _G_Widget_.Text{
-      x = _RIGHT_X_,
-      y = _WRITE_Y_,
-      x_align = 'right',
-      append_end =' B/s',
-      text_color = _G_Patterns_.PRIMARY_FG
-   },
-   plot = _G_Widget_.ScalePlot{
-      x = _G_INIT_DATA_.CENTER_LEFT_X,
-      y = _WRITE_Y_ + _PLOT_SEC_BREAK_,
-      width = _G_INIT_DATA_.SECTION_WIDTH,
-      height = _PLOT_HEIGHT_,
-      y_label_func = io_label_function,
-      outline_pattern = _G_Patterns_.BORDER_FG,
-      intrvl_pattern = _G_Patterns_.BORDER_FG,
-      data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
-      data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
-   }
-}
+local writes = Common.initLabeledScalePlot(
+      _G_INIT_DATA_.CENTER_LEFT_X,
+      header.bottom_y + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2,
+      _G_INIT_DATA_.SECTION_WIDTH,
+      _PLOT_HEIGHT_,
+      io_label_function,
+      _PLOT_SEC_BREAK_,
+      'Writes'
+)
 
 _PLOT_SEC_BREAK_ = nil
 _PLOT_HEIGHT_ = nil
-_RIGHT_X_ = nil
-_WRITE_Y_ = nil
 
 reads.byte_cnt = 0
 writes.byte_cnt = 0
@@ -127,21 +85,15 @@ local update = function(cr, update_frequency)
 end
 
 local draw_static = function(cr)
-   Text.draw(header.text, cr)
-   Line.draw(header.underline, cr)
-
-   Text.draw(reads.label, cr)
-   Text.draw(writes.label, cr)
+   Common.drawHeader(cr, header)
+   Common.annotated_scale_plot_draw_static(reads, cr)
+   Common.annotated_scale_plot_draw_static(writes, cr)
 end
 
 local draw_dynamic = function(cr, update_frequency)
    update(cr, update_frequency)
-
-   Text.draw(reads.rate, cr)
-   ScalePlot.draw_dynamic(reads.plot, cr)
-
-   Text.draw(writes.rate, cr)
-   ScalePlot.draw_dynamic(writes.plot, cr)
+   Common.annotated_scale_plot_draw_dynamic(reads, cr)
+   Common.annotated_scale_plot_draw_dynamic(writes, cr)
 end
 
 M.draw_static = draw_static

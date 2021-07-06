@@ -126,28 +126,29 @@ local Power 		= require 'Power'
 local ReadWrite		= require 'ReadWrite'
 local Graphics		= require 'Graphics'
 local Memory		= require 'Memory'
+local Common		= require 'Common'
 
 --
 -- initialize static surfaces
 --
-local left = _G_Widget_.Panel{
-	x = _G_INIT_DATA_.LEFT_X - _G_INIT_DATA_.PANEL_MARGIN_X,
-	y = _G_INIT_DATA_.TOP_Y - _G_INIT_DATA_.PANEL_MARGIN_Y,
-	width = _G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2,
-	height = _G_INIT_DATA_.SIDE_HEIGHT + _G_INIT_DATA_.PANEL_MARGIN_Y * 2,
-}
-local center = _G_Widget_.Panel{
-	x = _G_INIT_DATA_.CENTER_LEFT_X - _G_INIT_DATA_.PANEL_MARGIN_X,
-	y = _G_INIT_DATA_.TOP_Y - _G_INIT_DATA_.PANEL_MARGIN_Y,
-	width = _G_INIT_DATA_.CENTER_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_Y * 2 + _G_INIT_DATA_.CENTER_PAD,
-	height = _G_INIT_DATA_.CENTER_HEIGHT + _G_INIT_DATA_.PANEL_MARGIN_Y * 2,
-}
-local right = _G_Widget_.Panel{
-	x = _G_INIT_DATA_.RIGHT_X - _G_INIT_DATA_.PANEL_MARGIN_X,
-	y = _G_INIT_DATA_.TOP_Y - _G_INIT_DATA_.PANEL_MARGIN_Y,
-	width = _G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2,
-	height = _G_INIT_DATA_.SIDE_HEIGHT + _G_INIT_DATA_.PANEL_MARGIN_Y * 2,
-}
+local left = Common.initPanel(
+	_G_INIT_DATA_.LEFT_X - _G_INIT_DATA_.PANEL_MARGIN_X,
+	_G_INIT_DATA_.TOP_Y - _G_INIT_DATA_.PANEL_MARGIN_Y,
+	_G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2,
+	_G_INIT_DATA_.SIDE_HEIGHT + _G_INIT_DATA_.PANEL_MARGIN_Y * 2
+)
+local center = Common.initPanel(
+	_G_INIT_DATA_.CENTER_LEFT_X - _G_INIT_DATA_.PANEL_MARGIN_X,
+	_G_INIT_DATA_.TOP_Y - _G_INIT_DATA_.PANEL_MARGIN_Y,
+	_G_INIT_DATA_.CENTER_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_Y * 2 + _G_INIT_DATA_.CENTER_PAD,
+	_G_INIT_DATA_.CENTER_HEIGHT + _G_INIT_DATA_.PANEL_MARGIN_Y * 2
+)
+local right = Common.initPanel(
+	_G_INIT_DATA_.RIGHT_X - _G_INIT_DATA_.PANEL_MARGIN_X,
+	_G_INIT_DATA_.TOP_Y - _G_INIT_DATA_.PANEL_MARGIN_Y,
+	_G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2,
+	_G_INIT_DATA_.SIDE_HEIGHT + _G_INIT_DATA_.PANEL_MARGIN_Y * 2
+)
 
 local _make_static_surface = function(panel, ...)
    local x = panel.x - panel.thickness * 0.5

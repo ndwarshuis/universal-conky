@@ -1,15 +1,10 @@
 local M = {}
 
-local Arc 			= require 'Arc'
 local CompoundDial 	= require 'CompoundDial'
-local CriticalText	= require 'CriticalText'
-local Text			= require 'Text'
 local Line			= require 'Line'
-local LabelPlot		= require 'LabelPlot'
 local Table			= require 'Table'
 local Util			= require 'Util'
-
-local __string_format = string.format
+local Common		= require 'Common'
 
 local CORETEMP_PATH = '/sys/devices/platform/coretemp.0/hwmon/hwmon%i/%s'
 
@@ -72,34 +67,25 @@ local _create_core_ = function(cores, id, x, y)
          dial_pattern    = _G_Patterns_.INDICATOR_FG_PRIMARY,
          arc_pattern   = _G_Patterns_.INDICATOR_BG
 	  },
-	  inner_ring = _G_Widget_.Arc{
-		 x = x,
-		 y = y,
-		 radius = _DIAL_INNER_RADIUS_ - 2,
-		 theta0 = 0,
-		 theta1 = 360,
-         arc_pattern = _G_Patterns_.BORDER_FG
-	  },
-	  coretemp_text = _G_Widget_.CriticalText{
-		 x 				= x,
-		 y 				= y,
-		 x_align 	    = 'center',
-		 y_align 	    = 'center',
-		 append_end 		= '°C',
-		 critical_limit 	= '>90'
-	  },
+      text_ring = Common.initTextRing(
+         x,
+         y,
+         _DIAL_INNER_RADIUS_ - 2,
+		 '°C',
+		 '>90'
+      ),
 	  coretemp_path = string.format(CORETEMP_PATH, hwmon_index, 'temp'..(id + 2)..'_input'),
 	  conky_loads = conky_loads,
 	  conky_freqs = conky_freqs
    }
 end
 
-local header = _G_Widget_.Header{
-   x = _G_INIT_DATA_.LEFT_X,
-   y = _MODULE_Y_,
-   width = _G_INIT_DATA_.SECTION_WIDTH,
-   header = 'PROCESSOR'
-}
+local header = Common.Header(
+   _G_INIT_DATA_.LEFT_X,
+   _MODULE_Y_,
+   _G_INIT_DATA_.SECTION_WIDTH,
+   'PROCESSOR'
+)
 
 --we assume that this cpu has 4 physical cores with 2 logical each
 local cores = {}
@@ -111,98 +97,50 @@ for c = 0, NUM_PHYSICAL_CORES - 1 do
    _create_core_(cores, c, dial_x, dial_y)
 end
 
-local _RIGHT_X_ = _G_INIT_DATA_.LEFT_X + _G_INIT_DATA_.SECTION_WIDTH
-
 local _HWP_Y_ = header.bottom_y + _DIAL_OUTER_RADIUS_ * 2 + _PLOT_SECTION_BREAK_
-
-local hwp = {
-   label = _G_Widget_.Text{
-	  x 		= _G_INIT_DATA_.LEFT_X,
-	  y 		= _HWP_Y_,
-	  text 	= 'HWP Preference'
-   },
-   value = _G_Widget_.Text{
-	  x 			= _RIGHT_X_,
-	  y 			= _HWP_Y_,
-	  x_align 	= 'right',
-	  text_color 	= _G_Patterns_.PRIMARY_FG,
-	  text		= '<hwp_pref>'
-   }
-}
 
 local _FREQ_Y_ = _HWP_Y_ + _TEXT_SPACING_
 
-local ave_freq = {
-   label = _G_Widget_.Text{
-	  x 		= _G_INIT_DATA_.LEFT_X,
-	  y 		= _FREQ_Y_,
-	  text 	= 'Ave Freq'
-   },
-   value = _G_Widget_.Text{
-	  x 			= _RIGHT_X_,
-	  y 			= _FREQ_Y_,
-	  x_align 	= 'right',
-	  text_color 	= _G_Patterns_.PRIMARY_FG,
-	  text		= '<freq>'
-   }
-}
+local cpu_status = Common.initTextRows(
+   _G_INIT_DATA_.LEFT_X,
+   _HWP_Y_,
+   _G_INIT_DATA_.SECTION_WIDTH,
+   _TEXT_SPACING_,
+   {'HWP Preference', 'Ave Freq'}
+)
 
 local _SEP_Y_ = _FREQ_Y_ + _SEPARATOR_SPACING_
 
-local separator = _G_Widget_.Line{
-   p1 = {x = _G_INIT_DATA_.LEFT_X, y = _SEP_Y_},
-   p2 = {x = _RIGHT_X_, y = _SEP_Y_},
-   line_pattern = _G_Patterns_.BORDER_FG,
-}
+local separator = Common.initSeparator(
+   _G_INIT_DATA_.LEFT_X,
+   _SEP_Y_,
+   _G_INIT_DATA_.SECTION_WIDTH
+)
 
 local _LOAD_Y_ = _SEP_Y_ + _SEPARATOR_SPACING_
 
-local total_load = {
-   label = _G_Widget_.Text{
-	  x    = _G_INIT_DATA_.LEFT_X,
-	  y    = _LOAD_Y_,
-	  text = 'Total Load'
-   },
-   value = _G_Widget_.CriticalText{
-	  x 			    = _RIGHT_X_,
-	  y 			    = _LOAD_Y_,
-	  x_align 	    = 'right',
-	  append_end 	    = '%',
-	  critical_limit 	= '>80'
-   }
-}
-
 local _PLOT_Y_ = _LOAD_Y_ + _PLOT_SECTION_BREAK_
 
-local plot = _G_Widget_.LabelPlot{
-   x 		= _G_INIT_DATA_.LEFT_X,
-   y 		= _PLOT_Y_,
-   width 	= _G_INIT_DATA_.SECTION_WIDTH,
-   height 	= _PLOT_HEIGHT_,
-   outline_pattern = _G_Patterns_.BORDER_FG,
-   intrvl_pattern = _G_Patterns_.BORDER_FG,
-   data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
-   data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
-}
+local total_load = Common.initPercentPlot(
+   _G_INIT_DATA_.LEFT_X,
+   _LOAD_Y_,
+   _G_INIT_DATA_.SECTION_WIDTH,
+   _PLOT_HEIGHT_,
+   _PLOT_SECTION_BREAK_,
+   "Total Load"
+)
 
-local tbl = _G_Widget_.Table{
-   x 		 = _G_INIT_DATA_.LEFT_X,
-   y 		 = _PLOT_Y_ + _PLOT_HEIGHT_ + _TABLE_SECTION_BREAK_,
-   width 	 = _G_INIT_DATA_.SECTION_WIDTH,
-   height 	 = _TABLE_HEIGHT_,
-   num_rows = NUM_ROWS,
-   body_color = _G_Patterns_.INACTIVE_TEXT_FG,
-   header_color = _G_Patterns_.ACTIVE_FG,
-   line_pattern = _G_Patterns_.BORDER_FG,
-   separator_pattern = _G_Patterns_.BORDER_FG,
-   'Name',
-   'PID',
-   'CPU (%)'
-}
+local tbl = Common.initTable(
+   _G_INIT_DATA_.LEFT_X,
+   _PLOT_Y_ + _PLOT_HEIGHT_ + _TABLE_SECTION_BREAK_,
+   _G_INIT_DATA_.SECTION_WIDTH,
+   _TABLE_HEIGHT_,
+   NUM_ROWS,
+   {'Name', 'PID', 'CPU (%)'}
+)
 
 local update = function(cr)
    local conky = Util.conky
-   local char_count = Util.char_count
 
    local load_sum = 0
    local freq_sum = 0
@@ -221,10 +159,9 @@ local update = function(cr)
 		 freq_sum = freq_sum + Util.conky_numeric(conky_freqs[t])
 	  end
 
-	  CriticalText.set(
-         core.coretemp_text, cr,
-         Util.round_to_string(
-            0.001 * Util.read_file(core.coretemp_path, nil, '*n')))
+      Common.text_ring_set(core.text_ring, cr,
+                           Util.round_to_string(
+                              0.001 * Util.read_file(core.coretemp_path, nil, '*n')))
    end
 
    -- read HWP of first cpu, then test all others to see if they match
@@ -239,29 +176,25 @@ local update = function(cr)
       i = i + 1
    end
 
+   local hwp_val = "Unknown"
    if mixed then
-      Text.set(hwp.value, cr, "Mixed")
+      hwp_val = "Mixed"
    elseif hwp_pref == "power" then
-      Text.set(hwp.value, cr, "Power")
+      hwp_val = "Power"
    elseif hwp_pref == "balance_power" then
-      Text.set(hwp.value, cr, "Bal. Power")
+      hwp_val = "Bal. Power"
    elseif hwp_pref == "balance_performance" then
-      Text.set(hwp.value, cr, "Bal. Performance")
+      hwp_val = "Bal. Performance"
    elseif hwp_pref == "performance" then
-      Text.set(hwp.value, cr, "Performance")
+      hwp_val = "Performance"
    elseif hwp_pref == "default" then
-      Text.set(hwp.value, cr, "Default")
-   else
-      Text.set(hwp.value, cr, "Unknown")
+      hwp_val = "Default"
    end
+   Common.text_rows_set(cpu_status, cr, 1, hwp_val)
+   Common.text_rows_set(cpu_status, cr, 2,
+                        Util.round_to_string(freq_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE) .. ' MHz')
 
-   Text.set(ave_freq.value, cr, Util.round_to_string(freq_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE) .. ' MHz')
-
-   local load_percent = Util.round(load_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE, 2)
-   CriticalText.set(total_load.value, cr,
-                    Util.round_to_string(load_percent * 100))
-
-   LabelPlot.update(plot, load_percent)
+   Common.percent_plot_set(total_load, cr, load_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE * 100)
 
    for r = 1, NUM_ROWS do
       local pid = conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
@@ -289,50 +222,40 @@ _TABLE_HEIGHT_ = nil
 _create_core_ = nil
 _FREQ_Y_ = nil
 _LOAD_Y_ = nil
-_RIGHT_X_ = nil
 _SEP_Y_ = nil
 _HWP_Y_ = nil
 _PLOT_Y_ = nil
 
-local draw_static = function(cr)
-   Text.draw(header.text, cr)
-   Line.draw(header.underline, cr)
+M.draw_static = function(cr)
+   Common.drawHeader(cr, header)
 
    for c = 1, NUM_PHYSICAL_CORES do
 	  local this_core = cores[c]
-	  Arc.draw(this_core.inner_ring, cr)
+      Common.text_ring_draw_static(this_core.text_ring, cr)
 	  CompoundDial.draw_static(this_core.dials, cr)
    end
 
-   Text.draw(hwp.label, cr)
-   Text.draw(ave_freq.label, cr)
+   Common.text_rows_draw_static(cpu_status, cr)
    Line.draw(separator, cr)
 
-   Text.draw(total_load.label, cr)
-   LabelPlot.draw_static(plot, cr)
+   Common.percent_plot_draw_static(total_load, cr)
 
    Table.draw_static(tbl, cr)
 end
 
-local draw_dynamic = function(cr)
+M.draw_dynamic = function(cr)
    update(cr)
 
    for c = 1, NUM_PHYSICAL_CORES do
 	  local this_core = cores[c]
 	  CompoundDial.draw_dynamic(this_core.dials, cr)
-	  CriticalText.draw(this_core.coretemp_text, cr)
+      Common.text_ring_draw_dynamic(this_core.text_ring, cr)
    end
 
-   Text.draw(hwp.value, cr)
-   Text.draw(ave_freq.value, cr)
-
-   CriticalText.draw(total_load.value, cr)
-   LabelPlot.draw_dynamic(plot, cr)
+   Common.text_rows_draw_dynamic(cpu_status, cr)
+   Common.percent_plot_draw_dynamic(total_load, cr)
 
    Table.draw_dynamic(tbl, cr)
 end
-
-M.draw_static = draw_static
-M.draw_dynamic = draw_dynamic
 
 return M

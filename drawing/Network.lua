@@ -1,9 +1,7 @@
 local M = {}
 
-local Text		= require 'Text'
-local Line		= require 'Line'
-local ScalePlot = require 'ScalePlot'
 local Util		= require 'Util'
+local Common	= require 'Common'
 
 local __string_gmatch = string.gmatch
 
@@ -16,66 +14,32 @@ local network_label_function = function(bits)
 	return Util.round_to_string(new_value, precision)..' '..new_unit..'b/s'
 end
 
-local header = _G_Widget_.Header{
-	x = _G_INIT_DATA_.CENTER_RIGHT_X,
-	y = _G_INIT_DATA_.TOP_Y,
-	width = _G_INIT_DATA_.SECTION_WIDTH,
-	header = 'NETWORK'
-}
+local header = Common.Header(
+	_G_INIT_DATA_.CENTER_RIGHT_X,
+	_G_INIT_DATA_.TOP_Y,
+	_G_INIT_DATA_.SECTION_WIDTH,
+	'NETWORK'
+)
 
-local _RIGHT_X_ = _G_INIT_DATA_.CENTER_RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH
+local dnload = Common.initLabeledScalePlot(
+      _G_INIT_DATA_.CENTER_RIGHT_X,
+      header.bottom_y,
+      _G_INIT_DATA_.SECTION_WIDTH,
+      _PLOT_HEIGHT_,
+      network_label_function,
+      _PLOT_SEC_BREAK_,
+      'Download'
+)
 
-local dnload = {
-   label = _G_Widget_.Text{
-      x = _G_INIT_DATA_.CENTER_RIGHT_X,
-      y = header.bottom_y,
-      text = 'Download',
-   },
-   speed = _G_Widget_.Text{
-      x = _RIGHT_X_,
-      y = header.bottom_y,
-      x_align = 'right',
-      text_color = _G_Patterns_.PRIMARY_FG
-   },
-   plot = _G_Widget_.ScalePlot{
-      x = _G_INIT_DATA_.CENTER_RIGHT_X,
-      y = header.bottom_y + _PLOT_SEC_BREAK_,
-      width = _G_INIT_DATA_.SECTION_WIDTH,
-      height = _PLOT_HEIGHT_,
-      y_label_func = network_label_function,
-      outline_pattern = _G_Patterns_.BORDER_FG,
-      intrvl_pattern = _G_Patterns_.BORDER_FG,
-      data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
-      data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
-   }
-}
-
-local _UPLOAD_Y_ = header.bottom_y + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
-
-local upload = {
-   label = _G_Widget_.Text{
-      x = _G_INIT_DATA_.CENTER_RIGHT_X,
-      y = _UPLOAD_Y_,
-      text = 'Upload',
-   },
-   speed = _G_Widget_.Text{
-      x = _RIGHT_X_,
-      y = _UPLOAD_Y_,
-      x_align = 'right',
-      text_color = _G_Patterns_.PRIMARY_FG
-   },
-   plot = _G_Widget_.ScalePlot{
-      x = _G_INIT_DATA_.CENTER_RIGHT_X,
-      y = _UPLOAD_Y_ + _PLOT_SEC_BREAK_,
-      width = _G_INIT_DATA_.SECTION_WIDTH,
-      height = _PLOT_HEIGHT_,
-      y_label_func = network_label_function,
-      outline_pattern = _G_Patterns_.BORDER_FG,
-      intrvl_pattern = _G_Patterns_.BORDER_FG,
-      data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
-      data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
-   }
-}
+local upload = Common.initLabeledScalePlot(
+      _G_INIT_DATA_.CENTER_RIGHT_X,
+      header.bottom_y + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2,
+      _G_INIT_DATA_.SECTION_WIDTH,
+      _PLOT_HEIGHT_,
+      network_label_function,
+      _PLOT_SEC_BREAK_,
+      'Upload'
+)
 
 local interface_counters_tbl = {}
 
@@ -125,37 +89,33 @@ local update = function(cr, update_frequency)
 	local dspeed_unit, dspeed_value = Util.convert_data_val(dspeed)
 	local uspeed_unit, uspeed_value = Util.convert_data_val(uspeed)
 
-	dnload.speed.append_end = ' '..dspeed_unit..'b/s'
-	upload.speed.append_end = ' '..uspeed_unit..'b/s'
-
-	Text.set(dnload.speed, cr, Util.precision_round_to_string(dspeed_value, 3))
-	Text.set(upload.speed, cr, Util.precision_round_to_string(uspeed_value, 3))
-
-	ScalePlot.update(dnload.plot, cr, dspeed)
-	ScalePlot.update(upload.plot, cr, uspeed)
+    Common.annotated_scale_plot_set(
+       dnload,
+       cr,
+       Util.precision_round_to_string(dspeed_value, 3)..' '..dspeed_unit..'b/s',
+       dspeed
+    )
+    Common.annotated_scale_plot_set(
+       upload,
+       cr,
+       Util.precision_round_to_string(uspeed_value, 3)..' '..uspeed_unit..'b/s',
+       uspeed
+    )
 end
 
 _PLOT_SEC_BREAK_ = nil
 _PLOT_HEIGHT_ = nil
-_RIGHT_X_ = nil
-_UPLOAD_Y_ = nil
 
 local draw_static = function(cr)
-   Text.draw(header.text, cr)
-   Line.draw(header.underline, cr)
-
-   Text.draw(dnload.label, cr)
-   Text.draw(upload.label, cr)
+   Common.drawHeader(cr, header)
+   Common.annotated_scale_plot_draw_static(dnload, cr)
+   Common.annotated_scale_plot_draw_static(upload, cr)
 end
 
 local draw_dynamic = function(cr, update_frequency)
    update(cr, update_frequency)
-
-   Text.draw(dnload.speed, cr)
-   ScalePlot.draw_dynamic(dnload.plot, cr)
-   
-   Text.draw(upload.speed, cr)
-   ScalePlot.draw_dynamic(upload.plot, cr)
+   Common.annotated_scale_plot_draw_dynamic(dnload, cr)
+   Common.annotated_scale_plot_draw_dynamic(upload, cr)
 end
 
 M.draw_static = draw_static

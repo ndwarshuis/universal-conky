@@ -2,21 +2,17 @@ local M = {}
 
 local Arc			= require 'Arc'
 local Dial 			= require 'Dial'
-local CriticalText	= require 'CriticalText'
-local Text			= require 'Text'
 local TextColumn	= require 'TextColumn'
-local Line			= require 'Line'
 local LabelPlot		= require 'LabelPlot'
 local Table			= require 'Table'
 local Util			= require 'Util'
+local Common		= require 'Common'
 
 local __string_match		= string.match
 local __cairo_path_destroy 	= cairo_path_destroy
-local __io_popen            = io.popen
 
 local _MODULE_Y_ = 712
 local _DIAL_THICKNESS_ = 8
-local _DIAL_SPACING_ = 1
 local _TEXT_Y_OFFSET_ = 7
 local _TEXT_LEFT_X_OFFSET_ = 30
 local _TEXT_SPACING_ = 20
@@ -45,12 +41,12 @@ for r = 1, NUM_ROWS do
    TABLE_CONKY[r].mem = '${top_mem mem '..r..'}'
 end
 
-local header = _G_Widget_.Header{
-	x = _G_INIT_DATA_.RIGHT_X,
-	y = _MODULE_Y_,
-	width = _G_INIT_DATA_.SECTION_WIDTH,
-	header = 'MEMORY'
-}
+local header = Common.Header(
+	_G_INIT_DATA_.RIGHT_X,
+	_MODULE_Y_,
+	_G_INIT_DATA_.SECTION_WIDTH,
+	'MEMORY'
+)
 
 local DIAL_RADIUS = 32
 local DIAL_THETA_0 = math.rad(90)
@@ -60,7 +56,7 @@ local DIAL_Y = header.bottom_y + DIAL_RADIUS + _DIAL_THICKNESS_ / 2
 
 local dial = _G_Widget_.Dial{
 	x 				= DIAL_X,
-	y 				= DIAL_Y,			
+	y 				= DIAL_Y,
 	radius 			= DIAL_RADIUS,
 	thickness 		= _DIAL_THICKNESS_,
 	critical_limit 	= '>0.8',
@@ -69,53 +65,39 @@ local dial = _G_Widget_.Dial{
 }
 local cache_arc = _G_Widget_.Arc{
 	x 			= DIAL_X,
-	y 			= DIAL_Y,			
+	y 			= DIAL_Y,
 	radius 		= DIAL_RADIUS,
 	thickness 	= _DIAL_THICKNESS_,
 	arc_pattern	= _G_Patterns_.INDICATOR_FG_SECONDARY
 }
 
-local total_used = _G_Widget_.CriticalText{
-	x 			= DIAL_X,
-	y 			= DIAL_Y,
-	x_align 	= 'center',
-	y_align 	= 'center',
-	append_end 	= '%'
-}
-
-local inner_ring = _G_Widget_.Arc{
-	x 		= DIAL_X,
-	y 		= DIAL_Y,
-	radius 	= DIAL_RADIUS - _DIAL_THICKNESS_ / 2 - 2,
-	theta0	= 0,
-	theta1	= 360,
-    arc_pattern = _G_Patterns_.BORDER_FG
-}
+local text_ring = Common.initTextRing(
+   DIAL_X,
+   DIAL_Y,
+   DIAL_RADIUS - _DIAL_THICKNESS_ / 2 - 2,
+   '%',
+   '>80'
+)
 
 local _LINE_1_Y_ = header.bottom_y + _TEXT_Y_OFFSET_
 local _TEXT_LEFT_X_ = _G_INIT_DATA_.RIGHT_X + DIAL_RADIUS * 2 + _TEXT_LEFT_X_OFFSET_
 local _RIGHT_X_ = _G_INIT_DATA_.RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH
 
-local swap= {
-	label = _G_Widget_.Text{
-		x 		= _TEXT_LEFT_X_,
-		y 		= _LINE_1_Y_,
-		spacing = _TEXT_SPACING_,
-		text	= 'Swap Usage'
-	},
-	percent = _G_Widget_.CriticalText{
-		x 			= _RIGHT_X_,
-		y 			= _LINE_1_Y_,
-		x_align 	= 'right',
-		append_end 	= ' %',
-	},
-}
+local swap = Common.initTextRowCrit(
+   _TEXT_LEFT_X_,
+   _LINE_1_Y_,
+   -- TODO this is silly
+   _RIGHT_X_ - _TEXT_LEFT_X_,
+   'Swap Usage',
+   ' %'
+)
 
 local cache = {
 	labels = _G_Widget_.TextColumn{
 		x 		= _TEXT_LEFT_X_,
 		y 		= _LINE_1_Y_ + _TEXT_SPACING_,
 		spacing = _TEXT_SPACING_,
+        text_color = _G_Patterns_.INACTIVE_TEXT_FG,
 		'Page Cache',
 		'Buffers',
 		'Kernel Slab'
@@ -134,30 +116,21 @@ local cache = {
 
 local _PLOT_Y_ = _PLOT_SECTION_BREAK_ + header.bottom_y + DIAL_RADIUS * 2
 
-local plot = _G_Widget_.LabelPlot{
-   x = _G_INIT_DATA_.RIGHT_X,
-   y = _PLOT_Y_,
-   width = _G_INIT_DATA_.SECTION_WIDTH,
-   height = _PLOT_HEIGHT_,
-   outline_pattern = _G_Patterns_.BORDER_FG,
-   intrvl_pattern = _G_Patterns_.BORDER_FG,
-   data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
-   data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
-}
+local plot = Common.initThemedLabelPlot(
+   _G_INIT_DATA_.RIGHT_X,
+   _PLOT_Y_,
+   _G_INIT_DATA_.SECTION_WIDTH,
+   _PLOT_HEIGHT_
+)
 
-local tbl = _G_Widget_.Table{
-   x = _G_INIT_DATA_.RIGHT_X,
-   y = _PLOT_Y_ + _PLOT_HEIGHT_ + _TABLE_SECTION_BREAK_,
-   width = _G_INIT_DATA_.SECTION_WIDTH,
-   height = _TABLE_HEIGHT_,
-   body_color = _G_Patterns_.INACTIVE_TEXT_FG,
-   header_color = _G_Patterns_.PRIMARY_FG,
-   line_pattern = _G_Patterns_.BORDER_FG,
-   separator_pattern = _G_Patterns_.BORDER_FG,
-   'Name',
-   'PID',
-   'Mem (%)'
-}
+local tbl = Common.initTable(
+   _G_INIT_DATA_.RIGHT_X,
+   _PLOT_Y_ + _PLOT_HEIGHT_ + _TABLE_SECTION_BREAK_,
+   _G_INIT_DATA_.SECTION_WIDTH,
+   _TABLE_HEIGHT_,
+   NUM_ROWS,
+   {'Name', 'PID', 'Mem (%)'}
+)
 
 local update = function(cr)
    local conky = Util.conky
@@ -169,14 +142,16 @@ local update = function(cr)
    local used_percent = (MEM_TOTAL_KB - memfree_kb - cached_kb - buffers_kb - slab_reclaimable_kb) / MEM_TOTAL_KB
 
    Dial.set(dial, used_percent)
-   CriticalText.set(total_used, cr, Util.round_to_string(used_percent * 100))
+   Common.text_ring_set(text_ring, cr, Util.round_to_string(used_percent * 100))
 
    local cache_theta = (DIAL_THETA_0 - DIAL_THETA_1) / MEM_TOTAL_KB * memfree_kb + DIAL_THETA_1
    __cairo_path_destroy(cache_arc.path)
    cache_arc.path = Arc.create_path(cr, DIAL_X, DIAL_Y, DIAL_RADIUS, dial.dial_angle, cache_theta)
 
-   CriticalText.set(swap.percent, cr, Util.precision_round_to_string(
-       (swap_total_kb - swap_free_kb) /	swap_total_kb * 100))
+   Common.text_row_crit_set(swap, cr,
+                            Util.precision_round_to_string(
+                               (swap_total_kb - swap_free_kb)
+                               / swap_total_kb * 100))
 
    local _percents = cache.percents
 
@@ -216,36 +191,32 @@ _TEXT_LEFT_X_ = nil
 _RIGHT_X_ = nil
 _PLOT_Y_ = nil
 
-local draw_static = function(cr)
-   Text.draw(header.text, cr)
-   Line.draw(header.underline, cr)
+M.draw_static = function(cr)
+   Common.drawHeader(cr, header)
 
-   Arc.draw(inner_ring, cr)
+   Common.text_ring_draw_static(text_ring, cr)
    Dial.draw_static(dial, cr)
 
-   Text.draw(swap.label, cr)
+   Common.text_row_crit_draw_static(swap, cr)
    TextColumn.draw(cache.labels, cr)
    LabelPlot.draw_static(plot, cr)
 
    Table.draw_static(tbl, cr)
 end
 
-local draw_dynamic = function(cr)
+M.draw_dynamic = function(cr)
    update(cr)
 
    Dial.draw_dynamic(dial, cr)
    Arc.draw(cache_arc, cr)
-   CriticalText.draw(total_used, cr)
+   Common.text_ring_draw_dynamic(text_ring, cr)
 
-   CriticalText.draw(swap.percent, cr)
+   Common.text_row_crit_draw_dynamic(swap, cr)
    TextColumn.draw(cache.percents, cr)
-   
+
    LabelPlot.draw_dynamic(plot, cr)
-		
+
    Table.draw_dynamic(tbl, cr)
 end
-
-M.draw_static = draw_static
-M.draw_dynamic = draw_dynamic
 
 return M
