@@ -135,6 +135,7 @@ local nvidia_off = function(cr)
    Common.text_rows_set.set(clock_speed, cr, 1, NA)
    Common.text_rows_set.set(clock_speed, cr, 2, NA)
 
+   -- TODO refactor this
    Text.set(gpu_util.value, cr, NA)
    Text.set(mem_util.value, cr, NA)
    Text.set(vid_util.value, cr, NA)

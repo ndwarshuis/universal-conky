@@ -93,25 +93,27 @@ local swap = Common.initTextRowCrit(
 )
 
 local cache = {
-	labels = _G_Widget_.TextColumn{
-		x 		= _TEXT_LEFT_X_,
-		y 		= _LINE_1_Y_ + _TEXT_SPACING_,
-		spacing = _TEXT_SPACING_,
-        text_color = _G_Patterns_.INACTIVE_TEXT_FG,
-		'Page Cache',
-		'Buffers',
-		'Kernel Slab'
-	},
-	percents = _G_Widget_.TextColumn{
-		x 			= _RIGHT_X_,
-		y 			= _LINE_1_Y_ + _TEXT_SPACING_,
-		x_align 	= 'right',
-		append_end 	= ' %',
-		text_color	= _G_Patterns_.SECONDARY_FG,
-		'<cached_kb>',
-		'<buffers_kb>',
-		'<kernel_slab>'
-	},
+   labels = _G_Widget_.TextColumn{
+      x 		= _TEXT_LEFT_X_,
+      y 		= _LINE_1_Y_ + _TEXT_SPACING_,
+      spacing = _TEXT_SPACING_,
+      text_color = _G_Patterns_.INACTIVE_TEXT_FG,
+      font_spec = Common.normal_font_spec,
+      'Page Cache',
+      'Buffers',
+      'Kernel Slab'
+   },
+   percents = _G_Widget_.TextColumn{
+      x 			= _RIGHT_X_,
+      y 			= _LINE_1_Y_ + _TEXT_SPACING_,
+      x_align 	= 'right',
+      append_end 	= ' %',
+      text_color	= _G_Patterns_.SECONDARY_FG,
+      font_spec = Common.normal_font_spec,
+      '<cached_kb>',
+      '<buffers_kb>',
+      '<kernel_slab>'
+   },
 }
 
 local _PLOT_Y_ = _PLOT_SECTION_BREAK_ + header.bottom_y + DIAL_RADIUS * 2

@@ -62,6 +62,7 @@ local labels = _G_Widget_.TextColumn{
 	y 		= _BAR_Y_,
 	spacing = _SPACING_,
     text_color = _G_Patterns_.INACTIVE_TEXT_FG,
+    font_spec = Common.normal_font_spec,
 	'root',
 	'boot',
 	'home',
@@ -88,7 +89,7 @@ local update = function(cr)
    end
 end
 
-local draw_static = function(cr)
+M.draw_static = function(cr)
    Common.drawHeader(cr, header)
 
    Common.text_row_draw_static(smart, cr)
@@ -98,15 +99,12 @@ local draw_static = function(cr)
    CompoundBar.draw_static(bars, cr)
 end
 
-local draw_dynamic = function(cr, trigger)
+M.draw_dynamic = function(cr, trigger)
    if trigger == 0 then update(cr) end
 
    Common.text_row_draw_dynamic(smart, cr)
 
    CompoundBar.draw_dynamic(bars, cr)
 end
-
-M.draw_static = draw_static
-M.draw_dynamic = draw_dynamic
 
 return M

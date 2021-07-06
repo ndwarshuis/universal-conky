@@ -3,6 +3,7 @@ local M = {}
 local Color = require 'Color'
 local Util 	= require 'Util'
 
+M.FONT = 'Neuropolitical'
 -- text colors
 M.HEADER_FG = Color.init{hex_rgba = 0xffffff}
 
