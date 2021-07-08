@@ -101,6 +101,7 @@ local cache = {
       spacing = _TEXT_SPACING_,
       text_color = _G_Patterns_.INACTIVE_TEXT_FG,
       font_spec = Common.normal_font_spec,
+      x_align = 'left',
       'Page Cache',
       'Buffers',
       'Kernel Slab'

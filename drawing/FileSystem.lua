@@ -64,6 +64,7 @@ local labels = _G_Widget_.TextColumn{
 	spacing = _SPACING_,
     text_color = _G_Patterns_.INACTIVE_TEXT_FG,
     font_spec = Common.normal_font_spec,
+    x_align = 'left',
 	'root',
 	'boot',
 	'home',
