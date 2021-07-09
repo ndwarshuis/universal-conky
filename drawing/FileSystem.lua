@@ -79,6 +79,7 @@ local labels = _G_Widget_.TextColumn{
     text_color = _G_Patterns_.INACTIVE_TEXT_FG,
     font_spec = Common.normal_font_spec,
     x_align = 'left',
+    y_align = 'center',
 	'root',
 	'boot',
 	'home',

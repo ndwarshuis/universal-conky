@@ -123,6 +123,7 @@ local cache = {
       text_color = _G_Patterns_.INACTIVE_TEXT_FG,
       font_spec = Common.normal_font_spec,
       x_align = 'left',
+      y_align = 'center',
       'Page Cache',
       'Buffers',
       'Kernel Slab'
@@ -131,6 +132,7 @@ local cache = {
       x 			= _RIGHT_X_,
       y 			= _LINE_1_Y_ + _TEXT_SPACING_,
       x_align 	= 'right',
+      y_align 	= 'center',
       append_end 	= ' %',
       text_color	= _G_Patterns_.SECONDARY_FG,
       font_spec = Common.normal_font_spec,
