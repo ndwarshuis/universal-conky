@@ -51,13 +51,20 @@ M.Header = function(x, y, w, s)
          -- weight 	= HEADER_FONT_WEIGHT
       },
       bottom_y = bottom_y,
-      underline = _G_Widget_.Line{
-         p1 			= {x = x, y = underline_y},
-         p2 			= {x = x + w, y = underline_y},
-         thickness 		= HEADER_UNDERLINE_THICKNESS,
-         line_pattern 	= _G_Patterns_.HEADER_FG,
-         cap 			= HEADER_UNDERLINE_CAP
-      }
+      -- underline = _G_Widget_.Line{
+      --    p1 			= {x = x, y = underline_y},
+      --    p2 			= {x = x + w, y = underline_y},
+      --    thickness 		= HEADER_UNDERLINE_THICKNESS,
+      --    line_pattern 	= _G_Patterns_.HEADER_FG,
+      --    cap 			= HEADER_UNDERLINE_CAP
+      -- }
+      underline = _G_Widget_.Line(
+         HEADER_UNDERLINE_THICKNESS,
+         HEADER_UNDERLINE_CAP,
+         _G_Patterns_.HEADER_FG,
+         {x = x, y = underline_y},
+         {x = x + w, y = underline_y}
+      )
    }
 
    return obj
@@ -245,11 +252,18 @@ end
 -- separator (eg a horizontal line)
 
 M.initSeparator = function(x, y, w)
-   return _G_Widget_.Line{
-      p1 = {x = x, y = y},
-      p2 = {x = x + w, y = y},
-      line_pattern = _G_Patterns_.BORDER_FG,
-   }
+   -- return _G_Widget_.Line{
+   --    p1 = {x = x, y = y},
+   --    p2 = {x = x + w, y = y},
+   --    line_pattern = _G_Patterns_.BORDER_FG,
+   -- }
+   return _G_Widget_.Line(
+      1,
+      CAIRO_LINE_CAP_BUTT,
+      _G_Patterns_.BORDER_FG,
+      {x = x, y = y},
+      {x = x + w, y = y}
+   )
 end
 
 --------------------------------------------------------------------------------
