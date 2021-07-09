@@ -56,18 +56,32 @@ local _create_core_ = function(cores, id, x, y)
    end
 
    cores[id +1] = {
-	  dials = _G_Widget_.CompoundDial{
-		 x 				= x,
-		 y 				= y,
-		 inner_radius 	= _DIAL_INNER_RADIUS_,
-		 outer_radius 	= _DIAL_OUTER_RADIUS_,
-		 spacing 		= _DIAL_SPACING_,
-		 num_dials 		= NUM_THREADS_PER_CORE,
-		 critical_limit	= 0.8,
-		 critical_pattern = _G_Patterns_.INDICATOR_FG_CRITICAL,
-         dial_pattern    = _G_Patterns_.INDICATOR_FG_PRIMARY,
-         arc_pattern   = _G_Patterns_.INDICATOR_BG
-	  },
+	  -- dials = _G_Widget_.CompoundDial{
+	  --    x 				= x,
+	  --    y 				= y,
+	  --    inner_radius 	= _DIAL_INNER_RADIUS_,
+	  --    outer_radius 	= _DIAL_OUTER_RADIUS_,
+	  --    spacing 		= _DIAL_SPACING_,
+	  --    num_dials 		= NUM_THREADS_PER_CORE,
+	  --    critical_limit	= 0.8,
+	  --    critical_pattern = _G_Patterns_.INDICATOR_FG_CRITICAL,
+      --    dial_pattern    = _G_Patterns_.INDICATOR_FG_PRIMARY,
+      --    arc_pattern   = _G_Patterns_.INDICATOR_BG
+	  -- },
+	  dials = _G_Widget_.CompoundDial(
+		 x,
+		 y,
+         90,
+         360,
+         _G_Patterns_.INDICATOR_BG,
+         _G_Patterns_.INDICATOR_FG_PRIMARY,
+		 _G_Patterns_.INDICATOR_FG_CRITICAL,
+		 0.8,
+		 _DIAL_INNER_RADIUS_,
+		 _DIAL_OUTER_RADIUS_,
+		 _DIAL_SPACING_,
+		 NUM_THREADS_PER_CORE
+	  ),
       text_ring = Common.initTextRing(
          x,
          y,

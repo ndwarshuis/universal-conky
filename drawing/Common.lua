@@ -190,14 +190,23 @@ end
 -- ring
 
 M.initRing = function(x, y, r)
-   return _G_Widget_.Arc{
-      x = x,
-      y = y,
-      radius = r,
-      theta0 = 0,
-      theta1 = 360,
-      arc_pattern = _G_Patterns_.BORDER_FG
-   }
+   -- return _G_Widget_.Arc{
+   --    x = x,
+   --    y = y,
+   --    radius = r,
+   --    theta0 = 0,
+   --    theta1 = 360,
+   --    arc_pattern = _G_Patterns_.BORDER_FG
+   -- }
+   return _G_Widget_.Arc(
+      x,
+      y,
+      r,
+      0,
+      360,
+      2,
+      _G_Patterns_.BORDER_FG
+   )
 end
 
 --------------------------------------------------------------------------------
