@@ -131,42 +131,29 @@ local Common		= require 'Common'
 --
 -- initialize static surfaces
 --
-local left = Common.initPanel(
-	_G_INIT_DATA_.LEFT_X - _G_INIT_DATA_.PANEL_MARGIN_X,
-	_G_INIT_DATA_.TOP_Y - _G_INIT_DATA_.PANEL_MARGIN_Y,
-	_G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2,
-	_G_INIT_DATA_.SIDE_HEIGHT + _G_INIT_DATA_.PANEL_MARGIN_Y * 2
-)
-local center = Common.initPanel(
-	_G_INIT_DATA_.CENTER_LEFT_X - _G_INIT_DATA_.PANEL_MARGIN_X,
-	_G_INIT_DATA_.TOP_Y - _G_INIT_DATA_.PANEL_MARGIN_Y,
-	_G_INIT_DATA_.CENTER_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_Y * 2 + _G_INIT_DATA_.CENTER_PAD,
-	_G_INIT_DATA_.CENTER_HEIGHT + _G_INIT_DATA_.PANEL_MARGIN_Y * 2
-)
-local right = Common.initPanel(
-	_G_INIT_DATA_.RIGHT_X - _G_INIT_DATA_.PANEL_MARGIN_X,
-	_G_INIT_DATA_.TOP_Y - _G_INIT_DATA_.PANEL_MARGIN_Y,
-	_G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2,
-	_G_INIT_DATA_.SIDE_HEIGHT + _G_INIT_DATA_.PANEL_MARGIN_Y * 2
-)
 
-local _make_static_surface = function(panel, ...)
-   local x = panel.x - panel.thickness * 0.5
-   local y = panel.y - panel.thickness * 0.5
-   local w = panel.width + panel.thickness
-   local h = panel.height + panel.thickness
+local _make_static_surface = function(x, y, w, h, modules)
+   local panel_line_thickness = 1
+   -- move over by half a pixel so the lines don't need to be antialiased
+   local _x = x + 0.5
+   local _y = y + 0.5
+   local panel = Common.initPanel(_x, _y, w, h, panel_line_thickness)
+   local cs_x = _x - panel_line_thickness * 0.5
+   local cs_y = _y - panel_line_thickness * 0.5
+   local cs_w = w + panel_line_thickness
+   local cs_h = h + panel_line_thickness
 
-   local cs = __cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h)
+   local cs = __cairo_image_surface_create(CAIRO_FORMAT_ARGB32, cs_w, cs_h)
    local cr = __cairo_create(cs)
 
-   __cairo_translate(cr, -x, -y)
+   __cairo_translate(cr, -cs_x, -cs_y)
 
    FillRect.draw(panel, cr)
-   for _, f in pairs({...}) do
+   for _, f in pairs(modules) do
       f(cr)
    end
    __cairo_destroy(cr)
-   return { x = x, y = y, s = cs }
+   return { x = cs_x, y = cs_y, s = cs }
 end
 
 local draw_static_surface = function(cr, cs_obj)
@@ -174,20 +161,29 @@ local draw_static_surface = function(cr, cs_obj)
    __cairo_paint(cr)
 end
 
-local cs_left = _make_static_surface(left,
-                                     System.draw_static,
-                                     Graphics.draw_static,
-                                     Processor.draw_static)
+local cs_left = _make_static_surface(
+	_G_INIT_DATA_.LEFT_X - _G_INIT_DATA_.PANEL_MARGIN_X,
+	_G_INIT_DATA_.TOP_Y - _G_INIT_DATA_.PANEL_MARGIN_Y,
+	_G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2,
+	_G_INIT_DATA_.SIDE_HEIGHT + _G_INIT_DATA_.PANEL_MARGIN_Y * 2,
+    {System.draw_static, Graphics.draw_static, Processor.draw_static}
+)
 
-local cs_center = _make_static_surface(center,
-                                       ReadWrite.draw_static,
-                                       Network.draw_static)
+local cs_center = _make_static_surface(
+   _G_INIT_DATA_.CENTER_LEFT_X - _G_INIT_DATA_.PANEL_MARGIN_X,
+   _G_INIT_DATA_.TOP_Y - _G_INIT_DATA_.PANEL_MARGIN_Y,
+   _G_INIT_DATA_.CENTER_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_Y * 2 + _G_INIT_DATA_.CENTER_PAD,
+   _G_INIT_DATA_.CENTER_HEIGHT + _G_INIT_DATA_.PANEL_MARGIN_Y * 2,
+   {ReadWrite.draw_static, Network.draw_static}
+)
 
-local cs_right = _make_static_surface(right,
-                                      Pacman.draw_static,
-                                      FileSystem.draw_static,
-                                      Power.draw_static,
-                                      Memory.draw_static)
+local cs_right = _make_static_surface(
+   _G_INIT_DATA_.RIGHT_X - _G_INIT_DATA_.PANEL_MARGIN_X,
+   _G_INIT_DATA_.TOP_Y - _G_INIT_DATA_.PANEL_MARGIN_Y,
+   _G_INIT_DATA_.SECTION_WIDTH + _G_INIT_DATA_.PANEL_MARGIN_X * 2,
+   _G_INIT_DATA_.SIDE_HEIGHT + _G_INIT_DATA_.PANEL_MARGIN_Y * 2,
+   {Pacman.draw_static, FileSystem.draw_static, Power.draw_static, Memory.draw_static}
+)
 
 --
 -- kill all the stuff we don't need for the main loop

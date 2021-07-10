@@ -515,14 +515,14 @@ end
 --------------------------------------------------------------------------------
 -- panel
 
-M.initPanel = function(x, y, w, h)
+M.initPanel = function(x, y, w, h, thickness)
    return _G_Widget_.FillRect(
       _G_Widget_.make_box(
-         _G_Widget_.make_point(x + 0.5, y + 0.5),
+         _G_Widget_.make_point(x, y),
          w,
          h
       ),
-      1,
+      thickness,
       _G_Patterns_.BORDER_FG,
       _G_Patterns_.PANEL_BG
    )
