@@ -61,8 +61,10 @@ local dial = _G_Widget_.Dial(
       90,
       360
    ),
-   _DIAL_THICKNESS_,
-   _G_Patterns_.INDICATOR_BG,
+   _G_Widget_.arc_style(
+      _DIAL_THICKNESS_,
+      _G_Patterns_.INDICATOR_BG
+   ),
    _G_Patterns_.INDICATOR_FG_PRIMARY,
    _G_Patterns_.INDICATOR_FG_CRITICAL,
    0.8
@@ -74,8 +76,10 @@ local cache_arc = _G_Widget_.Arc(
       90,
       360
    ),
-   _DIAL_THICKNESS_,
-   _G_Patterns_.INDICATOR_FG_SECONDARY
+   _G_Widget_.arc_style(
+      _DIAL_THICKNESS_,
+      _G_Patterns_.INDICATOR_FG_SECONDARY
+   )
 )
 
 local text_ring = Common.initTextRing(
