@@ -61,7 +61,7 @@ M.PLOT_FILL_BORDER_PRIMARY = Color.gradient_rgb{
 }
 
 M.PLOT_FILL_BG_PRIMARY = Color.gradient_rgba{
-   [0.2] = {PLOT_BLUE3, 0.0},
+   [0.2] = {PLOT_BLUE3, 0.5},
    [1.0] = {PLOT_BLUE4, 1.0}
 }
 

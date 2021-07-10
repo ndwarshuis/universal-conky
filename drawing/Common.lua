@@ -130,17 +130,30 @@ M.initPercentPlot = function(x, y, w, h, spacing, label)
       --    font_spec = M.normal_font_spec,
       -- },
       label = _left_text(x, y, label,  M.normal_font_spec, _G_Patterns_.INACTIVE_TEXT_FG),
-      value = _G_Widget_.CriticalText{
-         x = x + w,
-         y = y,
-         x_align = 'right',
-         y_align = 'center',
-         append_end = '%',
-         critical_limit = 80,
-         text_color = _G_Patterns_.PRIMARY_FG,
-         critical_color = _G_Patterns_.PRIMARY_FG,
-         font_spec = M.normal_font_spec,
-      },
+      value = _G_Widget_.CriticalText(
+         x + w,
+         y,
+         nil,
+         M.normal_font_spec,
+         _G_Patterns_.PRIMARY_FG,
+         _G_Patterns_.CRITICAL_FG,
+         80,
+         'right',
+         'center',
+         nil,
+         '%'
+      ),
+      -- value = _G_Widget_.CriticalText{
+      --    x = x + w,
+      --    y = y,
+      --    x_align = 'right',
+      --    y_align = 'center',
+      --    append_end = '%',
+      --    critical_limit = 80,
+      --    text_color = _G_Patterns_.PRIMARY_FG,
+      --    critical_color = _G_Patterns_.PRIMARY_FG,
+      --    font_spec = M.normal_font_spec,
+      -- },
       plot = M.initThemedLabelPlot(x, y + spacing, w, h),
    }
 end
@@ -249,17 +262,30 @@ end
 M.initTextRing = function(x, y, r, append_end, limit)
    return {
 	  ring = M.initRing(x, y, r),
-	  value = _G_Widget_.CriticalText{
-		 x = x,
-		 y = y,
-		 x_align = 'center',
-		 y_align = 'center',
-		 append_end = append_end,
-		 critical_limit = limit,
-         text_color = _G_Patterns_.PRIMARY_FG,
-         critical_color = _G_Patterns_.CRITICAL_FG,
-         font_spec = M.normal_font_spec,
-	  },
+	  -- value = _G_Widget_.CriticalText{
+	  --    x = x,
+	  --    y = y,
+	  --    x_align = 'center',
+	  --    y_align = 'center',
+	  --    append_end = append_end,
+	  --    critical_limit = limit,
+      --    text_color = _G_Patterns_.PRIMARY_FG,
+      --    critical_color = _G_Patterns_.CRITICAL_FG,
+      --    font_spec = M.normal_font_spec,
+	  -- },
+	  value = _G_Widget_.CriticalText(
+		 x,
+		 y,
+         nil,
+         M.normal_font_spec,
+         _G_Patterns_.PRIMARY_FG,
+         _G_Patterns_.CRITICAL_FG,
+		 limit,
+		 'center',
+		 'center',
+         nil,
+		 append_end
+	  ),
    }
 end
 
@@ -365,18 +391,31 @@ M.initTextRowCrit = function(x, y, w, label, append_end, limit)
          M.normal_font_spec,
          _G_Patterns_.INACTIVE_TEXT_FG
       ),
-      value = _G_Widget_.CriticalText{
-         x = x + w,
-         y = y,
-         x_align = 'right',
-         y_align = 'center',
-         text_color = _G_Patterns_.PRIMARY_FG,
-         critical_color = _G_Patterns_.CRITICAL_FG,
-         critical_limit = limit,
-         append_end = append_end,
-         text = '<NA>',
-         font_spec = M.normal_font_spec,
-      }
+      -- value = _G_Widget_.CriticalText{
+      --    x = x + w,
+      --    y = y,
+      --    x_align = 'right',
+      --    y_align = 'center',
+      --    text_color = _G_Patterns_.PRIMARY_FG,
+      --    critical_color = _G_Patterns_.CRITICAL_FG,
+      --    critical_limit = limit,
+      --    append_end = append_end,
+      --    text = '<NA>',
+      --    font_spec = M.normal_font_spec,
+      -- }
+      value = _G_Widget_.CriticalText(
+         x + w,
+         y,
+         nil,
+         M.normal_font_spec,
+         _G_Patterns_.PRIMARY_FG,
+         _G_Patterns_.CRITICAL_FG,
+         limit,
+         'right',
+         'center',
+         nil,
+         append_end
+      )
    }
 end
 
@@ -395,26 +434,50 @@ end
 
 M.initTextRows = function(x, y, w, spacing, labels)
    return {
-      labels = _G_Widget_.TextColumn{
-         x = x,
-         y = y,
-         spacing = spacing,
-         x_align = 'left',
-         y_align = 'center',
-         text_color = _G_Patterns_.INACTIVE_TEXT_FG,
-         font_spec = M.normal_font_spec,
-         table.unpack(labels),
-      },
-      values = _G_Widget_.TextColumn{
-         x = x + w,
-         y = y,
-         spacing = spacing,
-         x_align = 'right',
-         y_align = 'center',
-         text_color = _G_Patterns_.PRIMARY_FG,
-         font_spec = M.normal_font_spec,
-         num_rows = #labels,
-      }
+      labels = _G_Widget_.TextColumn(
+         -- x = x,
+         -- y = y,
+         -- spacing = spacing,
+         -- x_align = 'left',
+         -- y_align = 'center',
+         -- text_color = _G_Patterns_.INACTIVE_TEXT_FG,
+         -- font_spec = M.normal_font_spec,
+         -- table.unpack(labels),
+         x,
+         y,
+         spacing,
+         nil,
+         M.normal_font_spec,
+         _G_Patterns_.INACTIVE_TEXT_FG,
+         'left',
+         'center',
+         nil,
+         nil,
+         labels
+      ),
+      -- values = _G_Widget_.TextColumn{
+      --    x = x + w,
+      --    y = y,
+      --    spacing = spacing,
+      --    x_align = 'right',
+      --    y_align = 'center',
+      --    text_color = _G_Patterns_.PRIMARY_FG,
+      --    font_spec = M.normal_font_spec,
+      --    num_rows = #labels,
+      -- }
+      values = _G_Widget_.initTextColumnN(
+         x + w,
+         y,
+         spacing,
+         nil,
+         M.normal_font_spec,
+         _G_Patterns_.PRIMARY_FG,
+         'right',
+         'center',
+         nil,
+         nil,
+         #labels
+      )
    }
 end
 

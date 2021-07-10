@@ -72,21 +72,39 @@ local bars = _G_Widget_.CompoundBar(
 	0.8
 )
 
-local labels = _G_Widget_.TextColumn{
-	x 		= _G_INIT_DATA_.RIGHT_X,
-	y 		= _BAR_Y_,
-	spacing = _SPACING_,
-    text_color = _G_Patterns_.INACTIVE_TEXT_FG,
-    font_spec = Common.normal_font_spec,
-    x_align = 'left',
-    y_align = 'center',
-	'root',
+-- local labels = _G_Widget_.TextColumn{
+-- 	x 		= _G_INIT_DATA_.RIGHT_X,
+-- 	y 		= _BAR_Y_,
+-- 	spacing = _SPACING_,
+--     text_color = _G_Patterns_.INACTIVE_TEXT_FG,
+--     font_spec = Common.normal_font_spec,
+--     x_align = 'left',
+--     y_align = 'center',
+-- 	'root',
+-- 	'boot',
+-- 	'home',
+-- 	'data',
+-- 	'dcache',
+-- 	'tmpfs',
+-- }
+local labels = _G_Widget_.TextColumn(
+	_G_INIT_DATA_.RIGHT_X,
+	_BAR_Y_,
+	_SPACING_,
+    nil,
+    Common.normal_font_spec,
+    _G_Patterns_.INACTIVE_TEXT_FG,
+    'left',
+    'center',
+    nil,
+    nil,
+	{'root',
 	'boot',
 	'home',
 	'data',
 	'dcache',
-	'tmpfs',
-}
+	'tmpfs'}
+)
 
 _SPACING_ = nil
 _BAR_PAD_ = nil
