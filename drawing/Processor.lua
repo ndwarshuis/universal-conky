@@ -69,16 +69,17 @@ local _create_core_ = function(cores, id, x, y)
       --    arc_pattern   = _G_Patterns_.INDICATOR_BG
 	  -- },
 	  dials = _G_Widget_.CompoundDial(
-		 x,
-		 y,
-         90,
-         360,
+         _G_Widget_.make_semicircle(
+            _G_Widget_.make_point(x, y),
+            _DIAL_OUTER_RADIUS_,
+            90,
+            360
+         ),
          _G_Patterns_.INDICATOR_BG,
          _G_Patterns_.INDICATOR_FG_PRIMARY,
 		 _G_Patterns_.INDICATOR_FG_CRITICAL,
 		 0.8,
 		 _DIAL_INNER_RADIUS_,
-		 _DIAL_OUTER_RADIUS_,
 		 _DIAL_SPACING_,
 		 NUM_THREADS_PER_CORE
 	  ),
