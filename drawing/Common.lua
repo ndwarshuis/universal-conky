@@ -246,11 +246,12 @@ M.initRing = function(x, y, r)
    --    arc_pattern = _G_Patterns_.BORDER_FG
    -- }
    return _G_Widget_.Arc(
-      x,
-      y,
-      r,
-      0,
-      360,
+      _G_Widget_.make_semicircle(
+         _G_Widget_.make_point(x, y),
+         r,
+         0,
+         360
+      ),
       2,
       _G_Patterns_.BORDER_FG
    )

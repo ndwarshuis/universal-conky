@@ -84,13 +84,14 @@ local dial = _G_Widget_.Dial(
 -- 	arc_pattern	= _G_Patterns_.INDICATOR_FG_SECONDARY
 -- }
 local cache_arc = _G_Widget_.Arc(
-	DIAL_X,
-	DIAL_Y,
-	DIAL_RADIUS,
-    90,
-    360,
-	_DIAL_THICKNESS_,
-	_G_Patterns_.INDICATOR_FG_SECONDARY
+   _G_Widget_.make_semicircle(
+      _G_Widget_.make_point(DIAL_X, DIAL_Y),
+      DIAL_RADIUS,
+      90,
+      360
+   ),
+   _DIAL_THICKNESS_,
+   _G_Patterns_.INDICATOR_FG_SECONDARY
 )
 
 local text_ring = Common.initTextRing(
