@@ -128,8 +128,10 @@ local swap = Common.initTextRowCrit(
 -- }
 local cache = {
    labels = _G_Widget_.TextColumn(
-      _TEXT_LEFT_X_,
-      _LINE_1_Y_ + _TEXT_SPACING_,
+      _G_Widget_.make_point(
+         _TEXT_LEFT_X_,
+         _LINE_1_Y_ + _TEXT_SPACING_
+      ),
       _TEXT_SPACING_,
       nil,
       Common.normal_font_spec,
@@ -141,8 +143,10 @@ local cache = {
       {'Page Cache', 'Buffers', 'Kernel Slab'}
    ),
    percents = _G_Widget_.initTextColumnN(
-      _RIGHT_X_,
-      _LINE_1_Y_ + _TEXT_SPACING_,
+      _G_Widget_.make_point(
+         _RIGHT_X_,
+         _LINE_1_Y_ + _TEXT_SPACING_
+      ),
       _TEXT_SPACING_,
       nil,
       Common.normal_font_spec,

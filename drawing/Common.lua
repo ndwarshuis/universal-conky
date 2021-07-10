@@ -17,16 +17,16 @@ local HEADER_UNDERLINE_CAP = CAIRO_LINE_CAP_ROUND
 local HEADER_UNDERLINE_OFFSET = -20
 local HEADER_UNDERLINE_THICKNESS = 3
 
-local _bare_text = function(x, y, text, font_spec, pattern, x_align)
-   return _G_Widget_.Text(x, y, text, font_spec, pattern, x_align, 'center', nil, nil)
+local _bare_text = function(pt, text, font_spec, pattern, x_align)
+   return _G_Widget_.Text(pt, text, font_spec, pattern, x_align, 'center', nil, nil)
 end
 
-local _left_text = function(x, y, text, font_spec, pattern)
-   return _bare_text(x, y, text, font_spec, pattern, 'left')
+local _left_text = function(pt, text, font_spec, pattern)
+   return _bare_text(pt, text, font_spec, pattern, 'left')
 end
 
-local _right_text = function(x, y, text, font_spec, pattern)
-   return _bare_text(x, y, text, font_spec, pattern, 'right')
+local _right_text = function(pt, text, font_spec, pattern)
+   return _bare_text(pt, text, font_spec, pattern, 'right')
 end
 
 M.make_font_spec = function(f, s, bold)
@@ -63,8 +63,7 @@ M.Header = function(x, y, w, s)
       --    -- weight 	= HEADER_FONT_WEIGHT
       -- },
       text = _G_Widget_.Text(
-         x,
-         y,
+         _G_Widget_.make_point(x, y),
          s,
          M.make_font_spec(_G_Patterns_.FONT, HEADER_FONT_SIZE, true),
          _G_Patterns_.HEADER_FG,
@@ -129,10 +128,14 @@ M.initPercentPlot = function(x, y, w, h, spacing, label)
       --    text_color = _G_Patterns_.INACTIVE_TEXT_FG,
       --    font_spec = M.normal_font_spec,
       -- },
-      label = _left_text(x, y, label,  M.normal_font_spec, _G_Patterns_.INACTIVE_TEXT_FG),
+      label = _left_text(
+         _G_Widget_.make_point(x, y),
+         label,
+         M.normal_font_spec,
+         _G_Patterns_.INACTIVE_TEXT_FG
+      ),
       value = _G_Widget_.CriticalText(
-         x + w,
-         y,
+         _G_Widget_.make_point(x, y),
          nil,
          M.normal_font_spec,
          _G_Patterns_.PRIMARY_FG,
@@ -205,7 +208,12 @@ M.initLabeledScalePlot = function(x, y, w, h, f, spacing, label)
       --    text_color = _G_Patterns_.INACTIVE_TEXT_FG,
       --    font_spec = M.normal_font_spec,
       -- },
-      label = _left_text(x, y, label, M.normal_font_spec, _G_Patterns_.INACTIVE_TEXT_FG),
+      label = _left_text(
+         _G_Widget_.make_point(x, y),
+         label,
+         M.normal_font_spec,
+         _G_Patterns_.INACTIVE_TEXT_FG
+      ),
       -- value = _G_Widget_.Text{
       --    x = x + w,
       --    y = y,
@@ -213,7 +221,12 @@ M.initLabeledScalePlot = function(x, y, w, h, f, spacing, label)
       --    text_color = _G_Patterns_.PRIMARY_FG,
       --    font_spec = M.normal_font_spec,
       -- },
-      value = _right_text(x + w, y, label, M.normal_font_spec, _G_Patterns_.PRIMARY_FG),
+      value = _right_text(
+         _G_Widget_.make_point(x + w, y),
+         label,
+         M.normal_font_spec,
+         _G_Patterns_.PRIMARY_FG
+      ),
       plot = M.initThemedScalePlot(x, y + spacing, w, h, f),
    }
 end
@@ -267,8 +280,7 @@ M.initTextRing = function(x, y, r, append_end, limit)
       --    font_spec = M.normal_font_spec,
 	  -- },
 	  value = _G_Widget_.CriticalText(
-		 x,
-		 y,
+         _G_Widget_.make_point(x, y),
          nil,
          M.normal_font_spec,
          _G_Patterns_.PRIMARY_FG,
@@ -327,8 +339,7 @@ M.initTextRow = function(x, y, w, label)
       --    font_spec = M.normal_font_spec,
       -- },
       label = _left_text(
-         x,
-         y,
+         _G_Widget_.make_point(x, y),
          label,
          M.normal_font_spec,
          _G_Patterns_.INACTIVE_TEXT_FG
@@ -342,8 +353,7 @@ M.initTextRow = function(x, y, w, label)
       --    font_spec = M.normal_font_spec,
       -- }
       value = _right_text(
-         x + w,
-         y,
+         _G_Widget_.make_point(x + w, y),
          nil,
          M.normal_font_spec,
          _G_Patterns_.PRIMARY_FG
@@ -378,8 +388,7 @@ M.initTextRowCrit = function(x, y, w, label, append_end, limit)
       --    font_spec = M.normal_font_spec,
       -- },
       label = _left_text(
-         x,
-         y,
+         _G_Widget_.make_point(x, y),
          label,
          M.normal_font_spec,
          _G_Patterns_.INACTIVE_TEXT_FG
@@ -397,8 +406,7 @@ M.initTextRowCrit = function(x, y, w, label, append_end, limit)
       --    font_spec = M.normal_font_spec,
       -- }
       value = _G_Widget_.CriticalText(
-         x + w,
-         y,
+         _G_Widget_.make_point(x + w, y),
          nil,
          M.normal_font_spec,
          _G_Patterns_.PRIMARY_FG,
@@ -436,8 +444,7 @@ M.initTextRows = function(x, y, w, spacing, labels)
          -- text_color = _G_Patterns_.INACTIVE_TEXT_FG,
          -- font_spec = M.normal_font_spec,
          -- table.unpack(labels),
-         x,
-         y,
+         _G_Widget_.make_point(x, y),
          spacing,
          nil,
          M.normal_font_spec,
@@ -459,8 +466,7 @@ M.initTextRows = function(x, y, w, spacing, labels)
       --    num_rows = #labels,
       -- }
       values = _G_Widget_.initTextColumnN(
-         x + w,
-         y,
+         _G_Widget_.make_point(x + w, y),
          spacing,
          nil,
          M.normal_font_spec,
