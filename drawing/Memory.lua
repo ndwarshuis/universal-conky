@@ -86,7 +86,7 @@ local text_ring = Common.initTextRing(
    DIAL_X,
    DIAL_Y,
    DIAL_RADIUS - _DIAL_THICKNESS_ / 2 - 2,
-   '%',
+   '%s%%',
    80
 )
 
@@ -100,7 +100,7 @@ local swap = Common.initTextRowCrit(
    -- TODO this is silly
    _RIGHT_X_ - _TEXT_LEFT_X_,
    'Swap Usage',
-   ' %',
+   '%s%%',
    80
 )
 
@@ -143,7 +143,7 @@ local cache = {
          'left',
          'center'
       ),
-      _G_Widget_.text_format(false, false, false),
+      _G_Widget_.text_format(false, false),
       _TEXT_SPACING_
    ),
    percents = _G_Widget_.initTextColumnN(
@@ -158,7 +158,7 @@ local cache = {
          'right',
          'center'
       ),
-      _G_Widget_.text_format(false, '%', false),
+      _G_Widget_.text_format('%s%%', false),
       _TEXT_SPACING_
    ),
 }

@@ -99,7 +99,7 @@ local labels = _G_Widget_.TextColumn(
       'left',
       'center'
    ),
-   _G_Widget_.text_format(false, false, false),
+   _G_Widget_.text_format(false, false),
    _SPACING_
 )
 

@@ -87,7 +87,7 @@ local _create_core_ = function(cores, id, x, y)
          x,
          y,
          _DIAL_INNER_RADIUS_ - 2,
-		 '°C',
+		 '%s°C',
 		 90
       ),
 	  coretemp_path = string.format(CORETEMP_PATH, hwmon_index, 'temp'..(id + 2)..'_input'),

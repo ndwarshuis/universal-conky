@@ -44,7 +44,7 @@ M.right_text_style = _G_Widget_.text_style(
 )
 
 local _bare_text = function(pt, text, style)
-   local fmt = _G_Widget_.text_format(false, false, false)
+   local fmt = _G_Widget_.text_format(false, false)
    return _G_Widget_.Text(pt, text, style, fmt)
 end
 
@@ -86,7 +86,7 @@ M.Header = function(x, y, w, s)
             'left',
             'top'
          ),
-         _G_Widget_.text_format(false, false, false)
+         _G_Widget_.text_format(false, false)
       ),
       bottom_y = bottom_y,
       -- underline = _G_Widget_.Line{
@@ -155,8 +155,7 @@ M.initPercentPlot = function(x, y, w, h, spacing, label)
             'center'
          ),
          _G_Widget_.text_format(
-            false,
-            '%',
+            '%s%%',
             false
          ),
          _G_Patterns_.CRITICAL_FG,
@@ -279,7 +278,7 @@ end
 --------------------------------------------------------------------------------
 -- ring with text data in the center
 
-M.initTextRing = function(x, y, r, append_end, limit)
+M.initTextRing = function(x, y, r, fmt, limit)
    return {
 	  ring = M.initRing(x, y, r),
 	  -- value = _G_Widget_.CriticalText{
@@ -302,11 +301,7 @@ M.initTextRing = function(x, y, r, append_end, limit)
             'center',
             'center'
          ),
-         _G_Widget_.text_format(
-            false,
-            append_end,
-            false
-         ),
+         _G_Widget_.text_format(fmt, false),
          _G_Patterns_.CRITICAL_FG,
 		 limit
 	  ),
@@ -428,7 +423,6 @@ M.initTextRowCrit = function(x, y, w, label, append_end, limit)
             'center'
          ),
          _G_Widget_.text_format(
-            false,
             append_end,
             false
          ),
@@ -465,7 +459,7 @@ M.initTextRows = function(x, y, w, spacing, labels)
          _G_Widget_.make_point(x, y),
          labels,
          M.left_text_style,
-         _G_Widget_.text_format(false, false, false),
+         _G_Widget_.text_format(false, false),
          spacing
       ),
       -- values = _G_Widget_.TextColumn{
@@ -482,7 +476,7 @@ M.initTextRows = function(x, y, w, spacing, labels)
          _G_Widget_.make_point(x + w, y),
          #labels,
          M.right_text_style,
-         _G_Widget_.text_format(false, false, false),
+         _G_Widget_.text_format(false, false),
          spacing
       )
    }
