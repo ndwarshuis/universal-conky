@@ -44,8 +44,7 @@ M.right_text_style = _G_Widget_.text_style(
 )
 
 local _bare_text = function(pt, text, style)
-   local fmt = _G_Widget_.text_format(false, false)
-   return _G_Widget_.Text(pt, text, style, fmt)
+   return _G_Widget_.plainText(pt, text, style)
 end
 
 local _left_text = function(pt, text)
@@ -77,7 +76,7 @@ M.Header = function(x, y, w, s)
       --    -- slant 		= HEADER_FONT_SLANT,
       --    -- weight 	= HEADER_FONT_WEIGHT
       -- },
-      text = _G_Widget_.Text(
+      text = _G_Widget_.plainText(
          _G_Widget_.make_point(x, y),
          s,
          _G_Widget_.text_style(
@@ -85,8 +84,7 @@ M.Header = function(x, y, w, s)
             _G_Patterns_.HEADER_FG,
             'left',
             'top'
-         ),
-         _G_Widget_.text_format(false, false)
+         )
       ),
       bottom_y = bottom_y,
       -- underline = _G_Widget_.Line{
