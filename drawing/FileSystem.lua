@@ -92,15 +92,15 @@ local labels = _G_Widget_.TextColumn(
       _G_INIT_DATA_.RIGHT_X,
       _BAR_Y_
    ),
-   _SPACING_,
-   nil,
-   Common.normal_font_spec,
-   _G_Patterns_.INACTIVE_TEXT_FG,
-   'left',
-   'center',
-   nil,
-   nil,
-   {'root', 'boot', 'home', 'data', 'dcache', 'tmpfs'}
+   {'root', 'boot', 'home', 'data', 'dcache', 'tmpfs'},
+   _G_Widget_.text_style(
+      Common.normal_font_spec,
+      _G_Patterns_.INACTIVE_TEXT_FG,
+      'left',
+      'center'
+   ),
+   _G_Widget_.text_format(false, false, false),
+   _SPACING_
 )
 
 _SPACING_ = nil

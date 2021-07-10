@@ -136,30 +136,30 @@ local cache = {
          _TEXT_LEFT_X_,
          _LINE_1_Y_ + _TEXT_SPACING_
       ),
-      _TEXT_SPACING_,
-      nil,
-      Common.normal_font_spec,
-      _G_Patterns_.INACTIVE_TEXT_FG,
-      'left',
-      'center',
-      nil,
-      nil,
-      {'Page Cache', 'Buffers', 'Kernel Slab'}
+      {'Page Cache', 'Buffers', 'Kernel Slab'},
+      _G_Widget_.text_style(
+         Common.normal_font_spec,
+         _G_Patterns_.INACTIVE_TEXT_FG,
+         'left',
+         'center'
+      ),
+      _G_Widget_.text_format(false, false, false),
+      _TEXT_SPACING_
    ),
    percents = _G_Widget_.initTextColumnN(
       _G_Widget_.make_point(
          _RIGHT_X_,
          _LINE_1_Y_ + _TEXT_SPACING_
       ),
-      _TEXT_SPACING_,
-      nil,
-      Common.normal_font_spec,
-      _G_Patterns_.SECONDARY_FG,
-      'right',
-      'center',
-      nil,
-      ' %',
-      3
+      3,
+      _G_Widget_.text_style(
+         Common.normal_font_spec,
+         _G_Patterns_.SECONDARY_FG,
+         'right',
+         'center'
+      ),
+      _G_Widget_.text_format(false, '%', false),
+      _TEXT_SPACING_
    ),
 }
 
