@@ -516,14 +516,16 @@ end
 -- panel
 
 M.initPanel = function(x, y, w, h)
-   return _G_Widget_.FillRect{
-      x	= x + 0.5,
-      y	= y + 0.5,
-      width	= w,
-      height = h,
-      line_pattern = _G_Patterns_.BORDER_FG,
-      fill_pattern = _G_Patterns_.PANEL_BG,
-   }
+   return _G_Widget_.FillRect(
+      _G_Widget_.make_box(
+         _G_Widget_.make_point(x + 0.5, y + 0.5),
+         w,
+         h
+      ),
+      1,
+      _G_Patterns_.BORDER_FG,
+      _G_Patterns_.PANEL_BG
+   )
 end
 
 return M
