@@ -54,16 +54,6 @@ local DIAL_THETA_1 = math.rad(360)
 local DIAL_X = _G_INIT_DATA_.RIGHT_X + DIAL_RADIUS + _DIAL_THICKNESS_ / 2
 local DIAL_Y = header.bottom_y + DIAL_RADIUS + _DIAL_THICKNESS_ / 2
 
--- local dial = _G_Widget_.Dial{
--- 	x 				= DIAL_X,
--- 	y 				= DIAL_Y,
--- 	radius 			= DIAL_RADIUS,
--- 	thickness 		= _DIAL_THICKNESS_,
--- 	critical_limit 	= 0.8,
--- 	dial_pattern	= _G_Patterns_.INDICATOR_FG_PRIMARY,
--- 	critical_pattern = _G_Patterns_.INDICATOR_FG_CRITICAL,
---     arc_pattern     = _G_Patterns_.INDICATOR_BG
--- }
 local dial = _G_Widget_.Dial(
    _G_Widget_.make_semicircle(
       _G_Widget_.make_point(DIAL_X, DIAL_Y),
@@ -77,13 +67,6 @@ local dial = _G_Widget_.Dial(
    _G_Patterns_.INDICATOR_FG_CRITICAL,
    0.8
 )
--- local cache_arc = _G_Widget_.Arc{
--- 	x 			= DIAL_X,
--- 	y 			= DIAL_Y,
--- 	radius 		= DIAL_RADIUS,
--- 	thickness 	= _DIAL_THICKNESS_,
--- 	arc_pattern	= _G_Patterns_.INDICATOR_FG_SECONDARY
--- }
 local cache_arc = _G_Widget_.Arc(
    _G_Widget_.make_semicircle(
       _G_Widget_.make_point(DIAL_X, DIAL_Y),

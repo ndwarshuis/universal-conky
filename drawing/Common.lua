@@ -237,14 +237,6 @@ end
 -- ring
 
 M.initRing = function(x, y, r)
-   -- return _G_Widget_.Arc{
-   --    x = x,
-   --    y = y,
-   --    radius = r,
-   --    theta0 = 0,
-   --    theta1 = 360,
-   --    arc_pattern = _G_Patterns_.BORDER_FG
-   -- }
    return _G_Widget_.Arc(
       _G_Widget_.make_semicircle(
          _G_Widget_.make_point(x, y),
