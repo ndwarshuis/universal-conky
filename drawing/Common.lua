@@ -143,15 +143,10 @@ M.initPercentPlot = function(x, y, w, h, spacing, label)
       --    font_spec = M.normal_font_spec,
       -- },
       label = _left_text(_G_Widget_.make_point(x, y), label),
-      value = _G_Widget_.CriticalText(
+      value = _G_Widget_.formattedThresholdText(
          _G_Widget_.make_point(x + w, y),
          nil,
-         _G_Widget_.text_style(
-            M.normal_font_spec,
-            _G_Patterns_.PRIMARY_FG,
-            'right',
-            'center'
-         ),
+         M.right_text_style,
          _G_Widget_.text_format(
             '%s%%',
             false
@@ -290,7 +285,7 @@ M.initTextRing = function(x, y, r, fmt, limit)
       --    critical_color = _G_Patterns_.CRITICAL_FG,
       --    font_spec = M.normal_font_spec,
 	  -- },
-	  value = _G_Widget_.CriticalText(
+	  value = _G_Widget_.formattedThresholdText(
          _G_Widget_.make_point(x, y),
          nil,
          _G_Widget_.text_style(
@@ -411,7 +406,7 @@ M.initTextRowCrit = function(x, y, w, label, append_end, limit)
       --    text = '<NA>',
       --    font_spec = M.normal_font_spec,
       -- }
-      value = _G_Widget_.CriticalText(
+      value = _G_Widget_.formattedThresholdText(
          _G_Widget_.make_point(x + w, y),
          nil,
          _G_Widget_.text_style(
