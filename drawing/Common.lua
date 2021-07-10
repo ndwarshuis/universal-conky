@@ -135,7 +135,7 @@ M.initPercentPlot = function(x, y, w, h, spacing, label)
          _G_Patterns_.INACTIVE_TEXT_FG
       ),
       value = _G_Widget_.CriticalText(
-         _G_Widget_.make_point(x, y),
+         _G_Widget_.make_point(x + w, y),
          nil,
          M.normal_font_spec,
          _G_Patterns_.PRIMARY_FG,
