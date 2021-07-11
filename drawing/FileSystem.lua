@@ -59,17 +59,22 @@ local _BAR_Y_ = _SEP_Y_ + _SEPARATOR_SPACING_
 -- }
 
 local bars = _G_Widget_.CompoundBar(
-	_G_INIT_DATA_.RIGHT_X + _BAR_PAD_,
-	_BAR_Y_,
-	_G_INIT_DATA_.SECTION_WIDTH - _BAR_PAD_,
-	_SPACING_,
-	FS_NUM,
-    12,
-    false,
-    Patterns.INDICATOR_BG,
-    Patterns.INDICATOR_FG_PRIMARY,
-    Patterns.INDICATOR_FG_CRITICAL,
-	0.8
+   _G_Widget_.make_point(
+      _G_INIT_DATA_.RIGHT_X + _BAR_PAD_,
+      _BAR_Y_
+   ),
+   _G_INIT_DATA_.SECTION_WIDTH - _BAR_PAD_,
+   _G_Widget_.line_style(
+      12,
+      Patterns.INDICATOR_BG,
+      CAIRO_LINE_JOIN_MITER
+   ),
+   _SPACING_,
+   FS_NUM,
+   false,
+   Patterns.INDICATOR_FG_PRIMARY,
+   Patterns.INDICATOR_FG_CRITICAL,
+   0.8
 )
 
 -- local labels = _G_Widget_.TextColumn{

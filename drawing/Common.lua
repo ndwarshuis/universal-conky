@@ -95,11 +95,13 @@ M.Header = function(x, y, w, s)
       --    cap 			= HEADER_UNDERLINE_CAP
       -- }
       underline = _G_Widget_.Line(
-         {x = x, y = underline_y},
-         {x = x + w, y = underline_y},
-         HEADER_UNDERLINE_THICKNESS,
-         HEADER_UNDERLINE_CAP,
-         _G_Patterns_.HEADER_FG
+         _G_Widget_.make_point(x, underline_y),
+         _G_Widget_.make_point(x + w, underline_y),
+         _G_Widget_.line_style(
+            HEADER_UNDERLINE_THICKNESS,
+            _G_Patterns_.HEADER_FG,
+            HEADER_UNDERLINE_CAP
+         )
       )
    }
 
@@ -320,11 +322,13 @@ M.initSeparator = function(x, y, w)
    --    line_pattern = _G_Patterns_.BORDER_FG,
    -- }
    return _G_Widget_.Line(
-      {x = x, y = y},
-      {x = x + w, y = y},
-      1,
-      CAIRO_LINE_CAP_BUTT,
-      _G_Patterns_.BORDER_FG
+      _G_Widget_.make_point(x, y),
+      _G_Widget_.make_point(x + w, y),
+      _G_Widget_.line_style(
+         1,
+         _G_Patterns_.BORDER_FG,
+         CAIRO_LINE_CAP_BUTT
+      )
    )
 end
 
