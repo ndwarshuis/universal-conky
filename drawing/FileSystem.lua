@@ -69,12 +69,14 @@ local bars = _G_Widget_.CompoundBar(
       Patterns.INDICATOR_BG,
       CAIRO_LINE_JOIN_MITER
    ),
+   _G_Widget_.threshold_style(
+      Patterns.INDICATOR_FG_PRIMARY,
+      Patterns.INDICATOR_FG_CRITICAL,
+      0.8
+   ),
    _SPACING_,
    FS_NUM,
-   false,
-   Patterns.INDICATOR_FG_PRIMARY,
-   Patterns.INDICATOR_FG_CRITICAL,
-   0.8
+   false
 )
 
 -- local labels = _G_Widget_.TextColumn{

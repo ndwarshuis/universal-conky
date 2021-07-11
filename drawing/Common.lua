@@ -150,8 +150,10 @@ M.initPercentPlot = function(x, y, w, h, spacing, label)
          nil,
          M.right_text_style,
          '%s%%',
-         _G_Patterns_.CRITICAL_FG,
-         80
+         _G_Widget_.threshold_text_style(
+            _G_Patterns_.CRITICAL_FG,
+            80
+         )
       ),
       -- value = _G_Widget_.CriticalText{
       --    x = x + w,
@@ -294,8 +296,10 @@ M.initTextRing = function(x, y, r, fmt, limit)
             'center'
          ),
          fmt,
-         _G_Patterns_.CRITICAL_FG,
-		 limit
+         _G_Widget_.threshold_text_style(
+            _G_Patterns_.CRITICAL_FG,
+            limit
+         )
 	  ),
    }
 end
@@ -416,9 +420,11 @@ M.initTextRowCrit = function(x, y, w, label, append_end, limit)
             'right',
             'center'
          ),
-         append_end,
-         _G_Patterns_.CRITICAL_FG,
-         limit
+            append_end,
+         _G_Widget_.threshold_text_style(
+            _G_Patterns_.CRITICAL_FG,
+            limit
+         )
       )
    }
 end

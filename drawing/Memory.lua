@@ -65,9 +65,11 @@ local dial = _G_Widget_.Dial(
       _DIAL_THICKNESS_,
       _G_Patterns_.INDICATOR_BG
    ),
-   _G_Patterns_.INDICATOR_FG_PRIMARY,
-   _G_Patterns_.INDICATOR_FG_CRITICAL,
-   0.8
+   _G_Widget_.threshold_style(
+      _G_Patterns_.INDICATOR_FG_PRIMARY,
+      _G_Patterns_.INDICATOR_FG_CRITICAL,
+      0.8
+   )
 )
 local cache_arc = _G_Widget_.Arc(
    _G_Widget_.make_semicircle(
