@@ -31,7 +31,7 @@ end
 local _MODULE_Y_ = 614
 local _DIAL_INNER_RADIUS_ = 30
 local _DIAL_OUTER_RADIUS_ = 42
-local _DIAL_SPACING_ = 1
+local _DIAL_THICKNESS_ = 5.5
 local _SEPARATOR_SPACING_ = 20
 local _TEXT_SPACING_ = 22
 local _PLOT_SECTION_BREAK_ = 23
@@ -75,14 +75,16 @@ local _create_core_ = function(cores, id, x, y)
             90,
             360
          ),
-         _G_Patterns_.INDICATOR_BG,
+         _G_Widget_.arc_style(
+            _DIAL_THICKNESS_,
+            _G_Patterns_.INDICATOR_BG
+         ),
          _G_Widget_.threshold_style(
             _G_Patterns_.INDICATOR_FG_PRIMARY,
             _G_Patterns_.INDICATOR_FG_CRITICAL,
             0.8
          ),
 		 _DIAL_INNER_RADIUS_,
-		 _DIAL_SPACING_,
 		 NUM_THREADS_PER_CORE
 	  ),
       text_ring = Common.initTextRing(
@@ -229,7 +231,7 @@ end
 _MODULE_Y_ = nil
 _DIAL_INNER_RADIUS_ = nil
 _DIAL_OUTER_RADIUS_ = nil
-_DIAL_SPACING_ = nil
+_DIAL_THICKNESS_ = nil
 _TEXT_Y_OFFSET_ = nil
 _SEPARATOR_SPACING_ = nil
 _TEXT_SPACING_ = nil
