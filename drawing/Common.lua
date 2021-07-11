@@ -147,10 +147,7 @@ M.initPercentPlot = function(x, y, w, h, spacing, label)
          _G_Widget_.make_point(x + w, y),
          nil,
          M.right_text_style,
-         _G_Widget_.text_format(
-            '%s%%',
-            false
-         ),
+         '%s%%',
          _G_Patterns_.CRITICAL_FG,
          80
       ),
@@ -294,7 +291,7 @@ M.initTextRing = function(x, y, r, fmt, limit)
             'center',
             'center'
          ),
-         _G_Widget_.text_format(fmt, false),
+         fmt,
          _G_Patterns_.CRITICAL_FG,
 		 limit
 	  ),
@@ -415,10 +412,7 @@ M.initTextRowCrit = function(x, y, w, label, append_end, limit)
             'right',
             'center'
          ),
-         _G_Widget_.text_format(
-            append_end,
-            false
-         ),
+         append_end,
          _G_Patterns_.CRITICAL_FG,
          limit
       )
@@ -452,7 +446,7 @@ M.initTextRows = function(x, y, w, spacing, labels)
          _G_Widget_.make_point(x, y),
          labels,
          M.left_text_style,
-         _G_Widget_.text_format(false, false),
+         nil,
          spacing
       ),
       -- values = _G_Widget_.TextColumn{
@@ -469,7 +463,7 @@ M.initTextRows = function(x, y, w, spacing, labels)
          _G_Widget_.make_point(x + w, y),
          #labels,
          M.right_text_style,
-         _G_Widget_.text_format(false, false),
+         nil,
          spacing
       )
    }

@@ -143,7 +143,7 @@ local cache = {
          'left',
          'center'
       ),
-      _G_Widget_.text_format(false, false),
+      nil,
       _TEXT_SPACING_
    ),
    percents = _G_Widget_.initTextColumnN(
@@ -158,7 +158,7 @@ local cache = {
          'right',
          'center'
       ),
-      _G_Widget_.text_format('%s%%', false),
+      '%s%%',
       _TEXT_SPACING_
    ),
 }
