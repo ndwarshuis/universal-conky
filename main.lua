@@ -195,7 +195,6 @@ _G_Patterns_ = nil
 
 _unrequire('Super')
 _unrequire('Color')
-_unrequire('Gradient')
 _unrequire('Widget')
 _unrequire('Patterns')
 

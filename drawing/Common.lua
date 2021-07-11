@@ -115,7 +115,7 @@ M.percent_label_style = _G_Widget_.label_style(
 
 M.initThemedLabelPlot = function(x, y, w, h, label_style)
    return _G_Widget_.LabelPlot(
-      _G_Widget_.make_box(_G_Widget_.make_point(x, y), w, h),
+      _G_Widget_.make_box(x, y, w, h),
       M.default_plot_style,
       label_style
    )
@@ -169,7 +169,7 @@ M.base_2_scale_data = _G_Widget_.scale_data(2, 1, 0.9)
 
 M.initThemedScalePlot = function(x, y, w, h, f)
    return _G_Widget_.ScalePlot(
-      _G_Widget_.make_box(_G_Widget_.make_point(x, y), w, h),
+      _G_Widget_.make_box(x, y, w, h),
       M.default_plot_style,
       _G_Widget_.label_style(
          _G_Patterns_.INACTIVE_TEXT_FG,
@@ -314,7 +314,6 @@ end
 --------------------------------------------------------------------------------
 -- text row with critical indicator
 
--- TODO add limit to this
 M.initTextRowCrit = function(x, y, w, label, append_end, limit)
    return{
       label = _left_text(
@@ -413,7 +412,7 @@ M.default_table_style = _G_Widget_.table_style(
 
 M.initTable = function(x, y, w, h, n, labels)
    return _G_Widget_.Table(
-      _G_Widget_.make_box(_G_Widget_.make_point(x, y), w, h),
+      _G_Widget_.make_box(x, y, w, h),
       n,
       labels,
       M.default_table_style
@@ -425,15 +424,8 @@ end
 
 M.initPanel = function(x, y, w, h, thickness)
    return _G_Widget_.FillRect(
-      _G_Widget_.make_box(
-         _G_Widget_.make_point(x, y),
-         w,
-         h
-      ),
-      _G_Widget_.rect_style(
-         thickness,
-         _G_Patterns_.BORDER_FG
-      ),
+      _G_Widget_.make_box(x, y, w, h),
+      _G_Widget_.rect_style(thickness, _G_Patterns_.BORDER_FG),
       _G_Patterns_.PANEL_BG
    )
 end
