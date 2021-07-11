@@ -1,5 +1,6 @@
 local M = {}
 
+local Util = require 'Util'
 local Arc = require 'Arc'
 local Text = require 'Text'
 local CriticalText = require 'CriticalText'
@@ -116,19 +117,41 @@ end
 --------------------------------------------------------------------------------
 -- label plot
 
-M.initThemedLabelPlot = function(x, y, w, h)
-   return _G_Widget_.LabelPlot{
-      x = x,
-      y = y,
-      width = w,
-      height = h,
-      outline_pattern = _G_Patterns_.BORDER_FG,
-      intrvl_pattern = _G_Patterns_.BORDER_FG,
-      data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
-      data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
-      label_color = _G_Patterns_.INACTIVE_TEXT_FG,
-      label_font_spec = M.label_font_spec,
-   }
+M.default_grid_style = _G_Widget_.grid_style(9, 4, _G_Patterns_.BORDER_FG)
+
+M.default_plot_style = _G_Widget_.plot_style(
+   90,
+   _G_Patterns_.BORDER_FG,
+   _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
+   _G_Patterns_.PLOT_FILL_BG_PRIMARY,
+   M.default_grid_style
+)
+
+M.percent_label_style = _G_Widget_.label_style(
+   _G_Patterns_.INACTIVE_TEXT_FG,
+   M.label_font_spec,
+   function(z) return Util.round_to_string(z * 100)..'%' end,
+   1
+)
+
+M.initThemedLabelPlot = function(x, y, w, h, label_style)
+   -- return _G_Widget_.LabelPlot{
+   --    x = x,
+   --    y = y,
+   --    width = w,
+   --    height = h,
+   --    outline_pattern = _G_Patterns_.BORDER_FG,
+   --    intrvl_pattern = _G_Patterns_.BORDER_FG,
+   --    data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
+   --    data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
+   --    label_color = _G_Patterns_.INACTIVE_TEXT_FG,
+   --    label_font_spec = M.label_font_spec,
+   -- }
+   return _G_Widget_.LabelPlot(
+      _G_Widget_.make_box(_G_Widget_.make_point(x, y), w, h),
+      M.default_plot_style,
+      label_style
+   )
 end
 
 --------------------------------------------------------------------------------
@@ -166,7 +189,13 @@ M.initPercentPlot = function(x, y, w, h, spacing, label)
       --    critical_color = _G_Patterns_.PRIMARY_FG,
       --    font_spec = M.normal_font_spec,
       -- },
-      plot = M.initThemedLabelPlot(x, y + spacing, w, h),
+      plot = M.initThemedLabelPlot(
+         x,
+         y + spacing,
+         w,
+         h,
+         M.percent_label_style
+      ),
    }
 end
 
@@ -188,20 +217,33 @@ end
 --------------------------------------------------------------------------------
 -- scaled plot
 
+M.base_2_scale_data = _G_Widget_.scale_data(2, 1, 0.9)
+
 M.initThemedScalePlot = function(x, y, w, h, f)
-   return _G_Widget_.ScalePlot{
-      x = x,
-      y = y,
-      width = w,
-      height = h,
-      y_label_func = f,
-      outline_pattern = _G_Patterns_.BORDER_FG,
-      intrvl_pattern = _G_Patterns_.BORDER_FG,
-      data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
-      data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
-      label_color = _G_Patterns_.INACTIVE_TEXT_FG,
-      label_font_spec = M.label_font_spec,
-   }
+   -- return _G_Widget_.ScalePlot{
+   --    x = x,
+   --    y = y,
+   --    width = w,
+   --    height = h,
+   --    y_label_func = f,
+   --    outline_pattern = _G_Patterns_.BORDER_FG,
+   --    intrvl_pattern = _G_Patterns_.BORDER_FG,
+   --    data_line_pattern = _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
+   --    data_fill_pattern = _G_Patterns_.PLOT_FILL_BG_PRIMARY,
+   --    label_color = _G_Patterns_.INACTIVE_TEXT_FG,
+   --    label_font_spec = M.label_font_spec,
+   -- }
+   return _G_Widget_.ScalePlot(
+      _G_Widget_.make_box(_G_Widget_.make_point(x, y), w, h),
+      M.default_plot_style,
+      _G_Widget_.label_style(
+         _G_Patterns_.INACTIVE_TEXT_FG,
+         M.label_font_spec,
+         f,
+         1
+      ),
+      M.base_2_scale_data
+   )
 end
 
 --------------------------------------------------------------------------------

@@ -171,7 +171,8 @@ local plot = Common.initThemedLabelPlot(
    _G_INIT_DATA_.RIGHT_X,
    _PLOT_Y_,
    _G_INIT_DATA_.SECTION_WIDTH,
-   _PLOT_HEIGHT_
+   _PLOT_HEIGHT_,
+   Common.percent_label_style
 )
 
 local tbl = Common.initTable(
