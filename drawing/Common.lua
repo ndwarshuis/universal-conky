@@ -31,15 +31,15 @@ M.label_font_spec = M.make_font_spec(_G_Patterns_.FONT, 8, false)
 M.left_text_style = _G_Widget_.text_style(
    M.normal_font_spec,
    _G_Patterns_.INACTIVE_TEXT_FG,
-   'left',
-   'center'
+   _G_Widget_.X_ALIGN.LEFT,
+   _G_Widget_.Y_ALIGN.CENTER
 )
 
 M.right_text_style = _G_Widget_.text_style(
    M.normal_font_spec,
    _G_Patterns_.PRIMARY_FG,
-   'right',
-   'center'
+   _G_Widget_.X_ALIGN.RIGHT,
+   _G_Widget_.Y_ALIGN.CENTER
 )
 
 local _bare_text = function(pt, text, style)
@@ -69,8 +69,8 @@ M.Header = function(x, y, w, s)
          _G_Widget_.text_style(
             M.make_font_spec(_G_Patterns_.FONT, HEADER_FONT_SIZE, true),
             _G_Patterns_.HEADER_FG,
-            'left',
-            'top'
+            _G_Widget_.X_ALIGN.LEFT,
+            _G_Widget_.Y_ALIGN.TOP
          )
       ),
       bottom_y = bottom_y,
@@ -238,8 +238,8 @@ M.initTextRing = function(x, y, r, fmt, limit)
          _G_Widget_.text_style(
             M.normal_font_spec,
             _G_Patterns_.PRIMARY_FG,
-            'center',
-            'center'
+            _G_Widget_.X_ALIGN.MIDDLE,
+            _G_Widget_.Y_ALIGN.CENTER
          ),
          fmt,
          _G_Widget_.threshold_text_style(
@@ -321,8 +321,8 @@ M.initTextRowCrit = function(x, y, w, label, append_end, limit)
          _G_Widget_.text_style(
             M.normal_font_spec,
             _G_Patterns_.PRIMARY_FG,
-            'right',
-            'center'
+            _G_Widget_.X_ALIGN.RIGHT,
+            _G_Widget_.Y_ALIGN.CENTER
          ),
             append_end,
          _G_Widget_.threshold_text_style(

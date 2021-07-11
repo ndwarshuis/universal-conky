@@ -106,8 +106,8 @@ local cache = {
       _G_Widget_.text_style(
          Common.normal_font_spec,
          _G_Patterns_.INACTIVE_TEXT_FG,
-         'left',
-         'center'
+         _G_Widget_.X_ALIGN.LEFT,
+         _G_Widget_.Y_ALIGN.CENTER
       ),
       nil,
       _TEXT_SPACING_
@@ -121,8 +121,8 @@ local cache = {
       _G_Widget_.text_style(
          Common.normal_font_spec,
          _G_Patterns_.SECONDARY_FG,
-         'right',
-         'center'
+         _G_Widget_.X_ALIGN.RIGHT,
+         _G_Widget_.Y_ALIGN.CENTER
       ),
       '%s%%',
       _TEXT_SPACING_
