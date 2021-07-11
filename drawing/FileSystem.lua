@@ -75,8 +75,8 @@ local labels = _G_Widget_.TextColumn(
    _G_Widget_.text_style(
       Common.normal_font_spec,
       _G_Patterns_.INACTIVE_TEXT_FG,
-      _G_Widget_.X_ALIGN.LEFT,
-      _G_Widget_.Y_ALIGN.CENTER
+      'left',
+      'center'
    ),
    nil,
    _SPACING_
