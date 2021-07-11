@@ -116,6 +116,7 @@ M.percent_label_style = _G_Widget_.label_style(
 M.initThemedLabelPlot = function(x, y, w, h, label_style)
    return _G_Widget_.LabelPlot(
       _G_Widget_.make_box(x, y, w, h),
+      1 / _G_INIT_DATA_.UPDATE_INTERVAL,
       M.default_plot_style,
       label_style
    )
@@ -170,6 +171,7 @@ M.base_2_scale_data = _G_Widget_.scale_data(2, 1, 0.9)
 M.initThemedScalePlot = function(x, y, w, h, f)
    return _G_Widget_.ScalePlot(
       _G_Widget_.make_box(x, y, w, h),
+      1 / _G_INIT_DATA_.UPDATE_INTERVAL,
       M.default_plot_style,
       _G_Widget_.label_style(
          _G_Patterns_.INACTIVE_TEXT_FG,
