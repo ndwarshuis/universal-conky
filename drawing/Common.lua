@@ -109,8 +109,7 @@ M.default_plot_style = _G_Widget_.plot_style(
 M.percent_label_style = _G_Widget_.label_style(
    _G_Patterns_.INACTIVE_TEXT_FG,
    M.label_font_spec,
-   function(z) return Util.round_to_string(z * 100)..'%' end,
-   1
+   function(z) return Util.round_to_string(z * 100)..'%' end
 )
 
 M.initThemedLabelPlot = function(x, y, w, h, label_style)
@@ -176,8 +175,7 @@ M.initThemedScalePlot = function(x, y, w, h, f)
       _G_Widget_.label_style(
          _G_Patterns_.INACTIVE_TEXT_FG,
          M.label_font_spec,
-         f,
-         1
+         f
       ),
       M.base_2_scale_data
    )
