@@ -45,19 +45,6 @@ local separator = Common.initSeparator(
 
 local _BAR_Y_ = _SEP_Y_ + _SEPARATOR_SPACING_
 
--- local bars = _G_Widget_.CompoundBar{
--- 	x 				= _G_INIT_DATA_.RIGHT_X + _BAR_PAD_,
--- 	y 				= _BAR_Y_,
--- 	length 			= _G_INIT_DATA_.SECTION_WIDTH - _BAR_PAD_,
--- 	spacing 		= _SPACING_,
--- 	num_bars 		= FS_NUM,
---     -- thickness       = 12,
--- 	critical_limit	= 0.8,
---     indicator_pattern = Patterns.INDICATOR_FG_PRIMARY,
---     critical_pattern = Patterns.INDICATOR_FG_CRITICAL,
---     line_pattern = Patterns.INDICATOR_BG,
--- }
-
 local bars = _G_Widget_.CompoundBar(
    _G_Widget_.make_point(
       _G_INIT_DATA_.RIGHT_X + _BAR_PAD_,
@@ -79,21 +66,6 @@ local bars = _G_Widget_.CompoundBar(
    false
 )
 
--- local labels = _G_Widget_.TextColumn{
--- 	x 		= _G_INIT_DATA_.RIGHT_X,
--- 	y 		= _BAR_Y_,
--- 	spacing = _SPACING_,
---     text_color = _G_Patterns_.INACTIVE_TEXT_FG,
---     font_spec = Common.normal_font_spec,
---     x_align = 'left',
---     y_align = 'center',
--- 	'root',
--- 	'boot',
--- 	'home',
--- 	'data',
--- 	'dcache',
--- 	'tmpfs',
--- }
 local labels = _G_Widget_.TextColumn(
    _G_Widget_.make_point(
       _G_INIT_DATA_.RIGHT_X,
