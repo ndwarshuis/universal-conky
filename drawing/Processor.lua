@@ -57,12 +57,7 @@ local _create_core_ = function(cores, id, x, y)
 
    cores[id +1] = {
 	  dials = _G_Widget_.CompoundDial(
-         _G_Widget_.make_semicircle(
-            _G_Widget_.make_point(x, y),
-            _DIAL_OUTER_RADIUS_,
-            90,
-            360
-         ),
+         _G_Widget_.make_semicircle(x, y, _DIAL_OUTER_RADIUS_, 90, 360),
          _G_Widget_.arc_style(
             _DIAL_THICKNESS_,
             _G_Patterns_.INDICATOR_BG

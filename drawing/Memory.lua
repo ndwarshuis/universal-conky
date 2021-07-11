@@ -55,12 +55,7 @@ local DIAL_X = _G_INIT_DATA_.RIGHT_X + DIAL_RADIUS + _DIAL_THICKNESS_ / 2
 local DIAL_Y = header.bottom_y + DIAL_RADIUS + _DIAL_THICKNESS_ / 2
 
 local dial = _G_Widget_.Dial(
-   _G_Widget_.make_semicircle(
-      _G_Widget_.make_point(DIAL_X, DIAL_Y),
-      DIAL_RADIUS,
-      90,
-      360
-   ),
+   _G_Widget_.make_semicircle(DIAL_X, DIAL_Y, DIAL_RADIUS, 90, 360),
    _G_Widget_.arc_style(
       _DIAL_THICKNESS_,
       _G_Patterns_.INDICATOR_BG
@@ -72,12 +67,7 @@ local dial = _G_Widget_.Dial(
    )
 )
 local cache_arc = _G_Widget_.Arc(
-   _G_Widget_.make_semicircle(
-      _G_Widget_.make_point(DIAL_X, DIAL_Y),
-      DIAL_RADIUS,
-      90,
-      360
-   ),
+   _G_Widget_.make_semicircle(DIAL_X, DIAL_Y, DIAL_RADIUS, 90, 360),
    _G_Widget_.arc_style(
       _DIAL_THICKNESS_,
       _G_Patterns_.INDICATOR_FG_SECONDARY
