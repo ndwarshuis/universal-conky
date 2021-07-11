@@ -536,21 +536,52 @@ end
 --------------------------------------------------------------------------------
 -- table
 
+M.default_table_font_spec = M.make_font_spec(_G_Patterns_.FONT, 11, false)
+
+M.default_table_style = _G_Widget_.table_style(
+   _G_Widget_.rect_style(
+      1,
+      _G_Patterns_.BORDER_FG
+   ),
+   _G_Widget_.line_style(
+      1,
+      _G_Patterns_.BORDER_FG,
+      CAIRO_LINE_CAP_BUTT
+   ),
+   _G_Widget_.table_header_style(
+      M.default_table_font_spec,
+      _G_Patterns_.PRIMARY_FG,
+      20
+   ),
+   _G_Widget_.table_body_style(
+      M.default_table_font_spec,
+      _G_Patterns_.INACTIVE_TEXT_FG,
+      8
+   ),
+   _G_Widget_.padding(5, 15, 5, 15)
+)
+
 M.initTable = function(x, y, w, h, n, labels)
-   return _G_Widget_.Table{
-      x = x,
-      y = y,
-      width = w,
-      height = h,
-      num_rows = n,
-      body_color = _G_Patterns_.INACTIVE_TEXT_FG,
-      header_color = _G_Patterns_.PRIMARY_FG,
-      line_pattern = _G_Patterns_.BORDER_FG,
-      separator_pattern = _G_Patterns_.BORDER_FG,
-      body_font_spec = M.make_font_spec(_G_Patterns_.FONT, 11, false),
-      header_font_spec = M.make_font_spec(_G_Patterns_.FONT, 11, false),
-      table.unpack(labels),
-   }
+   -- return _G_Widget_.Table{
+   --    x = x,
+   --    y = y,
+   --    width = w,
+   --    height = h,
+   --    num_rows = n,
+   --    body_color = _G_Patterns_.INACTIVE_TEXT_FG,
+   --    header_color = _G_Patterns_.PRIMARY_FG,
+   --    line_pattern = _G_Patterns_.BORDER_FG,
+   --    separator_pattern = _G_Patterns_.BORDER_FG,
+   --    body_font_spec = M.make_font_spec(_G_Patterns_.FONT, 11, false),
+   --    header_font_spec = M.make_font_spec(_G_Patterns_.FONT, 11, false),
+   --    table.unpack(labels),
+   -- }
+   return _G_Widget_.Table(
+      _G_Widget_.make_box(_G_Widget_.make_point(x, y), w, h),
+      n,
+      labels,
+      M.default_table_style
+   )
 end
 
 --------------------------------------------------------------------------------
@@ -563,8 +594,10 @@ M.initPanel = function(x, y, w, h, thickness)
          w,
          h
       ),
-      thickness,
-      _G_Patterns_.BORDER_FG,
+      _G_Widget_.rect_style(
+         thickness,
+         _G_Patterns_.BORDER_FG
+      ),
       _G_Patterns_.PANEL_BG
    )
 end
