@@ -133,8 +133,8 @@ local NA = 'N/A'
 
 local nvidia_off = function(cr)
    Common.text_row_crit_set(internal_temp, cr, NA)
-   Common.text_rows_set.set(clock_speed, cr, 1, NA)
-   Common.text_rows_set.set(clock_speed, cr, 2, NA)
+   Common.text_rows_set(clock_speed, cr, 1, NA)
+   Common.text_rows_set(clock_speed, cr, 2, NA)
 
    -- TODO refactor this
    Text.set(gpu_util.value, cr, NA)
