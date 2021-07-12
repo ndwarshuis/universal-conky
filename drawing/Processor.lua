@@ -56,19 +56,14 @@ local _create_core_ = function(cores, id, x, y)
    end
 
    cores[id +1] = {
-	  dials = _G_Widget_.CompoundDial(
-         _G_Widget_.make_semicircle(x, y, _DIAL_OUTER_RADIUS_, 90, 360),
-         _G_Widget_.arc_style(
-            _DIAL_THICKNESS_,
-            _G_Patterns_.INDICATOR_BG
-         ),
-         _G_Widget_.threshold_style(
-            _G_Patterns_.INDICATOR_FG_PRIMARY,
-            _G_Patterns_.INDICATOR_FG_CRITICAL,
-            0.8
-         ),
-		 _DIAL_INNER_RADIUS_,
-		 NUM_THREADS_PER_CORE
+	  dials = Common.compound_dial(
+         x,
+         y,
+         _DIAL_OUTER_RADIUS_,
+         _DIAL_INNER_RADIUS_,
+         _DIAL_THICKNESS_,
+         0.8,
+         NUM_THREADS_PER_CORE
 	  ),
       text_ring = Common.initTextRing(
          x,

@@ -2,8 +2,6 @@ local M = {}
 
 local Util = require 'Util'
 local Arc = require 'Arc'
-local Dial = require 'Dial'
-local CompoundDial = require 'CompoundDial'
 local Text = require 'Text'
 local CriticalText = require 'CriticalText'
 local TextColumn = require 'TextColumn'
@@ -39,6 +37,9 @@ local PLOT_GRID_X_N = 9
 local PLOT_GRID_Y_N = 4
 
 local ARC_WIDTH = 2
+
+local DIAL_THETA0 = 90
+local DIAL_THETA1 = 360
 
 --------------------------------------------------------------------------------
 -- helper functions
@@ -283,13 +284,31 @@ end
 
 M.dial = function(x, y, radius, thickness, threshold)
    return _G_Widget_.Dial(
-      _G_Widget_.make_semicircle(x, y, radius, 90, 360),
+      _G_Widget_.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
       _G_Widget_.arc_style(thickness, _G_Patterns_.INDICATOR_BG),
       _G_Widget_.threshold_style(
          _G_Patterns_.INDICATOR_FG_PRIMARY,
          _G_Patterns_.INDICATOR_FG_CRITICAL,
          threshold
       )
+   )
+end
+
+--------------------------------------------------------------------------------
+-- compound dial
+
+M.compound_dial = function(x, y, outer_radius, inner_radius, thickness,
+                           threshold, num_dials)
+   return _G_Widget_.CompoundDial(
+      _G_Widget_.make_semicircle(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
+      _G_Widget_.arc_style(thickness, _G_Patterns_.INDICATOR_BG),
+      _G_Widget_.threshold_style(
+         _G_Patterns_.INDICATOR_FG_PRIMARY,
+         _G_Patterns_.INDICATOR_FG_CRITICAL,
+         threshold
+      ),
+      inner_radius,
+      num_dials
    )
 end
 
