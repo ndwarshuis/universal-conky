@@ -9,12 +9,37 @@ local Line = require 'Line'
 local LabelPlot = require 'LabelPlot'
 local ScalePlot = require 'ScalePlot'
 
-local HEADER_HEIGHT = 45
+--------------------------------------------------------------------------------
+-- constants
+
+local FONT = 'Neuropolitical'
+
+local NORMAL_FONT_SIZE = 13
+local PLOT_LABEL_FONT_SIZE = 8
+local TABLE_FONT_SIZE = 11
 local HEADER_FONT_SIZE = 15
--- TODO move all this font stuff to the theme file
+
+local HEADER_HEIGHT = 45
 local HEADER_UNDERLINE_CAP = CAIRO_LINE_CAP_ROUND
-local HEADER_UNDERLINE_OFFSET = -20
+local HEADER_UNDERLINE_OFFSET = 26
 local HEADER_UNDERLINE_THICKNESS = 3
+
+local SEPARATOR_THICKNESS = 1
+
+local TABLE_BODY_FORMAT = 8
+local TABLE_VERT_PAD = 15
+local TABLE_HORZ_PAD = 5
+local TABLE_HEADER_PAD = 20
+local TABLE_LINE_THICKNESS = 1
+
+local PLOT_NUM_POINTS = 90
+local PLOT_GRID_X_N = 9
+local PLOT_GRID_Y_N = 4
+
+local ARC_WIDTH = 2
+
+--------------------------------------------------------------------------------
+-- helper functions
 
 M.make_font_spec = function(f, s, bold)
    return {
@@ -25,8 +50,8 @@ M.make_font_spec = function(f, s, bold)
    }
 end
 
-M.normal_font_spec = M.make_font_spec(_G_Patterns_.FONT, 13, false)
-M.label_font_spec = M.make_font_spec(_G_Patterns_.FONT, 8, false)
+M.normal_font_spec = M.make_font_spec(FONT, NORMAL_FONT_SIZE, false)
+M.label_font_spec = M.make_font_spec(FONT, PLOT_LABEL_FONT_SIZE, false)
 
 M.left_text_style = _G_Widget_.text_style(
    M.normal_font_spec,
@@ -58,16 +83,14 @@ end
 -- header
 
 M.Header = function(x, y, w, s)
-   -- TODO what's the point of bottom_y?
    local bottom_y = y + HEADER_HEIGHT
-   local underline_y = bottom_y + HEADER_UNDERLINE_OFFSET
-
-   local obj = {
+   local underline_y = y + HEADER_UNDERLINE_OFFSET
+   return {
       text = _G_Widget_.plainText(
          _G_Widget_.make_point(x, y),
          s,
          _G_Widget_.text_style(
-            M.make_font_spec(_G_Patterns_.FONT, HEADER_FONT_SIZE, true),
+            M.make_font_spec(FONT, HEADER_FONT_SIZE, true),
             _G_Patterns_.HEADER_FG,
             'left',
             'top'
@@ -84,8 +107,6 @@ M.Header = function(x, y, w, s)
          )
       )
    }
-
-   return obj
 end
 
 M.drawHeader = function(cr, header)
@@ -96,10 +117,14 @@ end
 --------------------------------------------------------------------------------
 -- label plot
 
-M.default_grid_style = _G_Widget_.grid_style(9, 4, _G_Patterns_.BORDER_FG)
+M.default_grid_style = _G_Widget_.grid_style(
+   PLOT_GRID_X_N,
+   PLOT_GRID_Y_N,
+   _G_Patterns_.BORDER_FG
+)
 
 M.default_plot_style = _G_Widget_.plot_style(
-   90,
+   PLOT_NUM_POINTS,
    _G_Patterns_.BORDER_FG,
    _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
    _G_Patterns_.PLOT_FILL_BG_PRIMARY,
@@ -132,10 +157,7 @@ M.initPercentPlot = function(x, y, w, h, spacing, label)
          nil,
          M.right_text_style,
          '%s%%',
-         _G_Widget_.threshold_text_style(
-            _G_Patterns_.CRITICAL_FG,
-            80
-         )
+         _G_Widget_.threshold_text_style(_G_Patterns_.CRITICAL_FG, 80)
       ),
       plot = M.initThemedLabelPlot(
          x,
@@ -186,10 +208,7 @@ end
 
 M.initLabeledScalePlot = function(x, y, w, h, format_fun, label_fun, spacing, label)
    return {
-      label = _left_text(
-         _G_Widget_.make_point(x, y),
-         label
-      ),
+      label = _left_text(_G_Widget_.make_point(x, y), label),
       value = _G_Widget_.formatted_text(
          _G_Widget_.make_point(x + w, y),
          0,
@@ -209,10 +228,6 @@ M.annotated_scale_plot_draw_dynamic = function(asp, cr)
    ScalePlot.draw_dynamic(asp.plot, cr)
 end
 
--- M.annotated_scale_plot_set = function(asp, cr, text_value, plot_value)
---    Text.set(asp.value, cr, text_value)
---    ScalePlot.update(asp.plot, cr, plot_value)
--- end
 M.annotated_scale_plot_set = function(asp, cr, value)
    Text.set(asp.value, cr, value)
    ScalePlot.update(asp.plot, cr, value)
@@ -224,10 +239,7 @@ end
 M.initRing = function(x, y, r)
    return _G_Widget_.Arc(
       _G_Widget_.make_semicircle(x, y, r, 0, 360),
-      _G_Widget_.arc_style(
-         2,
-         _G_Patterns_.BORDER_FG
-      )
+      _G_Widget_.arc_style(ARC_WIDTH, _G_Patterns_.BORDER_FG)
    )
 end
 
@@ -247,10 +259,7 @@ M.initTextRing = function(x, y, r, fmt, limit)
             'center'
          ),
          fmt,
-         _G_Widget_.threshold_text_style(
-            _G_Patterns_.CRITICAL_FG,
-            limit
-         )
+         _G_Widget_.threshold_text_style(_G_Patterns_.CRITICAL_FG, limit)
 	  ),
    }
 end
@@ -270,12 +279,13 @@ end
 --------------------------------------------------------------------------------
 -- separator (eg a horizontal line)
 
+
 M.initSeparator = function(x, y, w)
    return _G_Widget_.Line(
       _G_Widget_.make_point(x, y),
       _G_Widget_.make_point(x + w, y),
       _G_Widget_.line_style(
-         1,
+         SEPARATOR_THICKNESS,
          _G_Patterns_.BORDER_FG,
          CAIRO_LINE_CAP_BUTT
       )
@@ -288,14 +298,8 @@ end
 
 M.initTextRow = function(x, y, w, label)
    return {
-      label = _left_text(
-         _G_Widget_.make_point(x, y),
-         label
-      ),
-      value = _right_text(
-         _G_Widget_.make_point(x + w, y),
-         nil
-      ),
+      label = _left_text(_G_Widget_.make_point(x, y), label),
+      value = _right_text(_G_Widget_.make_point(x + w, y), nil),
    }
 end
 
@@ -316,10 +320,7 @@ end
 
 M.initTextRowCrit = function(x, y, w, label, append_end, limit)
    return{
-      label = _left_text(
-         _G_Widget_.make_point(x, y),
-         label
-      ),
+      label = _left_text(_G_Widget_.make_point(x, y), label),
       value = _G_Widget_.formattedThresholdText(
          _G_Widget_.make_point(x + w, y),
          nil,
@@ -329,11 +330,8 @@ M.initTextRowCrit = function(x, y, w, label, append_end, limit)
             'right',
             'center'
          ),
-            append_end,
-         _G_Widget_.threshold_text_style(
-            _G_Patterns_.CRITICAL_FG,
-            limit
-         )
+         append_end,
+         _G_Widget_.threshold_text_style(_G_Patterns_.CRITICAL_FG, limit)
       )
    }
 end
@@ -385,29 +383,34 @@ end
 --------------------------------------------------------------------------------
 -- table
 
-M.default_table_font_spec = M.make_font_spec(_G_Patterns_.FONT, 11, false)
+M.default_table_font_spec = M.make_font_spec(FONT, TABLE_FONT_SIZE, false)
 
 M.default_table_style = _G_Widget_.table_style(
    _G_Widget_.rect_style(
-      1,
+      TABLE_LINE_THICKNESS,
       _G_Patterns_.BORDER_FG
    ),
    _G_Widget_.line_style(
-      1,
+      TABLE_LINE_THICKNESS,
       _G_Patterns_.BORDER_FG,
       CAIRO_LINE_CAP_BUTT
    ),
    _G_Widget_.table_header_style(
       M.default_table_font_spec,
       _G_Patterns_.PRIMARY_FG,
-      20
+      TABLE_HEADER_PAD
    ),
    _G_Widget_.table_body_style(
       M.default_table_font_spec,
       _G_Patterns_.INACTIVE_TEXT_FG,
-      8
+      TABLE_BODY_FORMAT
    ),
-   _G_Widget_.padding(5, 15, 5, 15)
+   _G_Widget_.padding(
+      TABLE_HORZ_PAD,
+      TABLE_VERT_PAD,
+      TABLE_HORZ_PAD,
+      TABLE_VERT_PAD
+   )
 )
 
 M.initTable = function(x, y, w, h, n, labels)
