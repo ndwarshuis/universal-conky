@@ -14,6 +14,11 @@ local network_label_function = function(bits)
 	return Util.round_to_string(new_value, precision)..' '..new_unit..'b/s'
 end
 
+local value_format_function = function(bits)
+   local unit, value = Util.convert_data_val(bits)
+   return Util.precision_round_to_string(value, 3)..' '..unit..'b/s'
+end
+
 local header = Common.Header(
 	_G_INIT_DATA_.CENTER_RIGHT_X,
 	_G_INIT_DATA_.TOP_Y,
@@ -26,6 +31,7 @@ local dnload = Common.initLabeledScalePlot(
       header.bottom_y,
       _G_INIT_DATA_.SECTION_WIDTH,
       _PLOT_HEIGHT_,
+      value_format_function,
       network_label_function,
       _PLOT_SEC_BREAK_,
       'Download'
@@ -36,6 +42,7 @@ local upload = Common.initLabeledScalePlot(
       header.bottom_y + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2,
       _G_INIT_DATA_.SECTION_WIDTH,
       _PLOT_HEIGHT_,
+      value_format_function,
       network_label_function,
       _PLOT_SEC_BREAK_,
       'Upload'
@@ -86,19 +93,19 @@ local update = function(cr, update_frequency)
 		if tx_delta > 0 then uspeed = uspeed + tx_delta * update_frequency end
 	end
 
-	local dspeed_unit, dspeed_value = Util.convert_data_val(dspeed)
-	local uspeed_unit, uspeed_value = Util.convert_data_val(uspeed)
+	-- local dspeed_unit, dspeed_value = Util.convert_data_val(dspeed)
+	-- local uspeed_unit, uspeed_value = Util.convert_data_val(uspeed)
 
     Common.annotated_scale_plot_set(
        dnload,
        cr,
-       Util.precision_round_to_string(dspeed_value, 3)..' '..dspeed_unit..'b/s',
+       -- Util.precision_round_to_string(dspeed_value, 3)..' '..dspeed_unit..'b/s',
        dspeed
     )
     Common.annotated_scale_plot_set(
        upload,
        cr,
-       Util.precision_round_to_string(uspeed_value, 3)..' '..uspeed_unit..'b/s',
+       -- Util.precision_round_to_string(uspeed_value, 3)..' '..uspeed_unit..'b/s',
        uspeed
     )
 end

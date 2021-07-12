@@ -184,17 +184,19 @@ end
 --------------------------------------------------------------------------------
 -- scaled plot (with textual data above it)
 
-M.initLabeledScalePlot = function(x, y, w, h, f, spacing, label)
+M.initLabeledScalePlot = function(x, y, w, h, format_fun, label_fun, spacing, label)
    return {
       label = _left_text(
          _G_Widget_.make_point(x, y),
          label
       ),
-      value = _right_text(
+      value = _G_Widget_.formatted_text(
          _G_Widget_.make_point(x + w, y),
-         label
+         0,
+         M.right_text_style,
+         format_fun
       ),
-      plot = M.initThemedScalePlot(x, y + spacing, w, h, f),
+      plot = M.initThemedScalePlot(x, y + spacing, w, h, label_fun),
    }
 end
 
@@ -207,10 +209,13 @@ M.annotated_scale_plot_draw_dynamic = function(asp, cr)
    ScalePlot.draw_dynamic(asp.plot, cr)
 end
 
-M.annotated_scale_plot_set = function(asp, cr, text_value, plot_value)
-   -- TODO this could be made more intelligent
-   Text.set(asp.value, cr, text_value)
-   ScalePlot.update(asp.plot, cr, plot_value)
+-- M.annotated_scale_plot_set = function(asp, cr, text_value, plot_value)
+--    Text.set(asp.value, cr, text_value)
+--    ScalePlot.update(asp.plot, cr, plot_value)
+-- end
+M.annotated_scale_plot_set = function(asp, cr, value)
+   Text.set(asp.value, cr, value)
+   ScalePlot.update(asp.plot, cr, value)
 end
 
 --------------------------------------------------------------------------------
