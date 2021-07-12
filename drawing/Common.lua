@@ -3,6 +3,7 @@ local M = {}
 local Util = require 'Util'
 local Arc = require 'Arc'
 local Text = require 'Text'
+local CompoundBar = require 'CompoundBar'
 local CriticalText = require 'CriticalText'
 local TextColumn = require 'TextColumn'
 local Line = require 'Line'
@@ -56,19 +57,13 @@ end
 M.normal_font_spec = M.make_font_spec(FONT, NORMAL_FONT_SIZE, false)
 M.label_font_spec = M.make_font_spec(FONT, PLOT_LABEL_FONT_SIZE, false)
 
-M.left_text_style = _G_Widget_.text_style(
-   M.normal_font_spec,
-   _G_Patterns_.INACTIVE_TEXT_FG,
-   'left',
-   'center'
-)
+local _text_row_style = function(x_align, color)
+   return _G_Widget_.text_style(M.normal_font_spec, color, x_align, 'center')
+end
 
-M.right_text_style = _G_Widget_.text_style(
-   M.normal_font_spec,
-   _G_Patterns_.PRIMARY_FG,
-   'right',
-   'center'
-)
+M.left_text_style = _text_row_style('left', _G_Patterns_.INACTIVE_TEXT_FG)
+
+M.right_text_style = _text_row_style('right', _G_Patterns_.PRIMARY_FG)
 
 local _bare_text = function(pt, text, style)
    return _G_Widget_.plainText(pt, text, style)
@@ -237,6 +232,19 @@ M.annotated_scale_plot_set = function(asp, cr, value)
 end
 
 --------------------------------------------------------------------------------
+-- arc (TODO this is just a dummy now to make everything organized
+
+-- TODO perhaps implement this is a special case of compound dial where
+-- I have multiple layers on top of each other
+
+M.arc = function(x, y, r, thickness, pattern)
+   return _G_Widget_.Arc(
+      _G_Widget_.make_semicircle(x, y, r, 90, 360),
+      _G_Widget_.arc_style(thickness, pattern)
+   )
+end
+
+--------------------------------------------------------------------------------
 -- ring
 
 M.initRing = function(x, y, r)
@@ -282,15 +290,19 @@ end
 --------------------------------------------------------------------------------
 -- dial
 
+local threshold_indicator = function(threshold)
+   return _G_Widget_.threshold_style(
+      _G_Patterns_.INDICATOR_FG_PRIMARY,
+      _G_Patterns_.INDICATOR_FG_CRITICAL,
+      threshold
+   )
+end
+
 M.dial = function(x, y, radius, thickness, threshold)
    return _G_Widget_.Dial(
       _G_Widget_.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
       _G_Widget_.arc_style(thickness, _G_Patterns_.INDICATOR_BG),
-      _G_Widget_.threshold_style(
-         _G_Patterns_.INDICATOR_FG_PRIMARY,
-         _G_Patterns_.INDICATOR_FG_CRITICAL,
-         threshold
-      )
+      threshold_indicator(threshold)
    )
 end
 
@@ -302,14 +314,51 @@ M.compound_dial = function(x, y, outer_radius, inner_radius, thickness,
    return _G_Widget_.CompoundDial(
       _G_Widget_.make_semicircle(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
       _G_Widget_.arc_style(thickness, _G_Patterns_.INDICATOR_BG),
-      _G_Widget_.threshold_style(
-         _G_Patterns_.INDICATOR_FG_PRIMARY,
-         _G_Patterns_.INDICATOR_FG_CRITICAL,
-         threshold
-      ),
+      threshold_indicator(threshold),
       inner_radius,
       num_dials
    )
+end
+
+--------------------------------------------------------------------------------
+-- annotated compound bar
+
+M.compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
+   return {
+      labels = _G_Widget_.TextColumn(
+         _G_Widget_.make_point(x, y),
+         labels,
+         M.left_text_style,
+         nil,
+         spacing
+      ),
+      bars = _G_Widget_.CompoundBar(
+         _G_Widget_.make_point(x + pad, y),
+         w - pad,
+         _G_Widget_.line_style(
+            thickness,
+            _G_Patterns_.INDICATOR_BG,
+            CAIRO_LINE_JOIN_MITER
+         ),
+         threshold_indicator(threshold),
+         spacing,
+         #labels,
+         false
+      )
+   }
+end
+
+M.compound_bar_draw_static = function(cb, cr)
+   TextColumn.draw(cb.labels, cr)
+   CompoundBar.draw_static(cb.bars, cr)
+end
+
+M.compound_bar_draw_dynamic = function(cb, cr)
+   CompoundBar.draw_dynamic(cb.bars, cr)
+end
+
+M.compound_bar_set = function(cb, i, value)
+   CompoundBar.set(cb.bars, i, value)
 end
 
 --------------------------------------------------------------------------------
@@ -329,7 +378,6 @@ end
 
 --------------------------------------------------------------------------------
 -- text row (label with a value, aligned as far apart as possible)
-
 
 M.initTextRow = function(x, y, w, label)
    return {
@@ -382,9 +430,22 @@ M.text_row_crit_set = function(row, cr, value)
 end
 
 --------------------------------------------------------------------------------
+-- text column
+
+M.text_column = function(x, y, spacing, labels, x_align, color)
+   return _G_Widget_.TextColumn(
+      _G_Widget_.make_point(x, y),
+      labels,
+      _text_row_style(x_align, color),
+      nil,
+      spacing
+   )
+end
+
+--------------------------------------------------------------------------------
 -- multiple text row separated by spacing
 
-M.initTextRows = function(x, y, w, spacing, labels)
+M.initTextRows_color = function(x, y, w, spacing, labels, color, format)
    return {
       labels = _G_Widget_.TextColumn(
          _G_Widget_.make_point(x, y),
@@ -396,11 +457,23 @@ M.initTextRows = function(x, y, w, spacing, labels)
       values = _G_Widget_.initTextColumnN(
          _G_Widget_.make_point(x + w, y),
          #labels,
-         M.right_text_style,
-         nil,
+         _text_row_style('right', color),
+         format,
          spacing
       )
    }
+end
+
+M.initTextRows = function(x, y, w, spacing, labels)
+   return M.initTextRows_color(
+      x,
+      y,
+      w,
+      spacing,
+      labels,
+      _G_Patterns_.PRIMARY_FG,
+      nil
+   )
 end
 
 M.text_rows_draw_static = function(rows, cr)

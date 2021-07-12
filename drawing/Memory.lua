@@ -2,7 +2,6 @@ local M = {}
 
 local Arc			= require 'Arc'
 local Dial 			= require 'Dial'
-local TextColumn	= require 'TextColumn'
 local LabelPlot		= require 'LabelPlot'
 local Table			= require 'Table'
 local Util			= require 'Util'
@@ -55,12 +54,12 @@ local DIAL_X = _G_INIT_DATA_.RIGHT_X + DIAL_RADIUS + _DIAL_THICKNESS_ / 2
 local DIAL_Y = header.bottom_y + DIAL_RADIUS + _DIAL_THICKNESS_ / 2
 
 local dial = Common.dial(DIAL_X, DIAL_Y, DIAL_RADIUS, _DIAL_THICKNESS_, 0.8)
-local cache_arc = _G_Widget_.Arc(
-   _G_Widget_.make_semicircle(DIAL_X, DIAL_Y, DIAL_RADIUS, 90, 360),
-   _G_Widget_.arc_style(
-      _DIAL_THICKNESS_,
-      _G_Patterns_.INDICATOR_FG_SECONDARY
-   )
+local cache_arc = Common.arc(
+   DIAL_X,
+   DIAL_Y,
+   DIAL_RADIUS,
+   _DIAL_THICKNESS_,
+   _G_Patterns_.INDICATOR_FG_SECONDARY
 )
 
 local text_ring = Common.initTextRing(
@@ -85,38 +84,15 @@ local swap = Common.initTextRowCrit(
    80
 )
 
-local cache = {
-   labels = _G_Widget_.TextColumn(
-      _G_Widget_.make_point(
-         _TEXT_LEFT_X_,
-         _LINE_1_Y_ + _TEXT_SPACING_
-      ),
-      {'Page Cache', 'Buffers', 'Kernel Slab'},
-      _G_Widget_.text_style(
-         Common.normal_font_spec,
-         _G_Patterns_.INACTIVE_TEXT_FG,
-         'left',
-         'center'
-      ),
-      nil,
-      _TEXT_SPACING_
-   ),
-   percents = _G_Widget_.initTextColumnN(
-      _G_Widget_.make_point(
-         _RIGHT_X_,
-         _LINE_1_Y_ + _TEXT_SPACING_
-      ),
-      3,
-      _G_Widget_.text_style(
-         Common.normal_font_spec,
-         _G_Patterns_.SECONDARY_FG,
-         'right',
-         'center'
-      ),
-      '%s%%',
-      _TEXT_SPACING_
-   ),
-}
+local cache = Common.initTextRows_color(
+   _TEXT_LEFT_X_,
+   _LINE_1_Y_ + _TEXT_SPACING_,
+   _G_INIT_DATA_.SECTION_WIDTH - _TEXT_LEFT_X_OFFSET_ - DIAL_RADIUS * 2,
+   _TEXT_SPACING_,
+   {'Page Cache', 'Buffers', 'Kernel Slab'},
+   _G_Patterns_.SECONDARY_FG,
+   '%s%%'
+)
 
 local _PLOT_Y_ = _PLOT_SECTION_BREAK_ + header.bottom_y + DIAL_RADIUS * 2
 
@@ -158,15 +134,13 @@ local update = function(cr)
                                (swap_total_kb - swap_free_kb)
                                / swap_total_kb * 100))
 
-   local _percents = cache.percents
-
-   TextColumn.set(_percents, cr, 1, Util.precision_round_to_string(
+   Common.text_rows_set(cache, cr, 1, Util.precision_round_to_string(
        cached_kb / MEM_TOTAL_KB * 100))
 
-   TextColumn.set(_percents, cr, 2, Util.precision_round_to_string(
+   Common.text_rows_set(cache, cr, 2, Util.precision_round_to_string(
        buffers_kb / MEM_TOTAL_KB * 100))
 
-   TextColumn.set(_percents, cr, 3, Util.precision_round_to_string(
+   Common.text_rows_set(cache, cr, 3, Util.precision_round_to_string(
        slab_reclaimable_kb / MEM_TOTAL_KB * 100))
 
    LabelPlot.update(plot, used_percent)
@@ -203,7 +177,7 @@ M.draw_static = function(cr)
    Dial.draw_static(dial, cr)
 
    Common.text_row_crit_draw_static(swap, cr)
-   TextColumn.draw(cache.labels, cr)
+   Common.text_rows_draw_static(cache, cr)
    LabelPlot.draw_static(plot, cr)
 
    Table.draw_static(tbl, cr)
@@ -217,7 +191,7 @@ M.draw_dynamic = function(cr)
    Common.text_ring_draw_dynamic(text_ring, cr)
 
    Common.text_row_crit_draw_dynamic(swap, cr)
-   TextColumn.draw(cache.percents, cr)
+   Common.text_rows_draw_dynamic(cache, cr)
 
    LabelPlot.draw_dynamic(plot, cr)
 
