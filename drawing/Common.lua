@@ -185,7 +185,7 @@ end
 --------------------------------------------------------------------------------
 -- scaled plot
 
-M.base_2_scale_data = _G_Widget_.scale_data(2, 1, 0.9)
+M.base_2_scale_data = _G_Widget_.scale_data(2, 0, 0.9)
 
 M.initThemedScalePlot = function(x, y, w, h, f)
    return _G_Widget_.ScalePlot(
