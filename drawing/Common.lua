@@ -2,6 +2,8 @@ local M = {}
 
 local Util = require 'Util'
 local Arc = require 'Arc'
+local Dial = require 'Dial'
+local CompoundDial = require 'CompoundDial'
 local Text = require 'Text'
 local CriticalText = require 'CriticalText'
 local TextColumn = require 'TextColumn'
@@ -277,8 +279,22 @@ M.text_ring_set = function(tr, cr, value)
 end
 
 --------------------------------------------------------------------------------
--- separator (eg a horizontal line)
+-- dial
 
+M.dial = function(x, y, radius, thickness, threshold)
+   return _G_Widget_.Dial(
+      _G_Widget_.make_semicircle(x, y, radius, 90, 360),
+      _G_Widget_.arc_style(thickness, _G_Patterns_.INDICATOR_BG),
+      _G_Widget_.threshold_style(
+         _G_Patterns_.INDICATOR_FG_PRIMARY,
+         _G_Patterns_.INDICATOR_FG_CRITICAL,
+         threshold
+      )
+   )
+end
+
+--------------------------------------------------------------------------------
+-- separator (eg a horizontal line)
 
 M.initSeparator = function(x, y, w)
    return _G_Widget_.Line(
