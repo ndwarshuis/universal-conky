@@ -10,6 +10,7 @@ local __string_match = string.match
 local __string_gmatch = string.gmatch
 local __string_format = string.format
 local __tonumber = tonumber
+local __math_floor = math.floor
 
 local CORETEMP_PATH = '/sys/devices/platform/coretemp.0/hwmon/hwmon%i/%s'
 
@@ -192,10 +193,11 @@ local update = function(cr)
             load_sum = load_sum + percent
          end
 	  end
-
-      Common.text_ring_set(core.text_ring, cr,
-                           Util.round_to_string(
-                              0.001 * Util.read_file(core.coretemp_path, nil, '*n')))
+      Common.text_ring_set(
+         core.text_ring,
+         cr,
+         __math_floor(0.001 * Util.read_file(core.coretemp_path, nil, '*n'))
+      )
    end
 
    -- read HWP of first cpu, then test all others to see if they match
