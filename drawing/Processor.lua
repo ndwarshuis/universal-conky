@@ -76,7 +76,6 @@ local _create_core_ = function(cores, id, x, y)
 		 90
       ),
 	  coretemp_path = string.format(CORETEMP_PATH, hwmon_index, 'temp'..(id + 2)..'_input'),
-	  conky_freqs = conky_freqs
    }
 end
 
@@ -164,6 +163,10 @@ end
 _read_cpu() -- prime once
 
 local _read_freq = function()
+   -- NOTE: Using the builtin conky functions for getting cpu freq seems to
+   -- make the entire loop jittery due to high variance latency. Querying
+   -- scaling_cur_freq in sysfs seems to do the same thing. It appears
+   -- /proc/cpuinfo is much faster and doesn't have this jittery problem.
    local c = Util.read_file('/proc/cpuinfo')
    local f = 0
    for s in __string_gmatch(c, 'cpu MHz%s+: (%d+%.%d+)') do
