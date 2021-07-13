@@ -7,6 +7,9 @@ local Util			= require 'Util'
 local Common		= require 'Common'
 
 local __string_match = string.match
+local __string_gmatch = string.gmatch
+local __string_format = string.format
+local __tonumber = tonumber
 
 local CORETEMP_PATH = '/sys/devices/platform/coretemp.0/hwmon/hwmon%i/%s'
 
@@ -160,17 +163,23 @@ end
 
 _read_cpu() -- prime once
 
+local _read_freq = function()
+   local c = Util.read_file('/proc/cpuinfo')
+   local f = 0
+   for s in __string_gmatch(c, 'cpu MHz%s+: (%d+%.%d+)') do
+      f = f + __tonumber(s)
+   end
+   return __string_format('%.0f Mhz', f / NCPU)
+end
+
 local update = function(cr)
    local conky = Util.conky
-
    local load_sum = 0
-   local freq_sum = 0
 
    _read_cpu()
 
    for c = 1, NUM_PHYSICAL_CORES do
 	  local core = cores[c]
-	  local conky_freqs = core.conky_freqs
 
 	  for t = 1, NUM_THREADS_PER_CORE do
          local cl = cpu_loads[(c - 1) * NUM_THREADS_PER_CORE + t]
@@ -179,9 +188,6 @@ local update = function(cr)
             CompoundDial.set(core.dials, t, percent)
             load_sum = load_sum + percent
          end
-
-         -- TODO get this from /proc/cpuinfo and it might be faster?
-		 freq_sum = freq_sum + Util.conky_numeric(conky_freqs[t])
 	  end
 
       Common.text_ring_set(core.text_ring, cr,
@@ -216,8 +222,7 @@ local update = function(cr)
       hwp_val = "Default"
    end
    Common.text_rows_set(cpu_status, cr, 1, hwp_val)
-   Common.text_rows_set(cpu_status, cr, 2,
-                        Util.round_to_string(freq_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE) .. ' MHz')
+   Common.text_rows_set(cpu_status, cr, 2, _read_freq())
 
    Common.percent_plot_set(total_load, cr, load_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE * 100)
 
