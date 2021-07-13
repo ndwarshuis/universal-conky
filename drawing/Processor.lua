@@ -46,14 +46,6 @@ local _TABLE_SECTION_BREAK_ = 20
 local _TABLE_HEIGHT_ = 114
 
 local _create_core_ = function(cores, id, x, y)
-   local conky_freqs = {}
-
-   for c = 0, NUM_PHYSICAL_CORES * NUM_THREADS_PER_CORE - 1 do
-	  if Util.read_file('/sys/devices/system/cpu/cpu'..c..'/topology/core_id', nil, '*n') == id then
-		 table.insert(conky_freqs, '${freq '..c..'}')
-	  end
-   end
-
    local hwmon_index = -1
    while Util.read_file(string.format(CORETEMP_PATH, hwmon_index, 'name'), nil, '*l') ~= 'coretemp' do
 	  hwmon_index = hwmon_index + 1
