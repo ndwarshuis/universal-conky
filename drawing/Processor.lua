@@ -6,6 +6,8 @@ local Table			= require 'Table'
 local Util			= require 'Util'
 local Common		= require 'Common'
 
+local __string_match = string.match
+
 local CORETEMP_PATH = '/sys/devices/platform/coretemp.0/hwmon/hwmon%i/%s'
 
 local NUM_PHYSICAL_CORES = 4
@@ -40,12 +42,10 @@ local _TABLE_SECTION_BREAK_ = 20
 local _TABLE_HEIGHT_ = 114
 
 local _create_core_ = function(cores, id, x, y)
-   local conky_loads = {}
    local conky_freqs = {}
 
    for c = 0, NUM_PHYSICAL_CORES * NUM_THREADS_PER_CORE - 1 do
 	  if Util.read_file('/sys/devices/system/cpu/cpu'..c..'/topology/core_id', nil, '*n') == id then
-		 table.insert(conky_loads, '${cpu cpu'..(c+1)..'}')
 		 table.insert(conky_freqs, '${freq '..c..'}')
 	  end
    end
@@ -73,7 +73,6 @@ local _create_core_ = function(cores, id, x, y)
 		 90
       ),
 	  coretemp_path = string.format(CORETEMP_PATH, hwmon_index, 'temp'..(id + 2)..'_input'),
-	  conky_loads = conky_loads,
 	  conky_freqs = conky_freqs
    }
 end
@@ -137,23 +136,51 @@ local tbl = Common.initTable(
    {'Name', 'PID', 'CPU (%)'}
 )
 
+local cpu_loads = {}
+local NCPU = NUM_THREADS_PER_CORE * NUM_PHYSICAL_CORES
+for i = 1, NCPU do
+   cpu_loads[i] = {active_prev = 0, active_total = 0}
+end
+
+local _read_cpu = function()
+   local i = NCPU
+   local iter = io.lines('/proc/stat')
+   iter() -- ignore first line
+   for ln in iter do
+      if i == 0 then break end
+      local user, system, idle = __string_match(ln, '(%d+) %d+ (%d+) (%d+)', 5)
+      local c = cpu_loads[i]
+      c.active_prev = c.active
+      c.total_prev = c.total
+      c.active = user + system
+      c.total = user + system + idle
+      i = i - 1
+   end
+end
+
+_read_cpu() -- prime once
+
 local update = function(cr)
    local conky = Util.conky
 
    local load_sum = 0
    local freq_sum = 0
 
+   _read_cpu()
+
    for c = 1, NUM_PHYSICAL_CORES do
 	  local core = cores[c]
-
-	  local conky_loads = core.conky_loads
 	  local conky_freqs = core.conky_freqs
 
 	  for t = 1, NUM_THREADS_PER_CORE do
-		 local percent = Util.conky_numeric(conky_loads[t]) * 0.01
-		 CompoundDial.set(core.dials, t, percent)
-		 load_sum = load_sum + percent
+         local cl = cpu_loads[(c - 1) * NUM_THREADS_PER_CORE + t]
+         if cl.total > cl.total_prev then
+            local percent = (cl.active - cl.active_prev) / (cl.total - cl.total_prev)
+            CompoundDial.set(core.dials, t, percent)
+            load_sum = load_sum + percent
+         end
 
+         -- TODO get this from /proc/cpuinfo and it might be faster?
 		 freq_sum = freq_sum + Util.conky_numeric(conky_freqs[t])
 	  end
 
