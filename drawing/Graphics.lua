@@ -14,6 +14,12 @@ local _TEXT_SPACING_ = 20
 local _PLOT_SEC_BREAK_ = 20
 local _PLOT_HEIGHT_ = 56
 
+local NA = 'N/A'
+
+local na_percent_format = function(x)
+   if x == -1 then return NA else return string.format('%s%%', x) end
+end
+
 local header = Common.Header(
 	_G_INIT_DATA_.LEFT_X,
 	_MODULE_Y_,
@@ -43,7 +49,7 @@ local internal_temp = Common.initTextRowCrit(
    _INTERNAL_TEMP_Y_,
    _G_INIT_DATA_.SECTION_WIDTH,
    'Internal Temperature',
-   '%s°C',
+   function(s) if s == -1 then return NA else return string.format('%s°C', s) end end,
    80
 )
 
@@ -75,35 +81,38 @@ local separator3 = Common.initSeparator(
 
 local _GPU_UTIL_Y_ = _SEP_Y_3_ + _SEPARATOR_SPACING_
 
-local gpu_util = Common.initPercentPlot(
+local gpu_util = Common.initPercentPlot_formatted(
    _G_INIT_DATA_.LEFT_X,
    _GPU_UTIL_Y_,
    _G_INIT_DATA_.SECTION_WIDTH,
    _PLOT_HEIGHT_,
    _PLOT_SEC_BREAK_,
-   'GPU Utilization'
+   'GPU Utilization',
+   na_percent_format
 )
 
 local _MEM_UTIL_Y_ = _GPU_UTIL_Y_ + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
 
-local mem_util = Common.initPercentPlot(
+local mem_util = Common.initPercentPlot_formatted(
    _G_INIT_DATA_.LEFT_X,
    _MEM_UTIL_Y_,
    _G_INIT_DATA_.SECTION_WIDTH,
    _PLOT_HEIGHT_,
    _PLOT_SEC_BREAK_,
-   'Memory Utilization'
+   'Memory Utilization',
+   na_percent_format
 )
 
 local _VID_UTIL_Y_ = _MEM_UTIL_Y_ + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
 
-local vid_util = Common.initPercentPlot(
+local vid_util = Common.initPercentPlot_formatted(
    _G_INIT_DATA_.LEFT_X,
    _VID_UTIL_Y_,
    _G_INIT_DATA_.SECTION_WIDTH,
    _PLOT_HEIGHT_,
    _PLOT_SEC_BREAK_,
-   'Video Utilization'
+   'Video Utilization',
+   na_percent_format
 )
 
 --[[
@@ -129,21 +138,14 @@ local NV_REGEX = '(%d+)\n'..
 				 '(%d+),(%d+)\n'..
 				 'graphics=(%d+), memory=%d+, video=(%d+), PCIe=%d+\n'
 
-local NA = 'N/A'
-
 local nvidia_off = function(cr)
-   Common.text_row_crit_set(internal_temp, cr, NA)
+   Common.text_row_crit_set(internal_temp, cr, -1)
    Common.text_rows_set(clock_speed, cr, 1, NA)
    Common.text_rows_set(clock_speed, cr, 2, NA)
 
-   -- TODO refactor this
-   Text.set(gpu_util.value, cr, NA)
-   Text.set(mem_util.value, cr, NA)
-   Text.set(vid_util.value, cr, NA)
-
-   LabelPlot.update(gpu_util.plot, 0)
-   LabelPlot.update(mem_util.plot, 0)
-   LabelPlot.update(vid_util.plot, 0)
+   Common.percent_plot_set(gpu_util, cr, nil)
+   Common.percent_plot_set(vid_util, cr, nil)
+   Common.percent_plot_set(mem_util, cr, nil)
 end
 
 local gpu_bus_ctrl = '/sys/bus/pci/devices/0000:01:00.0/power/control'

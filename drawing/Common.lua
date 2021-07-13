@@ -147,14 +147,14 @@ end
 --------------------------------------------------------------------------------
 -- percent plot (label plot with percent signs and some indicator data above it)
 
-M.initPercentPlot = function(x, y, w, h, spacing, label)
+M.initPercentPlot_formatted = function(x, y, w, h, spacing, label, format)
    return {
       label = _left_text(_G_Widget_.make_point(x, y), label),
       value = _G_Widget_.formattedThresholdText(
          _G_Widget_.make_point(x + w, y),
          nil,
          M.right_text_style,
-         '%s%%',
+         format,
          _G_Widget_.threshold_text_style(_G_Patterns_.CRITICAL_FG, 80)
       ),
       plot = M.initThemedLabelPlot(
@@ -167,6 +167,10 @@ M.initPercentPlot = function(x, y, w, h, spacing, label)
    }
 end
 
+M.initPercentPlot = function(x, y, w, h, spacing, label)
+   return M.initPercentPlot_formatted(x, y, w, h, spacing, label, '%s%%')
+end
+
 M.percent_plot_draw_static = function(pp, cr)
    Text.draw(pp.label, cr)
    LabelPlot.draw_static(pp.plot, cr)
@@ -177,9 +181,17 @@ M.percent_plot_draw_dynamic = function(pp, cr)
    LabelPlot.draw_dynamic(pp.plot, cr)
 end
 
+-- TODO this is pretty confusing, nil means -1 which gets fed to any text
+-- formatting functions
 M.percent_plot_set = function(pp, cr, value)
-   Text.set(pp.value, cr, math.floor(value))
-   LabelPlot.update(pp.plot, value * 0.01)
+   local t = -1
+   local p = 0
+   if value ~= nil then
+      t = math.floor(value)
+      p = value * 0.01
+   end
+   Text.set(pp.value, cr, t)
+   LabelPlot.update(pp.plot, p)
 end
 
 --------------------------------------------------------------------------------
