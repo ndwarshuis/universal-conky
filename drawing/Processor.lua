@@ -176,6 +176,36 @@ local _read_freq = function()
    return __string_format('%.0f Mhz', f / NCPU)
 end
 
+local _read_hwp = function()
+   -- read HWP of first cpu, then test all others to see if they match
+   local hwp_pref = Util.read_file(HWP_PATHS[1], nil, "*l")
+   local mixed = false
+   local i = 2
+
+   while not mixed and i <= #HWP_PATHS do
+      if hwp_pref ~= Util.read_file(HWP_PATHS[i], nil, '*l') then
+         mixed = true
+      end
+      i = i + 1
+   end
+
+   if mixed then
+      return 'Mixed'
+   elseif hwp_pref == 'power' then
+      return 'Power'
+   elseif hwp_pref == 'balance_power' then
+      return 'Bal. Power'
+   elseif hwp_pref == 'balance_performance' then
+      return 'Bal. Performance'
+   elseif hwp_pref == 'performance' then
+      return 'Performance'
+   elseif hwp_pref == 'default' then
+      return 'Default'
+   else
+      return 'Unknown'
+   end
+end
+
 local update = function(cr)
    local conky = Util.conky
    local load_sum = 0
@@ -187,10 +217,11 @@ local update = function(cr)
 
 	  for t = 1, NUM_THREADS_PER_CORE do
          local cl = cpu_loads[(c - 1) * NUM_THREADS_PER_CORE + t]
+         -- this is necessary to prevent 1/0 errors
          if cl.total > cl.total_prev then
-            local percent = (cl.active - cl.active_prev) / (cl.total - cl.total_prev)
-            CompoundDial.set(core.dials, t, percent)
-            load_sum = load_sum + percent
+            local p = (cl.active - cl.active_prev) / (cl.total - cl.total_prev)
+            CompoundDial.set(core.dials, t, p)
+            load_sum = load_sum + p
          end
 	  end
       Common.text_ring_set(
@@ -200,36 +231,10 @@ local update = function(cr)
       )
    end
 
-   -- read HWP of first cpu, then test all others to see if they match
-   local hwp_pref = Util.read_file(HWP_PATHS[1], nil, "*l")
-   local mixed = nil
-   local i = 2
-
-   while not mixed and i <= #HWP_PATHS do
-      if hwp_pref ~= Util.read_file(HWP_PATHS[i], nil, '*l') then
-         mixed = 0
-      end
-      i = i + 1
-   end
-
-   local hwp_val = "Unknown"
-   if mixed then
-      hwp_val = "Mixed"
-   elseif hwp_pref == "power" then
-      hwp_val = "Power"
-   elseif hwp_pref == "balance_power" then
-      hwp_val = "Bal. Power"
-   elseif hwp_pref == "balance_performance" then
-      hwp_val = "Bal. Performance"
-   elseif hwp_pref == "performance" then
-      hwp_val = "Performance"
-   elseif hwp_pref == "default" then
-      hwp_val = "Default"
-   end
-   Common.text_rows_set(cpu_status, cr, 1, hwp_val)
+   Common.text_rows_set(cpu_status, cr, 1, _read_hwp())
    Common.text_rows_set(cpu_status, cr, 2, _read_freq())
 
-   Common.percent_plot_set(total_load, cr, load_sum / NUM_PHYSICAL_CORES / NUM_THREADS_PER_CORE * 100)
+   Common.percent_plot_set(total_load, cr, load_sum / NCPU * 100)
 
    for r = 1, NUM_ROWS do
       local pid = conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
