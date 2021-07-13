@@ -16,13 +16,14 @@ local CORETEMP_PATH = '/sys/devices/platform/coretemp.0/hwmon/hwmon%i/%s'
 
 local NUM_PHYSICAL_CORES = 4
 local NUM_THREADS_PER_CORE = 2
+local NCPU = NUM_THREADS_PER_CORE * NUM_PHYSICAL_CORES
 
 local NUM_ROWS = 5
 
 local HWP_PATHS = {}
 
-for i = 1, NUM_ROWS do
-   HWP_PATHS[i] = '/sys/devices/system/cpu/cpu' .. i ..
+for i = 1, NCPU do
+   HWP_PATHS[i] = '/sys/devices/system/cpu/cpu' .. (i - 1) ..
       '/cpufreq/energy_performance_preference'
 end
 
@@ -132,7 +133,6 @@ local tbl = Common.initTable(
 )
 
 local cpu_loads = {}
-local NCPU = NUM_THREADS_PER_CORE * NUM_PHYSICAL_CORES
 for i = 1, NCPU do
    cpu_loads[i] = {active_prev = 0, active_total = 0}
 end
