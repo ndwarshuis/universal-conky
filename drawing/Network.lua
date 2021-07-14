@@ -4,14 +4,14 @@ local Util		= require 'Util'
 local Common	= require 'Common'
 
 local __string_gmatch = string.gmatch
+local __math_floor = math.floor
 
 local _PLOT_SEC_BREAK_ = 20
 local _PLOT_HEIGHT_ = 56
 
 local network_label_function = function(bits)
 	local new_unit, new_value = Util.convert_data_val(bits)
-	local precision = new_value < 10 and 1 or 0
-	return Util.round_to_string(new_value, precision)..' '..new_unit..'b/s'
+	return __math_floor(new_value)..' '..new_unit..'b/s'
 end
 
 local value_format_function = function(bits)

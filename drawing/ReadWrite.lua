@@ -5,6 +5,7 @@ local Common	= require 'Common'
 
 local __tonumber 	= tonumber
 local __string_match = string.match
+local __math_floor = math.floor
 
 local _PLOT_SEC_BREAK_ = 20
 local _PLOT_HEIGHT_ = 56
@@ -24,25 +25,17 @@ local update_stat = function(cr, stat, byte_cnt, update_frequency)
 	local delta_bytes = byte_cnt - stat.prev_byte_cnt
 	stat.prev_byte_cnt = byte_cnt
 
-    -- local text_value = '0.00 B/s'
     local plot_value = 0
 	if delta_bytes > 0 then
 		local bps = delta_bytes * update_frequency
-		-- local unit, value = Util.convert_data_val(bps)
-        -- text_value = Util.precision_round_to_string(value, 3)..' '..unit..'B/s'
         plot_value = bps
 	end
-    -- Common.annotated_scale_plot_set(stat, cr, text_value, plot_value)
     Common.annotated_scale_plot_set(stat, cr, plot_value)
 end
 
 local io_label_function = function(bytes)
 	local new_unit, new_value = Util.convert_data_val(bytes)
-
-	local precision = 0
-	if new_value < 10 then precision = 1 end
-
-	return Util.round_to_string(new_value, precision)..' '..new_unit..'B/s'
+	return __math_floor(new_value)..' '..new_unit..'B/s'
 end
 
 local format_value_function = function(bps)
