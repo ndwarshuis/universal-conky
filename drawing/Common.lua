@@ -197,9 +197,11 @@ end
 --------------------------------------------------------------------------------
 -- scaled plot
 
-M.base_2_scale_data = _G_Widget_.scale_data(2, 0, 0.9)
+M.base_2_scale_data = function(m)
+   return _G_Widget_.scale_data(2, m, 0.9)
+end
 
-M.initThemedScalePlot = function(x, y, w, h, f)
+M.initThemedScalePlot = function(x, y, w, h, f, min_domain)
    return _G_Widget_.ScalePlot(
       _G_Widget_.make_box(x, y, w, h),
       1 / _G_INIT_DATA_.UPDATE_INTERVAL,
@@ -209,14 +211,15 @@ M.initThemedScalePlot = function(x, y, w, h, f)
          M.label_font_spec,
          f
       ),
-      M.base_2_scale_data
+      M.base_2_scale_data(min_domain)
    )
 end
 
 --------------------------------------------------------------------------------
 -- scaled plot (with textual data above it)
 
-M.initLabeledScalePlot = function(x, y, w, h, format_fun, label_fun, spacing, label)
+M.initLabeledScalePlot = function(x, y, w, h, format_fun, label_fun, spacing,
+                                  label, min_domain)
    return {
       label = _left_text(_G_Widget_.make_point(x, y), label),
       value = _G_Widget_.formatted_text(
@@ -225,7 +228,7 @@ M.initLabeledScalePlot = function(x, y, w, h, format_fun, label_fun, spacing, la
          M.right_text_style,
          format_fun
       ),
-      plot = M.initThemedScalePlot(x, y + spacing, w, h, label_fun),
+      plot = M.initThemedScalePlot(x, y + spacing, w, h, label_fun, min_domain),
    }
 end
 

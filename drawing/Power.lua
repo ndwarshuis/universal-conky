@@ -45,7 +45,8 @@ local pkg0 = Common.initLabeledScalePlot(
       power_format_function,
       power_label_function,
       _PLOT_SEC_BREAK_,
-      'PKG0'
+      'PKG0',
+      0
 )
 
 local _CORE_Y_ = header.bottom_y + _TEXT_SPACING_ + _PLOT_SEC_BREAK_ + _PLOT_HEIGHT_
@@ -58,7 +59,8 @@ local dram = Common.initLabeledScalePlot(
       power_format_function,
       power_label_function,
       _PLOT_SEC_BREAK_,
-      'DRAM'
+      'DRAM',
+      0
 )
 dram.value.append_end = ' W'
 
@@ -70,7 +72,8 @@ local battery_draw = Common.initLabeledScalePlot(
       ac_format_function,
       power_label_function,
       _PLOT_SEC_BREAK_,
-      'Battery Draw'
+      'Battery Draw',
+      0
 )
 
 local PKG0_PATH = '/sys/class/powercap/intel-rapl:0/energy_uj'

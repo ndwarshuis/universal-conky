@@ -65,7 +65,9 @@ local reads = Common.initLabeledScalePlot(
       format_value_function,
       io_label_function,
       _PLOT_SEC_BREAK_,
-      'Reads'
+      'Reads',
+      2
+
 )
 
 local writes = Common.initLabeledScalePlot(
@@ -76,8 +78,10 @@ local writes = Common.initLabeledScalePlot(
       format_value_function,
       io_label_function,
       _PLOT_SEC_BREAK_,
-      'Writes'
+      'Writes',
+      2
 )
+
 
 _PLOT_SEC_BREAK_ = nil
 _PLOT_HEIGHT_ = nil

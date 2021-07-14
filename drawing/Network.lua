@@ -34,7 +34,8 @@ local dnload = Common.initLabeledScalePlot(
       value_format_function,
       network_label_function,
       _PLOT_SEC_BREAK_,
-      'Download'
+      'Download',
+      2
 )
 
 local upload = Common.initLabeledScalePlot(
@@ -45,7 +46,8 @@ local upload = Common.initLabeledScalePlot(
       value_format_function,
       network_label_function,
       _PLOT_SEC_BREAK_,
-      'Upload'
+      'Upload',
+      2
 )
 
 local interface_counters_tbl = {}
