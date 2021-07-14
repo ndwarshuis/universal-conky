@@ -198,16 +198,20 @@ local _read_hwp = function()
    end
 end
 
-local update = function(cr)
+local update = function(cr, trigger)
    local conky = Util.conky
    local load_sum = 0
 
+   -- TODO bundle all the crap down below into this function and make it return
+   -- something useful rather than totally use a side effect (it will be mildly
+   -- slower)
+   -- this entire loop is about 10% total execution time
    _read_cpu()
-
    for c = 1, NUM_PHYSICAL_CORES do
-	  local core = cores[c]
+      local core = cores[c]
 
-	  for t = 1, NUM_THREADS_PER_CORE do
+      for t = 1, NUM_THREADS_PER_CORE do
+         -- TODO these might not match the actual core numbers (if I care)
          local cl = cpu_loads[(c - 1) * NUM_THREADS_PER_CORE + t]
          -- this is necessary to prevent 1/0 errors
          if cl.total > cl.total_prev then
@@ -215,7 +219,7 @@ local update = function(cr)
             CompoundDial.set(core.dials, t, p)
             load_sum = load_sum + p
          end
-	  end
+      end
       Common.text_ring_set(
          core.text_ring,
          cr,
@@ -223,7 +227,12 @@ local update = function(cr)
       )
    end
 
-   Common.text_rows_set(cpu_status, cr, 1, _read_hwp())
+   -- For some reason this call is slow (querying anything with pstate in
+   -- general seems slow), but I also don't need to see an update every cycle,
+   -- hence the trigger
+   if trigger == 0 then
+      Common.text_rows_set(cpu_status, cr, 1, _read_hwp())
+   end
    Common.text_rows_set(cpu_status, cr, 2, _read_freq())
 
    Common.percent_plot_set(total_load, cr, load_sum / NCPU * 100)
@@ -275,8 +284,8 @@ M.draw_static = function(cr)
    Table.draw_static(tbl, cr)
 end
 
-M.draw_dynamic = function(cr)
-   update(cr)
+M.draw_dynamic = function(cr, trigger)
+   update(cr, trigger)
 
    for c = 1, NUM_PHYSICAL_CORES do
 	  local this_core = cores[c]

@@ -237,7 +237,7 @@ function conky_main()
 
    System.draw_dynamic(cr, pacman_stats)
    Graphics.draw_dynamic(cr)
-   Processor.draw_dynamic(cr)
+   Processor.draw_dynamic(cr, t1)
 
    ReadWrite.draw_dynamic(cr, UPDATE_FREQUENCY)
    Network.draw_dynamic(cr, UPDATE_FREQUENCY)
