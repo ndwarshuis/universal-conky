@@ -30,14 +30,15 @@ local format_value_function = function(bps)
    return Util.precision_round_to_string(value, 3)..' '..unit..'B/s'
 end
 
-local header = Common.Header(
-	Geometry.CENTER_LEFT_X,
-	Geometry.TOP_Y,
-	Geometry.SECTION_WIDTH,
-	'INPUT / OUTPUT'
-)
+return function(update_freq)
+   local header = Common.Header(
+      Geometry.CENTER_LEFT_X,
+      Geometry.TOP_Y,
+      Geometry.SECTION_WIDTH,
+      'INPUT / OUTPUT'
+   )
 
-local reads = Common.initLabeledScalePlot(
+   local reads = Common.initLabeledScalePlot(
       Geometry.CENTER_LEFT_X,
       header.bottom_y,
       Geometry.SECTION_WIDTH,
@@ -46,11 +47,11 @@ local reads = Common.initLabeledScalePlot(
       io_label_function,
       _PLOT_SEC_BREAK_,
       'Reads',
-      2
+      2,
+      update_freq
+   )
 
-)
-
-local writes = Common.initLabeledScalePlot(
+   local writes = Common.initLabeledScalePlot(
       Geometry.CENTER_LEFT_X,
       header.bottom_y + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2,
       Geometry.SECTION_WIDTH,
@@ -59,23 +60,13 @@ local writes = Common.initLabeledScalePlot(
       io_label_function,
       _PLOT_SEC_BREAK_,
       'Writes',
-      2
-)
+      2,
+      update_freq
+   )
 
-_PLOT_SEC_BREAK_ = nil
-_PLOT_HEIGHT_ = nil
-
-reads.byte_cnt = 0
-writes.byte_cnt = 0
-reads.prev_byte_cnt, writes.prev_byte_cnt = read_stat_file()
-
-local draw_static = function(cr)
-   Common.drawHeader(cr, header)
-   Common.annotated_scale_plot_draw_static(reads, cr)
-   Common.annotated_scale_plot_draw_static(writes, cr)
-end
-
-return function(update_freq)
+   reads.byte_cnt = 0
+   writes.byte_cnt = 0
+   reads.prev_byte_cnt, writes.prev_byte_cnt = read_stat_file()
 
    local update_stat = function(cr, stat, byte_cnt)
       local delta_bytes = byte_cnt - stat.prev_byte_cnt
@@ -93,6 +84,12 @@ return function(update_freq)
       local read_byte_cnt, write_byte_cnt = read_stat_file()
       update_stat(cr, reads, read_byte_cnt)
       update_stat(cr, writes, write_byte_cnt)
+   end
+
+   local draw_static = function(cr)
+      Common.drawHeader(cr, header)
+      Common.annotated_scale_plot_draw_static(reads, cr)
+      Common.annotated_scale_plot_draw_static(writes, cr)
    end
 
    local draw_dynamic = function(cr)

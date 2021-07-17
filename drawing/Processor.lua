@@ -113,14 +113,6 @@ local _LOAD_Y_ = _SEP_Y_ + _SEPARATOR_SPACING_
 
 local _PLOT_Y_ = _LOAD_Y_ + _PLOT_SECTION_BREAK_
 
-local total_load = Common.initPercentPlot(
-   Geometry.LEFT_X,
-   _LOAD_Y_,
-   Geometry.SECTION_WIDTH,
-   _PLOT_HEIGHT_,
-   _PLOT_SECTION_BREAK_,
-   "Total Load"
-)
 
 local tbl = Common.initTable(
    Geometry.LEFT_X,
@@ -197,107 +189,120 @@ local _read_hwp = function()
    end
 end
 
-local update = function(cr, trigger)
-   local conky = Util.conky
-   local load_sum = 0
 
-   -- TODO bundle all the crap down below into this function and make it return
-   -- something useful rather than totally use a side effect (it will be mildly
-   -- slower)
-   -- this entire loop is about 10% total execution time
-   _read_cpu()
-   for c = 1, NUM_PHYSICAL_CORES do
-      local core = cores[c]
+-- _MODULE_Y_ = nil
+-- _DIAL_INNER_RADIUS_ = nil
+-- _DIAL_OUTER_RADIUS_ = nil
+-- _DIAL_THICKNESS_ = nil
+-- _TEXT_Y_OFFSET_ = nil
+-- _SEPARATOR_SPACING_ = nil
+-- _TEXT_SPACING_ = nil
+-- _PLOT_SECTION_BREAK_ = nil
+-- _PLOT_HEIGHT_ = nil
+-- _TABLE_SECTION_BREAK_ = nil
+-- _TABLE_HEIGHT_ = nil
+-- _create_core_ = nil
+-- _FREQ_Y_ = nil
+-- _LOAD_Y_ = nil
+-- _SEP_Y_ = nil
+-- _HWP_Y_ = nil
+-- _PLOT_Y_ = nil
 
-      for t = 1, NUM_THREADS_PER_CORE do
-         -- TODO these might not match the actual core numbers (if I care)
-         local cl = cpu_loads[(c - 1) * NUM_THREADS_PER_CORE + t]
-         -- this is necessary to prevent 1/0 errors
-         if cl.total > cl.total_prev then
-            local p = (cl.active - cl.active_prev) / (cl.total - cl.total_prev)
-            CompoundDial.set(core.dials, t, p)
-            load_sum = load_sum + p
+
+return function(update_freq)
+
+   local total_load = Common.initPercentPlot(
+      Geometry.LEFT_X,
+      _LOAD_Y_,
+      Geometry.SECTION_WIDTH,
+      _PLOT_HEIGHT_,
+      _PLOT_SECTION_BREAK_,
+      "Total Load",
+      update_freq
+   )
+
+   local update = function(cr, trigger)
+      local conky = Util.conky
+      local load_sum = 0
+
+      -- TODO bundle all the crap down below into this function and make it return
+      -- something useful rather than totally use a side effect (it will be mildly
+      -- slower)
+      -- this entire loop is about 10% total execution time
+      _read_cpu()
+      for c = 1, NUM_PHYSICAL_CORES do
+         local core = cores[c]
+
+         for t = 1, NUM_THREADS_PER_CORE do
+            -- TODO these might not match the actual core numbers (if I care)
+            local cl = cpu_loads[(c - 1) * NUM_THREADS_PER_CORE + t]
+            -- this is necessary to prevent 1/0 errors
+            if cl.total > cl.total_prev then
+               local p = (cl.active - cl.active_prev) / (cl.total - cl.total_prev)
+               CompoundDial.set(core.dials, t, p)
+               load_sum = load_sum + p
+            end
+         end
+         Common.text_ring_set(
+            core.text_ring,
+            cr,
+            __math_floor(0.001 * Util.read_file(core.coretemp_path, nil, '*n'))
+         )
+      end
+
+      -- For some reason this call is slow (querying anything with pstate in
+      -- general seems slow), but I also don't need to see an update every cycle,
+      -- hence the trigger
+      if trigger == 0 then
+         Common.text_rows_set(cpu_status, cr, 1, _read_hwp())
+      end
+      Common.text_rows_set(cpu_status, cr, 2, _read_freq())
+
+      Common.percent_plot_set(total_load, cr, load_sum / NCPU * 100)
+
+      for r = 1, NUM_ROWS do
+         local pid = conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
+         if pid ~= '' then
+            local cpu = conky(TABLE_CONKY[r].cpu)
+            local comm = Util.read_file('/proc/'..pid..'/comm', '(%C+)')
+            Table.set(tbl, cr, 1, r, comm)
+            Table.set(tbl, cr, 2, r, pid)
+            Table.set(tbl, cr, 3, r, cpu)
          end
       end
-      Common.text_ring_set(
-         core.text_ring,
-         cr,
-         __math_floor(0.001 * Util.read_file(core.coretemp_path, nil, '*n'))
-      )
    end
 
-   -- For some reason this call is slow (querying anything with pstate in
-   -- general seems slow), but I also don't need to see an update every cycle,
-   -- hence the trigger
-   if trigger == 0 then
-      Common.text_rows_set(cpu_status, cr, 1, _read_hwp())
-   end
-   Common.text_rows_set(cpu_status, cr, 2, _read_freq())
+   local draw_static = function(cr)
+      Common.drawHeader(cr, header)
 
-   Common.percent_plot_set(total_load, cr, load_sum / NCPU * 100)
-
-   for r = 1, NUM_ROWS do
-      local pid = conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
-      if pid ~= '' then
-         local cpu = conky(TABLE_CONKY[r].cpu)
-         local comm = Util.read_file('/proc/'..pid..'/comm', '(%C+)')
-         Table.set(tbl, cr, 1, r, comm)
-         Table.set(tbl, cr, 2, r, pid)
-         Table.set(tbl, cr, 3, r, cpu)
+      for c = 1, NUM_PHYSICAL_CORES do
+         local this_core = cores[c]
+         Common.text_ring_draw_static(this_core.text_ring, cr)
+         CompoundDial.draw_static(this_core.dials, cr)
       end
-   end
-end
 
-_MODULE_Y_ = nil
-_DIAL_INNER_RADIUS_ = nil
-_DIAL_OUTER_RADIUS_ = nil
-_DIAL_THICKNESS_ = nil
-_TEXT_Y_OFFSET_ = nil
-_SEPARATOR_SPACING_ = nil
-_TEXT_SPACING_ = nil
-_PLOT_SECTION_BREAK_ = nil
-_PLOT_HEIGHT_ = nil
-_TABLE_SECTION_BREAK_ = nil
-_TABLE_HEIGHT_ = nil
-_create_core_ = nil
-_FREQ_Y_ = nil
-_LOAD_Y_ = nil
-_SEP_Y_ = nil
-_HWP_Y_ = nil
-_PLOT_Y_ = nil
+      Common.text_rows_draw_static(cpu_status, cr)
+      Line.draw(separator, cr)
 
-local draw_static = function(cr)
-   Common.drawHeader(cr, header)
+      Common.percent_plot_draw_static(total_load, cr)
 
-   for c = 1, NUM_PHYSICAL_CORES do
-	  local this_core = cores[c]
-      Common.text_ring_draw_static(this_core.text_ring, cr)
-	  CompoundDial.draw_static(this_core.dials, cr)
+      Table.draw_static(tbl, cr)
    end
 
-   Common.text_rows_draw_static(cpu_status, cr)
-   Line.draw(separator, cr)
+   local draw_dynamic = function(cr, trigger)
+      update(cr, trigger)
 
-   Common.percent_plot_draw_static(total_load, cr)
+      for c = 1, NUM_PHYSICAL_CORES do
+         local this_core = cores[c]
+         CompoundDial.draw_dynamic(this_core.dials, cr)
+         Common.text_ring_draw_dynamic(this_core.text_ring, cr)
+      end
 
-   Table.draw_static(tbl, cr)
-end
+      Common.text_rows_draw_dynamic(cpu_status, cr)
+      Common.percent_plot_draw_dynamic(total_load, cr)
 
-local draw_dynamic = function(cr, trigger)
-   update(cr, trigger)
-
-   for c = 1, NUM_PHYSICAL_CORES do
-	  local this_core = cores[c]
-	  CompoundDial.draw_dynamic(this_core.dials, cr)
-      Common.text_ring_draw_dynamic(this_core.text_ring, cr)
+      Table.draw_dynamic(tbl, cr)
    end
 
-   Common.text_rows_draw_dynamic(cpu_status, cr)
-   Common.percent_plot_draw_dynamic(total_load, cr)
-
-   Table.draw_dynamic(tbl, cr)
-end
-
-return function()
    return {static = draw_static, dynamic = draw_dynamic}
 end

@@ -79,39 +79,13 @@ local separator3 = Common.initSeparator(
 
 local _GPU_UTIL_Y_ = _SEP_Y_3_ + _SEPARATOR_SPACING_
 
-local gpu_util = Common.initPercentPlot_formatted(
-   Geometry.LEFT_X,
-   _GPU_UTIL_Y_,
-   Geometry.SECTION_WIDTH,
-   _PLOT_HEIGHT_,
-   _PLOT_SEC_BREAK_,
-   'GPU Utilization',
-   na_percent_format
-)
 
 local _MEM_UTIL_Y_ = _GPU_UTIL_Y_ + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
 
-local mem_util = Common.initPercentPlot_formatted(
-   Geometry.LEFT_X,
-   _MEM_UTIL_Y_,
-   Geometry.SECTION_WIDTH,
-   _PLOT_HEIGHT_,
-   _PLOT_SEC_BREAK_,
-   'Memory Utilization',
-   na_percent_format
-)
+
 
 local _VID_UTIL_Y_ = _MEM_UTIL_Y_ + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
 
-local vid_util = Common.initPercentPlot_formatted(
-   Geometry.LEFT_X,
-   _VID_UTIL_Y_,
-   Geometry.SECTION_WIDTH,
-   _PLOT_HEIGHT_,
-   _PLOT_SEC_BREAK_,
-   'Video Utilization',
-   na_percent_format
-)
 
 --[[
 vars to process the nv settings glob
@@ -136,87 +110,120 @@ local NV_REGEX = '(%d+)\n'..
 				 '(%d+),(%d+)\n'..
 				 'graphics=(%d+), memory=%d+, video=(%d+), PCIe=%d+\n'
 
-local nvidia_off = function(cr)
-   Common.text_row_crit_set(internal_temp, cr, -1)
-   Common.text_rows_set(clock_speed, cr, 1, NA)
-   Common.text_rows_set(clock_speed, cr, 2, NA)
-
-   Common.percent_plot_set(gpu_util, cr, nil)
-   Common.percent_plot_set(vid_util, cr, nil)
-   Common.percent_plot_set(mem_util, cr, nil)
-end
-
 local gpu_bus_ctrl = '/sys/bus/pci/devices/0000:01:00.0/power/control'
 
-local update = function(cr)
-   if Util.read_file(gpu_bus_ctrl, nil, '*l') == 'on' then
-      local nvidia_settings_glob = Util.execute_cmd(NV_QUERY)
-      if nvidia_settings_glob == '' then
-         Text.set(status.value, cr, 'Error')
-         nvidia_off(cr)
-      else
-         Common.text_row_set(status, cr, 'On')
+-- _MODULE_Y_ = nil
+-- _SEPARATOR_SPACING_ = nil
+-- _TEXT_SPACING_ = nil
+-- _PLOT_SEC_BREAK_ = nil
+-- _PLOT_HEIGHT_ = nil
+-- _SEP_Y_1_ = nil
+-- _SEP_Y_2_ = nil
+-- _SEP_Y_3_ = nil
+-- _INTERNAL_TEMP_Y_ = nil
+-- _CLOCK_SPEED_Y_ = nil
+-- _GPU_UTIL_Y_ = nil
+-- _MEM_UTIL_Y_ = nil
+-- _VID_UTIL_Y_ = nil
 
-         local used_memory, total_memory, temp_reading, gpu_frequency,
-            memory_frequency, gpu_utilization, vid_utilization
-            = __string_match(nvidia_settings_glob, NV_REGEX)
+return function(update_freq)
 
-         Common.text_row_crit_set(internal_temp, cr, temp_reading)
-         Common.text_rows_set(clock_speed, cr, 1, gpu_frequency..' Mhz')
-         Common.text_rows_set(clock_speed, cr, 2, memory_frequency..' Mhz')
+   local gpu_util = Common.initPercentPlot_formatted(
+      Geometry.LEFT_X,
+      _GPU_UTIL_Y_,
+      Geometry.SECTION_WIDTH,
+      _PLOT_HEIGHT_,
+      _PLOT_SEC_BREAK_,
+      'GPU Utilization',
+      update_freq,
+      na_percent_format
+   )
 
-         Common.percent_plot_set(gpu_util, cr, gpu_utilization)
-         Common.percent_plot_set(mem_util, cr, used_memory / total_memory * 100)
-         Common.percent_plot_set(vid_util, cr, vid_utilization)
-      end
-   else
-      Text.set(status.value, cr, 'Off')
-      nvidia_off(cr)
+   local mem_util = Common.initPercentPlot_formatted(
+      Geometry.LEFT_X,
+      _MEM_UTIL_Y_,
+      Geometry.SECTION_WIDTH,
+      _PLOT_HEIGHT_,
+      _PLOT_SEC_BREAK_,
+      'Memory Utilization',
+      update_freq,
+      na_percent_format
+   )
+
+   local vid_util = Common.initPercentPlot_formatted(
+      Geometry.LEFT_X,
+      _VID_UTIL_Y_,
+      Geometry.SECTION_WIDTH,
+      _PLOT_HEIGHT_,
+      _PLOT_SEC_BREAK_,
+      'Video Utilization',
+      update_freq,
+      na_percent_format
+   )
+
+   local nvidia_off = function(cr)
+      Common.text_row_crit_set(internal_temp, cr, -1)
+      Common.text_rows_set(clock_speed, cr, 1, NA)
+      Common.text_rows_set(clock_speed, cr, 2, NA)
+      Common.percent_plot_set(gpu_util, cr, nil)
+      Common.percent_plot_set(vid_util, cr, nil)
+      Common.percent_plot_set(mem_util, cr, nil)
    end
-end
 
-_MODULE_Y_ = nil
-_SEPARATOR_SPACING_ = nil
-_TEXT_SPACING_ = nil
-_PLOT_SEC_BREAK_ = nil
-_PLOT_HEIGHT_ = nil
-_SEP_Y_1_ = nil
-_SEP_Y_2_ = nil
-_SEP_Y_3_ = nil
-_INTERNAL_TEMP_Y_ = nil
-_CLOCK_SPEED_Y_ = nil
-_GPU_UTIL_Y_ = nil
-_MEM_UTIL_Y_ = nil
-_VID_UTIL_Y_ = nil
+   local update = function(cr)
+      if Util.read_file(gpu_bus_ctrl, nil, '*l') == 'on' then
+         local nvidia_settings_glob = Util.execute_cmd(NV_QUERY)
+         if nvidia_settings_glob == '' then
+            Text.set(status.value, cr, 'Error')
+            nvidia_off(cr)
+         else
+            Common.text_row_set(status, cr, 'On')
 
-local draw_static = function(cr)
-   Common.drawHeader(cr, header)
+            local used_memory, total_memory, temp_reading, gpu_frequency,
+               memory_frequency, gpu_utilization, vid_utilization
+               = __string_match(nvidia_settings_glob, NV_REGEX)
 
-   Common.text_row_draw_static(status, cr)
-   Line.draw(separator1, cr)
+            Common.text_row_crit_set(internal_temp, cr, temp_reading)
+            Common.text_rows_set(clock_speed, cr, 1, gpu_frequency..' Mhz')
+            Common.text_rows_set(clock_speed, cr, 2, memory_frequency..' Mhz')
 
-   Common.text_row_crit_draw_static(internal_temp, cr)
-   Line.draw(separator2, cr)
+            Common.percent_plot_set(gpu_util, cr, gpu_utilization)
+            Common.percent_plot_set(mem_util, cr, used_memory / total_memory * 100)
+            Common.percent_plot_set(vid_util, cr, vid_utilization)
+         end
+      else
+         Text.set(status.value, cr, 'Off')
+         nvidia_off(cr)
+      end
+   end
 
-   Common.text_rows_draw_static(clock_speed, cr)
-   Line.draw(separator3, cr)
+   local draw_static = function(cr)
+      Common.drawHeader(cr, header)
 
-   Common.percent_plot_draw_static(gpu_util, cr)
-   Common.percent_plot_draw_static(mem_util, cr)
-   Common.percent_plot_draw_static(vid_util, cr)
-end
+      Common.text_row_draw_static(status, cr)
+      Line.draw(separator1, cr)
 
-local draw_dynamic = function(cr)
-   update(cr)
+      Common.text_row_crit_draw_static(internal_temp, cr)
+      Line.draw(separator2, cr)
 
-   Common.text_row_draw_dynamic(status, cr)
-   Common.text_row_crit_draw_dynamic(internal_temp, cr)
-   Common.text_rows_draw_dynamic(clock_speed, cr)
-   Common.percent_plot_draw_dynamic(gpu_util, cr)
-   Common.percent_plot_draw_dynamic(mem_util, cr)
-   Common.percent_plot_draw_dynamic(vid_util, cr)
-end
+      Common.text_rows_draw_static(clock_speed, cr)
+      Line.draw(separator3, cr)
 
-return function()
+      Common.percent_plot_draw_static(gpu_util, cr)
+      Common.percent_plot_draw_static(mem_util, cr)
+      Common.percent_plot_draw_static(vid_util, cr)
+   end
+
+   local draw_dynamic = function(cr)
+      update(cr)
+
+      Common.text_row_draw_dynamic(status, cr)
+      Common.text_row_crit_draw_dynamic(internal_temp, cr)
+      Common.text_rows_draw_dynamic(clock_speed, cr)
+      Common.percent_plot_draw_dynamic(gpu_util, cr)
+      Common.percent_plot_draw_dynamic(mem_util, cr)
+      Common.percent_plot_draw_dynamic(vid_util, cr)
+   end
+
    return {static = draw_static, dynamic = draw_dynamic}
 end

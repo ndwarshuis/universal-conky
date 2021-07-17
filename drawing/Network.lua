@@ -18,14 +18,26 @@ local value_format_function = function(bits)
    return Util.precision_round_to_string(value, 3)..' '..unit..'b/s'
 end
 
-local header = Common.Header(
-	Geometry.CENTER_RIGHT_X,
-	Geometry.TOP_Y,
-	Geometry.SECTION_WIDTH,
-	'NETWORK'
-)
 
-local dnload = Common.initLabeledScalePlot(
+
+local interface_counters_tbl = {}
+
+local get_bits = function(path)
+   return Util.read_file(path, nil, '*n') * 8
+end
+
+-- _PLOT_SEC_BREAK_ = nil
+-- _PLOT_HEIGHT_ = nil
+
+return function(update_freq)
+   local header = Common.Header(
+      Geometry.CENTER_RIGHT_X,
+      Geometry.TOP_Y,
+      Geometry.SECTION_WIDTH,
+      'NETWORK'
+   )
+
+   local dnload = Common.initLabeledScalePlot(
       Geometry.CENTER_RIGHT_X,
       header.bottom_y,
       Geometry.SECTION_WIDTH,
@@ -34,10 +46,11 @@ local dnload = Common.initLabeledScalePlot(
       network_label_function,
       _PLOT_SEC_BREAK_,
       'Download',
-      2
-)
+      2,
+      update_freq
+   )
 
-local upload = Common.initLabeledScalePlot(
+   local upload = Common.initLabeledScalePlot(
       Geometry.CENTER_RIGHT_X,
       header.bottom_y + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2,
       Geometry.SECTION_WIDTH,
@@ -46,25 +59,10 @@ local upload = Common.initLabeledScalePlot(
       network_label_function,
       _PLOT_SEC_BREAK_,
       'Upload',
-      2
-)
+      2,
+      update_freq
+   )
 
-local interface_counters_tbl = {}
-
-local get_bits = function(path)
-   return Util.read_file(path, nil, '*n') * 8
-end
-
-_PLOT_SEC_BREAK_ = nil
-_PLOT_HEIGHT_ = nil
-
-local draw_static = function(cr)
-   Common.drawHeader(cr, header)
-   Common.annotated_scale_plot_draw_static(dnload, cr)
-   Common.annotated_scale_plot_draw_static(upload, cr)
-end
-
-return function(update_freq)
    local _update = function(cr)
       local dspeed, uspeed = 0, 0
 
@@ -106,6 +104,12 @@ return function(update_freq)
 
       Common.annotated_scale_plot_set(dnload, cr, dspeed)
       Common.annotated_scale_plot_set(upload, cr, uspeed)
+   end
+
+   local draw_static = function(cr)
+      Common.drawHeader(cr, header)
+      Common.annotated_scale_plot_draw_static(dnload, cr)
+      Common.annotated_scale_plot_draw_static(upload, cr)
    end
 
    local draw_dynamic = function(cr)

@@ -1,13 +1,4 @@
 --
--- initialialize global geometric data
---
-local UPDATE_FREQUENCY = 1 --Hz
-
-_G_INIT_DATA_ = {
-	UPDATE_INTERVAL = 1 / UPDATE_FREQUENCY,
-}
-
---
 -- init cairo
 --
 require 'cairo'
@@ -102,8 +93,8 @@ function conky_start(update_interval)
    local pwr = Power(update_freq)
    local fs = FileSystem()
    local sys = System()
-   local gfx = Graphics()
-   local proc = Processor()
+   local gfx = Graphics(update_freq)
+   local proc = Processor(update_freq)
    local pcm = Pacman()
 
    local cs_left = _make_static_surface(

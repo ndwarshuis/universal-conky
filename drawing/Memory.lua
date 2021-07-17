@@ -96,13 +96,6 @@ local cache = Common.initTextRows_color(
 
 local _PLOT_Y_ = _PLOT_SECTION_BREAK_ + header.bottom_y + DIAL_RADIUS * 2
 
-local plot = Common.initThemedLabelPlot(
-   Geometry.RIGHT_X,
-   _PLOT_Y_,
-   Geometry.SECTION_WIDTH,
-   _PLOT_HEIGHT_,
-   Common.percent_label_style
-)
 
 local tbl = Common.initTable(
    Geometry.RIGHT_X,
@@ -113,91 +106,102 @@ local tbl = Common.initTable(
    {'Name', 'PID', 'Mem (%)'}
 )
 
-local update = function(cr)
-   local conky = Util.conky
-   -- see source for the 'free' command (sysinfo.c) for formulas
+-- _MODULE_Y_ = nil
+-- _DIAL_THICKNESS_ = nil
+-- _DIAL_SPACING_ = nil
+-- _TEXT_Y_OFFSET_ = nil
+-- _TEXT_LEFT_X_OFFSET_ = nil
+-- _TEXT_SPACING_ = nil
+-- _PLOT_SECTION_BREAK_ = nil
+-- _PLOT_HEIGHT_ = nil
+-- _TABLE_SECTION_BREAK_ = nil
+-- _TABLE_HEIGHT_ = nil
+-- _LINE_1_Y_ = nil
+-- _TEXT_LEFT_X_ = nil
+-- _RIGHT_X_ = nil
+-- _PLOT_Y_ = nil
 
-   local memfree_kb, buffers_kb, cached_kb, swap_total_kb, swap_free_kb,
-       slab_reclaimable_kb = __string_match(Util.read_file('/proc/meminfo'), MEMINFO_REGEX)
-
-   local used_percent = (MEM_TOTAL_KB - memfree_kb - cached_kb - buffers_kb - slab_reclaimable_kb) / MEM_TOTAL_KB
-
-   Dial.set(dial, used_percent)
-   Common.text_ring_set(text_ring, cr, Util.round_to_string(used_percent * 100))
-
-   local cache_theta = (DIAL_THETA_0 - DIAL_THETA_1) / MEM_TOTAL_KB * memfree_kb + DIAL_THETA_1
-   __cairo_path_destroy(cache_arc.path)
-   cache_arc.path = Arc.create_path(cr, DIAL_X, DIAL_Y, DIAL_RADIUS, dial.dial_angle, cache_theta)
-
-   Common.text_row_crit_set(swap, cr,
-                            Util.precision_round_to_string(
-                               (swap_total_kb - swap_free_kb)
-                               / swap_total_kb * 100))
-
-   Common.text_rows_set(cache, cr, 1, Util.precision_round_to_string(
-       cached_kb / MEM_TOTAL_KB * 100))
-
-   Common.text_rows_set(cache, cr, 2, Util.precision_round_to_string(
-       buffers_kb / MEM_TOTAL_KB * 100))
-
-   Common.text_rows_set(cache, cr, 3, Util.precision_round_to_string(
-       slab_reclaimable_kb / MEM_TOTAL_KB * 100))
-
-   LabelPlot.update(plot, used_percent)
-
-   for r = 1, NUM_ROWS do
-      local comm = conky(TABLE_CONKY[r].comm, '(%S+)') -- may have trailing space
-      local pid = conky(TABLE_CONKY[r].pid)
-      local mem = conky(TABLE_CONKY[r].mem)
-      Table.set(tbl, cr, 1, r, comm)
-      Table.set(tbl, cr, 2, r, pid)
-      Table.set(tbl, cr, 3, r, mem)
-   end
-end
-
-_MODULE_Y_ = nil
-_DIAL_THICKNESS_ = nil
-_DIAL_SPACING_ = nil
-_TEXT_Y_OFFSET_ = nil
-_TEXT_LEFT_X_OFFSET_ = nil
-_TEXT_SPACING_ = nil
-_PLOT_SECTION_BREAK_ = nil
-_PLOT_HEIGHT_ = nil
-_TABLE_SECTION_BREAK_ = nil
-_TABLE_HEIGHT_ = nil
-_LINE_1_Y_ = nil
-_TEXT_LEFT_X_ = nil
-_RIGHT_X_ = nil
-_PLOT_Y_ = nil
-
-local draw_static = function(cr)
-   Common.drawHeader(cr, header)
-
-   Common.text_ring_draw_static(text_ring, cr)
-   Dial.draw_static(dial, cr)
-
-   Common.text_row_crit_draw_static(swap, cr)
-   Common.text_rows_draw_static(cache, cr)
-   LabelPlot.draw_static(plot, cr)
-
-   Table.draw_static(tbl, cr)
-end
-
-local draw_dynamic = function(cr)
-   update(cr)
-
-   Dial.draw_dynamic(dial, cr)
-   Arc.draw(cache_arc, cr)
-   Common.text_ring_draw_dynamic(text_ring, cr)
-
-   Common.text_row_crit_draw_dynamic(swap, cr)
-   Common.text_rows_draw_dynamic(cache, cr)
-
-   LabelPlot.draw_dynamic(plot, cr)
-
-   Table.draw_dynamic(tbl, cr)
-end
 
 return function(update_freq)
+
+   local plot = Common.initThemedLabelPlot(
+      Geometry.RIGHT_X,
+      _PLOT_Y_,
+      Geometry.SECTION_WIDTH,
+      _PLOT_HEIGHT_,
+      Common.percent_label_style,
+      update_freq
+   )
+
+   local update = function(cr)
+      local conky = Util.conky
+      -- see source for the 'free' command (sysinfo.c) for formulas
+
+      local memfree_kb, buffers_kb, cached_kb, swap_total_kb, swap_free_kb,
+         slab_reclaimable_kb = __string_match(Util.read_file('/proc/meminfo'), MEMINFO_REGEX)
+
+      local used_percent = (MEM_TOTAL_KB - memfree_kb - cached_kb - buffers_kb - slab_reclaimable_kb) / MEM_TOTAL_KB
+
+      Dial.set(dial, used_percent)
+      Common.text_ring_set(text_ring, cr, Util.round_to_string(used_percent * 100))
+
+      local cache_theta = (DIAL_THETA_0 - DIAL_THETA_1) / MEM_TOTAL_KB * memfree_kb + DIAL_THETA_1
+      __cairo_path_destroy(cache_arc.path)
+      cache_arc.path = Arc.create_path(cr, DIAL_X, DIAL_Y, DIAL_RADIUS, dial.dial_angle, cache_theta)
+
+      Common.text_row_crit_set(swap, cr,
+                               Util.precision_round_to_string(
+                                  (swap_total_kb - swap_free_kb)
+                                  / swap_total_kb * 100))
+
+      Common.text_rows_set(cache, cr, 1, Util.precision_round_to_string(
+                              cached_kb / MEM_TOTAL_KB * 100))
+
+      Common.text_rows_set(cache, cr, 2, Util.precision_round_to_string(
+                              buffers_kb / MEM_TOTAL_KB * 100))
+
+      Common.text_rows_set(cache, cr, 3, Util.precision_round_to_string(
+                              slab_reclaimable_kb / MEM_TOTAL_KB * 100))
+
+      LabelPlot.update(plot, used_percent)
+
+      for r = 1, NUM_ROWS do
+         local comm = conky(TABLE_CONKY[r].comm, '(%S+)') -- may have trailing space
+         local pid = conky(TABLE_CONKY[r].pid)
+         local mem = conky(TABLE_CONKY[r].mem)
+         Table.set(tbl, cr, 1, r, comm)
+         Table.set(tbl, cr, 2, r, pid)
+         Table.set(tbl, cr, 3, r, mem)
+      end
+   end
+
+   local draw_static = function(cr)
+      Common.drawHeader(cr, header)
+
+      Common.text_ring_draw_static(text_ring, cr)
+      Dial.draw_static(dial, cr)
+
+      Common.text_row_crit_draw_static(swap, cr)
+      Common.text_rows_draw_static(cache, cr)
+      LabelPlot.draw_static(plot, cr)
+
+      Table.draw_static(tbl, cr)
+   end
+
+   local draw_dynamic = function(cr)
+      update(cr)
+
+      Dial.draw_dynamic(dial, cr)
+      Arc.draw(cache_arc, cr)
+      Common.text_ring_draw_dynamic(text_ring, cr)
+
+      Common.text_row_crit_draw_dynamic(swap, cr)
+      Common.text_rows_draw_dynamic(cache, cr)
+
+      LabelPlot.draw_dynamic(plot, cr)
+
+      Table.draw_dynamic(tbl, cr)
+   end
+
    return {dynamic = draw_dynamic, static = draw_static}
 end

@@ -36,7 +36,24 @@ local header = Common.Header(
 	'POWER'
 )
 
-local pkg0 = Common.initLabeledScalePlot(
+local _CORE_Y_ = header.bottom_y + _TEXT_SPACING_ + _PLOT_SEC_BREAK_ + _PLOT_HEIGHT_
+
+
+local PKG0_PATH = '/sys/class/powercap/intel-rapl:0/energy_uj'
+local DRAM_PATH = '/sys/class/powercap/intel-rapl:0:2/energy_uj'
+
+local prev_pkg0_uj_cnt = Util.read_file(PKG0_PATH, nil, '*n')
+local prev_dram_uj_cnt = Util.read_file(DRAM_PATH, nil, '*n')
+
+-- _MODULE_Y_ = nil
+-- _TEXT_SPACING_ = nil
+-- _PLOT_SEC_BREAK_ = nil
+-- _PLOT_HEIGHT_ = nil
+-- _CORE_Y_ = nil
+
+return function(update_freq)
+
+   local pkg0 = Common.initLabeledScalePlot(
       Geometry.RIGHT_X,
       header.bottom_y,
       Geometry.SECTION_WIDTH,
@@ -45,12 +62,11 @@ local pkg0 = Common.initLabeledScalePlot(
       power_label_function,
       _PLOT_SEC_BREAK_,
       'PKG0',
-      0
-)
+      0,
+      update_freq
+   )
 
-local _CORE_Y_ = header.bottom_y + _TEXT_SPACING_ + _PLOT_SEC_BREAK_ + _PLOT_HEIGHT_
-
-local dram = Common.initLabeledScalePlot(
+   local dram = Common.initLabeledScalePlot(
       Geometry.RIGHT_X,
       _CORE_Y_,
       Geometry.SECTION_WIDTH,
@@ -59,11 +75,11 @@ local dram = Common.initLabeledScalePlot(
       power_label_function,
       _PLOT_SEC_BREAK_,
       'DRAM',
-      0
-)
-dram.value.append_end = ' W'
+      0,
+      update_freq
+   )
 
-local battery_draw = Common.initLabeledScalePlot(
+   local battery_draw = Common.initLabeledScalePlot(
       Geometry.RIGHT_X,
       _CORE_Y_ + _PLOT_SEC_BREAK_ * 2 + _PLOT_HEIGHT_,
       Geometry.SECTION_WIDTH,
@@ -72,30 +88,9 @@ local battery_draw = Common.initLabeledScalePlot(
       power_label_function,
       _PLOT_SEC_BREAK_,
       'Battery Draw',
-      0
-)
-
-local PKG0_PATH = '/sys/class/powercap/intel-rapl:0/energy_uj'
-local DRAM_PATH = '/sys/class/powercap/intel-rapl:0:2/energy_uj'
-
-local prev_pkg0_uj_cnt = Util.read_file(PKG0_PATH, nil, '*n')
-local prev_dram_uj_cnt = Util.read_file(DRAM_PATH, nil, '*n')
-
-
-_MODULE_Y_ = nil
-_TEXT_SPACING_ = nil
-_PLOT_SEC_BREAK_ = nil
-_PLOT_HEIGHT_ = nil
-_CORE_Y_ = nil
-
-local draw_static = function(cr)
-   Common.drawHeader(cr, header)
-   Common.annotated_scale_plot_draw_static(pkg0, cr)
-   Common.annotated_scale_plot_draw_static(dram, cr)
-   Common.annotated_scale_plot_draw_static(battery_draw, cr)
-end
-
-return function(update_freq)
+      0,
+      update_freq
+   )
 
    local _update = function(cr, is_using_ac)
       local pkg0_uj_cnt = Util.read_file(PKG0_PATH, nil, '*n')
@@ -120,6 +115,13 @@ return function(update_freq)
          local power = current * voltage * 0.000000000001
          Common.annotated_scale_plot_set(battery_draw, cr, power)
       end
+   end
+
+   local draw_static = function(cr)
+      Common.drawHeader(cr, header)
+      Common.annotated_scale_plot_draw_static(pkg0, cr)
+      Common.annotated_scale_plot_draw_static(dram, cr)
+      Common.annotated_scale_plot_draw_static(battery_draw, cr)
    end
 
    local draw_dynamic = function(cr, is_using_ac)

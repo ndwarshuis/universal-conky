@@ -137,10 +137,10 @@ M.percent_label_style = Startup.label_style(
    function(z) return Util.round_to_string(z * 100)..'%' end
 )
 
-M.initThemedLabelPlot = function(x, y, w, h, label_style)
+M.initThemedLabelPlot = function(x, y, w, h, label_style, update_freq)
    return Startup.LabelPlot(
       Startup.make_box(x, y, w, h),
-      1 / _G_INIT_DATA_.UPDATE_INTERVAL,
+      update_freq,
       M.default_plot_style,
       label_style
    )
@@ -149,7 +149,7 @@ end
 --------------------------------------------------------------------------------
 -- percent plot (label plot with percent signs and some indicator data above it)
 
-M.initPercentPlot_formatted = function(x, y, w, h, spacing, label, format)
+M.initPercentPlot_formatted = function(x, y, w, h, spacing, label, update_freq, format)
    return {
       label = _left_text(Startup.make_point(x, y), label),
       value = Startup.formattedThresholdText(
@@ -164,13 +164,14 @@ M.initPercentPlot_formatted = function(x, y, w, h, spacing, label, format)
          y + spacing,
          w,
          h,
-         M.percent_label_style
+         M.percent_label_style,
+         update_freq
       ),
    }
 end
 
-M.initPercentPlot = function(x, y, w, h, spacing, label)
-   return M.initPercentPlot_formatted(x, y, w, h, spacing, label, '%s%%')
+M.initPercentPlot = function(x, y, w, h, spacing, label, update_freq)
+   return M.initPercentPlot_formatted(x, y, w, h, spacing, label, update_freq, '%s%%')
 end
 
 M.percent_plot_draw_static = function(pp, cr)
@@ -203,10 +204,10 @@ M.base_2_scale_data = function(m)
    return Startup.scale_data(2, m, 0.9)
 end
 
-M.initThemedScalePlot = function(x, y, w, h, f, min_domain)
+M.initThemedScalePlot = function(x, y, w, h, f, min_domain, update_freq)
    return Startup.ScalePlot(
       Startup.make_box(x, y, w, h),
-      1 / _G_INIT_DATA_.UPDATE_INTERVAL,
+      update_freq,
       M.default_plot_style,
       Startup.label_style(
          Theme.INACTIVE_TEXT_FG,
@@ -221,7 +222,7 @@ end
 -- scaled plot (with textual data above it)
 
 M.initLabeledScalePlot = function(x, y, w, h, format_fun, label_fun, spacing,
-                                  label, min_domain)
+                                  label, min_domain, update_freq)
    return {
       label = _left_text(Startup.make_point(x, y), label),
       value = Startup.formatted_text(
@@ -230,7 +231,7 @@ M.initLabeledScalePlot = function(x, y, w, h, format_fun, label_fun, spacing,
          M.right_text_style,
          format_fun
       ),
-      plot = M.initThemedScalePlot(x, y + spacing, w, h, label_fun, min_domain),
+      plot = M.initThemedScalePlot(x, y + spacing, w, h, label_fun, min_domain, update_freq),
    }
 end
 
