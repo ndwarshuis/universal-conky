@@ -2,6 +2,7 @@ local M = {}
 
 local Util			= require 'Util'
 local Common		= require 'Common'
+local Geometry = require 'Geometry'
 
 local _MODULE_Y_ = 380
 local _TEXT_SPACING_ = 20
@@ -31,16 +32,16 @@ local ac_format_function = function(watts)
 end
 
 local header = Common.Header(
-	_G_INIT_DATA_.RIGHT_X,
+	Geometry.RIGHT_X,
 	_MODULE_Y_,
-	_G_INIT_DATA_.SECTION_WIDTH,
+	Geometry.SECTION_WIDTH,
 	'POWER'
 )
 
 local pkg0 = Common.initLabeledScalePlot(
-      _G_INIT_DATA_.RIGHT_X,
+      Geometry.RIGHT_X,
       header.bottom_y,
-      _G_INIT_DATA_.SECTION_WIDTH,
+      Geometry.SECTION_WIDTH,
       _PLOT_HEIGHT_,
       power_format_function,
       power_label_function,
@@ -52,9 +53,9 @@ local pkg0 = Common.initLabeledScalePlot(
 local _CORE_Y_ = header.bottom_y + _TEXT_SPACING_ + _PLOT_SEC_BREAK_ + _PLOT_HEIGHT_
 
 local dram = Common.initLabeledScalePlot(
-      _G_INIT_DATA_.RIGHT_X,
+      Geometry.RIGHT_X,
       _CORE_Y_,
-      _G_INIT_DATA_.SECTION_WIDTH,
+      Geometry.SECTION_WIDTH,
       _PLOT_HEIGHT_,
       power_format_function,
       power_label_function,
@@ -65,9 +66,9 @@ local dram = Common.initLabeledScalePlot(
 dram.value.append_end = ' W'
 
 local battery_draw = Common.initLabeledScalePlot(
-      _G_INIT_DATA_.RIGHT_X,
+      Geometry.RIGHT_X,
       _CORE_Y_ + _PLOT_SEC_BREAK_ * 2 + _PLOT_HEIGHT_,
-      _G_INIT_DATA_.SECTION_WIDTH,
+      Geometry.SECTION_WIDTH,
       _PLOT_HEIGHT_,
       ac_format_function,
       power_label_function,

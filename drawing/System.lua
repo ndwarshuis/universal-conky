@@ -2,22 +2,23 @@ local M = {}
 
 local Util			= require 'Util'
 local Common		= require 'Common'
+local Geometry = require 'Geometry'
 
 local __string_match = string.match
 
 local _TEXT_SPACING_ = 20
 
 local header = Common.Header(
-	_G_INIT_DATA_.LEFT_X,
-	_G_INIT_DATA_.TOP_Y,
-	_G_INIT_DATA_.SECTION_WIDTH,
+	Geometry.LEFT_X,
+	Geometry.TOP_Y,
+	Geometry.SECTION_WIDTH,
 	'SYSTEM'
 )
 
 local rows = Common.initTextRows(
-	_G_INIT_DATA_.LEFT_X,
+	Geometry.LEFT_X,
 	header.bottom_y,
-    _G_INIT_DATA_.SECTION_WIDTH,
+    Geometry.SECTION_WIDTH,
 	_TEXT_SPACING_,
 	{'Kernel', 'Uptime', 'Last Upgrade', 'Last Sync'}
 )

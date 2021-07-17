@@ -1,6 +1,8 @@
 local M = {}
 
 local Util = require 'Util'
+local Theme = require 'Patterns'
+local Startup = require 'Widget'
 local Arc = require 'Arc'
 local Text = require 'Text'
 local CompoundBar = require 'CompoundBar'
@@ -58,15 +60,15 @@ M.normal_font_spec = M.make_font_spec(FONT, NORMAL_FONT_SIZE, false)
 M.label_font_spec = M.make_font_spec(FONT, PLOT_LABEL_FONT_SIZE, false)
 
 local _text_row_style = function(x_align, color)
-   return _G_Widget_.text_style(M.normal_font_spec, color, x_align, 'center')
+   return Startup.text_style(M.normal_font_spec, color, x_align, 'center')
 end
 
-M.left_text_style = _text_row_style('left', _G_Patterns_.INACTIVE_TEXT_FG)
+M.left_text_style = _text_row_style('left', Theme.INACTIVE_TEXT_FG)
 
-M.right_text_style = _text_row_style('right', _G_Patterns_.PRIMARY_FG)
+M.right_text_style = _text_row_style('right', Theme.PRIMARY_FG)
 
 local _bare_text = function(pt, text, style)
-   return _G_Widget_.plainText(pt, text, style)
+   return Startup.plainText(pt, text, style)
 end
 
 local _left_text = function(pt, text)
@@ -84,23 +86,23 @@ M.Header = function(x, y, w, s)
    local bottom_y = y + HEADER_HEIGHT
    local underline_y = y + HEADER_UNDERLINE_OFFSET
    return {
-      text = _G_Widget_.plainText(
-         _G_Widget_.make_point(x, y),
+      text = Startup.plainText(
+         Startup.make_point(x, y),
          s,
-         _G_Widget_.text_style(
+         Startup.text_style(
             M.make_font_spec(FONT, HEADER_FONT_SIZE, true),
-            _G_Patterns_.HEADER_FG,
+            Theme.HEADER_FG,
             'left',
             'top'
          )
       ),
       bottom_y = bottom_y,
-      underline = _G_Widget_.Line(
-         _G_Widget_.make_point(x, underline_y),
-         _G_Widget_.make_point(x + w, underline_y),
-         _G_Widget_.line_style(
+      underline = Startup.Line(
+         Startup.make_point(x, underline_y),
+         Startup.make_point(x + w, underline_y),
+         Startup.line_style(
             HEADER_UNDERLINE_THICKNESS,
-            _G_Patterns_.HEADER_FG,
+            Theme.HEADER_FG,
             HEADER_UNDERLINE_CAP
          )
       )
@@ -115,29 +117,29 @@ end
 --------------------------------------------------------------------------------
 -- label plot
 
-M.default_grid_style = _G_Widget_.grid_style(
+M.default_grid_style = Startup.grid_style(
    PLOT_GRID_X_N,
    PLOT_GRID_Y_N,
-   _G_Patterns_.BORDER_FG
+   Theme.BORDER_FG
 )
 
-M.default_plot_style = _G_Widget_.plot_style(
+M.default_plot_style = Startup.plot_style(
    PLOT_NUM_POINTS,
-   _G_Patterns_.BORDER_FG,
-   _G_Patterns_.PLOT_FILL_BORDER_PRIMARY,
-   _G_Patterns_.PLOT_FILL_BG_PRIMARY,
+   Theme.BORDER_FG,
+   Theme.PLOT_FILL_BORDER_PRIMARY,
+   Theme.PLOT_FILL_BG_PRIMARY,
    M.default_grid_style
 )
 
-M.percent_label_style = _G_Widget_.label_style(
-   _G_Patterns_.INACTIVE_TEXT_FG,
+M.percent_label_style = Startup.label_style(
+   Theme.INACTIVE_TEXT_FG,
    M.label_font_spec,
    function(z) return Util.round_to_string(z * 100)..'%' end
 )
 
 M.initThemedLabelPlot = function(x, y, w, h, label_style)
-   return _G_Widget_.LabelPlot(
-      _G_Widget_.make_box(x, y, w, h),
+   return Startup.LabelPlot(
+      Startup.make_box(x, y, w, h),
       1 / _G_INIT_DATA_.UPDATE_INTERVAL,
       M.default_plot_style,
       label_style
@@ -149,13 +151,13 @@ end
 
 M.initPercentPlot_formatted = function(x, y, w, h, spacing, label, format)
    return {
-      label = _left_text(_G_Widget_.make_point(x, y), label),
-      value = _G_Widget_.formattedThresholdText(
-         _G_Widget_.make_point(x + w, y),
+      label = _left_text(Startup.make_point(x, y), label),
+      value = Startup.formattedThresholdText(
+         Startup.make_point(x + w, y),
          nil,
          M.right_text_style,
          format,
-         _G_Widget_.threshold_text_style(_G_Patterns_.CRITICAL_FG, 80)
+         Startup.threshold_text_style(Theme.CRITICAL_FG, 80)
       ),
       plot = M.initThemedLabelPlot(
          x,
@@ -198,16 +200,16 @@ end
 -- scaled plot
 
 M.base_2_scale_data = function(m)
-   return _G_Widget_.scale_data(2, m, 0.9)
+   return Startup.scale_data(2, m, 0.9)
 end
 
 M.initThemedScalePlot = function(x, y, w, h, f, min_domain)
-   return _G_Widget_.ScalePlot(
-      _G_Widget_.make_box(x, y, w, h),
+   return Startup.ScalePlot(
+      Startup.make_box(x, y, w, h),
       1 / _G_INIT_DATA_.UPDATE_INTERVAL,
       M.default_plot_style,
-      _G_Widget_.label_style(
-         _G_Patterns_.INACTIVE_TEXT_FG,
+      Startup.label_style(
+         Theme.INACTIVE_TEXT_FG,
          M.label_font_spec,
          f
       ),
@@ -221,9 +223,9 @@ end
 M.initLabeledScalePlot = function(x, y, w, h, format_fun, label_fun, spacing,
                                   label, min_domain)
    return {
-      label = _left_text(_G_Widget_.make_point(x, y), label),
-      value = _G_Widget_.formatted_text(
-         _G_Widget_.make_point(x + w, y),
+      label = _left_text(Startup.make_point(x, y), label),
+      value = Startup.formatted_text(
+         Startup.make_point(x + w, y),
          0,
          M.right_text_style,
          format_fun
@@ -253,9 +255,9 @@ end
 -- I have multiple layers on top of each other
 
 M.arc = function(x, y, r, thickness, pattern)
-   return _G_Widget_.Arc(
-      _G_Widget_.make_semicircle(x, y, r, 90, 360),
-      _G_Widget_.arc_style(thickness, pattern)
+   return Startup.Arc(
+      Startup.make_semicircle(x, y, r, 90, 360),
+      Startup.arc_style(thickness, pattern)
    )
 end
 
@@ -263,9 +265,9 @@ end
 -- ring
 
 M.initRing = function(x, y, r)
-   return _G_Widget_.Arc(
-      _G_Widget_.make_semicircle(x, y, r, 0, 360),
-      _G_Widget_.arc_style(ARC_WIDTH, _G_Patterns_.BORDER_FG)
+   return Startup.Arc(
+      Startup.make_semicircle(x, y, r, 0, 360),
+      Startup.arc_style(ARC_WIDTH, Theme.BORDER_FG)
    )
 end
 
@@ -275,17 +277,17 @@ end
 M.initTextRing = function(x, y, r, fmt, limit)
    return {
 	  ring = M.initRing(x, y, r),
-	  value = _G_Widget_.formattedThresholdText(
-         _G_Widget_.make_point(x, y),
+	  value = Startup.formattedThresholdText(
+         Startup.make_point(x, y),
          nil,
-         _G_Widget_.text_style(
+         Startup.text_style(
             M.normal_font_spec,
-            _G_Patterns_.PRIMARY_FG,
+            Theme.PRIMARY_FG,
             'center',
             'center'
          ),
          fmt,
-         _G_Widget_.threshold_text_style(_G_Patterns_.CRITICAL_FG, limit)
+         Startup.threshold_text_style(Theme.CRITICAL_FG, limit)
 	  ),
    }
 end
@@ -306,17 +308,17 @@ end
 -- dial
 
 local threshold_indicator = function(threshold)
-   return _G_Widget_.threshold_style(
-      _G_Patterns_.INDICATOR_FG_PRIMARY,
-      _G_Patterns_.INDICATOR_FG_CRITICAL,
+   return Startup.threshold_style(
+      Theme.INDICATOR_FG_PRIMARY,
+      Theme.INDICATOR_FG_CRITICAL,
       threshold
    )
 end
 
 M.dial = function(x, y, radius, thickness, threshold)
-   return _G_Widget_.Dial(
-      _G_Widget_.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
-      _G_Widget_.arc_style(thickness, _G_Patterns_.INDICATOR_BG),
+   return Startup.Dial(
+      Startup.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
+      Startup.arc_style(thickness, Theme.INDICATOR_BG),
       threshold_indicator(threshold)
    )
 end
@@ -326,9 +328,9 @@ end
 
 M.compound_dial = function(x, y, outer_radius, inner_radius, thickness,
                            threshold, num_dials)
-   return _G_Widget_.CompoundDial(
-      _G_Widget_.make_semicircle(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
-      _G_Widget_.arc_style(thickness, _G_Patterns_.INDICATOR_BG),
+   return Startup.CompoundDial(
+      Startup.make_semicircle(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
+      Startup.arc_style(thickness, Theme.INDICATOR_BG),
       threshold_indicator(threshold),
       inner_radius,
       num_dials
@@ -340,19 +342,19 @@ end
 
 M.compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
    return {
-      labels = _G_Widget_.TextColumn(
-         _G_Widget_.make_point(x, y),
+      labels = Startup.TextColumn(
+         Startup.make_point(x, y),
          labels,
          M.left_text_style,
          nil,
          spacing
       ),
-      bars = _G_Widget_.CompoundBar(
-         _G_Widget_.make_point(x + pad, y),
+      bars = Startup.CompoundBar(
+         Startup.make_point(x + pad, y),
          w - pad,
-         _G_Widget_.line_style(
+         Startup.line_style(
             thickness,
-            _G_Patterns_.INDICATOR_BG,
+            Theme.INDICATOR_BG,
             CAIRO_LINE_JOIN_MITER
          ),
          threshold_indicator(threshold),
@@ -380,12 +382,12 @@ end
 -- separator (eg a horizontal line)
 
 M.initSeparator = function(x, y, w)
-   return _G_Widget_.Line(
-      _G_Widget_.make_point(x, y),
-      _G_Widget_.make_point(x + w, y),
-      _G_Widget_.line_style(
+   return Startup.Line(
+      Startup.make_point(x, y),
+      Startup.make_point(x + w, y),
+      Startup.line_style(
          SEPARATOR_THICKNESS,
-         _G_Patterns_.BORDER_FG,
+         Theme.BORDER_FG,
          CAIRO_LINE_CAP_BUTT
       )
    )
@@ -396,8 +398,8 @@ end
 
 M.initTextRow = function(x, y, w, label)
    return {
-      label = _left_text(_G_Widget_.make_point(x, y), label),
-      value = _right_text(_G_Widget_.make_point(x + w, y), nil),
+      label = _left_text(Startup.make_point(x, y), label),
+      value = _right_text(Startup.make_point(x + w, y), nil),
    }
 end
 
@@ -418,18 +420,18 @@ end
 
 M.initTextRowCrit = function(x, y, w, label, append_end, limit)
    return{
-      label = _left_text(_G_Widget_.make_point(x, y), label),
-      value = _G_Widget_.formattedThresholdText(
-         _G_Widget_.make_point(x + w, y),
+      label = _left_text(Startup.make_point(x, y), label),
+      value = Startup.formattedThresholdText(
+         Startup.make_point(x + w, y),
          nil,
-         _G_Widget_.text_style(
+         Startup.text_style(
             M.normal_font_spec,
-            _G_Patterns_.PRIMARY_FG,
+            Theme.PRIMARY_FG,
             'right',
             'center'
          ),
          append_end,
-         _G_Widget_.threshold_text_style(_G_Patterns_.CRITICAL_FG, limit)
+         Startup.threshold_text_style(Theme.CRITICAL_FG, limit)
       )
    }
 end
@@ -448,8 +450,8 @@ end
 -- text column
 
 M.text_column = function(x, y, spacing, labels, x_align, color)
-   return _G_Widget_.TextColumn(
-      _G_Widget_.make_point(x, y),
+   return Startup.TextColumn(
+      Startup.make_point(x, y),
       labels,
       _text_row_style(x_align, color),
       nil,
@@ -462,15 +464,15 @@ end
 
 M.initTextRows_color = function(x, y, w, spacing, labels, color, format)
    return {
-      labels = _G_Widget_.TextColumn(
-         _G_Widget_.make_point(x, y),
+      labels = Startup.TextColumn(
+         Startup.make_point(x, y),
          labels,
          M.left_text_style,
          nil,
          spacing
       ),
-      values = _G_Widget_.initTextColumnN(
-         _G_Widget_.make_point(x + w, y),
+      values = Startup.initTextColumnN(
+         Startup.make_point(x + w, y),
          #labels,
          _text_row_style('right', color),
          format,
@@ -486,7 +488,7 @@ M.initTextRows = function(x, y, w, spacing, labels)
       w,
       spacing,
       labels,
-      _G_Patterns_.PRIMARY_FG,
+      Theme.PRIMARY_FG,
       nil
    )
 end
@@ -508,27 +510,27 @@ end
 
 M.default_table_font_spec = M.make_font_spec(FONT, TABLE_FONT_SIZE, false)
 
-M.default_table_style = _G_Widget_.table_style(
-   _G_Widget_.rect_style(
+M.default_table_style = Startup.table_style(
+   Startup.rect_style(
       TABLE_LINE_THICKNESS,
-      _G_Patterns_.BORDER_FG
+      Theme.BORDER_FG
    ),
-   _G_Widget_.line_style(
+   Startup.line_style(
       TABLE_LINE_THICKNESS,
-      _G_Patterns_.BORDER_FG,
+      Theme.BORDER_FG,
       CAIRO_LINE_CAP_BUTT
    ),
-   _G_Widget_.table_header_style(
+   Startup.table_header_style(
       M.default_table_font_spec,
-      _G_Patterns_.PRIMARY_FG,
+      Theme.PRIMARY_FG,
       TABLE_HEADER_PAD
    ),
-   _G_Widget_.table_body_style(
+   Startup.table_body_style(
       M.default_table_font_spec,
-      _G_Patterns_.INACTIVE_TEXT_FG,
+      Theme.INACTIVE_TEXT_FG,
       TABLE_BODY_FORMAT
    ),
-   _G_Widget_.padding(
+   Startup.padding(
       TABLE_HORZ_PAD,
       TABLE_VERT_PAD,
       TABLE_HORZ_PAD,
@@ -537,8 +539,8 @@ M.default_table_style = _G_Widget_.table_style(
 )
 
 M.initTable = function(x, y, w, h, n, labels)
-   return _G_Widget_.Table(
-      _G_Widget_.make_box(x, y, w, h),
+   return Startup.Table(
+      Startup.make_box(x, y, w, h),
       n,
       labels,
       M.default_table_style
@@ -549,10 +551,10 @@ end
 -- panel
 
 M.initPanel = function(x, y, w, h, thickness)
-   return _G_Widget_.FillRect(
-      _G_Widget_.make_box(x, y, w, h),
-      _G_Widget_.rect_style(thickness, _G_Patterns_.BORDER_FG),
-      _G_Patterns_.PANEL_BG
+   return Startup.FillRect(
+      Startup.make_box(x, y, w, h),
+      Startup.rect_style(thickness, Theme.BORDER_FG),
+      Theme.PANEL_BG
    )
 end
 

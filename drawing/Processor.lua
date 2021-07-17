@@ -5,6 +5,7 @@ local Line			= require 'Line'
 local Table			= require 'Table'
 local Util			= require 'Util'
 local Common		= require 'Common'
+local Geometry = require 'Geometry'
 
 local __string_match = string.match
 local __string_gmatch = string.gmatch
@@ -74,9 +75,9 @@ local _create_core_ = function(cores, id, x, y)
 end
 
 local header = Common.Header(
-   _G_INIT_DATA_.LEFT_X,
+   Geometry.LEFT_X,
    _MODULE_Y_,
-   _G_INIT_DATA_.SECTION_WIDTH,
+   Geometry.SECTION_WIDTH,
    'PROCESSOR'
 )
 
@@ -84,8 +85,8 @@ local header = Common.Header(
 local cores = {}
 
 for c = 0, NUM_PHYSICAL_CORES - 1 do
-   local dial_x = _G_INIT_DATA_.LEFT_X + _DIAL_OUTER_RADIUS_ +
-	  (_G_INIT_DATA_.SECTION_WIDTH - 2 * _DIAL_OUTER_RADIUS_) * c / 3
+   local dial_x = Geometry.LEFT_X + _DIAL_OUTER_RADIUS_ +
+	  (Geometry.SECTION_WIDTH - 2 * _DIAL_OUTER_RADIUS_) * c / 3
    local dial_y = header.bottom_y + _DIAL_OUTER_RADIUS_
    _create_core_(cores, c, dial_x, dial_y)
 end
@@ -95,9 +96,9 @@ local _HWP_Y_ = header.bottom_y + _DIAL_OUTER_RADIUS_ * 2 + _PLOT_SECTION_BREAK_
 local _FREQ_Y_ = _HWP_Y_ + _TEXT_SPACING_
 
 local cpu_status = Common.initTextRows(
-   _G_INIT_DATA_.LEFT_X,
+   Geometry.LEFT_X,
    _HWP_Y_,
-   _G_INIT_DATA_.SECTION_WIDTH,
+   Geometry.SECTION_WIDTH,
    _TEXT_SPACING_,
    {'HWP Preference', 'Ave Freq'}
 )
@@ -105,9 +106,9 @@ local cpu_status = Common.initTextRows(
 local _SEP_Y_ = _FREQ_Y_ + _SEPARATOR_SPACING_
 
 local separator = Common.initSeparator(
-   _G_INIT_DATA_.LEFT_X,
+   Geometry.LEFT_X,
    _SEP_Y_,
-   _G_INIT_DATA_.SECTION_WIDTH
+   Geometry.SECTION_WIDTH
 )
 
 local _LOAD_Y_ = _SEP_Y_ + _SEPARATOR_SPACING_
@@ -115,18 +116,18 @@ local _LOAD_Y_ = _SEP_Y_ + _SEPARATOR_SPACING_
 local _PLOT_Y_ = _LOAD_Y_ + _PLOT_SECTION_BREAK_
 
 local total_load = Common.initPercentPlot(
-   _G_INIT_DATA_.LEFT_X,
+   Geometry.LEFT_X,
    _LOAD_Y_,
-   _G_INIT_DATA_.SECTION_WIDTH,
+   Geometry.SECTION_WIDTH,
    _PLOT_HEIGHT_,
    _PLOT_SECTION_BREAK_,
    "Total Load"
 )
 
 local tbl = Common.initTable(
-   _G_INIT_DATA_.LEFT_X,
+   Geometry.LEFT_X,
    _PLOT_Y_ + _PLOT_HEIGHT_ + _TABLE_SECTION_BREAK_,
-   _G_INIT_DATA_.SECTION_WIDTH,
+   Geometry.SECTION_WIDTH,
    _TABLE_HEIGHT_,
    NUM_ROWS,
    {'Name', 'PID', 'CPU (%)'}

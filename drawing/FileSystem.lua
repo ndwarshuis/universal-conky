@@ -3,6 +3,7 @@ local M = {}
 local Line 			= require 'Line'
 local Util			= require 'Util'
 local Common		= require 'Common'
+local Geometry = require 'Geometry'
 
 local _FS_PATHS_ = {'/', '/boot', '/home', '/mnt/data', '/mnt/dcache', "/tmp"}
 local _MODULE_Y_ = 170
@@ -13,9 +14,9 @@ local _SEPARATOR_SPACING_ = 20
 local FS_NUM = #_FS_PATHS_
 
 local header = Common.Header(
-	_G_INIT_DATA_.RIGHT_X,
+	Geometry.RIGHT_X,
 	_MODULE_Y_,
-	_G_INIT_DATA_.SECTION_WIDTH,
+	Geometry.SECTION_WIDTH,
 	'FILE SYSTEMS'
 )
 
@@ -26,26 +27,26 @@ for i, v in pairs(_FS_PATHS_) do
 end
 
 local smart = Common.initTextRow(
-   _G_INIT_DATA_.RIGHT_X,
+   Geometry.RIGHT_X,
    header.bottom_y,
-   _G_INIT_DATA_.SECTION_WIDTH,
+   Geometry.SECTION_WIDTH,
    'SMART Daemon'
 )
 
 local _SEP_Y_ = header.bottom_y + _SEPARATOR_SPACING_
 
 local separator = Common.initSeparator(
-   _G_INIT_DATA_.RIGHT_X,
+   Geometry.RIGHT_X,
    _SEP_Y_,
-   _G_INIT_DATA_.SECTION_WIDTH
+   Geometry.SECTION_WIDTH
 )
 
 local _BAR_Y_ = _SEP_Y_ + _SEPARATOR_SPACING_
 
 local fs = Common.compound_bar(
-   _G_INIT_DATA_.RIGHT_X,
+   Geometry.RIGHT_X,
    _BAR_Y_,
-   _G_INIT_DATA_.SECTION_WIDTH,
+   Geometry.SECTION_WIDTH,
    _BAR_PAD_,
    {'root', 'boot', 'home', 'data', 'dcache', 'tmpfs'},
    _SPACING_,

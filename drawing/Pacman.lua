@@ -1,6 +1,7 @@
 local M = {}
 
 local Common		= require 'Common'
+local Geometry = require 'Geometry'
 
 local __string_match = string.match
 local __string_gmatch = string.gmatch
@@ -8,16 +9,16 @@ local __string_gmatch = string.gmatch
 local _TEXT_SPACING_ = 20
 
 local header = Common.Header(
-	_G_INIT_DATA_.RIGHT_X,
-	_G_INIT_DATA_.TOP_Y,
-	_G_INIT_DATA_.SECTION_WIDTH,
+	Geometry.RIGHT_X,
+	Geometry.TOP_Y,
+	Geometry.SECTION_WIDTH,
 	'PACMAN'
 )
 
 local rows = Common.initTextRows(
-   _G_INIT_DATA_.RIGHT_X,
+   Geometry.RIGHT_X,
    header.bottom_y,
-   _G_INIT_DATA_.SECTION_WIDTH,
+   Geometry.SECTION_WIDTH,
    _TEXT_SPACING_,
    {'Total', 'Explicit', 'Outdated', 'Orphaned', 'Local'}
 )

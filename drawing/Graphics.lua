@@ -2,9 +2,9 @@ local M = {}
 
 local Text			= require 'Text'
 local Line			= require 'Line'
-local LabelPlot		= require 'LabelPlot'
 local Util			= require 'Util'
 local Common		= require 'Common'
+local Geometry		= require 'Geometry'
 
 local __string_match	= string.match
 
@@ -21,33 +21,33 @@ local na_percent_format = function(x)
 end
 
 local header = Common.Header(
-	_G_INIT_DATA_.LEFT_X,
+	Geometry.LEFT_X,
 	_MODULE_Y_,
-	_G_INIT_DATA_.SECTION_WIDTH,
+	Geometry.SECTION_WIDTH,
 	'NVIDIA GRAPHICS'
 )
 
 local status = Common.initTextRow(
-   _G_INIT_DATA_.LEFT_X,
+   Geometry.LEFT_X,
    header.bottom_y,
-   _G_INIT_DATA_.SECTION_WIDTH,
+   Geometry.SECTION_WIDTH,
    'Status'
 )
 
 local _SEP_Y_1_ = header.bottom_y + _SEPARATOR_SPACING_
 
 local separator1 = Common.initSeparator(
-   _G_INIT_DATA_.LEFT_X,
+   Geometry.LEFT_X,
    _SEP_Y_1_,
-   _G_INIT_DATA_.SECTION_WIDTH
+   Geometry.SECTION_WIDTH
 )
 
 local _INTERNAL_TEMP_Y_ = _SEP_Y_1_ + _SEPARATOR_SPACING_
 
 local internal_temp = Common.initTextRowCrit(
-   _G_INIT_DATA_.LEFT_X,
+   Geometry.LEFT_X,
    _INTERNAL_TEMP_Y_,
-   _G_INIT_DATA_.SECTION_WIDTH,
+   Geometry.SECTION_WIDTH,
    'Internal Temperature',
    function(s) if s == -1 then return NA else return string.format('%s°C', s) end end,
    80
@@ -56,17 +56,17 @@ local internal_temp = Common.initTextRowCrit(
 local _SEP_Y_2_ = _INTERNAL_TEMP_Y_ + _SEPARATOR_SPACING_
 
 local separator2 = Common.initSeparator(
-   _G_INIT_DATA_.LEFT_X,
+   Geometry.LEFT_X,
    _SEP_Y_2_,
-   _G_INIT_DATA_.SECTION_WIDTH
+   Geometry.SECTION_WIDTH
 )
 
 local _CLOCK_SPEED_Y_ = _SEP_Y_2_ + _SEPARATOR_SPACING_
 
 local clock_speed = Common.initTextRows(
-   _G_INIT_DATA_.LEFT_X,
+   Geometry.LEFT_X,
    _CLOCK_SPEED_Y_,
-   _G_INIT_DATA_.SECTION_WIDTH,
+   Geometry.SECTION_WIDTH,
    _TEXT_SPACING_,
    {'GPU Clock Speed', 'Memory Clock Speed'}
 )
@@ -74,17 +74,17 @@ local clock_speed = Common.initTextRows(
 local _SEP_Y_3_ = _CLOCK_SPEED_Y_ + _TEXT_SPACING_ * 2
 
 local separator3 = Common.initSeparator(
-   _G_INIT_DATA_.LEFT_X,
+   Geometry.LEFT_X,
    _SEP_Y_3_,
-   _G_INIT_DATA_.SECTION_WIDTH
+   Geometry.SECTION_WIDTH
 )
 
 local _GPU_UTIL_Y_ = _SEP_Y_3_ + _SEPARATOR_SPACING_
 
 local gpu_util = Common.initPercentPlot_formatted(
-   _G_INIT_DATA_.LEFT_X,
+   Geometry.LEFT_X,
    _GPU_UTIL_Y_,
-   _G_INIT_DATA_.SECTION_WIDTH,
+   Geometry.SECTION_WIDTH,
    _PLOT_HEIGHT_,
    _PLOT_SEC_BREAK_,
    'GPU Utilization',
@@ -94,9 +94,9 @@ local gpu_util = Common.initPercentPlot_formatted(
 local _MEM_UTIL_Y_ = _GPU_UTIL_Y_ + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
 
 local mem_util = Common.initPercentPlot_formatted(
-   _G_INIT_DATA_.LEFT_X,
+   Geometry.LEFT_X,
    _MEM_UTIL_Y_,
-   _G_INIT_DATA_.SECTION_WIDTH,
+   Geometry.SECTION_WIDTH,
    _PLOT_HEIGHT_,
    _PLOT_SEC_BREAK_,
    'Memory Utilization',
@@ -106,9 +106,9 @@ local mem_util = Common.initPercentPlot_formatted(
 local _VID_UTIL_Y_ = _MEM_UTIL_Y_ + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
 
 local vid_util = Common.initPercentPlot_formatted(
-   _G_INIT_DATA_.LEFT_X,
+   Geometry.LEFT_X,
    _VID_UTIL_Y_,
-   _G_INIT_DATA_.SECTION_WIDTH,
+   Geometry.SECTION_WIDTH,
    _PLOT_HEIGHT_,
    _PLOT_SEC_BREAK_,
    'Video Utilization',

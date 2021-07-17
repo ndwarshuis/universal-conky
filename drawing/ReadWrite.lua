@@ -2,6 +2,7 @@ local M = {}
 
 local Util		= require 'Util'
 local Common	= require 'Common'
+local Geometry = require 'Geometry'
 
 local __tonumber 	= tonumber
 local __string_match = string.match
@@ -44,16 +45,16 @@ local format_value_function = function(bps)
 end
 
 local header = Common.Header(
-	_G_INIT_DATA_.CENTER_LEFT_X,
-	_G_INIT_DATA_.TOP_Y,
-	_G_INIT_DATA_.SECTION_WIDTH,
+	Geometry.CENTER_LEFT_X,
+	Geometry.TOP_Y,
+	Geometry.SECTION_WIDTH,
 	'INPUT / OUTPUT'
 )
 
 local reads = Common.initLabeledScalePlot(
-      _G_INIT_DATA_.CENTER_LEFT_X,
+      Geometry.CENTER_LEFT_X,
       header.bottom_y,
-      _G_INIT_DATA_.SECTION_WIDTH,
+      Geometry.SECTION_WIDTH,
       _PLOT_HEIGHT_,
       format_value_function,
       io_label_function,
@@ -64,9 +65,9 @@ local reads = Common.initLabeledScalePlot(
 )
 
 local writes = Common.initLabeledScalePlot(
-      _G_INIT_DATA_.CENTER_LEFT_X,
+      Geometry.CENTER_LEFT_X,
       header.bottom_y + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2,
-      _G_INIT_DATA_.SECTION_WIDTH,
+      Geometry.SECTION_WIDTH,
       _PLOT_HEIGHT_,
       format_value_function,
       io_label_function,

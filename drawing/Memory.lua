@@ -6,6 +6,8 @@ local LabelPlot		= require 'LabelPlot'
 local Table			= require 'Table'
 local Util			= require 'Util'
 local Common		= require 'Common'
+local Theme = require 'Patterns'
+local Geometry = require 'Geometry'
 
 local __string_match		= string.match
 local __cairo_path_destroy 	= cairo_path_destroy
@@ -41,16 +43,16 @@ for r = 1, NUM_ROWS do
 end
 
 local header = Common.Header(
-	_G_INIT_DATA_.RIGHT_X,
+	Geometry.RIGHT_X,
 	_MODULE_Y_,
-	_G_INIT_DATA_.SECTION_WIDTH,
+	Geometry.SECTION_WIDTH,
 	'MEMORY'
 )
 
 local DIAL_RADIUS = 32
 local DIAL_THETA_0 = math.rad(90)
 local DIAL_THETA_1 = math.rad(360)
-local DIAL_X = _G_INIT_DATA_.RIGHT_X + DIAL_RADIUS + _DIAL_THICKNESS_ / 2
+local DIAL_X = Geometry.RIGHT_X + DIAL_RADIUS + _DIAL_THICKNESS_ / 2
 local DIAL_Y = header.bottom_y + DIAL_RADIUS + _DIAL_THICKNESS_ / 2
 
 local dial = Common.dial(DIAL_X, DIAL_Y, DIAL_RADIUS, _DIAL_THICKNESS_, 0.8)
@@ -59,7 +61,7 @@ local cache_arc = Common.arc(
    DIAL_Y,
    DIAL_RADIUS,
    _DIAL_THICKNESS_,
-   _G_Patterns_.INDICATOR_FG_SECONDARY
+   Theme.INDICATOR_FG_SECONDARY
 )
 
 local text_ring = Common.initTextRing(
@@ -71,8 +73,8 @@ local text_ring = Common.initTextRing(
 )
 
 local _LINE_1_Y_ = header.bottom_y + _TEXT_Y_OFFSET_
-local _TEXT_LEFT_X_ = _G_INIT_DATA_.RIGHT_X + DIAL_RADIUS * 2 + _TEXT_LEFT_X_OFFSET_
-local _RIGHT_X_ = _G_INIT_DATA_.RIGHT_X + _G_INIT_DATA_.SECTION_WIDTH
+local _TEXT_LEFT_X_ = Geometry.RIGHT_X + DIAL_RADIUS * 2 + _TEXT_LEFT_X_OFFSET_
+local _RIGHT_X_ = Geometry.RIGHT_X + Geometry.SECTION_WIDTH
 
 local swap = Common.initTextRowCrit(
    _TEXT_LEFT_X_,
@@ -87,27 +89,27 @@ local swap = Common.initTextRowCrit(
 local cache = Common.initTextRows_color(
    _TEXT_LEFT_X_,
    _LINE_1_Y_ + _TEXT_SPACING_,
-   _G_INIT_DATA_.SECTION_WIDTH - _TEXT_LEFT_X_OFFSET_ - DIAL_RADIUS * 2,
+   Geometry.SECTION_WIDTH - _TEXT_LEFT_X_OFFSET_ - DIAL_RADIUS * 2,
    _TEXT_SPACING_,
    {'Page Cache', 'Buffers', 'Kernel Slab'},
-   _G_Patterns_.SECONDARY_FG,
+   Theme.SECONDARY_FG,
    '%s%%'
 )
 
 local _PLOT_Y_ = _PLOT_SECTION_BREAK_ + header.bottom_y + DIAL_RADIUS * 2
 
 local plot = Common.initThemedLabelPlot(
-   _G_INIT_DATA_.RIGHT_X,
+   Geometry.RIGHT_X,
    _PLOT_Y_,
-   _G_INIT_DATA_.SECTION_WIDTH,
+   Geometry.SECTION_WIDTH,
    _PLOT_HEIGHT_,
    Common.percent_label_style
 )
 
 local tbl = Common.initTable(
-   _G_INIT_DATA_.RIGHT_X,
+   Geometry.RIGHT_X,
    _PLOT_Y_ + _PLOT_HEIGHT_ + _TABLE_SECTION_BREAK_,
-   _G_INIT_DATA_.SECTION_WIDTH,
+   Geometry.SECTION_WIDTH,
    _TABLE_HEIGHT_,
    NUM_ROWS,
    {'Name', 'PID', 'Mem (%)'}

@@ -2,6 +2,7 @@ local M = {}
 
 local Util		= require 'Util'
 local Common	= require 'Common'
+local Geometry = require 'Geometry'
 
 local __string_gmatch = string.gmatch
 local __math_floor = math.floor
@@ -20,16 +21,16 @@ local value_format_function = function(bits)
 end
 
 local header = Common.Header(
-	_G_INIT_DATA_.CENTER_RIGHT_X,
-	_G_INIT_DATA_.TOP_Y,
-	_G_INIT_DATA_.SECTION_WIDTH,
+	Geometry.CENTER_RIGHT_X,
+	Geometry.TOP_Y,
+	Geometry.SECTION_WIDTH,
 	'NETWORK'
 )
 
 local dnload = Common.initLabeledScalePlot(
-      _G_INIT_DATA_.CENTER_RIGHT_X,
+      Geometry.CENTER_RIGHT_X,
       header.bottom_y,
-      _G_INIT_DATA_.SECTION_WIDTH,
+      Geometry.SECTION_WIDTH,
       _PLOT_HEIGHT_,
       value_format_function,
       network_label_function,
@@ -39,9 +40,9 @@ local dnload = Common.initLabeledScalePlot(
 )
 
 local upload = Common.initLabeledScalePlot(
-      _G_INIT_DATA_.CENTER_RIGHT_X,
+      Geometry.CENTER_RIGHT_X,
       header.bottom_y + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2,
-      _G_INIT_DATA_.SECTION_WIDTH,
+      Geometry.SECTION_WIDTH,
       _PLOT_HEIGHT_,
       value_format_function,
       network_label_function,
@@ -95,21 +96,8 @@ local update = function(cr, update_frequency)
 		if tx_delta > 0 then uspeed = uspeed + tx_delta * update_frequency end
 	end
 
-	-- local dspeed_unit, dspeed_value = Util.convert_data_val(dspeed)
-	-- local uspeed_unit, uspeed_value = Util.convert_data_val(uspeed)
-
-    Common.annotated_scale_plot_set(
-       dnload,
-       cr,
-       -- Util.precision_round_to_string(dspeed_value, 3)..' '..dspeed_unit..'b/s',
-       dspeed
-    )
-    Common.annotated_scale_plot_set(
-       upload,
-       cr,
-       -- Util.precision_round_to_string(uspeed_value, 3)..' '..uspeed_unit..'b/s',
-       uspeed
-    )
+    Common.annotated_scale_plot_set(dnload, cr, dspeed)
+    Common.annotated_scale_plot_set(upload, cr, uspeed)
 end
 
 _PLOT_SEC_BREAK_ = nil
