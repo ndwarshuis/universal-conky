@@ -29,9 +29,10 @@ end
 local TABLE_CONKY = {}
 
 for r = 1, NUM_ROWS do
-   TABLE_CONKY[r] = {}
-   TABLE_CONKY[r].pid = '${top pid '..r..'}'
-   TABLE_CONKY[r].cpu = '${top cpu '..r..'}'
+   TABLE_CONKY[r] = {
+      pid = '${top pid '..r..'}',
+      cpu = '${top cpu '..r..'}'
+   }
 end
 
 local _MODULE_Y_ = 614
@@ -188,7 +189,6 @@ local _read_hwp = function()
       return 'Unknown'
    end
 end
-
 
 -- _MODULE_Y_ = nil
 -- _DIAL_INNER_RADIUS_ = nil
