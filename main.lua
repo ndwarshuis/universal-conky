@@ -108,18 +108,18 @@ local cs_right = _make_static_surface(
 --
 -- kill all the stuff we don't need for the main loop
 --
-local _unrequire = function(m) package.loaded[m] = nil end
+-- local _unrequire = function(m) package.loaded[m] = nil end
 
-_unrequire('Super')
-_unrequire('Color')
-_unrequire('Widget')
-_unrequire('Patterns')
+-- _unrequire('Super')
+-- _unrequire('Color')
+-- _unrequire('Widget')
+-- _unrequire('Patterns')
 
-_unrequire = nil
-_make_static_surface = nil
-FillRect = nil
-_G_INIT_DATA_ = nil
-collectgarbage()
+-- _unrequire = nil
+-- _make_static_surface = nil
+-- FillRect = nil
+-- _G_INIT_DATA_ = nil
+-- collectgarbage()
 
 --
 -- main loop

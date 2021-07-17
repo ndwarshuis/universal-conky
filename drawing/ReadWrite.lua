@@ -76,7 +76,6 @@ local writes = Common.initLabeledScalePlot(
       2
 )
 
-
 _PLOT_SEC_BREAK_ = nil
 _PLOT_HEIGHT_ = nil
 
