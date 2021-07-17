@@ -1,5 +1,3 @@
-local M = {}
-
 local CompoundDial 	= require 'CompoundDial'
 local Line			= require 'Line'
 local Table			= require 'Table'
@@ -268,7 +266,7 @@ _SEP_Y_ = nil
 _HWP_Y_ = nil
 _PLOT_Y_ = nil
 
-M.draw_static = function(cr)
+local draw_static = function(cr)
    Common.drawHeader(cr, header)
 
    for c = 1, NUM_PHYSICAL_CORES do
@@ -285,7 +283,7 @@ M.draw_static = function(cr)
    Table.draw_static(tbl, cr)
 end
 
-M.draw_dynamic = function(cr, trigger)
+local draw_dynamic = function(cr, trigger)
    update(cr, trigger)
 
    for c = 1, NUM_PHYSICAL_CORES do
@@ -300,4 +298,6 @@ M.draw_dynamic = function(cr, trigger)
    Table.draw_dynamic(tbl, cr)
 end
 
-return M
+return function()
+   return {static = draw_static, dynamic = draw_dynamic}
+end

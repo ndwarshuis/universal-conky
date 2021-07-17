@@ -81,49 +81,6 @@ local draw_static_surface = function(cr, cs_obj)
    __cairo_paint(cr)
 end
 
-local cs_left = _make_static_surface(
-	Geometry.LEFT_X - Geometry.PANEL_MARGIN_X,
-	Geometry.TOP_Y - Geometry.PANEL_MARGIN_Y,
-	Geometry.SECTION_WIDTH + Geometry.PANEL_MARGIN_X * 2,
-	Geometry.SIDE_HEIGHT + Geometry.PANEL_MARGIN_Y * 2,
-    {System.draw_static, Graphics.draw_static, Processor.draw_static}
-)
-
-local cs_center = _make_static_surface(
-   Geometry.CENTER_LEFT_X - Geometry.PANEL_MARGIN_X,
-   Geometry.TOP_Y - Geometry.PANEL_MARGIN_Y,
-   Geometry.CENTER_WIDTH + Geometry.PANEL_MARGIN_Y * 2 + Geometry.CENTER_PAD,
-   Geometry.CENTER_HEIGHT + Geometry.PANEL_MARGIN_Y * 2,
-   {ReadWrite.draw_static, Network.draw_static}
-)
-
-local cs_right = _make_static_surface(
-   Geometry.RIGHT_X - Geometry.PANEL_MARGIN_X,
-   Geometry.TOP_Y - Geometry.PANEL_MARGIN_Y,
-   Geometry.SECTION_WIDTH + Geometry.PANEL_MARGIN_X * 2,
-   Geometry.SIDE_HEIGHT + Geometry.PANEL_MARGIN_Y * 2,
-   {Pacman.draw_static, FileSystem.draw_static, Power.draw_static, Memory.draw_static}
-)
-
---
--- kill all the stuff we don't need for the main loop
---
--- local _unrequire = function(m) package.loaded[m] = nil end
-
--- _unrequire('Super')
--- _unrequire('Color')
--- _unrequire('Widget')
--- _unrequire('Patterns')
-
--- _unrequire = nil
--- _make_static_surface = nil
--- FillRect = nil
--- _G_INIT_DATA_ = nil
--- collectgarbage()
-
---
--- main loop
---
 local using_ac = function()
    -- for some reason it is much more efficient to test if the battery
    -- is off than if the ac is on
@@ -132,9 +89,69 @@ end
 
 local updates = -2 -- this accounts for the first few spazzy iterations
 local STATS_FILE = '/tmp/.conky_pacman'
+local draw
 
 function conky_start(update_interval)
    conky_set_update_interval(update_interval)
+
+   local update_freq = 1 / update_interval
+
+   local mem = Memory(update_freq)
+   local rw = ReadWrite(update_freq)
+   local net = Network(update_freq)
+   local pwr = Power(update_freq)
+   local fs = FileSystem()
+   local sys = System()
+   local gfx = Graphics()
+   local proc = Processor()
+   local pcm = Pacman()
+
+   local cs_left = _make_static_surface(
+      Geometry.LEFT_X - Geometry.PANEL_MARGIN_X,
+      Geometry.TOP_Y - Geometry.PANEL_MARGIN_Y,
+      Geometry.SECTION_WIDTH + Geometry.PANEL_MARGIN_X * 2,
+      Geometry.SIDE_HEIGHT + Geometry.PANEL_MARGIN_Y * 2,
+      {sys.static, gfx.static, proc.static}
+   )
+
+   local cs_center = _make_static_surface(
+      Geometry.CENTER_LEFT_X - Geometry.PANEL_MARGIN_X,
+      Geometry.TOP_Y - Geometry.PANEL_MARGIN_Y,
+      Geometry.CENTER_WIDTH + Geometry.PANEL_MARGIN_Y * 2 + Geometry.CENTER_PAD,
+      Geometry.CENTER_HEIGHT + Geometry.PANEL_MARGIN_Y * 2,
+      {rw.static, net.static}
+   )
+
+   local cs_right = _make_static_surface(
+      Geometry.RIGHT_X - Geometry.PANEL_MARGIN_X,
+      Geometry.TOP_Y - Geometry.PANEL_MARGIN_Y,
+      Geometry.SECTION_WIDTH + Geometry.PANEL_MARGIN_X * 2,
+      Geometry.SIDE_HEIGHT + Geometry.PANEL_MARGIN_Y * 2,
+      {pcm.static, fs.static, pwr.static, mem.static}
+   )
+
+   draw = function(cr, _updates)
+      draw_static_surface(cr, cs_left)
+      draw_static_surface(cr, cs_center)
+      draw_static_surface(cr, cs_right)
+
+      local t1 = _updates % (update_freq * 10)
+
+      local is_using_ac = using_ac()
+      local pacman_stats = Util.read_file(STATS_FILE)
+
+      sys.dynamic(cr, pacman_stats)
+      gfx.dynamic(cr)
+      proc.dynamic(cr, t1)
+
+      rw.dynamic(cr)
+      net.dynamic(cr)
+
+      pcm.dynamic(cr, pacman_stats)
+      fs.dynamic(cr, t1)
+      pwr.dynamic(cr, is_using_ac)
+      mem.dynamic(cr)
+   end
 end
 
 function conky_main()
@@ -144,29 +161,9 @@ function conky_main()
    local cs = __cairo_xlib_surface_create(_cw.display, _cw.drawable,
                                           _cw.visual, 1920, 1080)
    local cr = __cairo_create(cs)
-
-   draw_static_surface(cr, cs_left)
-   draw_static_surface(cr, cs_center)
-   draw_static_surface(cr, cs_right)
-
    updates = updates + 1
 
-   local t1 = updates % (UPDATE_FREQUENCY * 10)
-
-   local is_using_ac = using_ac()
-   local pacman_stats = Util.read_file(STATS_FILE)
-
-   System.draw_dynamic(cr, pacman_stats)
-   Graphics.draw_dynamic(cr)
-   Processor.draw_dynamic(cr, t1)
-
-   ReadWrite.draw_dynamic(cr, UPDATE_FREQUENCY)
-   Network.draw_dynamic(cr, UPDATE_FREQUENCY)
-
-   Pacman.draw_dynamic(cr, pacman_stats)
-   FileSystem.draw_dynamic(cr, t1)
-   Power.draw_dynamic(cr, UPDATE_FREQUENCY, is_using_ac)
-   Memory.draw_dynamic(cr)
+   draw(cr, updates)
 
    __cairo_surface_destroy(cs)
    __cairo_destroy(cr)

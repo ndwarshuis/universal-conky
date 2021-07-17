@@ -1,5 +1,3 @@
-local M = {}
-
 local Arc			= require 'Arc'
 local Dial 			= require 'Dial'
 local LabelPlot		= require 'LabelPlot'
@@ -172,7 +170,7 @@ _TEXT_LEFT_X_ = nil
 _RIGHT_X_ = nil
 _PLOT_Y_ = nil
 
-M.draw_static = function(cr)
+local draw_static = function(cr)
    Common.drawHeader(cr, header)
 
    Common.text_ring_draw_static(text_ring, cr)
@@ -185,7 +183,7 @@ M.draw_static = function(cr)
    Table.draw_static(tbl, cr)
 end
 
-M.draw_dynamic = function(cr)
+local draw_dynamic = function(cr)
    update(cr)
 
    Dial.draw_dynamic(dial, cr)
@@ -200,4 +198,6 @@ M.draw_dynamic = function(cr)
    Table.draw_dynamic(tbl, cr)
 end
 
-return M
+return function(update_freq)
+   return {dynamic = draw_dynamic, static = draw_static}
+end

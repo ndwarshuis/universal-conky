@@ -1,5 +1,3 @@
-local M = {}
-
 local Util		= require 'Util'
 local Common	= require 'Common'
 local Geometry = require 'Geometry'
@@ -20,18 +18,6 @@ local RW_REGEX = '%s+%d+%s+%d+%s+(%d+)%s+%d+%s+%d+%s+%d+%s+(%d+)'
 local read_stat_file = function()
 	local bytes_r, bytes_w = __string_match(Util.read_file(STAT_FILE), RW_REGEX)
 	return __tonumber(bytes_r) * BLOCK_SIZE_BYTES, __tonumber(bytes_w) * BLOCK_SIZE_BYTES
-end
-
-local update_stat = function(cr, stat, byte_cnt, update_frequency)
-	local delta_bytes = byte_cnt - stat.prev_byte_cnt
-	stat.prev_byte_cnt = byte_cnt
-
-    local plot_value = 0
-	if delta_bytes > 0 then
-		local bps = delta_bytes * update_frequency
-        plot_value = bps
-	end
-    Common.annotated_scale_plot_set(stat, cr, plot_value)
 end
 
 local io_label_function = function(bytes)
@@ -83,25 +69,37 @@ reads.byte_cnt = 0
 writes.byte_cnt = 0
 reads.prev_byte_cnt, writes.prev_byte_cnt = read_stat_file()
 
-local update = function(cr, update_frequency)
-	local read_byte_cnt, write_byte_cnt = read_stat_file()
-	update_stat(cr, reads, read_byte_cnt, update_frequency)
-	update_stat(cr, writes, write_byte_cnt, update_frequency)
-end
-
 local draw_static = function(cr)
    Common.drawHeader(cr, header)
    Common.annotated_scale_plot_draw_static(reads, cr)
    Common.annotated_scale_plot_draw_static(writes, cr)
 end
 
-local draw_dynamic = function(cr, update_frequency)
-   update(cr, update_frequency)
-   Common.annotated_scale_plot_draw_dynamic(reads, cr)
-   Common.annotated_scale_plot_draw_dynamic(writes, cr)
+return function(update_freq)
+
+   local update_stat = function(cr, stat, byte_cnt)
+      local delta_bytes = byte_cnt - stat.prev_byte_cnt
+      stat.prev_byte_cnt = byte_cnt
+
+      local plot_value = 0
+      if delta_bytes > 0 then
+         local bps = delta_bytes * update_freq
+         plot_value = bps
+      end
+      Common.annotated_scale_plot_set(stat, cr, plot_value)
+   end
+
+   local update = function(cr)
+      local read_byte_cnt, write_byte_cnt = read_stat_file()
+      update_stat(cr, reads, read_byte_cnt)
+      update_stat(cr, writes, write_byte_cnt)
+   end
+
+   local draw_dynamic = function(cr)
+      update(cr)
+      Common.annotated_scale_plot_draw_dynamic(reads, cr)
+      Common.annotated_scale_plot_draw_dynamic(writes, cr)
+   end
+
+   return {static = draw_static, dynamic = draw_dynamic}
 end
-
-M.draw_static = draw_static
-M.draw_dynamic = draw_dynamic
-
-return M

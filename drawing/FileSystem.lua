@@ -1,5 +1,3 @@
-local M = {}
-
 local Line 			= require 'Line'
 local Util			= require 'Util'
 local Common		= require 'Common'
@@ -71,17 +69,19 @@ local update = function(cr)
    end
 end
 
-M.draw_static = function(cr)
+local draw_static = function(cr)
    Common.drawHeader(cr, header)
    Common.text_row_draw_static(smart, cr)
    Line.draw(separator, cr)
    Common.compound_bar_draw_static(fs, cr)
 end
 
-M.draw_dynamic = function(cr, trigger)
+local draw_dynamic = function(cr, trigger)
    if trigger == 0 then update(cr) end
    Common.text_row_draw_dynamic(smart, cr)
    Common.compound_bar_draw_dynamic(fs, cr)
 end
 
-return M
+return function()
+   return {static = draw_static, dynamic = draw_dynamic}
+end

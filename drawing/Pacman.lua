@@ -1,5 +1,3 @@
-local M = {}
-
 local Common		= require 'Common'
 local Geometry = require 'Geometry'
 
@@ -40,14 +38,16 @@ local update = function(cr, pacman_stats)
    end
 end
 
-M.draw_static = function(cr)
+local draw_static = function(cr)
    Common.drawHeader(cr, header)
    Common.text_rows_draw_static(rows, cr)
 end
 
-M.draw_dynamic = function(cr, pacman_stats)
+local draw_dynamic = function(cr, pacman_stats)
    update(cr, pacman_stats)
    Common.text_rows_draw_dynamic(rows, cr)
 end
 
-return M
+return function()
+   return {static = draw_static, dynamic = draw_dynamic}
+end

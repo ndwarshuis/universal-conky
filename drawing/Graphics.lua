@@ -1,5 +1,3 @@
-local M = {}
-
 local Text			= require 'Text'
 local Line			= require 'Line'
 local Util			= require 'Util'
@@ -191,7 +189,7 @@ _GPU_UTIL_Y_ = nil
 _MEM_UTIL_Y_ = nil
 _VID_UTIL_Y_ = nil
 
-M.draw_static = function(cr)
+local draw_static = function(cr)
    Common.drawHeader(cr, header)
 
    Common.text_row_draw_static(status, cr)
@@ -208,7 +206,7 @@ M.draw_static = function(cr)
    Common.percent_plot_draw_static(vid_util, cr)
 end
 
-M.draw_dynamic = function(cr)
+local draw_dynamic = function(cr)
    update(cr)
 
    Common.text_row_draw_dynamic(status, cr)
@@ -219,4 +217,6 @@ M.draw_dynamic = function(cr)
    Common.percent_plot_draw_dynamic(vid_util, cr)
 end
 
-return M
+return function()
+   return {static = draw_static, dynamic = draw_dynamic}
+end

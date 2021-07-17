@@ -1,5 +1,3 @@
-local M = {}
-
 local Util			= require 'Util'
 local Common		= require 'Common'
 local Geometry = require 'Geometry'
@@ -25,12 +23,12 @@ local rows = Common.initTextRows(
 
 _TEXT_SPACING_ = nil
 
-M.draw_static = function(cr)
+local draw_static = function(cr)
    Common.drawHeader(cr, header)
    Common.text_rows_draw_static(rows, cr)
 end
 
-M.draw_dynamic = function(cr, pacman_stats)
+local draw_dynamic = function(cr, pacman_stats)
    local last_update, last_sync = "N/A", "N/A"
    if pacman_stats then
       last_update, last_sync = __string_match(pacman_stats, "^%d+%s+([^%s]+)%s+([^%s]+).*")
@@ -42,4 +40,6 @@ M.draw_dynamic = function(cr, pacman_stats)
    Common.text_rows_draw_dynamic(rows, cr)
 end
 
-return M
+return function()
+   return {static = draw_static, dynamic = draw_dynamic}
+end
