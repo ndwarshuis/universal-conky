@@ -1,10 +1,8 @@
-local Arc = require 'Arc'
 local Dial = require 'Dial'
 local LabelPlot = require 'LabelPlot'
 local Table = require 'Table'
 local Util = require 'Util'
 local Common = require 'Common'
-local Theme = require 'Patterns'
 local Geometry = require 'Geometry'
 
 return function(update_freq)
@@ -26,7 +24,6 @@ return function(update_freq)
       '\nSReclaimable:%s+(%d+)'
 
    local __string_match	= string.match
-   local __cairo_path_destroy = cairo_path_destroy
 
    -----------------------------------------------------------------------------
    -- header
@@ -44,19 +41,10 @@ return function(update_freq)
    local mem_total_kb = tonumber(Util.read_file('/proc/meminfo', '^MemTotal:%s+(%d+)'))
 
    local DIAL_RADIUS = 32
-   -- local DIAL_THETA_0 = math.rad(90)
-   -- local DIAL_THETA_1 = math.rad(360)
    local DIAL_X = Geometry.RIGHT_X + DIAL_RADIUS + DIAL_THICKNESS / 2
    local DIAL_Y = header.bottom_y + DIAL_RADIUS + DIAL_THICKNESS / 2
 
    local dial = Common.dial(DIAL_X, DIAL_Y, DIAL_RADIUS, DIAL_THICKNESS, 0.8)
-   -- local cache_arc = Common.arc(
-   --    DIAL_X,
-   --    DIAL_Y,
-   --    DIAL_RADIUS,
-   --    DIAL_THICKNESS,
-   --    Theme.INDICATOR_FG_SECONDARY
-   -- )
    local text_ring = Common.initTextRing(
       DIAL_X,
       DIAL_Y,
@@ -82,14 +70,12 @@ return function(update_freq)
       80
    )
 
-   -- local cache = Common.initTextRows_color(
    local cache = Common.initTextRows_formatted(
       TEXT_LEFT_X,
       LINE_1_Y + TEXT_SPACING,
       SWAP_BUFFERS_WIDTH,
       TEXT_SPACING,
       {'Page Cache', 'Buffers', 'Kernel Slab'},
-      -- Theme.SECONDARY_FG,
       '%s%%'
    )
 
@@ -149,10 +135,6 @@ return function(update_freq)
       Dial.set(dial, used_percent)
       Common.text_ring_set(text_ring, cr, Util.round_to_string(used_percent * 100))
 
-      -- local cache_theta = (DIAL_THETA_0 - DIAL_THETA_1) / mem_total_kb * memfree_kb + DIAL_THETA_1
-      -- __cairo_path_destroy(cache_arc.path)
-      -- cache_arc.path = Arc.create_path(cr, DIAL_X, DIAL_Y, DIAL_RADIUS, dial.dial_angle, cache_theta)
-
       Common.text_row_crit_set(swap, cr,
                                Util.precision_round_to_string(
                                   (swap_total_kb - swap_free_kb)
@@ -193,7 +175,6 @@ return function(update_freq)
       update(cr)
 
       Dial.draw_dynamic(dial, cr)
-      -- Arc.draw(cache_arc, cr)
       Common.text_ring_draw_dynamic(text_ring, cr)
 
       Common.text_row_crit_draw_dynamic(swap, cr)
