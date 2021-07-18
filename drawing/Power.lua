@@ -1,100 +1,96 @@
-local Util			= require 'Util'
-local Common		= require 'Common'
+local Util = require 'Util'
+local Common = require 'Common'
 local Geometry = require 'Geometry'
 
-local _MODULE_Y_ = 380
-local _TEXT_SPACING_ = 20
-local _PLOT_SEC_BREAK_ = 20
-local _PLOT_HEIGHT_ = 56
-
-local power_label_function = function(watts) return watts..' W' end
-
-local calculate_power = function(prev_cnt, cnt, update_frequency)
-	if cnt > prev_cnt then
-		return (cnt - prev_cnt) * update_frequency * 0.000001
-	else
-		return 0
-	end
-end
-
-local power_format_function = function(watts)
-   return Util.precision_round_to_string(watts, 3).." W"
-end
-
-local ac_format_function = function(watts)
-   if watts == 0 then
-      return "A/C"
-   else
-      return power_format_function(watts)
-   end
-end
-
-local header = Common.Header(
-	Geometry.RIGHT_X,
-	_MODULE_Y_,
-	Geometry.SECTION_WIDTH,
-	'POWER'
-)
-
-local _CORE_Y_ = header.bottom_y + _TEXT_SPACING_ + _PLOT_SEC_BREAK_ + _PLOT_HEIGHT_
-
-
-local PKG0_PATH = '/sys/class/powercap/intel-rapl:0/energy_uj'
-local DRAM_PATH = '/sys/class/powercap/intel-rapl:0:2/energy_uj'
-
-local prev_pkg0_uj_cnt = Util.read_file(PKG0_PATH, nil, '*n')
-local prev_dram_uj_cnt = Util.read_file(DRAM_PATH, nil, '*n')
-
--- _MODULE_Y_ = nil
--- _TEXT_SPACING_ = nil
--- _PLOT_SEC_BREAK_ = nil
--- _PLOT_HEIGHT_ = nil
--- _CORE_Y_ = nil
-
 return function(update_freq)
+   local MODULE_Y = 380
+   local TEXT_SPACING = 20
+   local PLOT_SEC_BREAK = 20
+   local PLOT_HEIGHT = 56
+   local PKG0_PATH = '/sys/class/powercap/intel-rapl:0/energy_uj'
+   local DRAM_PATH = '/sys/class/powercap/intel-rapl:0:2/energy_uj'
 
-   local pkg0 = Common.initLabeledScalePlot(
+   -----------------------------------------------------------------------------
+   -- header
+
+   local header = Common.Header(
       Geometry.RIGHT_X,
-      header.bottom_y,
+      MODULE_Y,
       Geometry.SECTION_WIDTH,
-      _PLOT_HEIGHT_,
-      power_format_function,
-      power_label_function,
-      _PLOT_SEC_BREAK_,
-      'PKG0',
-      0,
-      update_freq
+      'POWER'
    )
 
-   local dram = Common.initLabeledScalePlot(
-      Geometry.RIGHT_X,
-      _CORE_Y_,
-      Geometry.SECTION_WIDTH,
-      _PLOT_HEIGHT_,
-      power_format_function,
-      power_label_function,
-      _PLOT_SEC_BREAK_,
-      'DRAM',
-      0,
-      update_freq
-   )
+   -----------------------------------------------------------------------------
+   -- package 0 power plot
 
-   local battery_draw = Common.initLabeledScalePlot(
-      Geometry.RIGHT_X,
-      _CORE_Y_ + _PLOT_SEC_BREAK_ * 2 + _PLOT_HEIGHT_,
-      Geometry.SECTION_WIDTH,
-      _PLOT_HEIGHT_,
-      ac_format_function,
-      power_label_function,
-      _PLOT_SEC_BREAK_,
+   local power_label_function = function(watts) return watts..' W' end
+
+   local power_format_function = function(watts)
+      return Util.precision_round_to_string(watts, 3).." W"
+   end
+
+   local build_plot = function(y, label, format_fun)
+      return Common.initLabeledScalePlot(
+         Geometry.RIGHT_X,
+         y,
+         Geometry.SECTION_WIDTH,
+         PLOT_HEIGHT,
+         format_fun,
+         power_label_function,
+         PLOT_SEC_BREAK,
+         label,
+         0,
+         update_freq
+      )
+   end
+
+   local pkg0 = build_plot(header.bottom_y, 'PKG0', power_format_function)
+
+   -----------------------------------------------------------------------------
+   -- DRAM power plot
+
+   local CORE_Y = header.bottom_y + TEXT_SPACING + PLOT_SEC_BREAK + PLOT_HEIGHT
+
+   local dram = build_plot(CORE_Y, 'DRAM', power_format_function)
+
+   -----------------------------------------------------------------------------
+   -- battery power plot
+
+   local ac_format_function = function(watts)
+      if watts == 0 then
+         return "A/C"
+      else
+         return power_format_function(watts)
+      end
+   end
+
+   local battery_draw = build_plot(
+      CORE_Y + PLOT_SEC_BREAK * 2 + PLOT_HEIGHT,
       'Battery Draw',
-      0,
-      update_freq
+      ac_format_function
    )
 
-   local _update = function(cr, is_using_ac)
-      local pkg0_uj_cnt = Util.read_file(PKG0_PATH, nil, '*n')
-      local dram_uj_cnt = Util.read_file(DRAM_PATH, nil, '*n')
+   -----------------------------------------------------------------------------
+   -- update functions
+
+   local read_uj = function(path)
+      return Util.read_file(path, nil, '*n')
+   end
+
+   local prev_pkg0_uj_cnt = read_uj(PKG0_PATH)
+   local prev_dram_uj_cnt = read_uj(DRAM_PATH)
+
+   local calculate_power = function(prev_cnt, cnt, update_frequency)
+      if cnt > prev_cnt then
+         return (cnt - prev_cnt) * update_frequency * 0.000001
+      else
+         return 0
+      end
+   end
+
+   local update = function(cr, is_using_ac)
+      local pkg0_uj_cnt = read_uj(PKG0_PATH)
+      local dram_uj_cnt = read_uj(DRAM_PATH)
 
       local pkg0_power = calculate_power(prev_pkg0_uj_cnt, pkg0_uj_cnt, update_freq)
 
@@ -117,6 +113,9 @@ return function(update_freq)
       end
    end
 
+   -----------------------------------------------------------------------------
+   -- main functions
+
    local draw_static = function(cr)
       Common.drawHeader(cr, header)
       Common.annotated_scale_plot_draw_static(pkg0, cr)
@@ -125,7 +124,7 @@ return function(update_freq)
    end
 
    local draw_dynamic = function(cr, is_using_ac)
-      _update(cr, is_using_ac)
+      update(cr, is_using_ac)
       Common.annotated_scale_plot_draw_dynamic(pkg0, cr)
       Common.annotated_scale_plot_draw_dynamic(dram, cr)
       Common.annotated_scale_plot_draw_dynamic(battery_draw, cr)
