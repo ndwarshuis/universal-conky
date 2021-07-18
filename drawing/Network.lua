@@ -5,8 +5,17 @@ local Geometry = require 'Geometry'
 return function(update_freq)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
-   -- TODO ensure these interfaces actually exist
-   local INTERFACES = {'enp7s0f1', 'wlp0s20f3'}
+
+   local get_interfaces = function()
+      local s = Util.execute_cmd('realpath /sys/class/net/* | grep -v virtual')
+      local interfaces = {}
+      for iface in string.gmatch(s, '/([^/\n]+)\n') do
+         interfaces[#interfaces + 1] = iface
+      end
+      return interfaces
+   end
+
+   local INTERFACES = get_interfaces()
 
    -----------------------------------------------------------------------------
    -- header
