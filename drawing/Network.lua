@@ -1,12 +1,12 @@
-local Util		= require 'Util'
-local Common	= require 'Common'
+local Util = require 'Util'
+local Common = require 'Common'
 local Geometry = require 'Geometry'
 
 return function(update_freq)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
+   local INTERFACES = {'enp7s0f1', 'wlp0s20f3'}
 
-   local __string_gmatch = string.gmatch
    local __math_floor = math.floor
 
    -----------------------------------------------------------------------------
@@ -60,50 +60,45 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- update function
 
+   local INTERFACE_PATHS = {}
+   for i = 1, #INTERFACES do
+      local dir = string.format('/sys/class/net/%s/statistics/', INTERFACES[i])
+      INTERFACE_PATHS[i] = {
+         rx = dir..'rx_bytes',
+         tx = dir..'tx_bytes',
+      }
+   end
+
    local get_bits = function(path)
       return Util.read_file(path, nil, '*n') * 8
    end
 
-   local interface_counters_tbl = {}
+   local read_interfaces = function()
+      local rx = 0
+      local tx = 0
+      for i = 1, #INTERFACE_PATHS do
+         local p = INTERFACE_PATHS[i]
+         rx = rx + get_bits(p.rx)
+         tx = tx + get_bits(p.tx)
+      end
+      return rx, tx
+   end
+
+   local prev_rx_bits, prev_tx_bits = read_interfaces()
 
    local update = function(cr)
       local dspeed, uspeed = 0, 0
+      local rx_bits, tx_bits = read_interfaces()
 
-      local rx_delta, tx_delta
-
-      -- iterate through the route file and filter on interfaces that are gateways (flag = 0003)
-      local iterator = __string_gmatch(Util.read_file('/proc/net/route'),
-                                       '(%w+)%s+%w+%s+%w+%s+0003%s+')
-
-      for interface in iterator do
-         local interface_counters = interface_counters_tbl[interface]
-
-         if not interface_counters then
-            local rx_path = '/sys/class/net/'..interface..'/statistics/rx_bytes'
-            local tx_path = '/sys/class/net/'..interface..'/statistics/tx_bytes'
-
-            interface_counters = {
-               rx_path = rx_path,
-               tx_path = tx_path,
-               prev_rx_byte_cnt = get_bits(rx_path, nil, '*n'),
-               prev_tx_byte_cnt = get_bits(tx_path, nil, '*n'),
-            }
-            interface_counters_tbl[interface] = interface_counters
-         end
-
-         local rx_byte_cnt = get_bits(interface_counters.rx_path, nil, '*n')
-         local tx_byte_cnt = get_bits(interface_counters.tx_path, nil, '*n')
-
-         rx_delta = rx_byte_cnt - interface_counters.prev_rx_byte_cnt
-         tx_delta = tx_byte_cnt - interface_counters.prev_tx_byte_cnt
-
-         interface_counters.prev_rx_byte_cnt = rx_byte_cnt
-         interface_counters.prev_tx_byte_cnt = tx_byte_cnt
-
-         -- mask overflow
-         if rx_delta > 0 then dspeed = dspeed + rx_delta * update_freq end
-         if tx_delta > 0 then uspeed = uspeed + tx_delta * update_freq end
+      -- mask overflow
+      if rx_bits > prev_rx_bits then
+         dspeed = (rx_bits - prev_rx_bits) * update_freq
       end
+      if tx_bits > prev_tx_bits then
+         uspeed = (tx_bits - prev_tx_bits) * update_freq
+      end
+      prev_rx_bits = rx_bits
+      prev_tx_bits = tx_bits
 
       Common.annotated_scale_plot_set(dnload, cr, dspeed)
       Common.annotated_scale_plot_set(upload, cr, uspeed)
