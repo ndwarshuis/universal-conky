@@ -84,24 +84,31 @@ return function(update_freq)
       return rx, tx
    end
 
+   local compute_speed = function(x0, x1)
+      -- mask overflow
+      if x1 > x0 then
+         return (x1 - x0) * update_freq
+      else
+         return 0
+      end
+   end
+
    local prev_rx_bits, prev_tx_bits = read_interfaces()
 
    local update = function(cr)
-      local dspeed, uspeed = 0, 0
       local rx_bits, tx_bits = read_interfaces()
-
-      -- mask overflow
-      if rx_bits > prev_rx_bits then
-         dspeed = (rx_bits - prev_rx_bits) * update_freq
-      end
-      if tx_bits > prev_tx_bits then
-         uspeed = (tx_bits - prev_tx_bits) * update_freq
-      end
+      Common.annotated_scale_plot_set(
+         dnload,
+         cr,
+         compute_speed(prev_rx_bits, rx_bits)
+      )
+      Common.annotated_scale_plot_set(
+         upload,
+         cr,
+         compute_speed(prev_tx_bits, tx_bits)
+      )
       prev_rx_bits = rx_bits
       prev_tx_bits = tx_bits
-
-      Common.annotated_scale_plot_set(dnload, cr, dspeed)
-      Common.annotated_scale_plot_set(upload, cr, uspeed)
    end
 
    -----------------------------------------------------------------------------

@@ -85,26 +85,31 @@ return function(update_freq)
       return read_bytes * BLOCK_SIZE_BYTES, write_bytes * BLOCK_SIZE_BYTES
    end
 
-   reads.byte_cnt = 0
-   writes.byte_cnt = 0
-   reads.prev_byte_cnt, writes.prev_byte_cnt = read_devices()
+   local prev_read_bytes, prev_write_bytes = read_devices()
 
-   local update_stat = function(cr, stat, byte_cnt)
-      local delta_bytes = byte_cnt - stat.prev_byte_cnt
-      stat.prev_byte_cnt = byte_cnt
-
-      local plot_value = 0
-      if delta_bytes > 0 then
-         local bps = delta_bytes * update_freq
-         plot_value = bps
+   local compute_rate = function(x0, x1)
+      -- mask overflow
+      if x1 > x0 then
+         return (x1 - x0) * update_freq
+      else
+         return 0
       end
-      Common.annotated_scale_plot_set(stat, cr, plot_value)
    end
 
    local update = function(cr)
-      local read_byte_cnt, write_byte_cnt = read_devices()
-      update_stat(cr, reads, read_byte_cnt)
-      update_stat(cr, writes, write_byte_cnt)
+      local read_bytes, write_bytes = read_devices()
+      Common.annotated_scale_plot_set(
+         reads,
+         cr,
+         compute_rate(prev_read_bytes, read_bytes)
+      )
+      Common.annotated_scale_plot_set(
+         writes,
+         cr,
+         compute_rate(prev_write_bytes, write_bytes)
+      )
+      prev_read_bytes = read_bytes
+      prev_write_bytes = write_bytes
    end
 
    -----------------------------------------------------------------------------
