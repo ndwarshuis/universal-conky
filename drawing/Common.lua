@@ -120,12 +120,12 @@ end
 M.default_grid_style = Startup.grid_style(
    PLOT_GRID_X_N,
    PLOT_GRID_Y_N,
-   Theme.BORDER_FG
+   Theme.PLOT_GRID_FG
 )
 
 M.default_plot_style = Startup.plot_style(
    PLOT_NUM_POINTS,
-   Theme.BORDER_FG,
+   Theme.PLOT_OUTLINE_FG,
    Theme.PLOT_FILL_BORDER_PRIMARY,
    Theme.PLOT_FILL_BG_PRIMARY,
    M.default_grid_style
@@ -482,7 +482,7 @@ M.initTextRows_color = function(x, y, w, spacing, labels, color, format)
    }
 end
 
-M.initTextRows = function(x, y, w, spacing, labels)
+M.initTextRows_formatted = function(x, y, w, spacing, labels, format)
    return M.initTextRows_color(
       x,
       y,
@@ -490,6 +490,17 @@ M.initTextRows = function(x, y, w, spacing, labels)
       spacing,
       labels,
       Theme.PRIMARY_FG,
+      format
+   )
+end
+
+M.initTextRows = function(x, y, w, spacing, labels)
+   return M.initTextRows_formatted(
+      x,
+      y,
+      w,
+      spacing,
+      labels,
       nil
    )
 end
