@@ -23,10 +23,13 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- package 0 power plot
 
-   local power_label_function = function(watts) return watts..' W' end
+   local power_label_function = function(plot_max)
+      local fmt = Common.y_label_format_string(plot_max, 'W')
+      return function(watts) return string.format(fmt, watts) end
+   end
 
    local power_format_function = function(watts)
-      return Util.precision_round_to_string(watts, 3).." W"
+      return Util.precision_round_to_string(watts, 3)..' W'
    end
 
    local build_plot = function(y, label, format_fun)

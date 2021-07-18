@@ -134,7 +134,7 @@ M.default_plot_style = Startup.plot_style(
 M.percent_label_style = Startup.label_style(
    Theme.INACTIVE_TEXT_FG,
    M.label_font_spec,
-   function(z) return Util.round_to_string(z * 100)..'%' end
+   function(_) return function(z) return Util.round_to_string(z * 100)..'%' end end
 )
 
 M.initThemedLabelPlot = function(x, y, w, h, label_style, update_freq)
@@ -199,6 +199,34 @@ end
 
 --------------------------------------------------------------------------------
 -- scaled plot
+
+-- Generate a format string for labels on y axis of plots. If the max of the
+-- plot if numerically less than the number of grid lines, this means that
+-- some number of decimal places are necessary to accurately display the number.
+-- Note that this for now only works when the number of y grid lines if 4, as
+-- it gives enough resolution for 1, 0.75, 0.5, and 0.25 but no more
+M.y_label_format_string = function(plot_max, unit)
+   local num_fmt
+   if plot_max < 2 then
+      num_fmt = '%.2f'
+   elseif plot_max < 4 then
+      num_fmt = '%.1f'
+   else
+      num_fmt = '%.0f'
+   end
+   return string.format('%s %s', num_fmt, unit)
+end
+
+M.converted_y_label_format_generator = function(unit)
+   return function(plot_max)
+      local new_prefix, new_max = Util.convert_data_val(plot_max)
+      local conversion_factor = plot_max / new_max
+      local fmt = M.y_label_format_string(new_max, new_prefix..unit..'/s')
+      return function(bytes)
+         return string.format(fmt, bytes / conversion_factor)
+      end
+   end
+end
 
 M.base_2_scale_data = function(m)
    return Startup.scale_data(2, m, 0.9)

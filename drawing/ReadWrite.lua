@@ -31,10 +31,14 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- reads
 
-   local io_label_function = function(bytes)
-      local new_unit, new_value = Util.convert_data_val(bytes)
-      return __math_floor(new_value)..' '..new_unit..'B/s'
-   end
+   -- local io_label_format_fun_generator = function(plot_max)
+   --    local new_unit, new_max = Util.convert_data_val(plot_max)
+   --    local conversion_factor = plot_max / new_max
+   --    local fmt = Common.y_label_format_string(new_max, new_unit..'B/s')
+   --    return function(bytes)
+   --       return string.format(fmt, bytes / conversion_factor)
+   --    end
+   -- end
 
    local format_value_function = function(bps)
       local unit, value = Util.convert_data_val(bps)
@@ -48,7 +52,7 @@ return function(update_freq)
          Geometry.SECTION_WIDTH,
          PLOT_HEIGHT,
          format_value_function,
-         io_label_function,
+         Common.converted_y_label_format_generator('B'),
          PLOT_SEC_BREAK,
          label,
          2,

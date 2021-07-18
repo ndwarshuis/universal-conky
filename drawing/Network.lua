@@ -5,9 +5,8 @@ local Geometry = require 'Geometry'
 return function(update_freq)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
+   -- TODO ensure these interfaces actually exist
    local INTERFACES = {'enp7s0f1', 'wlp0s20f3'}
-
-   local __math_floor = math.floor
 
    -----------------------------------------------------------------------------
    -- header
@@ -22,11 +21,6 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- download plot
 
-   local network_label_function = function(bits)
-      local new_unit, new_value = Util.convert_data_val(bits)
-      return __math_floor(new_value)..' '..new_unit..'b/s'
-   end
-
    local value_format_function = function(bits)
       local unit, value = Util.convert_data_val(bits)
       return Util.precision_round_to_string(value, 3)..' '..unit..'b/s'
@@ -39,7 +33,7 @@ return function(update_freq)
          Geometry.SECTION_WIDTH,
          PLOT_HEIGHT,
          value_format_function,
-         network_label_function,
+         Common.converted_y_label_format_generator('b'),
          PLOT_SEC_BREAK,
          label,
          2,
