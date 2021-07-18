@@ -288,7 +288,7 @@ end
 M.arc = function(x, y, r, thickness, pattern)
    return Arc.build(
       Startup.make_semicircle(x, y, r, 90, 360),
-      Startup.arc_style(thickness, pattern)
+      Arc.style(thickness, pattern)
    )
 end
 
@@ -298,7 +298,7 @@ end
 M.initRing = function(x, y, r)
    return Arc.build(
       Startup.make_semicircle(x, y, r, 0, 360),
-      Startup.arc_style(ARC_WIDTH, Theme.BORDER_FG)
+      Arc.style(ARC_WIDTH, Theme.BORDER_FG)
    )
 end
 
@@ -349,7 +349,7 @@ end
 M.dial = function(x, y, radius, thickness, threshold)
    return Dial.build(
       Startup.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
-      Startup.arc_style(thickness, Theme.INDICATOR_BG),
+      Arc.style(thickness, Theme.INDICATOR_BG),
       threshold_indicator(threshold)
    )
 end
@@ -361,7 +361,7 @@ M.compound_dial = function(x, y, outer_radius, inner_radius, thickness,
                            threshold, num_dials)
    return CompoundDial.build(
       Startup.make_semicircle(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
-      Startup.arc_style(thickness, Theme.INDICATOR_BG),
+      Arc.style(thickness, Theme.INDICATOR_BG),
       threshold_indicator(threshold),
       inner_radius,
       num_dials
