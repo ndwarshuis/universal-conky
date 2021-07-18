@@ -3,6 +3,8 @@ local M = {}
 local Util = require 'Util'
 local Theme = require 'Patterns'
 local Startup = require 'Widget'
+local Dial = require 'Dial'
+local CompoundDial = require 'CompoundDial'
 local Arc = require 'Arc'
 local Text = require 'Text'
 local CompoundBar = require 'CompoundBar'
@@ -284,7 +286,7 @@ end
 -- I have multiple layers on top of each other
 
 M.arc = function(x, y, r, thickness, pattern)
-   return Startup.Arc(
+   return Arc.build(
       Startup.make_semicircle(x, y, r, 90, 360),
       Startup.arc_style(thickness, pattern)
    )
@@ -294,7 +296,7 @@ end
 -- ring
 
 M.initRing = function(x, y, r)
-   return Startup.Arc(
+   return Arc.build(
       Startup.make_semicircle(x, y, r, 0, 360),
       Startup.arc_style(ARC_WIDTH, Theme.BORDER_FG)
    )
@@ -345,7 +347,7 @@ local threshold_indicator = function(threshold)
 end
 
 M.dial = function(x, y, radius, thickness, threshold)
-   return Startup.Dial(
+   return Dial.build(
       Startup.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
       Startup.arc_style(thickness, Theme.INDICATOR_BG),
       threshold_indicator(threshold)
@@ -357,7 +359,7 @@ end
 
 M.compound_dial = function(x, y, outer_radius, inner_radius, thickness,
                            threshold, num_dials)
-   return Startup.CompoundDial(
+   return CompoundDial.build(
       Startup.make_semicircle(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
       Startup.arc_style(thickness, Theme.INDICATOR_BG),
       threshold_indicator(threshold),
