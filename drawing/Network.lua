@@ -2,34 +2,16 @@ local Util		= require 'Util'
 local Common	= require 'Common'
 local Geometry = require 'Geometry'
 
-local __string_gmatch = string.gmatch
-local __math_floor = math.floor
-
-local _PLOT_SEC_BREAK_ = 20
-local _PLOT_HEIGHT_ = 56
-
-local network_label_function = function(bits)
-	local new_unit, new_value = Util.convert_data_val(bits)
-	return __math_floor(new_value)..' '..new_unit..'b/s'
-end
-
-local value_format_function = function(bits)
-   local unit, value = Util.convert_data_val(bits)
-   return Util.precision_round_to_string(value, 3)..' '..unit..'b/s'
-end
-
-
-
-local interface_counters_tbl = {}
-
-local get_bits = function(path)
-   return Util.read_file(path, nil, '*n') * 8
-end
-
--- _PLOT_SEC_BREAK_ = nil
--- _PLOT_HEIGHT_ = nil
-
 return function(update_freq)
+   local PLOT_SEC_BREAK = 20
+   local PLOT_HEIGHT = 56
+
+   local __string_gmatch = string.gmatch
+   local __math_floor = math.floor
+
+   -----------------------------------------------------------------------------
+   -- header
+
    local header = Common.Header(
       Geometry.CENTER_RIGHT_X,
       Geometry.TOP_Y,
@@ -37,33 +19,54 @@ return function(update_freq)
       'NETWORK'
    )
 
-   local dnload = Common.initLabeledScalePlot(
-      Geometry.CENTER_RIGHT_X,
-      header.bottom_y,
-      Geometry.SECTION_WIDTH,
-      _PLOT_HEIGHT_,
-      value_format_function,
-      network_label_function,
-      _PLOT_SEC_BREAK_,
-      'Download',
-      2,
-      update_freq
+   -----------------------------------------------------------------------------
+   -- download plot
+
+   local network_label_function = function(bits)
+      local new_unit, new_value = Util.convert_data_val(bits)
+      return __math_floor(new_value)..' '..new_unit..'b/s'
+   end
+
+   local value_format_function = function(bits)
+      local unit, value = Util.convert_data_val(bits)
+      return Util.precision_round_to_string(value, 3)..' '..unit..'b/s'
+   end
+
+   local build_plot = function(y, label)
+      return Common.initLabeledScalePlot(
+         Geometry.CENTER_RIGHT_X,
+         y,
+         Geometry.SECTION_WIDTH,
+         PLOT_HEIGHT,
+         value_format_function,
+         network_label_function,
+         PLOT_SEC_BREAK,
+         label,
+         2,
+         update_freq
+      )
+   end
+
+   local dnload = build_plot(header.bottom_y, 'Download')
+
+   -----------------------------------------------------------------------------
+   -- upload plot
+
+   local upload = build_plot(
+      header.bottom_y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2,
+      'Upload'
    )
 
-   local upload = Common.initLabeledScalePlot(
-      Geometry.CENTER_RIGHT_X,
-      header.bottom_y + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2,
-      Geometry.SECTION_WIDTH,
-      _PLOT_HEIGHT_,
-      value_format_function,
-      network_label_function,
-      _PLOT_SEC_BREAK_,
-      'Upload',
-      2,
-      update_freq
-   )
+   -----------------------------------------------------------------------------
+   -- update function
 
-   local _update = function(cr)
+   local get_bits = function(path)
+      return Util.read_file(path, nil, '*n') * 8
+   end
+
+   local interface_counters_tbl = {}
+
+   local update = function(cr)
       local dspeed, uspeed = 0, 0
 
       local rx_delta, tx_delta
@@ -106,6 +109,9 @@ return function(update_freq)
       Common.annotated_scale_plot_set(upload, cr, uspeed)
    end
 
+   -----------------------------------------------------------------------------
+   -- main drawing functions
+
    local draw_static = function(cr)
       Common.drawHeader(cr, header)
       Common.annotated_scale_plot_draw_static(dnload, cr)
@@ -113,7 +119,7 @@ return function(update_freq)
    end
 
    local draw_dynamic = function(cr)
-      _update(cr)
+      update(cr)
       Common.annotated_scale_plot_draw_dynamic(dnload, cr)
       Common.annotated_scale_plot_draw_dynamic(upload, cr)
    end
