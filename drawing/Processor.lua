@@ -1,151 +1,140 @@
 local CompoundDial 	= require 'CompoundDial'
-local Line			= require 'Line'
-local Table			= require 'Table'
-local Util			= require 'Util'
-local Common		= require 'Common'
+local Line = require 'Line'
+local Table	= require 'Table'
+local Util = require 'Util'
+local Common = require 'Common'
 local Geometry = require 'Geometry'
 local CPU = require 'CPU'
 
 local __math_floor = math.floor
 
-local NUM_ROWS = 5
-
-local TABLE_CONKY = {}
-
-for r = 1, NUM_ROWS do
-   TABLE_CONKY[r] = {
-      pid = '${top pid '..r..'}',
-      cpu = '${top cpu '..r..'}'
-   }
-end
-
-local _MODULE_Y_ = 614
-local _DIAL_INNER_RADIUS_ = 30
-local _DIAL_OUTER_RADIUS_ = 42
-local _DIAL_THICKNESS_ = 5.5
-local _SEPARATOR_SPACING_ = 20
-local _TEXT_SPACING_ = 22
-local _PLOT_SECTION_BREAK_ = 23
-local _PLOT_HEIGHT_ = 56
-local _TABLE_SECTION_BREAK_ = 20
-local _TABLE_HEIGHT_ = 114
-
-local _create_core_ = function(x, y, nthreads)
-   return {
-	  loads = Common.compound_dial(
-         x,
-         y,
-         _DIAL_OUTER_RADIUS_,
-         _DIAL_INNER_RADIUS_,
-         _DIAL_THICKNESS_,
-         0.8,
-         nthreads
-	  ),
-      coretemp = Common.initTextRing(
-         x,
-         y,
-         _DIAL_INNER_RADIUS_ - 2,
-		 '%s°C',
-		 90
-      )
-   }
-end
-
-local header = Common.Header(
-   Geometry.LEFT_X,
-   _MODULE_Y_,
-   Geometry.SECTION_WIDTH,
-   'PROCESSOR'
-)
-
-
-local _HWP_Y_ = header.bottom_y + _DIAL_OUTER_RADIUS_ * 2 + _PLOT_SECTION_BREAK_
-
-local _FREQ_Y_ = _HWP_Y_ + _TEXT_SPACING_
-
-local cpu_status = Common.initTextRows(
-   Geometry.LEFT_X,
-   _HWP_Y_,
-   Geometry.SECTION_WIDTH,
-   _TEXT_SPACING_,
-   {'HWP Preference', 'Ave Freq'}
-)
-
-local _SEP_Y_ = _FREQ_Y_ + _SEPARATOR_SPACING_
-
-local separator = Common.initSeparator(
-   Geometry.LEFT_X,
-   _SEP_Y_,
-   Geometry.SECTION_WIDTH
-)
-
-local _LOAD_Y_ = _SEP_Y_ + _SEPARATOR_SPACING_
-
-local _PLOT_Y_ = _LOAD_Y_ + _PLOT_SECTION_BREAK_
-
-
-local tbl = Common.initTable(
-   Geometry.LEFT_X,
-   _PLOT_Y_ + _PLOT_HEIGHT_ + _TABLE_SECTION_BREAK_,
-   Geometry.SECTION_WIDTH,
-   _TABLE_HEIGHT_,
-   NUM_ROWS,
-   {'Name', 'PID', 'CPU (%)'}
-)
-
--- local cpu_loads = {}
--- for i = 1, NCPU do
---    cpu_loads[i] = {active_prev = 0, active_total = 0}
--- end
-
-
--- _MODULE_Y_ = nil
--- _DIAL_INNER_RADIUS_ = nil
--- _DIAL_OUTER_RADIUS_ = nil
--- _DIAL_THICKNESS_ = nil
--- _TEXT_Y_OFFSET_ = nil
--- _SEPARATOR_SPACING_ = nil
--- _TEXT_SPACING_ = nil
--- _PLOT_SECTION_BREAK_ = nil
--- _PLOT_HEIGHT_ = nil
--- _TABLE_SECTION_BREAK_ = nil
--- _TABLE_HEIGHT_ = nil
--- _create_core_ = nil
--- _FREQ_Y_ = nil
--- _LOAD_Y_ = nil
--- _SEP_Y_ = nil
--- _HWP_Y_ = nil
--- _PLOT_Y_ = nil
-
 return function(update_freq)
+   local MODULE_Y = 614
+   local DIAL_INNER_RADIUS = 30
+   local DIAL_OUTER_RADIUS = 42
+   local DIAL_THICKNESS = 5.5
+   local SEPARATOR_SPACING = 20
+   local TEXT_SPACING = 22
+   local PLOT_SECTION_BREAK = 23
+   local PLOT_HEIGHT = 56
+   local TABLE_SECTION_BREAK = 20
+   local TABLE_HEIGHT = 114
+
+   -----------------------------------------------------------------------------
+   -- header
+
+   local header = Common.Header(
+      Geometry.LEFT_X,
+      MODULE_Y,
+      Geometry.SECTION_WIDTH,
+      'PROCESSOR'
+   )
+
+   -----------------------------------------------------------------------------
+   -- cores (loads and temps)
+
    local cpu_loads = CPU.init_cpu_loads()
    local ncpus = CPU.get_cpu_number()
    local ncores = CPU.get_core_number()
    local nthreads = ncpus / ncores
    local hwp_paths = CPU.get_hwp_paths()
    local coretemp_paths = CPU.get_coretemp_paths()
-
-   -- prime the load matrix
-   CPU.read_cpu_loads(cpu_loads)
+   CPU.read_cpu_loads(cpu_loads) -- prime load matrix by side effect
 
    local cores = {}
 
-   for c = 1, ncores do
-      local dial_x = Geometry.LEFT_X + _DIAL_OUTER_RADIUS_ +
-         (Geometry.SECTION_WIDTH - 2 * _DIAL_OUTER_RADIUS_) * (c - 1) / 3
-      local dial_y = header.bottom_y + _DIAL_OUTER_RADIUS_
-      cores[c] = _create_core_(dial_x, dial_y, nthreads)
+   local create_core = function(x, y)
+      return {
+         loads = Common.compound_dial(
+            x,
+            y,
+            DIAL_OUTER_RADIUS,
+            DIAL_INNER_RADIUS,
+            DIAL_THICKNESS,
+            0.8,
+            nthreads
+         ),
+         coretemp = Common.initTextRing(
+            x,
+            y,
+            DIAL_INNER_RADIUS - 2,
+            '%s°C',
+            90
+         )
+      }
    end
+
+   for c = 1, ncores do
+      local dial_x = Geometry.LEFT_X + DIAL_OUTER_RADIUS +
+         (Geometry.SECTION_WIDTH - 2 * DIAL_OUTER_RADIUS) * (c - 1) / 3
+      local dial_y = header.bottom_y + DIAL_OUTER_RADIUS
+      cores[c] = create_core(dial_x, dial_y)
+   end
+
+   -----------------------------------------------------------------------------
+   -- HWP status
+
+   local HWP_Y = header.bottom_y + DIAL_OUTER_RADIUS * 2 + PLOT_SECTION_BREAK
+
+   local cpu_status = Common.initTextRows(
+      Geometry.LEFT_X,
+      HWP_Y,
+      Geometry.SECTION_WIDTH,
+      TEXT_SPACING,
+      {'HWP Preference', 'Ave Freq'}
+   )
+
+   -----------------------------------------------------------------------------
+   -- frequency
+
+   local SEP_Y = HWP_Y + TEXT_SPACING + SEPARATOR_SPACING
+
+   local separator = Common.initSeparator(
+      Geometry.LEFT_X,
+      SEP_Y,
+      Geometry.SECTION_WIDTH
+   )
+
+   -----------------------------------------------------------------------------
+   -- total load plot
+
+   local LOAD_Y = SEP_Y + SEPARATOR_SPACING
 
    local total_load = Common.initPercentPlot(
       Geometry.LEFT_X,
-      _LOAD_Y_,
+      LOAD_Y,
       Geometry.SECTION_WIDTH,
-      _PLOT_HEIGHT_,
-      _PLOT_SECTION_BREAK_,
+      PLOT_HEIGHT,
+      PLOT_SECTION_BREAK,
       "Total Load",
       update_freq
    )
+
+   local PLOT_Y = LOAD_Y + PLOT_SECTION_BREAK
+
+   -----------------------------------------------------------------------------
+   -- cpu top table
+
+   local NUM_ROWS = 5
+   local TABLE_CONKY = {}
+   for r = 1, NUM_ROWS do
+      TABLE_CONKY[r] = {
+         pid = '${top pid '..r..'}',
+         cpu = '${top cpu '..r..'}'
+      }
+   end
+
+   local tbl = Common.initTable(
+      Geometry.LEFT_X,
+      PLOT_Y + PLOT_HEIGHT + TABLE_SECTION_BREAK,
+      Geometry.SECTION_WIDTH,
+      TABLE_HEIGHT,
+      NUM_ROWS,
+      {'Name', 'PID', 'CPU (%)'}
+   )
+
+   -----------------------------------------------------------------------------
+   -- main functions
 
    local update = function(cr, trigger)
       local conky = Util.conky
@@ -176,11 +165,9 @@ return function(update_freq)
       for r = 1, NUM_ROWS do
          local pid = conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
          if pid ~= '' then
-            local cpu = conky(TABLE_CONKY[r].cpu)
-            local comm = Util.read_file('/proc/'..pid..'/comm', '(%C+)')
-            Table.set(tbl, cr, 1, r, comm)
+            Table.set(tbl, cr, 1, r, Util.read_file('/proc/'..pid..'/comm', '(%C+)'))
             Table.set(tbl, cr, 2, r, pid)
-            Table.set(tbl, cr, 3, r, cpu)
+            Table.set(tbl, cr, 3, r, conky(TABLE_CONKY[r].cpu))
          end
       end
    end
@@ -188,9 +175,9 @@ return function(update_freq)
    local draw_static = function(cr)
       Common.drawHeader(cr, header)
 
-      for _, this_core in pairs(cores) do
-         Common.text_ring_draw_static(this_core.coretemp, cr)
-         CompoundDial.draw_static(this_core.loads, cr)
+      for i = 1, #cores do
+         Common.text_ring_draw_static(cores[i].coretemp, cr)
+         CompoundDial.draw_static(cores[i].loads, cr)
       end
 
       Common.text_rows_draw_static(cpu_status, cr)
@@ -204,9 +191,9 @@ return function(update_freq)
    local draw_dynamic = function(cr, trigger)
       update(cr, trigger)
 
-      for _, this_core in pairs(cores) do
-         CompoundDial.draw_dynamic(this_core.loads, cr)
-         Common.text_ring_draw_dynamic(this_core.coretemp, cr)
+      for i = 1, #cores do
+         CompoundDial.draw_dynamic(cores[i].loads, cr)
+         Common.text_ring_draw_dynamic(cores[i].coretemp, cr)
       end
 
       Common.text_rows_draw_dynamic(cpu_status, cr)
