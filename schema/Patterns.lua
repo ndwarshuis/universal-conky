@@ -5,92 +5,64 @@ local Util 	= require 'Util'
 
 M.FONT = 'Neuropolitical'
 -- text colors
-M.HEADER_FG = Color.rgb(0xffffff)
+M.HEADER_FG = Color.rgb(0xeeeeee)
 
-M.INACTIVE_TEXT_FG = Color.rgb(0xeeeeee)
+M.INACTIVE_TEXT_FG = Color.rgb(0xaaaaaa)
 -- TODO this is also the plot label color
-M.MID_GREY = Color.rgb(0xd6d6d6)
-M.BORDER_FG = Color.rgb(0x888888)
+M.MID_GREY = Color.rgb(0xa6a6a6)
+M.BORDER_FG = Color.rgb(0x666666)
 
-M.PRIMARY_FG = Color.rgb(0xbfe1ff)
-M.SECONDARY_FG = Color.rgb(0xcb91ff)
-M.TERTIARY_FG = Color.rgb(0xefe7aa)
+M.PRIMARY_FG = Color.rgb(0xC7BDFF)
+M.SECONDARY_FG = Color.rgb(0xE6D3AC)
 M.CRITICAL_FG = Color.rgb(0xff8282)
 
--- arc patterns
-local GREY2 = 0xbfbfbf
-local GREY5 = 0x565656
+-- arc bg colors
+local GREY2 = 0x9f9f9f
+local GREY5 = 0x363636
 M.INDICATOR_BG = Color.gradient_rgb{
    [0.0] = GREY5,
    [0.5] = GREY2,
    [1.0] = GREY5
 }
 
-local BLUE1 = 0x99CEFF
-local BLUE3 = 0x316BA6
+-- arc/bar fg colors
+local PRIMARY1 = 0xAD9DFB
+local PRIMARY3 = 0x4020DF
 M.INDICATOR_FG_PRIMARY = Color.gradient_rgb{
-   [0.0] = BLUE3,
-   [0.5] = BLUE1,
-   [1.0] = BLUE3
+   [0.0] = PRIMARY3,
+   [0.5] = PRIMARY1,
+   [1.0] = PRIMARY3
 }
 
-local PURPLE1 = 0xeecfff
-local PURPLE3 = 0x9523ff
+local SECONDARY1 = 0xD9BC87
+local SECONDARY3 = 0x59451B
 M.INDICATOR_FG_SECONDARY = Color.gradient_rgb{
-   [0.0] = PURPLE3,
-   [0.5] = PURPLE1,
-   [1.0] = PURPLE3
+   [0.0] = SECONDARY3,
+   [0.5] = SECONDARY1,
+   [1.0] = SECONDARY3
 }
 
-local RED1 = 0xFF3333
-local RED3 = 0xFFB8B8
+local CRITICAL1 = 0xFF3333
+local CRITICAL3 = 0xFFB8B8
 M.INDICATOR_FG_CRITICAL = Color.gradient_rgb{
-   [0.0] = RED1,
-   [0.5] = RED3,
-   [1.0] = RED1
+   [0.0] = CRITICAL1,
+   [0.5] = CRITICAL3,
+   [1.0] = CRITICAL1
 }
 
 -- plot patterns
-local PLOT_BLUE1 = 0x003f7c
-local PLOT_BLUE2 = 0x1e90ff
-local PLOT_BLUE3 = 0x316ece
-local PLOT_BLUE4 = 0x8cc7ff
+local PLOT_PRIMARY1 = 0x15007C
+local PLOT_PRIMARY2 = 0x431EFF
+local PLOT_PRIMARY3 = 0x4B31CE
+local PLOT_PRIMARY4 = 0x9F8CFF
 M.PLOT_FILL_BORDER_PRIMARY = Color.gradient_rgb{
-   [0.0] = PLOT_BLUE1,
-   [1.0] = PLOT_BLUE2
+   [0.0] = PLOT_PRIMARY1,
+   [1.0] = PLOT_PRIMARY2
 }
 
 M.PLOT_FILL_BG_PRIMARY = Color.gradient_rgba{
-   [0.2] = {PLOT_BLUE3, 0.5},
-   [1.0] = {PLOT_BLUE4, 1.0}
-}
-
-local PLOT_PURPLE1 = 0x3e0077
-local PLOT_PURPLE2 = 0x9523ff
-local PLOT_PURPLE3 = 0x7a30a3
-local PLOT_PURPLE4 = 0xeac4ff
-M.PLOT_FILL_BORDER_SECONDARY = Color.gradient_rgb{
-   [0.0] = PLOT_PURPLE1,
-   [1.0] = PLOT_PURPLE2
-}
-
-M.PLOT_FILL_BG_SECONDARY = Color.gradient_rgba{
-   [0.2] = {PLOT_PURPLE3, 0.0},
-   [1.0] = {PLOT_PURPLE4, 1.0}
-}
-
-local PLOT_YELLOW1 = 0x231f00
-local PLOT_YELLOW2 = 0x7c6f00
-local PLOT_YELLOW3 = 0x8c8225
-local PLOT_YELLOW4 = 0xfff387
-M.PLOT_FILL_BORDER_TERTIARY = Color.gradient_rgb{
-   [0.0] = PLOT_YELLOW1,
-   [1.0] = PLOT_YELLOW2
-}
-
-M.PLOT_FILL_BG_TERTIARY = Color.gradient_rgba{
-   [0.2] = {PLOT_YELLOW3, 0.0},
-   [1.0] = {PLOT_YELLOW4, 1.0}
+   [0.2] = {PLOT_PRIMARY3, 0.5},
+   [1.0] = {PLOT_PRIMARY4, 1.0}
 }
 
 -- panel pattern
