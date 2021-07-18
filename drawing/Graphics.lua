@@ -4,162 +4,150 @@ local Util			= require 'Util'
 local Common		= require 'Common'
 local Geometry		= require 'Geometry'
 
-local __string_match	= string.match
-
-local _MODULE_Y_ = 145
-local _SEPARATOR_SPACING_ = 20
-local _TEXT_SPACING_ = 20
-local _PLOT_SEC_BREAK_ = 20
-local _PLOT_HEIGHT_ = 56
-
-local NA = 'N/A'
-
-local na_percent_format = function(x)
-   if x == -1 then return NA else return string.format('%s%%', x) end
-end
-
-local header = Common.Header(
-	Geometry.LEFT_X,
-	_MODULE_Y_,
-	Geometry.SECTION_WIDTH,
-	'NVIDIA GRAPHICS'
-)
-
-local status = Common.initTextRow(
-   Geometry.LEFT_X,
-   header.bottom_y,
-   Geometry.SECTION_WIDTH,
-   'Status'
-)
-
-local _SEP_Y_1_ = header.bottom_y + _SEPARATOR_SPACING_
-
-local separator1 = Common.initSeparator(
-   Geometry.LEFT_X,
-   _SEP_Y_1_,
-   Geometry.SECTION_WIDTH
-)
-
-local _INTERNAL_TEMP_Y_ = _SEP_Y_1_ + _SEPARATOR_SPACING_
-
-local internal_temp = Common.initTextRowCrit(
-   Geometry.LEFT_X,
-   _INTERNAL_TEMP_Y_,
-   Geometry.SECTION_WIDTH,
-   'Internal Temperature',
-   function(s) if s == -1 then return NA else return string.format('%s°C', s) end end,
-   80
-)
-
-local _SEP_Y_2_ = _INTERNAL_TEMP_Y_ + _SEPARATOR_SPACING_
-
-local separator2 = Common.initSeparator(
-   Geometry.LEFT_X,
-   _SEP_Y_2_,
-   Geometry.SECTION_WIDTH
-)
-
-local _CLOCK_SPEED_Y_ = _SEP_Y_2_ + _SEPARATOR_SPACING_
-
-local clock_speed = Common.initTextRows(
-   Geometry.LEFT_X,
-   _CLOCK_SPEED_Y_,
-   Geometry.SECTION_WIDTH,
-   _TEXT_SPACING_,
-   {'GPU Clock Speed', 'Memory Clock Speed'}
-)
-
-local _SEP_Y_3_ = _CLOCK_SPEED_Y_ + _TEXT_SPACING_ * 2
-
-local separator3 = Common.initSeparator(
-   Geometry.LEFT_X,
-   _SEP_Y_3_,
-   Geometry.SECTION_WIDTH
-)
-
-local _GPU_UTIL_Y_ = _SEP_Y_3_ + _SEPARATOR_SPACING_
-
-
-local _MEM_UTIL_Y_ = _GPU_UTIL_Y_ + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
-
-
-
-local _VID_UTIL_Y_ = _MEM_UTIL_Y_ + _PLOT_HEIGHT_ + _PLOT_SEC_BREAK_ * 2
-
-
---[[
-vars to process the nv settings glob
-
-glob will be of the form:
-	<used_mem>
-	<total_mem>
-	<temp>
-	<gpu_freq>,<mem_freq>
-	graphics=<gpu_util>, memory=<mem_util>, video=<vid_util>, PCIe=<pci_util>
---]]
-local NV_QUERY = 'nvidia-settings -t'..
-	' -q UsedDedicatedGPUMemory'..
-	' -q TotalDedicatedGPUMemory'..
-	' -q ThermalSensorReading'..
-	' -q [gpu:0]/GPUCurrentClockFreqs'..
-	' -q [gpu:0]/GPUUtilization'
-
-local NV_REGEX = '(%d+)\n'..
-				 '(%d+)\n'..
-				 '(%d+)\n'..
-				 '(%d+),(%d+)\n'..
-				 'graphics=(%d+), memory=%d+, video=(%d+), PCIe=%d+\n'
-
-local gpu_bus_ctrl = '/sys/bus/pci/devices/0000:01:00.0/power/control'
-
--- _MODULE_Y_ = nil
--- _SEPARATOR_SPACING_ = nil
--- _TEXT_SPACING_ = nil
--- _PLOT_SEC_BREAK_ = nil
--- _PLOT_HEIGHT_ = nil
--- _SEP_Y_1_ = nil
--- _SEP_Y_2_ = nil
--- _SEP_Y_3_ = nil
--- _INTERNAL_TEMP_Y_ = nil
--- _CLOCK_SPEED_Y_ = nil
--- _GPU_UTIL_Y_ = nil
--- _MEM_UTIL_Y_ = nil
--- _VID_UTIL_Y_ = nil
-
 return function(update_freq)
+   local MODULE_Y = 145
+   local SEPARATOR_SPACING = 20
+   local TEXT_SPACING = 20
+   local PLOT_SEC_BREAK = 20
+   local PLOT_HEIGHT = 56
+   local NA = 'N/A'
+   local __string_match	= string.match
+   local __string_format = string.format
 
-   local gpu_util = Common.initPercentPlot_formatted(
+
+   -----------------------------------------------------------------------------
+   -- header
+
+   local header = Common.Header(
       Geometry.LEFT_X,
-      _GPU_UTIL_Y_,
+      MODULE_Y,
       Geometry.SECTION_WIDTH,
-      _PLOT_HEIGHT_,
-      _PLOT_SEC_BREAK_,
-      'GPU Utilization',
-      update_freq,
-      na_percent_format
+      'NVIDIA GRAPHICS'
    )
 
-   local mem_util = Common.initPercentPlot_formatted(
+   -----------------------------------------------------------------------------
+   -- gpu status
+
+   local status = Common.initTextRow(
       Geometry.LEFT_X,
-      _MEM_UTIL_Y_,
+      header.bottom_y,
       Geometry.SECTION_WIDTH,
-      _PLOT_HEIGHT_,
-      _PLOT_SEC_BREAK_,
-      'Memory Utilization',
-      update_freq,
-      na_percent_format
+      'Status'
    )
 
-   local vid_util = Common.initPercentPlot_formatted(
+   local SEP_Y1 = header.bottom_y + SEPARATOR_SPACING
+
+   local separator1 = Common.initSeparator(
       Geometry.LEFT_X,
-      _VID_UTIL_Y_,
-      Geometry.SECTION_WIDTH,
-      _PLOT_HEIGHT_,
-      _PLOT_SEC_BREAK_,
-      'Video Utilization',
-      update_freq,
-      na_percent_format
+      SEP_Y1,
+      Geometry.SECTION_WIDTH
    )
+
+   -----------------------------------------------------------------------------
+   -- gpu temperature
+
+   local INTERNAL_TEMP_Y = SEP_Y1 + SEPARATOR_SPACING
+
+   local internal_temp = Common.initTextRowCrit(
+      Geometry.LEFT_X,
+      INTERNAL_TEMP_Y,
+      Geometry.SECTION_WIDTH,
+      'Internal Temperature',
+      function(s)
+         if s == -1 then return NA else return string.format('%s°C', s) end
+      end,
+      80
+   )
+
+   local SEP_Y2 = INTERNAL_TEMP_Y + SEPARATOR_SPACING
+
+   local separator2 = Common.initSeparator(
+      Geometry.LEFT_X,
+      SEP_Y2,
+      Geometry.SECTION_WIDTH
+   )
+
+   -----------------------------------------------------------------------------
+   -- gpu clock speeds
+
+   local CLOCK_SPEED_Y = SEP_Y2 + SEPARATOR_SPACING
+
+   local clock_speed = Common.initTextRows(
+      Geometry.LEFT_X,
+      CLOCK_SPEED_Y,
+      Geometry.SECTION_WIDTH,
+      TEXT_SPACING,
+      {'GPU Clock Speed', 'Memory Clock Speed'}
+   )
+
+   local SEP_Y3 = CLOCK_SPEED_Y + TEXT_SPACING * 2
+
+   local separator3 = Common.initSeparator(
+      Geometry.LEFT_X,
+      SEP_Y3,
+      Geometry.SECTION_WIDTH
+   )
+
+   -----------------------------------------------------------------------------
+   -- gpu utilization plot
+
+   local na_percent_format = function(x)
+      if x == -1 then return NA else return __string_format('%s%%', x) end
+   end
+
+   local build_plot = function(y, label)
+      return Common.initPercentPlot_formatted(
+         Geometry.LEFT_X,
+         y,
+         Geometry.SECTION_WIDTH,
+         PLOT_HEIGHT,
+         PLOT_SEC_BREAK,
+         label,
+         update_freq,
+         na_percent_format
+      )
+   end
+
+   local GPU_UTIL_Y = SEP_Y3 + SEPARATOR_SPACING
+   local gpu_util = build_plot(GPU_UTIL_Y, 'GPU Utilization')
+
+   -----------------------------------------------------------------------------
+   -- gpu memory consumption plot
+
+   local MEM_UTIL_Y = GPU_UTIL_Y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2
+   local mem_util = build_plot(MEM_UTIL_Y, 'Memory Utilization')
+
+   -----------------------------------------------------------------------------
+   -- gpu video utilization plot
+
+   local VID_UTIL_Y = MEM_UTIL_Y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2
+   local vid_util = build_plot(VID_UTIL_Y, 'Video Utilization')
+
+   -----------------------------------------------------------------------------
+   -- update function
+
+   -- vars to process the nv settings glob
+   --
+   -- glob will be of the form:
+   --   <used_mem>
+   --   <total_mem>
+   --   <temp>
+   --   <gpu_freq>,<mem_freq>
+   --   graphics=<gpu_util>, memory=<mem_util>, video=<vid_util>, PCIe=<pci_util>
+   local NV_QUERY = 'nvidia-settings -t'..
+      ' -q UsedDedicatedGPUMemory'..
+      ' -q TotalDedicatedGPUMemory'..
+      ' -q ThermalSensorReading'..
+      ' -q [gpu:0]/GPUCurrentClockFreqs'..
+      ' -q [gpu:0]/GPUUtilization'
+
+   local NV_REGEX = '(%d+)\n'..
+      '(%d+)\n'..
+      '(%d+)\n'..
+      '(%d+),(%d+)\n'..
+      'graphics=(%d+), memory=%d+, video=(%d+), PCIe=%d+\n'
+
+   local GPU_BUS_CTRL = '/sys/bus/pci/devices/0000:01:00.0/power/control'
 
    local nvidia_off = function(cr)
       Common.text_row_crit_set(internal_temp, cr, -1)
@@ -171,7 +159,7 @@ return function(update_freq)
    end
 
    local update = function(cr)
-      if Util.read_file(gpu_bus_ctrl, nil, '*l') == 'on' then
+      if Util.read_file(GPU_BUS_CTRL, nil, '*l') == 'on' then
          local nvidia_settings_glob = Util.execute_cmd(NV_QUERY)
          if nvidia_settings_glob == '' then
             Text.set(status.value, cr, 'Error')
@@ -196,6 +184,9 @@ return function(update_freq)
          nvidia_off(cr)
       end
    end
+
+   -----------------------------------------------------------------------------
+   -- main drawing functions
 
    local draw_static = function(cr)
       Common.drawHeader(cr, header)
