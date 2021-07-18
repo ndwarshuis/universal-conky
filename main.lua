@@ -36,8 +36,7 @@ local using_ac = function()
    return Util.read_file('/sys/class/power_supply/BAT0/status', nil, '*l') ~= 'Discharging'
 end
 
-local updates = -2 -- this accounts for the first few spazzy iterations
-local draw
+local draw_dynamic
 
 function conky_start(update_interval)
    conky_set_update_interval(update_interval)
@@ -62,7 +61,7 @@ function conky_start(update_interval)
 
    local STATS_FILE = '/tmp/.conky_pacman'
 
-   draw = function(cr, _updates)
+   draw_dynamic = function(cr, _updates)
       draw_static(cr)
 
       local t1 = _updates % (update_freq * 10)
@@ -83,6 +82,8 @@ function conky_start(update_interval)
    end
 end
 
+local updates = -2 -- this accounts for the first few spazzy iterations
+
 function conky_main()
    local _cw = conky_window
    if not _cw then return end
@@ -92,7 +93,7 @@ function conky_main()
    local cr = __cairo_create(cs)
    updates = updates + 1
 
-   draw(cr, updates)
+   draw_dynamic(cr, updates)
 
    __cairo_surface_destroy(cs)
    __cairo_destroy(cr)
