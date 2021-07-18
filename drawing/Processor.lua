@@ -155,12 +155,12 @@ return function(update_freq)
       for _, load_data in pairs(cpu_loads) do
          local cur = load_data.percent_active
          load_sum = load_sum + cur
-         CompoundDial.set(cores[load_data.core_id].loads, load_data.thread_id, cur)
+         CompoundDial.set(cores[load_data.conky_core_id].loads, load_data.conky_thread_id, cur)
       end
 
-      for core_id, path in pairs(coretemp_paths) do
+      for conky_core_id, path in pairs(coretemp_paths) do
          local temp = __math_floor(0.001 * Util.read_file(path, nil, '*n'))
-         Common.text_ring_set(cores[core_id].coretemp, cr, temp)
+         Common.text_ring_set(cores[conky_core_id].coretemp, cr, temp)
       end
 
       -- For some reason this call is slow (querying anything with pstate in
