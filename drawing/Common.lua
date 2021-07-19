@@ -510,7 +510,8 @@ M.initTextRows_color = function(x, y, w, spacing, labels, color, format)
          #labels,
          _text_row_style('right', color),
          format,
-         spacing
+         spacing,
+         0
       )
    }
 end

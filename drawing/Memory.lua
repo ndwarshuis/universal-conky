@@ -76,7 +76,7 @@ return function(update_freq)
       SWAP_BUFFERS_WIDTH,
       TEXT_SPACING,
       {'Page Cache', 'Buffers', 'Kernel Slab'},
-      '%s%%'
+      '%.1f%%'
    )
 
    -----------------------------------------------------------------------------
@@ -135,19 +135,13 @@ return function(update_freq)
       Dial.set(dial, used_percent)
       Common.text_ring_set(text_ring, cr, Util.round_to_string(used_percent * 100))
 
-      Common.text_row_crit_set(swap, cr,
-                               Util.precision_round_to_string(
-                                  (swap_total_kb - swap_free_kb)
-                                  / swap_total_kb * 100))
+      Common.text_row_crit_set(
+         swap, cr, (swap_total_kb - swap_free_kb) / swap_total_kb * 100
+      )
 
-      Common.text_rows_set(cache, cr, 1, Util.precision_round_to_string(
-                              cached_kb / mem_total_kb * 100))
-
-      Common.text_rows_set(cache, cr, 2, Util.precision_round_to_string(
-                              buffers_kb / mem_total_kb * 100))
-
-      Common.text_rows_set(cache, cr, 3, Util.precision_round_to_string(
-                              slab_reclaimable_kb / mem_total_kb * 100))
+      Common.text_rows_set(cache, cr, 1, cached_kb / mem_total_kb * 100)
+      Common.text_rows_set(cache, cr, 2, buffers_kb / mem_total_kb * 100)
+      Common.text_rows_set(cache, cr, 3, slab_reclaimable_kb / mem_total_kb * 100)
 
       Timeseries.update(plot, used_percent)
 
