@@ -99,10 +99,10 @@ M.Header = function(x, y, w, s)
          )
       ),
       bottom_y = bottom_y,
-      underline = Startup.Line(
+      underline = Line.build(
          Startup.make_point(x, underline_y),
          Startup.make_point(x + w, underline_y),
-         Startup.line_style(
+         Line.style(
             HEADER_UNDERLINE_THICKNESS,
             Theme.HEADER_FG,
             HEADER_UNDERLINE_CAP
@@ -380,10 +380,10 @@ M.compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
          nil,
          spacing
       ),
-      bars = Startup.CompoundBar(
+      bars = CompoundBar.build(
          Startup.make_point(x + pad, y),
          w - pad,
-         Startup.line_style(
+         Line.style(
             thickness,
             Theme.INDICATOR_BG,
             CAIRO_LINE_JOIN_MITER
@@ -413,10 +413,10 @@ end
 -- separator (eg a horizontal line)
 
 M.initSeparator = function(x, y, w)
-   return Startup.Line(
+   return Line.build(
       Startup.make_point(x, y),
       Startup.make_point(x + w, y),
-      Startup.line_style(
+      Line.style(
          SEPARATOR_THICKNESS,
          Theme.BORDER_FG,
          CAIRO_LINE_CAP_BUTT
@@ -557,7 +557,7 @@ M.default_table_style = Startup.table_style(
       TABLE_LINE_THICKNESS,
       Theme.BORDER_FG
    ),
-   Startup.line_style(
+   Line.style(
       TABLE_LINE_THICKNESS,
       Theme.BORDER_FG,
       CAIRO_LINE_CAP_BUTT
