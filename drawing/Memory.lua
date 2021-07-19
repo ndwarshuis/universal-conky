@@ -49,7 +49,7 @@ return function(update_freq)
       DIAL_X,
       DIAL_Y,
       DIAL_RADIUS - DIAL_THICKNESS / 2 - 2,
-      '%s%%',
+      '%.0f%%',
       80
    )
 
@@ -130,10 +130,15 @@ return function(update_freq)
          slab_reclaimable_kb
          = __string_match(Util.read_file('/proc/meminfo'), MEMINFO_REGEX)
 
-      local used_percent = (mem_total_kb - memfree_kb - cached_kb - buffers_kb - slab_reclaimable_kb) / mem_total_kb
+      local used_percent =
+         (mem_total_kb -
+          memfree_kb -
+          cached_kb -
+          buffers_kb -
+          slab_reclaimable_kb) / mem_total_kb
 
       Dial.set(dial, used_percent)
-      Common.text_ring_set(text_ring, cr, Util.round_to_string(used_percent * 100))
+      Common.text_ring_set(text_ring, cr, used_percent * 100)
 
       Common.text_row_crit_set(
          swap, cr, (swap_total_kb - swap_free_kb) / swap_total_kb * 100

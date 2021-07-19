@@ -313,7 +313,7 @@ M.initTextRing = function(x, y, r, fmt, limit)
 	  ring = M.initRing(x, y, r),
 	  value = ThresholdText.build_formatted(
          F.make_point(x, y),
-         nil,
+         0,
          Text.style(
             M.normal_font_spec,
             Theme.PRIMARY_FG,
