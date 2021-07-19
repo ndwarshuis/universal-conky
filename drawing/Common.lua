@@ -9,6 +9,7 @@ local FillRect = require 'FillRect'
 local CompoundDial = require 'CompoundDial'
 local Arc = require 'Arc'
 local Text = require 'Text'
+local Table = require 'Table'
 local CompoundBar = require 'CompoundBar'
 local CriticalText = require 'CriticalText'
 local TextColumn = require 'TextColumn'
@@ -64,7 +65,7 @@ M.normal_font_spec = M.make_font_spec(FONT, NORMAL_FONT_SIZE, false)
 M.label_font_spec = M.make_font_spec(FONT, PLOT_LABEL_FONT_SIZE, false)
 
 local _text_row_style = function(x_align, color)
-   return Startup.text_style(M.normal_font_spec, color, x_align, 'center')
+   return Text.style(M.normal_font_spec, color, x_align, 'center')
 end
 
 M.left_text_style = _text_row_style('left', Theme.INACTIVE_TEXT_FG)
@@ -72,7 +73,7 @@ M.left_text_style = _text_row_style('left', Theme.INACTIVE_TEXT_FG)
 M.right_text_style = _text_row_style('right', Theme.PRIMARY_FG)
 
 local _bare_text = function(pt, text, style)
-   return Startup.plainText(pt, text, style)
+   return Text.build_plain(pt, text, style)
 end
 
 local _left_text = function(pt, text)
@@ -90,10 +91,10 @@ M.Header = function(x, y, w, s)
    local bottom_y = y + HEADER_HEIGHT
    local underline_y = y + HEADER_UNDERLINE_OFFSET
    return {
-      text = Startup.plainText(
+      text = Text.build_plain(
          Startup.make_point(x, y),
          s,
-         Startup.text_style(
+         Text.style(
             M.make_font_spec(FONT, HEADER_FONT_SIZE, true),
             Theme.HEADER_FG,
             'left',
@@ -156,12 +157,12 @@ end
 M.initPercentPlot_formatted = function(x, y, w, h, spacing, label, update_freq, format)
    return {
       label = _left_text(Startup.make_point(x, y), label),
-      value = Startup.formattedThresholdText(
+      value = CriticalText.build_formatted(
          Startup.make_point(x + w, y),
          nil,
          M.right_text_style,
          format,
-         Startup.threshold_text_style(Theme.CRITICAL_FG, 80)
+         CriticalText.style(Theme.CRITICAL_FG, 80)
       ),
       plot = M.initThemedLabelPlot(
          x,
@@ -257,7 +258,7 @@ M.initLabeledScalePlot = function(x, y, w, h, format_fun, label_fun, spacing,
                                   label, min_domain, update_freq)
    return {
       label = _left_text(Startup.make_point(x, y), label),
-      value = Startup.formatted_text(
+      value = Text.build_formatted(
          Startup.make_point(x + w, y),
          0,
          M.right_text_style,
@@ -310,17 +311,17 @@ end
 M.initTextRing = function(x, y, r, fmt, limit)
    return {
 	  ring = M.initRing(x, y, r),
-	  value = Startup.formattedThresholdText(
+	  value = CriticalText.build_formatted(
          Startup.make_point(x, y),
          nil,
-         Startup.text_style(
+         Text.style(
             M.normal_font_spec,
             Theme.PRIMARY_FG,
             'center',
             'center'
          ),
          fmt,
-         Startup.threshold_text_style(Theme.CRITICAL_FG, limit)
+         CriticalText.style(Theme.CRITICAL_FG, limit)
 	  ),
    }
 end
@@ -375,7 +376,7 @@ end
 
 M.compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
    return {
-      labels = Startup.TextColumn(
+      labels = TextColumn.build(
          Startup.make_point(x, y),
          labels,
          M.left_text_style,
@@ -454,17 +455,17 @@ end
 M.initTextRowCrit = function(x, y, w, label, append_end, limit)
    return{
       label = _left_text(Startup.make_point(x, y), label),
-      value = Startup.formattedThresholdText(
+      value = CriticalText.build_formatted(
          Startup.make_point(x + w, y),
          nil,
-         Startup.text_style(
+         Text.style(
             M.normal_font_spec,
             Theme.PRIMARY_FG,
             'right',
             'center'
          ),
          append_end,
-         Startup.threshold_text_style(Theme.CRITICAL_FG, limit)
+         CriticalText.style(Theme.CRITICAL_FG, limit)
       )
    }
 end
@@ -497,14 +498,14 @@ end
 
 M.initTextRows_color = function(x, y, w, spacing, labels, color, format)
    return {
-      labels = Startup.TextColumn(
+      labels = TextColumn.build(
          Startup.make_point(x, y),
          labels,
          M.left_text_style,
          nil,
          spacing
       ),
-      values = Startup.initTextColumnN(
+      values = TextColumn.build_n(
          Startup.make_point(x + w, y),
          #labels,
          _text_row_style('right', color),
@@ -554,7 +555,7 @@ end
 
 M.default_table_font_spec = M.make_font_spec(FONT, TABLE_FONT_SIZE, false)
 
-M.default_table_style = Startup.table_style(
+M.default_table_style = Table.style(
    Rect.style(
       TABLE_LINE_THICKNESS,
       Theme.BORDER_FG
@@ -564,12 +565,12 @@ M.default_table_style = Startup.table_style(
       Theme.BORDER_FG,
       CAIRO_LINE_CAP_BUTT
    ),
-   Startup.table_header_style(
+   Table.header_style(
       M.default_table_font_spec,
       Theme.PRIMARY_FG,
       TABLE_HEADER_PAD
    ),
-   Startup.table_body_style(
+   Table.body_style(
       M.default_table_font_spec,
       Theme.INACTIVE_TEXT_FG,
       TABLE_BODY_FORMAT
@@ -583,7 +584,7 @@ M.default_table_style = Startup.table_style(
 )
 
 M.initTable = function(x, y, w, h, n, labels)
-   return Startup.Table(
+   return Table.build(
       Startup.make_box(x, y, w, h),
       n,
       labels,
