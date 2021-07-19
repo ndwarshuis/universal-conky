@@ -1,5 +1,5 @@
 local Dial = require 'Dial'
-local LabelPlot = require 'LabelPlot'
+local Timeseries = require 'Timeseries'
 local Table = require 'Table'
 local Util = require 'Util'
 local Common = require 'Common'
@@ -149,7 +149,7 @@ return function(update_freq)
       Common.text_rows_set(cache, cr, 3, Util.precision_round_to_string(
                               slab_reclaimable_kb / mem_total_kb * 100))
 
-      LabelPlot.update(plot, used_percent)
+      Timeseries.update(plot, used_percent)
 
       for r = 1, NUM_ROWS do
          Table.set(tbl, cr, 1, r, conky(TABLE_CONKY[r].comm, '(%S+)'))
@@ -166,7 +166,7 @@ return function(update_freq)
 
       Common.text_row_crit_draw_static(swap, cr)
       Common.text_rows_draw_static(cache, cr)
-      LabelPlot.draw_static(plot, cr)
+      Timeseries.draw_static(plot, cr)
 
       Table.draw_static(tbl, cr)
    end
@@ -180,7 +180,7 @@ return function(update_freq)
       Common.text_row_crit_draw_dynamic(swap, cr)
       Common.text_rows_draw_dynamic(cache, cr)
 
-      LabelPlot.draw_dynamic(plot, cr)
+      Timeseries.draw_dynamic(plot, cr)
 
       Table.draw_dynamic(tbl, cr)
    end

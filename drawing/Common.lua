@@ -1,8 +1,8 @@
 local M = {}
 
+local F = require 'Fundamental'
 local Util = require 'Util'
 local Theme = require 'Patterns'
-local Startup = require 'Widget'
 local Dial = require 'Dial'
 local Rect = require 'Rect'
 local FillRect = require 'FillRect'
@@ -14,8 +14,8 @@ local CompoundBar = require 'CompoundBar'
 local CriticalText = require 'CriticalText'
 local TextColumn = require 'TextColumn'
 local Line = require 'Line'
-local LabelPlot = require 'LabelPlot'
-local ScalePlot = require 'ScalePlot'
+local Timeseries = require 'Timeseries'
+local ScaledTimeseries = require 'ScaledTimeseries'
 
 --------------------------------------------------------------------------------
 -- constants
@@ -92,7 +92,7 @@ M.Header = function(x, y, w, s)
    local underline_y = y + HEADER_UNDERLINE_OFFSET
    return {
       text = Text.build_plain(
-         Startup.make_point(x, y),
+         F.make_point(x, y),
          s,
          Text.style(
             M.make_font_spec(FONT, HEADER_FONT_SIZE, true),
@@ -103,8 +103,8 @@ M.Header = function(x, y, w, s)
       ),
       bottom_y = bottom_y,
       underline = Line.build(
-         Startup.make_point(x, underline_y),
-         Startup.make_point(x + w, underline_y),
+         F.make_point(x, underline_y),
+         F.make_point(x + w, underline_y),
          Line.style(
             HEADER_UNDERLINE_THICKNESS,
             Theme.HEADER_FG,
@@ -122,13 +122,13 @@ end
 --------------------------------------------------------------------------------
 -- label plot
 
-M.default_grid_style = Startup.grid_style(
+M.default_grid_style = Timeseries.grid_style(
    PLOT_GRID_X_N,
    PLOT_GRID_Y_N,
    Theme.PLOT_GRID_FG
 )
 
-M.default_plot_style = Startup.plot_style(
+M.default_plot_style = Timeseries.style(
    PLOT_NUM_POINTS,
    Theme.PLOT_OUTLINE_FG,
    Theme.PLOT_FILL_BORDER_PRIMARY,
@@ -136,15 +136,15 @@ M.default_plot_style = Startup.plot_style(
    M.default_grid_style
 )
 
-M.percent_label_style = Startup.label_style(
+M.percent_label_style = Timeseries.label_style(
    Theme.INACTIVE_TEXT_FG,
    M.label_font_spec,
    function(_) return function(z) return Util.round_to_string(z * 100)..'%' end end
 )
 
 M.initThemedLabelPlot = function(x, y, w, h, label_style, update_freq)
-   return Startup.LabelPlot(
-      Startup.make_box(x, y, w, h),
+   return Timeseries.build(
+      F.make_box(x, y, w, h),
       update_freq,
       M.default_plot_style,
       label_style
@@ -156,9 +156,9 @@ end
 
 M.initPercentPlot_formatted = function(x, y, w, h, spacing, label, update_freq, format)
    return {
-      label = _left_text(Startup.make_point(x, y), label),
+      label = _left_text(F.make_point(x, y), label),
       value = CriticalText.build_formatted(
-         Startup.make_point(x + w, y),
+         F.make_point(x + w, y),
          nil,
          M.right_text_style,
          format,
@@ -181,12 +181,12 @@ end
 
 M.percent_plot_draw_static = function(pp, cr)
    Text.draw(pp.label, cr)
-   LabelPlot.draw_static(pp.plot, cr)
+   Timeseries.draw_static(pp.plot, cr)
 end
 
 M.percent_plot_draw_dynamic = function(pp, cr)
    CriticalText.draw(pp.value, cr)
-   LabelPlot.draw_dynamic(pp.plot, cr)
+   Timeseries.draw_dynamic(pp.plot, cr)
 end
 
 -- TODO this is pretty confusing, nil means -1 which gets fed to any text
@@ -199,7 +199,7 @@ M.percent_plot_set = function(pp, cr, value)
       p = value * 0.01
    end
    Text.set(pp.value, cr, t)
-   LabelPlot.update(pp.plot, p)
+   Timeseries.update(pp.plot, p)
 end
 
 --------------------------------------------------------------------------------
@@ -234,15 +234,15 @@ M.converted_y_label_format_generator = function(unit)
 end
 
 M.base_2_scale_data = function(m)
-   return Startup.scale_data(2, m, 0.9)
+   return ScaledTimeseries.scaling_parameters(2, m, 0.9)
 end
 
 M.initThemedScalePlot = function(x, y, w, h, f, min_domain, update_freq)
-   return Startup.ScalePlot(
-      Startup.make_box(x, y, w, h),
+   return ScaledTimeseries.build(
+      F.make_box(x, y, w, h),
       update_freq,
       M.default_plot_style,
-      Startup.label_style(
+      Timeseries.label_style(
          Theme.INACTIVE_TEXT_FG,
          M.label_font_spec,
          f
@@ -257,9 +257,9 @@ end
 M.initLabeledScalePlot = function(x, y, w, h, format_fun, label_fun, spacing,
                                   label, min_domain, update_freq)
    return {
-      label = _left_text(Startup.make_point(x, y), label),
+      label = _left_text(F.make_point(x, y), label),
       value = Text.build_formatted(
-         Startup.make_point(x + w, y),
+         F.make_point(x + w, y),
          0,
          M.right_text_style,
          format_fun
@@ -274,12 +274,12 @@ end
 
 M.annotated_scale_plot_draw_dynamic = function(asp, cr)
    Text.draw(asp.value, cr)
-   ScalePlot.draw_dynamic(asp.plot, cr)
+   ScaledTimeseries.draw_dynamic(asp.plot, cr)
 end
 
 M.annotated_scale_plot_set = function(asp, cr, value)
    Text.set(asp.value, cr, value)
-   ScalePlot.update(asp.plot, cr, value)
+   ScaledTimeseries.update(asp.plot, cr, value)
 end
 
 --------------------------------------------------------------------------------
@@ -290,7 +290,7 @@ end
 
 M.arc = function(x, y, r, thickness, pattern)
    return Arc.build(
-      Startup.make_semicircle(x, y, r, 90, 360),
+      F.make_semicircle(x, y, r, 90, 360),
       Arc.style(thickness, pattern)
    )
 end
@@ -300,7 +300,7 @@ end
 
 M.initRing = function(x, y, r)
    return Arc.build(
-      Startup.make_semicircle(x, y, r, 0, 360),
+      F.make_semicircle(x, y, r, 0, 360),
       Arc.style(ARC_WIDTH, Theme.BORDER_FG)
    )
 end
@@ -312,7 +312,7 @@ M.initTextRing = function(x, y, r, fmt, limit)
    return {
 	  ring = M.initRing(x, y, r),
 	  value = CriticalText.build_formatted(
-         Startup.make_point(x, y),
+         F.make_point(x, y),
          nil,
          Text.style(
             M.normal_font_spec,
@@ -342,7 +342,7 @@ end
 -- dial
 
 local threshold_indicator = function(threshold)
-   return Startup.threshold_style(
+   return F.threshold_style(
       Theme.INDICATOR_FG_PRIMARY,
       Theme.INDICATOR_FG_CRITICAL,
       threshold
@@ -351,7 +351,7 @@ end
 
 M.dial = function(x, y, radius, thickness, threshold)
    return Dial.build(
-      Startup.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
+      F.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
       Arc.style(thickness, Theme.INDICATOR_BG),
       threshold_indicator(threshold)
    )
@@ -363,7 +363,7 @@ end
 M.compound_dial = function(x, y, outer_radius, inner_radius, thickness,
                            threshold, num_dials)
    return CompoundDial.build(
-      Startup.make_semicircle(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
+      F.make_semicircle(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
       Arc.style(thickness, Theme.INDICATOR_BG),
       threshold_indicator(threshold),
       inner_radius,
@@ -377,14 +377,14 @@ end
 M.compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
    return {
       labels = TextColumn.build(
-         Startup.make_point(x, y),
+         F.make_point(x, y),
          labels,
          M.left_text_style,
          nil,
          spacing
       ),
       bars = CompoundBar.build(
-         Startup.make_point(x + pad, y),
+         F.make_point(x + pad, y),
          w - pad,
          Line.style(
             thickness,
@@ -417,8 +417,8 @@ end
 
 M.initSeparator = function(x, y, w)
    return Line.build(
-      Startup.make_point(x, y),
-      Startup.make_point(x + w, y),
+      F.make_point(x, y),
+      F.make_point(x + w, y),
       Line.style(
          SEPARATOR_THICKNESS,
          Theme.BORDER_FG,
@@ -432,8 +432,8 @@ end
 
 M.initTextRow = function(x, y, w, label)
    return {
-      label = _left_text(Startup.make_point(x, y), label),
-      value = _right_text(Startup.make_point(x + w, y), nil),
+      label = _left_text(F.make_point(x, y), label),
+      value = _right_text(F.make_point(x + w, y), nil),
    }
 end
 
@@ -454,9 +454,9 @@ end
 
 M.initTextRowCrit = function(x, y, w, label, append_end, limit)
    return{
-      label = _left_text(Startup.make_point(x, y), label),
+      label = _left_text(F.make_point(x, y), label),
       value = CriticalText.build_formatted(
-         Startup.make_point(x + w, y),
+         F.make_point(x + w, y),
          nil,
          Text.style(
             M.normal_font_spec,
@@ -484,8 +484,8 @@ end
 -- text column
 
 M.text_column = function(x, y, spacing, labels, x_align, color)
-   return Startup.TextColumn(
-      Startup.make_point(x, y),
+   return TextColumn.build(
+      F.make_point(x, y),
       labels,
       _text_row_style(x_align, color),
       nil,
@@ -499,14 +499,14 @@ end
 M.initTextRows_color = function(x, y, w, spacing, labels, color, format)
    return {
       labels = TextColumn.build(
-         Startup.make_point(x, y),
+         F.make_point(x, y),
          labels,
          M.left_text_style,
          nil,
          spacing
       ),
       values = TextColumn.build_n(
-         Startup.make_point(x + w, y),
+         F.make_point(x + w, y),
          #labels,
          _text_row_style('right', color),
          format,
@@ -575,7 +575,7 @@ M.default_table_style = Table.style(
       Theme.INACTIVE_TEXT_FG,
       TABLE_BODY_FORMAT
    ),
-   Startup.padding(
+   F.padding(
       TABLE_HORZ_PAD,
       TABLE_VERT_PAD,
       TABLE_HORZ_PAD,
@@ -585,7 +585,7 @@ M.default_table_style = Table.style(
 
 M.initTable = function(x, y, w, h, n, labels)
    return Table.build(
-      Startup.make_box(x, y, w, h),
+      F.make_box(x, y, w, h),
       n,
       labels,
       M.default_table_style
@@ -597,7 +597,7 @@ end
 
 M.initPanel = function(x, y, w, h, thickness)
    return FillRect.build(
-      Startup.make_box(x, y, w, h),
+      F.make_box(x, y, w, h),
       Rect.style(thickness, Theme.BORDER_FG),
       Theme.PANEL_BG
    )
