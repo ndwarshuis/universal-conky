@@ -4,6 +4,8 @@ local Util = require 'Util'
 local Theme = require 'Patterns'
 local Startup = require 'Widget'
 local Dial = require 'Dial'
+local Rect = require 'Rect'
+local FillRect = require 'FillRect'
 local CompoundDial = require 'CompoundDial'
 local Arc = require 'Arc'
 local Text = require 'Text'
@@ -553,7 +555,7 @@ end
 M.default_table_font_spec = M.make_font_spec(FONT, TABLE_FONT_SIZE, false)
 
 M.default_table_style = Startup.table_style(
-   Startup.rect_style(
+   Rect.style(
       TABLE_LINE_THICKNESS,
       Theme.BORDER_FG
    ),
@@ -593,9 +595,9 @@ end
 -- panel
 
 M.initPanel = function(x, y, w, h, thickness)
-   return Startup.FillRect(
+   return FillRect.build(
       Startup.make_box(x, y, w, h),
-      Startup.rect_style(thickness, Theme.BORDER_FG),
+      Rect.style(thickness, Theme.BORDER_FG),
       Theme.PANEL_BG
    )
 end
