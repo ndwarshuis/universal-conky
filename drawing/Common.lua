@@ -11,7 +11,7 @@ local Arc = require 'Arc'
 local Text = require 'Text'
 local Table = require 'Table'
 local CompoundBar = require 'CompoundBar'
-local CriticalText = require 'CriticalText'
+local ThresholdText = require 'ThresholdText'
 local TextColumn = require 'TextColumn'
 local Line = require 'Line'
 local Timeseries = require 'Timeseries'
@@ -157,12 +157,12 @@ end
 M.initPercentPlot_formatted = function(x, y, w, h, spacing, label, update_freq, format)
    return {
       label = _left_text(F.make_point(x, y), label),
-      value = CriticalText.build_formatted(
+      value = ThresholdText.build_formatted(
          F.make_point(x + w, y),
          nil,
          M.right_text_style,
          format,
-         CriticalText.style(Theme.CRITICAL_FG, 80)
+         ThresholdText.style(Theme.CRITICAL_FG, 80)
       ),
       plot = M.initThemedLabelPlot(
          x,
@@ -185,7 +185,7 @@ M.percent_plot_draw_static = function(pp, cr)
 end
 
 M.percent_plot_draw_dynamic = function(pp, cr)
-   CriticalText.draw(pp.value, cr)
+   ThresholdText.draw(pp.value, cr)
    Timeseries.draw_dynamic(pp.plot, cr)
 end
 
@@ -311,7 +311,7 @@ end
 M.initTextRing = function(x, y, r, fmt, limit)
    return {
 	  ring = M.initRing(x, y, r),
-	  value = CriticalText.build_formatted(
+	  value = ThresholdText.build_formatted(
          F.make_point(x, y),
          nil,
          Text.style(
@@ -321,7 +321,7 @@ M.initTextRing = function(x, y, r, fmt, limit)
             'center'
          ),
          fmt,
-         CriticalText.style(Theme.CRITICAL_FG, limit)
+         ThresholdText.style(Theme.CRITICAL_FG, limit)
 	  ),
    }
 end
@@ -331,11 +331,11 @@ M.text_ring_draw_static = function(tr, cr)
 end
 
 M.text_ring_draw_dynamic = function(tr, cr)
-   CriticalText.draw(tr.value, cr)
+   ThresholdText.draw(tr.value, cr)
 end
 
 M.text_ring_set = function(tr, cr, value)
-   CriticalText.set(tr.value, cr, value)
+   ThresholdText.set(tr.value, cr, value)
 end
 
 --------------------------------------------------------------------------------
@@ -455,7 +455,7 @@ end
 M.initTextRowCrit = function(x, y, w, label, append_end, limit)
    return{
       label = _left_text(F.make_point(x, y), label),
-      value = CriticalText.build_formatted(
+      value = ThresholdText.build_formatted(
          F.make_point(x + w, y),
          nil,
          Text.style(
@@ -465,7 +465,7 @@ M.initTextRowCrit = function(x, y, w, label, append_end, limit)
             'center'
          ),
          append_end,
-         CriticalText.style(Theme.CRITICAL_FG, limit)
+         ThresholdText.style(Theme.CRITICAL_FG, limit)
       )
    }
 end
@@ -473,11 +473,11 @@ end
 M.text_row_crit_draw_static = M.text_row_draw_static
 
 M.text_row_crit_draw_dynamic = function(row, cr)
-   CriticalText.draw(row.value, cr)
+   ThresholdText.draw(row.value, cr)
 end
 
 M.text_row_crit_set = function(row, cr, value)
-   CriticalText.set(row.value, cr, value)
+   ThresholdText.set(row.value, cr, value)
 end
 
 --------------------------------------------------------------------------------
