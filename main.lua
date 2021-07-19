@@ -9,14 +9,12 @@ package.path = ABS_PATH..'?.lua;'..
    ABS_PATH..'drawing/?.lua;'..
    ABS_PATH..'schema/?.lua;'..
    ABS_PATH..'core/func/?.lua;'..
-   ABS_PATH..'core/super/?.lua;'..
    ABS_PATH..'core/widget/?.lua;'..
    ABS_PATH..'core/widget/arc/?.lua;'..
    ABS_PATH..'core/widget/text/?.lua;'..
    ABS_PATH..'core/widget/plot/?.lua;'..
    ABS_PATH..'core/widget/rect/?.lua;'..
-   ABS_PATH..'core/widget/poly/?.lua;'..
-   ABS_PATH..'core/widget/image/?.lua;'
+   ABS_PATH..'core/widget/poly/?.lua;'
 
 local Util 			= require 'Util'
 local System 		= require 'System'

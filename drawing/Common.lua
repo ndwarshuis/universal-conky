@@ -2,7 +2,7 @@ local M = {}
 
 local F = require 'Fundamental'
 local Util = require 'Util'
-local Theme = require 'Patterns'
+local Theme = require 'Theme'
 local Dial = require 'Dial'
 local Rect = require 'Rect'
 local FillRect = require 'FillRect'
