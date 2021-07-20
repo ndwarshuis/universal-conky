@@ -349,12 +349,30 @@ local threshold_indicator = function(threshold)
    )
 end
 
-M.dial = function(x, y, radius, thickness, threshold)
-   return Dial.build(
-      F.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
-      Arc.style(thickness, Theme.INDICATOR_BG),
-      threshold_indicator(threshold)
-   )
+M.dial = function(x, y, radius, thickness, threshold, format)
+   return {
+      dial = Dial.build(
+         F.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
+         Arc.style(thickness, Theme.INDICATOR_BG),
+         threshold_indicator(threshold)
+      ),
+      text_ring = M.initTextRing(x, y, radius - thickness / 2 - 2, format, threshold),
+   }
+end
+
+M.dial_set = function(dl, cr, value)
+   Dial.set(dl.dial, value)
+   M.text_ring_set(dl.text_ring, cr, value)
+end
+
+M.dial_draw_static = function(dl, cr)
+   Dial.draw_static(dl.dial, cr)
+   M.text_ring_draw_static(dl.text_ring, cr)
+end
+
+M.dial_draw_dynamic = function(dl, cr)
+   Dial.draw_dynamic(dl.dial, cr)
+   M.text_ring_draw_dynamic(dl.text_ring, cr)
 end
 
 --------------------------------------------------------------------------------

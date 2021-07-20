@@ -1,4 +1,3 @@
-local Dial = require 'Dial'
 local Timeseries = require 'Timeseries'
 local Table = require 'Table'
 local Util = require 'Util'
@@ -8,10 +7,12 @@ local Geometry = require 'Geometry'
 return function(update_freq)
    local MODULE_Y = 712
    local DIAL_THICKNESS = 8
-   local TEXT_Y_OFFSET = 7
-   local TEXT_LEFT_X_OFFSET = 30
+   local DIAL_RADIUS = 32
+   local DIAL_SPACING = 40
+   local CACHE_Y_OFFSET = 7
+   local CACHE_X_OFFSET = 50
    local TEXT_SPACING = 20
-   local PLOT_SECTION_BREAK = 30
+   local PLOT_SECTION_BREAK = 22
    local PLOT_HEIGHT = 56
    local TABLE_SECTION_BREAK = 20
    local TABLE_HEIGHT = 114
@@ -19,8 +20,8 @@ return function(update_freq)
    local MEMINFO_REGEX = '\nMemFree:%s+(%d+).+'..
       '\nBuffers:%s+(%d+).+'..
       '\nCached:%s+(%d+).+'..
-      '\nSwapTotal:%s+(%d+).+'..
       '\nSwapFree:%s+(%d+).+'..
+      '\nShmem:%s+(%d+).+'..
       '\nSReclaimable:%s+(%d+)'
 
    local __string_match	= string.match
@@ -38,51 +39,64 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- mem consumption dial
 
-   local mem_total_kb = tonumber(Util.read_file('/proc/meminfo', '^MemTotal:%s+(%d+)'))
+   local get_meminfo_field = function(field)
+      return tonumber(Util.read_file('/proc/meminfo', field..':%s+(%d+)'))
+   end
 
-   local DIAL_RADIUS = 32
-   local DIAL_X = Geometry.RIGHT_X + DIAL_RADIUS + DIAL_THICKNESS / 2
-   local DIAL_Y = header.bottom_y + DIAL_RADIUS + DIAL_THICKNESS / 2
+   local memtotal = get_meminfo_field('MemTotal')
+   local swaptotal = get_meminfo_field('SwapTotal')
 
-   local dial = Common.dial(DIAL_X, DIAL_Y, DIAL_RADIUS, DIAL_THICKNESS, 0.8)
-   local text_ring = Common.initTextRing(
-      DIAL_X,
-      DIAL_Y,
-      DIAL_RADIUS - DIAL_THICKNESS / 2 - 2,
-      '%.0f%%',
-      80
+   local FORMAT_PERCENT = function(x)
+      return string.format('%.0f%%', x * 100)
+   end
+
+   local MEM_X = Geometry.RIGHT_X + DIAL_RADIUS + DIAL_THICKNESS / 2
+   local MEM_Y = header.bottom_y + DIAL_RADIUS + DIAL_THICKNESS / 2
+   local DIAL_DIAMETER = DIAL_RADIUS * 2 + DIAL_THICKNESS
+
+   local mem = Common.dial(
+      MEM_X,
+      MEM_Y,
+      DIAL_RADIUS,
+      DIAL_THICKNESS,
+      0.8,
+      FORMAT_PERCENT
+   )
+
+   -----------------------------------------------------------------------------
+   -- swap consumption dial
+
+   local SWAP_X = MEM_X + DIAL_DIAMETER + DIAL_SPACING
+
+   local swap = Common.dial(
+      SWAP_X,
+      MEM_Y,
+      DIAL_RADIUS,
+      DIAL_THICKNESS,
+      0.8,
+      FORMAT_PERCENT
    )
 
    -----------------------------------------------------------------------------
    -- swap/buffers stats
 
-   local LINE_1_Y = header.bottom_y + TEXT_Y_OFFSET
-   local TEXT_LEFT_X = Geometry.RIGHT_X + DIAL_RADIUS * 2 + TEXT_LEFT_X_OFFSET
-   local SWAP_BUFFERS_WIDTH = Geometry.SECTION_WIDTH - TEXT_LEFT_X_OFFSET
-      - DIAL_RADIUS * 2
-
-   local swap = Common.initTextRowCrit(
-      TEXT_LEFT_X,
-      LINE_1_Y,
-      SWAP_BUFFERS_WIDTH,
-      'Swap Usage',
-      '%s%%',
-      80
-   )
+   local CACHE_Y = header.bottom_y + CACHE_Y_OFFSET
+   local CACHE_X = SWAP_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
+   local CACHE_WIDTH = Geometry.RIGHT_X + Geometry.SECTION_WIDTH - CACHE_X
 
    local cache = Common.initTextRows_formatted(
-      TEXT_LEFT_X,
-      LINE_1_Y + TEXT_SPACING,
-      SWAP_BUFFERS_WIDTH,
+      CACHE_X,
+      CACHE_Y,
+      CACHE_WIDTH,
       TEXT_SPACING,
-      {'Page Cache', 'Buffers', 'Kernel Slab'},
+      {'Page Cache', 'Buffers', 'Shared', 'Kernel Slab'},
       '%.1f%%'
    )
 
    -----------------------------------------------------------------------------
    -- memory consumption plot
 
-   local PLOT_Y = PLOT_SECTION_BREAK + header.bottom_y + DIAL_RADIUS * 2
+   local PLOT_Y = header.bottom_y + PLOT_SECTION_BREAK + DIAL_DIAMETER
 
    local plot = Common.initThemedLabelPlot(
       Geometry.RIGHT_X,
@@ -120,33 +134,30 @@ return function(update_freq)
 
    local update = function(cr)
       local conky = Util.conky
-      -- see source for the 'free' command (sysinfo.c) for formulas
+      -- see manpage for free command for formulas
 
-      local memfree_kb,
-         buffers_kb,
-         cached_kb,
-         swap_total_kb,
-         swap_free_kb,
-         slab_reclaimable_kb
+      local memfree,
+         buffers,
+         cached,
+         swapfree,
+         shmem,
+         sreclaimable
          = __string_match(Util.read_file('/proc/meminfo'), MEMINFO_REGEX)
 
       local used_percent =
-         (mem_total_kb -
-          memfree_kb -
-          cached_kb -
-          buffers_kb -
-          slab_reclaimable_kb) / mem_total_kb
+         (memtotal -
+          memfree -
+          cached -
+          buffers -
+          sreclaimable) / memtotal
 
-      Dial.set(dial, used_percent)
-      Common.text_ring_set(text_ring, cr, used_percent * 100)
+      Common.dial_set(mem, cr, used_percent)
+      Common.dial_set(swap, cr, (swaptotal - swapfree) / swaptotal)
 
-      Common.text_row_crit_set(
-         swap, cr, (swap_total_kb - swap_free_kb) / swap_total_kb * 100
-      )
-
-      Common.text_rows_set(cache, cr, 1, cached_kb / mem_total_kb * 100)
-      Common.text_rows_set(cache, cr, 2, buffers_kb / mem_total_kb * 100)
-      Common.text_rows_set(cache, cr, 3, slab_reclaimable_kb / mem_total_kb * 100)
+      Common.text_rows_set(cache, cr, 1, cached / memtotal * 100)
+      Common.text_rows_set(cache, cr, 2, buffers / memtotal * 100)
+      Common.text_rows_set(cache, cr, 3, shmem / memtotal * 100)
+      Common.text_rows_set(cache, cr, 4, sreclaimable / memtotal * 100)
 
       Timeseries.update(plot, used_percent)
 
@@ -160,10 +171,9 @@ return function(update_freq)
    local draw_static = function(cr)
       Common.drawHeader(cr, header)
 
-      Common.text_ring_draw_static(text_ring, cr)
-      Dial.draw_static(dial, cr)
+      Common.dial_draw_static(mem, cr)
+      Common.dial_draw_static(swap, cr)
 
-      Common.text_row_crit_draw_static(swap, cr)
       Common.text_rows_draw_static(cache, cr)
       Timeseries.draw_static(plot, cr)
 
@@ -173,10 +183,9 @@ return function(update_freq)
    local draw_dynamic = function(cr)
       update(cr)
 
-      Dial.draw_dynamic(dial, cr)
-      Common.text_ring_draw_dynamic(text_ring, cr)
+      Common.dial_draw_dynamic(mem, cr)
+      Common.dial_draw_dynamic(swap, cr)
 
-      Common.text_row_crit_draw_dynamic(swap, cr)
       Common.text_rows_draw_dynamic(cache, cr)
 
       Timeseries.draw_dynamic(plot, cr)
