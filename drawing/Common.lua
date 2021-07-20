@@ -283,6 +283,52 @@ M.annotated_scale_plot_set = function(asp, cr, value)
 end
 
 --------------------------------------------------------------------------------
+-- rate timecourse plots
+
+M.compute_derivative = function(x0, x1, update_frequency)
+   -- mask overflow
+   if x1 > x0 then
+      return (x1 - x0) * update_frequency
+   else
+      return 0
+   end
+end
+
+local build_differential = function(update_frequency)
+   return function(x0, x1)
+      -- mask overflow
+      if x1 > x0 then
+         return (x1 - x0) * update_frequency
+      else
+         return 0
+      end
+   end
+end
+
+M.build_rate_timeseries = function(x, y, w, h, format_fun, label_fun, spacing,
+                                   label, min_domain, update_freq, init)
+   return {
+      label = _left_text(F.make_point(x, y), label),
+      value = Text.build_formatted(
+         F.make_point(x + w, y),
+         0,
+         M.right_text_style,
+         format_fun
+      ),
+      plot = M.initThemedScalePlot(x, y + spacing, w, h, label_fun, min_domain, update_freq),
+      prev_value = init,
+      derive = build_differential(update_freq),
+   }
+end
+
+M.update_rate_timeseries = function(obj, cr, value)
+   local rate = obj.derive(obj.prev_value, value)
+   Text.set(obj.value, cr, rate)
+   ScaledTimeseries.update(obj.plot, cr, rate)
+   obj.prev_value = value
+end
+
+--------------------------------------------------------------------------------
 -- arc (TODO this is just a dummy now to make everything organized
 
 -- TODO perhaps implement this is a special case of compound dial where

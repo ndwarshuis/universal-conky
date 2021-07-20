@@ -17,52 +17,6 @@ return function(update_freq)
 
    local INTERFACES = get_interfaces()
 
-   -----------------------------------------------------------------------------
-   -- header
-
-   local header = Common.Header(
-      Geometry.CENTER_RIGHT_X,
-      Geometry.TOP_Y,
-      Geometry.SECTION_WIDTH,
-      'NETWORK'
-   )
-
-   -----------------------------------------------------------------------------
-   -- download plot
-
-   local value_format_function = function(bits)
-      local unit, value = Util.convert_data_val(bits)
-      return Util.precision_round_to_string(value, 3)..' '..unit..'b/s'
-   end
-
-   local build_plot = function(y, label)
-      return Common.initLabeledScalePlot(
-         Geometry.CENTER_RIGHT_X,
-         y,
-         Geometry.SECTION_WIDTH,
-         PLOT_HEIGHT,
-         value_format_function,
-         Common.converted_y_label_format_generator('b'),
-         PLOT_SEC_BREAK,
-         label,
-         2,
-         update_freq
-      )
-   end
-
-   local dnload = build_plot(header.bottom_y, 'Download')
-
-   -----------------------------------------------------------------------------
-   -- upload plot
-
-   local upload = build_plot(
-      header.bottom_y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2,
-      'Upload'
-   )
-
-   -----------------------------------------------------------------------------
-   -- update function
-
    local INTERFACE_PATHS = {}
    for i = 1, #INTERFACES do
       local dir = string.format('/sys/class/net/%s/statistics/', INTERFACES[i])
@@ -87,46 +41,69 @@ return function(update_freq)
       return rx, tx
    end
 
-   local compute_speed = function(x0, x1)
-      -- mask overflow
-      if x1 > x0 then
-         return (x1 - x0) * update_freq
-      else
-         return 0
-      end
+   local init_rx_bits, init_tx_bits = read_interfaces()
+
+   local value_format_function = function(bits)
+      local unit, value = Util.convert_data_val(bits)
+      return Util.precision_round_to_string(value, 3)..' '..unit..'b/s'
    end
 
-   local prev_rx_bits, prev_tx_bits = read_interfaces()
-
-   local update = function(cr)
-      local rx_bits, tx_bits = read_interfaces()
-      Common.annotated_scale_plot_set(
-         dnload,
-         cr,
-         compute_speed(prev_rx_bits, rx_bits)
+   local build_plot = function(y, label, init)
+      return Common.build_rate_timeseries(
+         Geometry.CENTER_RIGHT_X,
+         y,
+         Geometry.SECTION_WIDTH,
+         PLOT_HEIGHT,
+         value_format_function,
+         Common.converted_y_label_format_generator('b'),
+         PLOT_SEC_BREAK,
+         label,
+         2,
+         update_freq,
+         init
       )
-      Common.annotated_scale_plot_set(
-         upload,
-         cr,
-         compute_speed(prev_tx_bits, tx_bits)
-      )
-      prev_rx_bits = rx_bits
-      prev_tx_bits = tx_bits
    end
+
+   -----------------------------------------------------------------------------
+   -- header
+
+   local header = Common.Header(
+      Geometry.CENTER_RIGHT_X,
+      Geometry.TOP_Y,
+      Geometry.SECTION_WIDTH,
+      'NETWORK'
+   )
+
+   -----------------------------------------------------------------------------
+   -- download plot
+
+   local rx = build_plot(header.bottom_y, 'Download', init_rx_bits)
+
+   -----------------------------------------------------------------------------
+   -- upload plot
+
+   local TX_Y = header.bottom_y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2
+   local tx = build_plot(TX_Y, 'Upload', init_tx_bits)
 
    -----------------------------------------------------------------------------
    -- main drawing functions
 
+   local update = function(cr)
+      local rx_bits, tx_bits = read_interfaces()
+      Common.update_rate_timeseries(rx, cr, rx_bits)
+      Common.update_rate_timeseries(tx, cr, tx_bits)
+   end
+
    local draw_static = function(cr)
       Common.drawHeader(cr, header)
-      Common.annotated_scale_plot_draw_static(dnload, cr)
-      Common.annotated_scale_plot_draw_static(upload, cr)
+      Common.annotated_scale_plot_draw_static(rx, cr)
+      Common.annotated_scale_plot_draw_static(tx, cr)
    end
 
    local draw_dynamic = function(cr)
       update(cr)
-      Common.annotated_scale_plot_draw_dynamic(dnload, cr)
-      Common.annotated_scale_plot_draw_dynamic(upload, cr)
+      Common.annotated_scale_plot_draw_dynamic(rx, cr)
+      Common.annotated_scale_plot_draw_dynamic(tx, cr)
    end
 
    return {static = draw_static, dynamic = draw_dynamic}

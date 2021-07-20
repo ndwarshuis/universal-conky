@@ -16,62 +16,6 @@ return function(update_freq)
 
    local __tonumber = tonumber
    local __string_match = string.match
-   local __math_floor = math.floor
-
-   -----------------------------------------------------------------------------
-   -- header
-
-   local header = Common.Header(
-      Geometry.CENTER_LEFT_X,
-      Geometry.TOP_Y,
-      Geometry.SECTION_WIDTH,
-      'INPUT / OUTPUT'
-   )
-
-   -----------------------------------------------------------------------------
-   -- reads
-
-   -- local io_label_format_fun_generator = function(plot_max)
-   --    local new_unit, new_max = Util.convert_data_val(plot_max)
-   --    local conversion_factor = plot_max / new_max
-   --    local fmt = Common.y_label_format_string(new_max, new_unit..'B/s')
-   --    return function(bytes)
-   --       return string.format(fmt, bytes / conversion_factor)
-   --    end
-   -- end
-
-   local format_value_function = function(bps)
-      local unit, value = Util.convert_data_val(bps)
-      return Util.precision_round_to_string(value, 3)..' '..unit..'B/s'
-   end
-
-   local build_plot = function(y, label)
-      return Common.initLabeledScalePlot(
-         Geometry.CENTER_LEFT_X,
-         y,
-         Geometry.SECTION_WIDTH,
-         PLOT_HEIGHT,
-         format_value_function,
-         Common.converted_y_label_format_generator('B'),
-         PLOT_SEC_BREAK,
-         label,
-         2,
-         update_freq
-      )
-   end
-
-   local reads = build_plot(header.bottom_y, 'Reads')
-
-   -----------------------------------------------------------------------------
-   -- writes
-
-   local writes = build_plot(
-      header.bottom_y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2,
-      'Writes'
-   )
-
-   -----------------------------------------------------------------------------
-   -- update function
 
    local DEVICE_PATHS = {}
    for i = 1, #DEVICES do
@@ -89,35 +33,61 @@ return function(update_freq)
       return read_bytes * BLOCK_SIZE_BYTES, write_bytes * BLOCK_SIZE_BYTES
    end
 
-   local prev_read_bytes, prev_write_bytes = read_devices()
+   local init_read_bytes, init_write_bytes = read_devices()
 
-   local compute_rate = function(x0, x1)
-      -- mask overflow
-      if x1 > x0 then
-         return (x1 - x0) * update_freq
-      else
-         return 0
-      end
+   local format_value_function = function(bps)
+      local unit, value = Util.convert_data_val(bps)
+      return Util.precision_round_to_string(value, 3)..' '..unit..'B/s'
    end
 
-   local update = function(cr)
-      local read_bytes, write_bytes = read_devices()
-      Common.annotated_scale_plot_set(
-         reads,
-         cr,
-         compute_rate(prev_read_bytes, read_bytes)
+   local build_plot = function(y, label, init)
+      return Common.build_rate_timeseries(
+         Geometry.CENTER_LEFT_X,
+         y,
+         Geometry.SECTION_WIDTH,
+         PLOT_HEIGHT,
+         format_value_function,
+         Common.converted_y_label_format_generator('B'),
+         PLOT_SEC_BREAK,
+         label,
+         2,
+         update_freq,
+         init
       )
-      Common.annotated_scale_plot_set(
-         writes,
-         cr,
-         compute_rate(prev_write_bytes, write_bytes)
-      )
-      prev_read_bytes = read_bytes
-      prev_write_bytes = write_bytes
    end
 
    -----------------------------------------------------------------------------
+   -- header
+
+   local header = Common.Header(
+      Geometry.CENTER_LEFT_X,
+      Geometry.TOP_Y,
+      Geometry.SECTION_WIDTH,
+      'INPUT / OUTPUT'
+   )
+
+   -----------------------------------------------------------------------------
+   -- reads
+
+   local reads = build_plot(header.bottom_y, 'Reads', init_read_bytes)
+
+   -----------------------------------------------------------------------------
+   -- writes
+
+   local writes = build_plot(
+      header.bottom_y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2,
+      'Writes',
+      init_write_bytes
+   )
+
+   -----------------------------------------------------------------------------
    -- main drawing functions
+
+   local update = function(cr)
+      local read_bytes, write_bytes = read_devices()
+      Common.update_rate_timeseries(reads, cr, read_bytes)
+      Common.update_rate_timeseries(writes, cr, write_bytes)
+   end
 
    local draw_static = function(cr)
       Common.drawHeader(cr, header)
