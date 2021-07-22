@@ -453,7 +453,8 @@ M.compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
          Line.style(
             thickness,
             Theme.INDICATOR_BG,
-            CAIRO_LINE_JOIN_MITER
+            CAIRO_LINE_JOIN_MITER,
+            true
          ),
          threshold_indicator(threshold),
          spacing,
