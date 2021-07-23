@@ -3,6 +3,7 @@ local Table = require 'Table'
 local Util = require 'Util'
 local Common = require 'Common'
 local Geometry = require 'Geometry'
+local func = require 'func'
 
 return function(update_freq)
    local MODULE_Y = 712
@@ -111,14 +112,15 @@ return function(update_freq)
    -- memory top table
 
    local NUM_ROWS = 5
-   local TABLE_CONKY = {}
-   for r = 1, NUM_ROWS do
-      TABLE_CONKY[r] = {
-         comm = '${top_mem name '..r..'}',
-         pid = '${top_mem pid '..r..'}',
-         mem = '${top_mem mem '..r..'}',
-      }
-   end
+   local TABLE_CONKY = func.map(
+      function(i)
+         return {
+            comm = '${top_mem name '..i..'}',
+            pid = '${top_mem pid '..i..'}',
+            mem = '${top_mem mem '..i..'}',
+         }
+      end,
+      func.seq(NUM_ROWS))
 
    local tbl = Common.initTable(
       Geometry.RIGHT_X,

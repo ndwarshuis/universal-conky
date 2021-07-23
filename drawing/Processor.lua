@@ -5,6 +5,7 @@ local Util = require 'Util'
 local Common = require 'Common'
 local Geometry = require 'Geometry'
 local CPU = require 'CPU'
+local func = require 'func'
 
 local __math_floor = math.floor
 
@@ -116,13 +117,10 @@ return function(update_freq)
    -- cpu top table
 
    local NUM_ROWS = 5
-   local TABLE_CONKY = {}
-   for r = 1, NUM_ROWS do
-      TABLE_CONKY[r] = {
-         pid = '${top pid '..r..'}',
-         cpu = '${top cpu '..r..'}'
-      }
-   end
+   local TABLE_CONKY = func.map(
+      function(i) return {pid = '${top pid '..i..'}', cpu = '${top cpu '..i..'}'} end,
+      func.seq(NUM_ROWS)
+   )
 
    local tbl = Common.initTable(
       Geometry.LEFT_X,

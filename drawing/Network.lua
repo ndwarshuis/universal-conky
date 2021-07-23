@@ -1,6 +1,7 @@
 local Util = require 'Util'
 local Common = require 'Common'
 local Geometry = require 'Geometry'
+local func = require 'func'
 
 return function(update_freq)
    local PLOT_SEC_BREAK = 20
@@ -17,14 +18,13 @@ return function(update_freq)
 
    local INTERFACES = get_interfaces()
 
-   local INTERFACE_PATHS = {}
-   for i = 1, #INTERFACES do
-      local dir = string.format('/sys/class/net/%s/statistics/', INTERFACES[i])
-      INTERFACE_PATHS[i] = {
-         rx = dir..'rx_bytes',
-         tx = dir..'tx_bytes',
-      }
-   end
+   local INTERFACE_PATHS = func.map(
+      function(s)
+         local dir = string.format('/sys/class/net/%s/statistics/', s)
+         return {rx = dir..'rx_bytes', tx = dir..'tx_bytes'}
+      end,
+      INTERFACES
+   )
 
    local get_bits = function(path)
       return Util.read_file(path, nil, '*n') * 8
