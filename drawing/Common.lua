@@ -198,7 +198,7 @@ M.percent_plot_set = function(pp, cr, value)
       t = math.floor(value)
       p = value * 0.01
    end
-   Text.set(pp.value, cr, t)
+   Text.set(pp.value, t)
    Timeseries.update(pp.plot, p)
 end
 
@@ -278,8 +278,8 @@ M.annotated_scale_plot_draw_dynamic = function(asp, cr)
 end
 
 M.annotated_scale_plot_set = function(asp, cr, value)
-   Text.set(asp.value, cr, value)
-   ScaledTimeseries.update(asp.plot, cr, value)
+   Text.set(asp.value, value)
+   ScaledTimeseries.update(asp.plot, value)
 end
 
 --------------------------------------------------------------------------------
@@ -323,8 +323,8 @@ end
 
 M.update_rate_timeseries = function(obj, cr, value)
    local rate = obj.derive(obj.prev_value, value)
-   Text.set(obj.value, cr, rate)
-   ScaledTimeseries.update(obj.plot, cr, rate)
+   Text.set(obj.value, rate)
+   ScaledTimeseries.update(obj.plot, rate)
    obj.prev_value = value
 end
 
@@ -381,7 +381,7 @@ M.text_ring_draw_dynamic = function(tr, cr)
 end
 
 M.text_ring_set = function(tr, cr, value)
-   ThresholdText.set(tr.value, cr, value)
+   ThresholdText.set(tr.value, value)
 end
 
 --------------------------------------------------------------------------------
@@ -511,7 +511,7 @@ M.text_row_draw_dynamic = function(row, cr)
 end
 
 M.text_row_set = function(row, cr, value)
-   Text.set(row.value, cr, value)
+   Text.set(row.value, value)
 end
 
 --------------------------------------------------------------------------------
@@ -542,7 +542,7 @@ M.text_row_crit_draw_dynamic = function(row, cr)
 end
 
 M.text_row_crit_set = function(row, cr, value)
-   ThresholdText.set(row.value, cr, value)
+   ThresholdText.set(row.value, value)
 end
 
 --------------------------------------------------------------------------------
@@ -613,7 +613,7 @@ M.text_rows_draw_dynamic = function(rows, cr)
 end
 
 M.text_rows_set = function(rows, cr, i, value)
-   TextColumn.set(rows.values, cr, i, value)
+   TextColumn.set(rows.values, i, value)
 end
 
 --------------------------------------------------------------------------------

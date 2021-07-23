@@ -162,9 +162,9 @@ return function(update_freq)
       Timeseries.update(plot, used_percent)
 
       for r = 1, NUM_ROWS do
-         Table.set(tbl, cr, 1, r, conky(TABLE_CONKY[r].comm, '(%S+)'))
-         Table.set(tbl, cr, 2, r, conky(TABLE_CONKY[r].pid))
-         Table.set(tbl, cr, 3, r, conky(TABLE_CONKY[r].mem))
+         Table.set(tbl, 1, r, conky(TABLE_CONKY[r].comm, '(%S+)'))
+         Table.set(tbl, 2, r, conky(TABLE_CONKY[r].pid))
+         Table.set(tbl, 3, r, conky(TABLE_CONKY[r].mem))
       end
    end
 

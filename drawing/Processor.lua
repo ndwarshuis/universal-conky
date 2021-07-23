@@ -165,9 +165,9 @@ return function(update_freq)
       for r = 1, NUM_ROWS do
          local pid = conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
          if pid ~= '' then
-            Table.set(tbl, cr, 1, r, Util.read_file('/proc/'..pid..'/comm', '(%C+)'))
-            Table.set(tbl, cr, 2, r, pid)
-            Table.set(tbl, cr, 3, r, conky(TABLE_CONKY[r].cpu))
+            Table.set(tbl, 1, r, Util.read_file('/proc/'..pid..'/comm', '(%C+)'))
+            Table.set(tbl, 2, r, pid)
+            Table.set(tbl, 3, r, conky(TABLE_CONKY[r].cpu))
          end
       end
    end
