@@ -338,7 +338,7 @@ end
 M.arc = function(x, y, r, thickness, pattern)
    return Arc.build(
       F.make_semicircle(x, y, r, 90, 360),
-      Arc.style(thickness, pattern)
+      Arc.config(s.line(thickness, CAIRO_LINE_CAP_BUTT), pattern)
    )
 end
 
@@ -348,7 +348,7 @@ end
 M.initRing = function(x, y, r)
    return Arc.build(
       F.make_semicircle(x, y, r, 0, 360),
-      Arc.style(ARC_WIDTH, Theme.BORDER_FG)
+      Arc.config(s.line(ARC_WIDTH, CAIRO_LINE_CAP_BUTT), Theme.BORDER_FG)
    )
 end
 
@@ -400,7 +400,7 @@ M.dial = function(x, y, radius, thickness, threshold, format)
    return {
       dial = Dial.build(
          F.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
-         Arc.style(thickness, Theme.INDICATOR_BG),
+         Arc.config(s.line(thickness, CAIRO_LINE_CAP_BUTT), Theme.INDICATOR_BG),
          threshold_indicator(threshold)
       ),
       text_ring = M.initTextRing(x, y, radius - thickness / 2 - 2, format, threshold),
@@ -429,7 +429,7 @@ M.compound_dial = function(x, y, outer_radius, inner_radius, thickness,
                            threshold, num_dials)
    return CompoundDial.build(
       F.make_semicircle(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
-      Arc.style(thickness, Theme.INDICATOR_BG),
+      Arc.config(s.line(thickness, CAIRO_LINE_CAP_BUTT), Theme.INDICATOR_BG),
       threshold_indicator(threshold),
       inner_radius,
       num_dials
