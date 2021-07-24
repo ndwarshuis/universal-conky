@@ -16,6 +16,7 @@ local TextColumn = require 'TextColumn'
 local Line = require 'Line'
 local Timeseries = require 'Timeseries'
 local ScaledTimeseries = require 'ScaledTimeseries'
+local s = require 'style'
 
 --------------------------------------------------------------------------------
 -- constants
@@ -622,8 +623,8 @@ end
 M.default_table_font_spec = M.make_font_spec(FONT, TABLE_FONT_SIZE, false)
 
 M.default_table_style = Table.style(
-   Rect.style(
-      TABLE_LINE_THICKNESS,
+   Rect.config(
+      s.closed_poly(TABLE_LINE_THICKNESS, CAIRO_LINE_JOIN_MITER),
       Theme.BORDER_FG
    ),
    Line.style(
@@ -664,7 +665,10 @@ end
 M.initPanel = function(x, y, w, h, thickness)
    return FillRect.build(
       F.make_box(x, y, w, h),
-      Rect.style(thickness, Theme.BORDER_FG),
+      Rect.config(
+         s.closed_poly(thickness, CAIRO_LINE_JOIN_MITER),
+         Theme.BORDER_FG
+      ),
       Theme.PANEL_BG
    )
 end
