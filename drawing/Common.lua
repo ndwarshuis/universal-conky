@@ -123,32 +123,32 @@ end
 --------------------------------------------------------------------------------
 -- label plot
 
-M.default_grid_style = Timeseries.grid_style(
+M.default_grid_config = Timeseries.grid_config(
    PLOT_GRID_X_N,
    PLOT_GRID_Y_N,
    Theme.PLOT_GRID_FG
 )
 
-M.default_plot_style = Timeseries.style(
+M.default_plot_style = Timeseries.config(
    PLOT_NUM_POINTS,
    Theme.PLOT_OUTLINE_FG,
    Theme.PLOT_FILL_BORDER_PRIMARY,
    Theme.PLOT_FILL_BG_PRIMARY,
-   M.default_grid_style
+   M.default_grid_config
 )
 
-M.percent_label_style = Timeseries.label_style(
+M.percent_label_config = Timeseries.label_config(
    Theme.INACTIVE_TEXT_FG,
    M.label_font_spec,
    function(_) return function(z) return Util.round_to_string(z * 100)..'%' end end
 )
 
-M.initThemedLabelPlot = function(x, y, w, h, label_style, update_freq)
+M.initThemedLabelPlot = function(x, y, w, h, label_config, update_freq)
    return Timeseries.build(
       F.make_box(x, y, w, h),
       update_freq,
       M.default_plot_style,
-      label_style
+      label_config
    )
 end
 
@@ -170,7 +170,7 @@ M.initPercentPlot_formatted = function(x, y, w, h, spacing, label, update_freq, 
          y + spacing,
          w,
          h,
-         M.percent_label_style,
+         M.percent_label_config,
          update_freq
       ),
    }
@@ -243,7 +243,7 @@ M.initThemedScalePlot = function(x, y, w, h, f, min_domain, update_freq)
       F.make_box(x, y, w, h),
       update_freq,
       M.default_plot_style,
-      Timeseries.label_style(
+      Timeseries.label_config(
          Theme.INACTIVE_TEXT_FG,
          M.label_font_spec,
          f

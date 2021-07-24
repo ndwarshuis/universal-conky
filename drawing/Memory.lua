@@ -104,7 +104,7 @@ return function(update_freq)
       PLOT_Y,
       Geometry.SECTION_WIDTH,
       PLOT_HEIGHT,
-      Common.percent_label_style,
+      Common.percent_label_config,
       update_freq
    )
 
