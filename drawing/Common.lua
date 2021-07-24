@@ -88,13 +88,13 @@ end
 --------------------------------------------------------------------------------
 -- header
 
-M.Header = function(x, y, w, s)
+M.Header = function(x, y, w, text)
    local bottom_y = y + HEADER_HEIGHT
    local underline_y = y + HEADER_UNDERLINE_OFFSET
    return {
       text = Text.build_plain(
          F.make_point(x, y),
-         s,
+         text,
          Text.style(
             M.make_font_spec(FONT, HEADER_FONT_SIZE, true),
             Theme.HEADER_FG,
@@ -106,10 +106,10 @@ M.Header = function(x, y, w, s)
       underline = Line.build(
          F.make_point(x, underline_y),
          F.make_point(x + w, underline_y),
-         Line.style(
-            HEADER_UNDERLINE_THICKNESS,
+         Line.config(
+            s.line(HEADER_UNDERLINE_THICKNESS, HEADER_UNDERLINE_CAP),
             Theme.HEADER_FG,
-            HEADER_UNDERLINE_CAP
+            true
          )
       )
    }
@@ -451,10 +451,9 @@ M.compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
       bars = CompoundBar.build(
          F.make_point(x + pad, y),
          w - pad,
-         Line.style(
-            thickness,
+         Line.config(
+            s.line(thickness, CAIRO_LINE_CAP_BUTT),
             Theme.INDICATOR_BG,
-            CAIRO_LINE_JOIN_MITER,
             true
          ),
          threshold_indicator(threshold),
@@ -485,10 +484,10 @@ M.initSeparator = function(x, y, w)
    return Line.build(
       F.make_point(x, y),
       F.make_point(x + w, y),
-      Line.style(
-         SEPARATOR_THICKNESS,
+      Line.config(
+         s.line(SEPARATOR_THICKNESS, CAIRO_LINE_CAP_BUTT),
          Theme.BORDER_FG,
-         CAIRO_LINE_CAP_BUTT
+         true
       )
    )
 end
@@ -627,17 +626,17 @@ M.default_table_style = Table.style(
       s.closed_poly(TABLE_LINE_THICKNESS, CAIRO_LINE_JOIN_MITER),
       Theme.BORDER_FG
    ),
-   Line.style(
-      TABLE_LINE_THICKNESS,
+   Line.config(
+      s.line(TABLE_LINE_THICKNESS, CAIRO_LINE_CAP_BUTT),
       Theme.BORDER_FG,
-      CAIRO_LINE_CAP_BUTT
+      true
    ),
-   Table.header_style(
+   Table.header_config(
       M.default_table_font_spec,
       Theme.PRIMARY_FG,
       TABLE_HEADER_PAD
    ),
-   Table.body_style(
+   Table.body_config(
       M.default_table_font_spec,
       Theme.INACTIVE_TEXT_FG,
       TABLE_BODY_FORMAT
