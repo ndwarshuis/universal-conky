@@ -192,7 +192,7 @@ end
 
 -- TODO this is pretty confusing, nil means -1 which gets fed to any text
 -- formatting functions
-M.percent_plot_set = function(pp, cr, value)
+M.percent_plot_set = function(pp, value)
    local t = -1
    local p = 0
    if value ~= nil then
@@ -278,7 +278,7 @@ M.annotated_scale_plot_draw_dynamic = function(asp, cr)
    ScaledTimeseries.draw_dynamic(asp.plot, cr)
 end
 
-M.annotated_scale_plot_set = function(asp, cr, value)
+M.annotated_scale_plot_set = function(asp, value)
    Text.set(asp.value, value)
    ScaledTimeseries.update(asp.plot, value)
 end
@@ -322,7 +322,7 @@ M.build_rate_timeseries = function(x, y, w, h, format_fun, label_fun, spacing,
    }
 end
 
-M.update_rate_timeseries = function(obj, cr, value)
+M.update_rate_timeseries = function(obj, value)
    local rate = obj.derive(obj.prev_value, value)
    Text.set(obj.value, rate)
    ScaledTimeseries.update(obj.plot, rate)
@@ -381,7 +381,7 @@ M.text_ring_draw_dynamic = function(tr, cr)
    ThresholdText.draw(tr.value, cr)
 end
 
-M.text_ring_set = function(tr, cr, value)
+M.text_ring_set = function(tr, value)
    ThresholdText.set(tr.value, value)
 end
 
@@ -407,9 +407,9 @@ M.dial = function(x, y, radius, thickness, threshold, format)
    }
 end
 
-M.dial_set = function(dl, cr, value)
+M.dial_set = function(dl, value)
    Dial.set(dl.dial, value)
-   M.text_ring_set(dl.text_ring, cr, value)
+   M.text_ring_set(dl.text_ring, value)
 end
 
 M.dial_draw_static = function(dl, cr)
@@ -510,7 +510,7 @@ M.text_row_draw_dynamic = function(row, cr)
    Text.draw(row.value, cr)
 end
 
-M.text_row_set = function(row, cr, value)
+M.text_row_set = function(row, value)
    Text.set(row.value, value)
 end
 
@@ -541,7 +541,7 @@ M.text_row_crit_draw_dynamic = function(row, cr)
    ThresholdText.draw(row.value, cr)
 end
 
-M.text_row_crit_set = function(row, cr, value)
+M.text_row_crit_set = function(row, value)
    ThresholdText.set(row.value, value)
 end
 
@@ -612,7 +612,7 @@ M.text_rows_draw_dynamic = function(rows, cr)
    TextColumn.draw(rows.values, cr)
 end
 
-M.text_rows_set = function(rows, cr, i, value)
+M.text_rows_set = function(rows, i, value)
    TextColumn.set(rows.values, i, value)
 end
 

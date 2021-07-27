@@ -134,7 +134,7 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- main functions
 
-   local update = function(cr)
+   local update = function()
       local conky = Util.conky
       -- see manpage for free command for formulas
 
@@ -153,13 +153,13 @@ return function(update_freq)
           buffers -
           sreclaimable) / memtotal
 
-      Common.dial_set(mem, cr, used_percent)
-      Common.dial_set(swap, cr, (swaptotal - swapfree) / swaptotal)
+      Common.dial_set(mem, used_percent)
+      Common.dial_set(swap, (swaptotal - swapfree) / swaptotal)
 
-      Common.text_rows_set(cache, cr, 1, cached / memtotal * 100)
-      Common.text_rows_set(cache, cr, 2, buffers / memtotal * 100)
-      Common.text_rows_set(cache, cr, 3, shmem / memtotal * 100)
-      Common.text_rows_set(cache, cr, 4, sreclaimable / memtotal * 100)
+      Common.text_rows_set(cache, 1, cached / memtotal * 100)
+      Common.text_rows_set(cache, 2, buffers / memtotal * 100)
+      Common.text_rows_set(cache, 3, shmem / memtotal * 100)
+      Common.text_rows_set(cache, 4, sreclaimable / memtotal * 100)
 
       Timeseries.update(plot, used_percent)
 
@@ -183,7 +183,7 @@ return function(update_freq)
    end
 
    local draw_dynamic = function(cr)
-      update(cr)
+      update()
 
       Common.dial_draw_dynamic(mem, cr)
       Common.dial_draw_dynamic(swap, cr)

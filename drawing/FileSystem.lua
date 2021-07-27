@@ -63,9 +63,9 @@ return function()
    -----------------------------------------------------------------------------
    -- main functions
 
-   local update = function(cr)
+   local update = function()
       local smart_pid = Util.execute_cmd('pidof smartd', nil, '*n')
-      Common.text_row_set(smart, cr, (smart_pid == '') and 'Error' or 'Running')
+      Common.text_row_set(smart, (smart_pid == '') and 'Error' or 'Running')
 
       for i = 1, FS_NUM do
          local percent = Util.conky_numeric(CONKY_USED_PERC[i])
@@ -81,7 +81,7 @@ return function()
    end
 
    local draw_dynamic = function(cr, trigger)
-      if trigger == 0 then update(cr) end
+      if trigger == 0 then update() end
       Common.text_row_draw_dynamic(smart, cr)
       Common.compound_bar_draw_dynamic(fs, cr)
    end

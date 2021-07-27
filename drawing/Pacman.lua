@@ -22,17 +22,17 @@ return function()
       {'Total', 'Explicit', 'Outdated', 'Orphaned', 'Local'}
    )
 
-   local update = function(cr, pacman_stats)
+   local update = function(pacman_stats)
       local stats = __string_match(pacman_stats, '%d+%s+[^%s]+%s+[^%s]+%s+(.*)$')
       if stats then
          local i = 1
          for v in __string_gmatch(stats, '%d+') do
-            Common.text_rows_set(rows, cr, i, v)
+            Common.text_rows_set(rows, i, v)
             i = i + 1
          end
       else
          for i=1, 5 do
-            Common.text_rows_set(rows, cr, i, 'N/A')
+            Common.text_rows_set(rows, i, 'N/A')
          end
       end
    end
@@ -43,7 +43,7 @@ return function()
    end
 
    local draw_dynamic = function(cr, pacman_stats)
-      update(cr, pacman_stats)
+      update(pacman_stats)
       Common.text_rows_draw_dynamic(rows, cr)
    end
 

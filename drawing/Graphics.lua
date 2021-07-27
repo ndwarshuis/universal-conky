@@ -149,39 +149,39 @@ return function(update_freq)
 
    local GPU_BUS_CTRL = '/sys/bus/pci/devices/0000:01:00.0/power/control'
 
-   local nvidia_off = function(cr)
-      Common.text_row_crit_set(internal_temp, cr, -1)
-      Common.text_rows_set(clock_speed, cr, 1, NA)
-      Common.text_rows_set(clock_speed, cr, 2, NA)
-      Common.percent_plot_set(gpu_util, cr, nil)
-      Common.percent_plot_set(vid_util, cr, nil)
-      Common.percent_plot_set(mem_util, cr, nil)
+   local nvidia_off = function()
+      Common.text_row_crit_set(internal_temp, -1)
+      Common.text_rows_set(clock_speed, 1, NA)
+      Common.text_rows_set(clock_speed, 2, NA)
+      Common.percent_plot_set(gpu_util, nil)
+      Common.percent_plot_set(vid_util, nil)
+      Common.percent_plot_set(mem_util, nil)
    end
 
-   local update = function(cr)
+   local update = function()
       if Util.read_file(GPU_BUS_CTRL, nil, '*l') == 'on' then
          local nvidia_settings_glob = Util.execute_cmd(NV_QUERY)
          if nvidia_settings_glob == '' then
-            Text.set(status.value, cr, 'Error')
-            nvidia_off(cr)
+            Text.set(status.value, 'Error')
+            nvidia_off()
          else
-            Common.text_row_set(status, cr, 'On')
+            Common.text_row_set(status, 'On')
 
             local used_memory, total_memory, temp_reading, gpu_frequency,
                memory_frequency, gpu_utilization, vid_utilization
                = __string_match(nvidia_settings_glob, NV_REGEX)
 
-            Common.text_row_crit_set(internal_temp, cr, temp_reading)
-            Common.text_rows_set(clock_speed, cr, 1, gpu_frequency..' Mhz')
-            Common.text_rows_set(clock_speed, cr, 2, memory_frequency..' Mhz')
+            Common.text_row_crit_set(internal_temp, temp_reading)
+            Common.text_rows_set(clock_speed, 1, gpu_frequency..' Mhz')
+            Common.text_rows_set(clock_speed, 2, memory_frequency..' Mhz')
 
-            Common.percent_plot_set(gpu_util, cr, gpu_utilization)
-            Common.percent_plot_set(mem_util, cr, used_memory / total_memory * 100)
-            Common.percent_plot_set(vid_util, cr, vid_utilization)
+            Common.percent_plot_set(gpu_util, gpu_utilization)
+            Common.percent_plot_set(mem_util, used_memory / total_memory * 100)
+            Common.percent_plot_set(vid_util, vid_utilization)
          end
       else
-         Text.set(status.value, cr, 'Off')
-         nvidia_off(cr)
+         Text.set(status.value, 'Off')
+         nvidia_off()
       end
    end
 
@@ -206,7 +206,7 @@ return function(update_freq)
    end
 
    local draw_dynamic = function(cr)
-      update(cr)
+      update()
 
       Common.text_row_draw_dynamic(status, cr)
       Common.text_row_crit_draw_dynamic(internal_temp, cr)

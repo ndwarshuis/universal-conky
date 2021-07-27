@@ -33,10 +33,10 @@ return function()
          last_update, last_sync = __string_match(pacman_stats, "^%d+%s+([^%s]+)%s+([^%s]+).*")
       end
       -- TODO this doesn't need to be update every time
-      Common.text_rows_set(rows, cr, 1, Util.conky('$kernel'))
-      Common.text_rows_set(rows, cr, 2, Util.conky('$uptime'))
-      Common.text_rows_set(rows, cr, 3, last_update)
-      Common.text_rows_set(rows, cr, 4, last_sync)
+      Common.text_rows_set(rows, 1, Util.conky('$kernel'))
+      Common.text_rows_set(rows, 2, Util.conky('$uptime'))
+      Common.text_rows_set(rows, 3, last_update)
+      Common.text_rows_set(rows, 4, last_sync)
       Common.text_rows_draw_dynamic(rows, cr)
    end
 

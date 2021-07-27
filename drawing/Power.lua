@@ -114,10 +114,10 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- main functions
 
-   local update = function(cr, is_using_ac)
-      Common.update_rate_timeseries(pkg0, cr, read_pkg0_joules())
-      Common.update_rate_timeseries(dram, cr, read_dram_joules())
-      Common.annotated_scale_plot_set(bat, cr, read_battery_power(is_using_ac))
+   local update = function(is_using_ac)
+      Common.update_rate_timeseries(pkg0, read_pkg0_joules())
+      Common.update_rate_timeseries(dram, read_dram_joules())
+      Common.annotated_scale_plot_set(bat, read_battery_power(is_using_ac))
    end
 
    local draw_static = function(cr)
@@ -128,7 +128,7 @@ return function(update_freq)
    end
 
    local draw_dynamic = function(cr, is_using_ac)
-      update(cr, is_using_ac)
+      update(is_using_ac)
       Common.annotated_scale_plot_draw_dynamic(pkg0, cr)
       Common.annotated_scale_plot_draw_dynamic(dram, cr)
       Common.annotated_scale_plot_draw_dynamic(bat, cr)

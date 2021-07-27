@@ -134,7 +134,7 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- main functions
 
-   local update = function(cr, trigger)
+   local update = function(trigger)
       local conky = Util.conky
       local load_sum = 0
 
@@ -147,18 +147,18 @@ return function(update_freq)
 
       for conky_core_id, path in pairs(coretemp_paths) do
          local temp = __math_floor(0.001 * Util.read_file(path, nil, '*n'))
-         Common.text_ring_set(cores[conky_core_id].coretemp, cr, temp)
+         Common.text_ring_set(cores[conky_core_id].coretemp, temp)
       end
 
       -- For some reason this call is slow (querying anything with pstate in
       -- general seems slow), but I also don't need to see an update every cycle,
       -- hence the trigger
       if trigger == 0 then
-         Common.text_rows_set(cpu_status, cr, 1, CPU.read_hwp(hwp_paths))
+         Common.text_rows_set(cpu_status, 1, CPU.read_hwp(hwp_paths))
       end
-      Common.text_rows_set(cpu_status, cr, 2, CPU.read_freq())
+      Common.text_rows_set(cpu_status, 2, CPU.read_freq())
 
-      Common.percent_plot_set(total_load, cr, load_sum / ncpus * 100)
+      Common.percent_plot_set(total_load, load_sum / ncpus * 100)
 
       for r = 1, NUM_ROWS do
          local pid = conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
@@ -187,7 +187,7 @@ return function(update_freq)
    end
 
    local draw_dynamic = function(cr, trigger)
-      update(cr, trigger)
+      update(trigger)
 
       for i = 1, #cores do
          CompoundDial.draw_dynamic(cores[i].loads, cr)

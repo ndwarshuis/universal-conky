@@ -85,10 +85,10 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- main drawing functions
 
-   local update = function(cr)
+   local update = function()
       local read_bytes, write_bytes = read_devices()
-      Common.update_rate_timeseries(reads, cr, read_bytes)
-      Common.update_rate_timeseries(writes, cr, write_bytes)
+      Common.update_rate_timeseries(reads, read_bytes)
+      Common.update_rate_timeseries(writes, write_bytes)
    end
 
    local draw_static = function(cr)
@@ -98,7 +98,7 @@ return function(update_freq)
    end
 
    local draw_dynamic = function(cr)
-      update(cr)
+      update()
       Common.annotated_scale_plot_draw_dynamic(reads, cr)
       Common.annotated_scale_plot_draw_dynamic(writes, cr)
    end
