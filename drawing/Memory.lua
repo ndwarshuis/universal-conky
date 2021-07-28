@@ -183,7 +183,7 @@ return function(update_freq)
    end
 
    local draw_dynamic = function(cr)
-      update()
+      -- update()
 
       Common.dial_draw_dynamic(mem, cr)
       Common.dial_draw_dynamic(swap, cr)
@@ -195,5 +195,5 @@ return function(update_freq)
       Table.draw_dynamic(tbl, cr)
    end
 
-   return {dynamic = draw_dynamic, static = draw_static}
+   return {dynamic = draw_dynamic, static = draw_static, update = update}
 end

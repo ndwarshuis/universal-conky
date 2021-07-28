@@ -186,8 +186,8 @@ return function(update_freq)
       Table.draw_static(tbl, cr)
    end
 
-   local draw_dynamic = function(cr, trigger)
-      update(trigger)
+   local draw_dynamic = function(cr)
+      -- update(trigger)
 
       for i = 1, #cores do
          CompoundDial.draw_dynamic(cores[i].loads, cr)
@@ -200,5 +200,5 @@ return function(update_freq)
       Table.draw_dynamic(tbl, cr)
    end
 
-   return {static = draw_static, dynamic = draw_dynamic}
+   return {static = draw_static, dynamic = draw_dynamic, update = update}
 end

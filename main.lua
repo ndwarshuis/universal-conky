@@ -60,34 +60,33 @@ function conky_start(update_interval)
    local STATS_FILE = '/tmp/.conky_pacman'
 
    draw_dynamic = function(cr, _updates)
-      -- timings of each line when cpu set to performance
-      -- 0.7ms
+      -- draw static components
       draw_static(cr)
 
+      -- update dynamic components
       local t1 = _updates % (update_freq * 10)
       local pacman_stats = Util.read_file(STATS_FILE)
-      -- 0.1ms
       local is_using_ac = using_ac()
 
-      -- <0.1ms
-      sys.dynamic(cr, pacman_stats)
-      -- 0.3ms
+      sys.update(pacman_stats)
+      gfx.update()
+      proc.update(t1)
+      rw.update()
+      net.update()
+      pcm.update(pacman_stats)
+      fs.update(t1)
+      pwr.update(is_using_ac)
+      mem.update()
+
+      -- draw dynamic components
+      sys.dynamic(cr)
       gfx.dynamic(cr)
-      -- 0.8-1.1ms
-      proc.dynamic(cr, t1)
-
-      -- 0.1-0.3ms
+      proc.dynamic(cr)
       rw.dynamic(cr)
-      -- 0.2ms
       net.dynamic(cr)
-
-      -- <0.1ms
-      pcm.dynamic(cr, pacman_stats)
-      -- <0.1ms
-      fs.dynamic(cr, t1)
-      -- 0.3ms
-      pwr.dynamic(cr, is_using_ac)
-      -- 0.5ms
+      pcm.dynamic(cr)
+      fs.dynamic(cr)
+      pwr.dynamic(cr)
       mem.dynamic(cr)
    end
 end

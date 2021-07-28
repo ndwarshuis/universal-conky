@@ -206,7 +206,7 @@ return function(update_freq)
    end
 
    local draw_dynamic = function(cr)
-      update()
+      -- update()
 
       Common.text_row_draw_dynamic(status, cr)
       Common.text_row_crit_draw_dynamic(internal_temp, cr)
@@ -216,5 +216,5 @@ return function(update_freq)
       Common.percent_plot_draw_dynamic(vid_util, cr)
    end
 
-   return {static = draw_static, dynamic = draw_dynamic}
+   return {static = draw_static, dynamic = draw_dynamic, update = update}
 end

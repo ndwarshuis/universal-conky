@@ -42,10 +42,10 @@ return function()
       Common.text_rows_draw_static(rows, cr)
    end
 
-   local draw_dynamic = function(cr, pacman_stats)
-      update(pacman_stats)
+   local draw_dynamic = function(cr)
+      -- update(pacman_stats)
       Common.text_rows_draw_dynamic(rows, cr)
    end
 
-   return {static = draw_static, dynamic = draw_dynamic}
+   return {static = draw_static, dynamic = draw_dynamic, update = update}
 end

@@ -22,12 +22,7 @@ return function()
       {'Kernel', 'Uptime', 'Last Upgrade', 'Last Sync'}
    )
 
-   local draw_static = function(cr)
-      Common.drawHeader(cr, header)
-      Common.text_rows_draw_static(rows, cr)
-   end
-
-   local draw_dynamic = function(cr, pacman_stats)
+   local update = function(pacman_stats)
       local last_update, last_sync = "N/A", "N/A"
       if pacman_stats then
          last_update, last_sync = __string_match(pacman_stats, "^%d+%s+([^%s]+)%s+([^%s]+).*")
@@ -37,8 +32,16 @@ return function()
       Common.text_rows_set(rows, 2, Util.conky('$uptime'))
       Common.text_rows_set(rows, 3, last_update)
       Common.text_rows_set(rows, 4, last_sync)
+   end
+
+   local draw_static = function(cr)
+      Common.drawHeader(cr, header)
+      Common.text_rows_draw_static(rows, cr)
+   end
+
+   local draw_dynamic = function(cr)
       Common.text_rows_draw_dynamic(rows, cr)
    end
 
-   return {static = draw_static, dynamic = draw_dynamic}
+   return {static = draw_static, dynamic = draw_dynamic, update = update}
 end

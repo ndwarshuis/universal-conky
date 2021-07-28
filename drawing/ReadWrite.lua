@@ -98,10 +98,10 @@ return function(update_freq)
    end
 
    local draw_dynamic = function(cr)
-      update()
+      -- update()
       Common.annotated_scale_plot_draw_dynamic(reads, cr)
       Common.annotated_scale_plot_draw_dynamic(writes, cr)
    end
 
-   return {static = draw_static, dynamic = draw_dynamic}
+   return {static = draw_static, dynamic = draw_dynamic, update = update}
 end
