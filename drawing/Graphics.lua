@@ -206,8 +206,6 @@ return function(update_freq)
    end
 
    local draw_dynamic = function(cr)
-      -- update()
-
       Common.text_row_draw_dynamic(status, cr)
       Common.text_row_crit_draw_dynamic(internal_temp, cr)
       Common.text_rows_draw_dynamic(clock_speed, cr)

@@ -128,7 +128,6 @@ return function(update_freq)
    end
 
    local draw_dynamic = function(cr)
-      -- update(is_using_ac)
       Common.annotated_scale_plot_draw_dynamic(pkg0, cr)
       Common.annotated_scale_plot_draw_dynamic(dram, cr)
       Common.annotated_scale_plot_draw_dynamic(bat, cr)

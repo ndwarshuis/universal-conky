@@ -43,7 +43,6 @@ return function()
    end
 
    local draw_dynamic = function(cr)
-      -- update(pacman_stats)
       Common.text_rows_draw_dynamic(rows, cr)
    end
 

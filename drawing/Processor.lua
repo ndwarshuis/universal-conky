@@ -187,8 +187,6 @@ return function(update_freq)
    end
 
    local draw_dynamic = function(cr)
-      -- update(trigger)
-
       for i = 1, #cores do
          CompoundDial.draw_dynamic(cores[i].loads, cr)
          Common.text_ring_draw_dynamic(cores[i].coretemp, cr)

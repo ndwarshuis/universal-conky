@@ -172,26 +172,18 @@ return function(update_freq)
 
    local draw_static = function(cr)
       Common.drawHeader(cr, header)
-
       Common.dial_draw_static(mem, cr)
       Common.dial_draw_static(swap, cr)
-
       Common.text_rows_draw_static(cache, cr)
       Timeseries.draw_static(plot, cr)
-
       Table.draw_static(tbl, cr)
    end
 
    local draw_dynamic = function(cr)
-      -- update()
-
       Common.dial_draw_dynamic(mem, cr)
       Common.dial_draw_dynamic(swap, cr)
-
       Common.text_rows_draw_dynamic(cache, cr)
-
       Timeseries.draw_dynamic(plot, cr)
-
       Table.draw_dynamic(tbl, cr)
    end
 

@@ -83,7 +83,6 @@ return function()
    end
 
    local draw_dynamic = function(cr)
-      -- if trigger == 0 then update() end
       Common.text_row_draw_dynamic(smart, cr)
       Common.compound_bar_draw_dynamic(fs, cr)
    end
