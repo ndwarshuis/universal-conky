@@ -1,7 +1,6 @@
 local M = {}
 
 local Color = require 'Color'
-local Util 	= require 'Util'
 
 M.FONT = 'Neuropolitical'
 
@@ -62,4 +61,4 @@ M.PLOT_FILL_BG_PRIMARY = Color.gradient_rgba{
 -- panel pattern
 M.PANEL_BG = Color.rgba(0x121212, 0.7)
 
-return Util.set_finalizer(M, function() print('Cleaning up Patterns.lua') end)
+return M
