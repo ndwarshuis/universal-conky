@@ -53,7 +53,7 @@ local DIAL_THETA1 = 360
 --------------------------------------------------------------------------------
 -- helper functions
 
-M.make_font_spec = function(f, s, bold)
+local make_font_spec = function(f, s, bold)
    return {
       family = f,
       size = s,
@@ -62,27 +62,26 @@ M.make_font_spec = function(f, s, bold)
    }
 end
 
-M.normal_font_spec = M.make_font_spec(FONT, NORMAL_FONT_SIZE, false)
-M.label_font_spec = M.make_font_spec(FONT, PLOT_LABEL_FONT_SIZE, false)
+local normal_font_spec = make_font_spec(FONT, NORMAL_FONT_SIZE, false)
+local label_font_spec = make_font_spec(FONT, PLOT_LABEL_FONT_SIZE, false)
 
 local _text_row_style = function(x_align, color)
-   return Text.style(M.normal_font_spec, color, x_align, 'center')
+   return Text.style(normal_font_spec, color, x_align, 'center')
 end
 
-M.left_text_style = _text_row_style('left', Theme.INACTIVE_TEXT_FG)
-
-M.right_text_style = _text_row_style('right', Theme.PRIMARY_FG)
+local left_text_style = _text_row_style('left', Theme.INACTIVE_TEXT_FG)
+local right_text_style = _text_row_style('right', Theme.PRIMARY_FG)
 
 local _bare_text = function(pt, text, style)
    return Text.build_plain(pt, text, style)
 end
 
 local _left_text = function(pt, text)
-   return _bare_text(pt, text, M.left_text_style)
+   return _bare_text(pt, text, left_text_style)
 end
 
 local _right_text = function(pt, text)
-   return _bare_text(pt, text, M.right_text_style)
+   return _bare_text(pt, text, right_text_style)
 end
 
 --------------------------------------------------------------------------------
@@ -96,7 +95,7 @@ M.Header = function(x, y, w, text)
          F.make_point(x, y),
          text,
          Text.style(
-            M.make_font_spec(FONT, HEADER_FONT_SIZE, true),
+            make_font_spec(FONT, HEADER_FONT_SIZE, true),
             Theme.HEADER_FG,
             'left',
             'top'
@@ -123,23 +122,23 @@ end
 --------------------------------------------------------------------------------
 -- label plot
 
-M.default_grid_config = Timeseries.grid_config(
+local default_grid_config = Timeseries.grid_config(
    PLOT_GRID_X_N,
    PLOT_GRID_Y_N,
    Theme.PLOT_GRID_FG
 )
 
-M.default_plot_style = Timeseries.config(
+local default_plot_config = Timeseries.config(
    PLOT_NUM_POINTS,
    Theme.PLOT_OUTLINE_FG,
    Theme.PLOT_FILL_BORDER_PRIMARY,
    Theme.PLOT_FILL_BG_PRIMARY,
-   M.default_grid_config
+   default_grid_config
 )
 
 M.percent_label_config = Timeseries.label_config(
    Theme.INACTIVE_TEXT_FG,
-   M.label_font_spec,
+   label_font_spec,
    function(_) return function(z) return Util.round_to_string(z * 100)..'%' end end
 )
 
@@ -147,7 +146,7 @@ M.initThemedLabelPlot = function(x, y, w, h, label_config, update_freq)
    return Timeseries.build(
       F.make_box(x, y, w, h),
       update_freq,
-      M.default_plot_style,
+      default_plot_config,
       label_config
    )
 end
@@ -161,7 +160,7 @@ M.initPercentPlot_formatted = function(x, y, w, h, spacing, label, update_freq, 
       value = ThresholdText.build_formatted(
          F.make_point(x + w, y),
          nil,
-         M.right_text_style,
+         right_text_style,
          format,
          ThresholdText.style(Theme.CRITICAL_FG, 80)
       ),
@@ -242,10 +241,10 @@ M.initThemedScalePlot = function(x, y, w, h, f, min_domain, update_freq)
    return ScaledTimeseries.build(
       F.make_box(x, y, w, h),
       update_freq,
-      M.default_plot_style,
+      default_plot_config,
       Timeseries.label_config(
          Theme.INACTIVE_TEXT_FG,
-         M.label_font_spec,
+         label_font_spec,
          f
       ),
       M.base_2_scale_data(min_domain)
@@ -262,7 +261,7 @@ M.initLabeledScalePlot = function(x, y, w, h, format_fun, label_fun, spacing,
       value = Text.build_formatted(
          F.make_point(x + w, y),
          0,
-         M.right_text_style,
+         right_text_style,
          format_fun
       ),
       plot = M.initThemedScalePlot(x, y + spacing, w, h, label_fun, min_domain, update_freq),
@@ -313,7 +312,7 @@ M.build_rate_timeseries = function(x, y, w, h, format_fun, label_fun, spacing,
       value = Text.build_formatted(
          F.make_point(x + w, y),
          0,
-         M.right_text_style,
+         right_text_style,
          format_fun
       ),
       plot = M.initThemedScalePlot(x, y + spacing, w, h, label_fun, min_domain, update_freq),
@@ -362,7 +361,7 @@ M.initTextRing = function(x, y, r, fmt, limit)
          F.make_point(x, y),
          0,
          Text.style(
-            M.normal_font_spec,
+            normal_font_spec,
             Theme.PRIMARY_FG,
             'center',
             'center'
@@ -444,7 +443,7 @@ M.compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
       labels = TextColumn.build(
          F.make_point(x, y),
          labels,
-         M.left_text_style,
+         left_text_style,
          nil,
          spacing
       ),
@@ -524,7 +523,7 @@ M.initTextRowCrit = function(x, y, w, label, append_end, limit)
          F.make_point(x + w, y),
          nil,
          Text.style(
-            M.normal_font_spec,
+            normal_font_spec,
             Theme.PRIMARY_FG,
             'right',
             'center'
@@ -566,7 +565,7 @@ M.initTextRows_color = function(x, y, w, spacing, labels, color, format)
       labels = TextColumn.build(
          F.make_point(x, y),
          labels,
-         M.left_text_style,
+         left_text_style,
          nil,
          spacing
       ),
@@ -619,9 +618,9 @@ end
 --------------------------------------------------------------------------------
 -- table
 
-M.default_table_font_spec = M.make_font_spec(FONT, TABLE_FONT_SIZE, false)
+local default_table_font_spec = make_font_spec(FONT, TABLE_FONT_SIZE, false)
 
-M.default_table_style = Table.style(
+local default_table_style = Table.style(
    Rect.config(
       s.closed_poly(TABLE_LINE_THICKNESS, CAIRO_LINE_JOIN_MITER),
       Theme.BORDER_FG
@@ -632,12 +631,12 @@ M.default_table_style = Table.style(
       true
    ),
    Table.header_config(
-      M.default_table_font_spec,
+      default_table_font_spec,
       Theme.PRIMARY_FG,
       TABLE_HEADER_PAD
    ),
    Table.body_config(
-      M.default_table_font_spec,
+      default_table_font_spec,
       Theme.INACTIVE_TEXT_FG,
       TABLE_BODY_FORMAT
    ),
@@ -654,7 +653,7 @@ M.initTable = function(x, y, w, h, n, labels)
       F.make_box(x, y, w, h),
       n,
       labels,
-      M.default_table_style
+      default_table_style
    )
 end
 
