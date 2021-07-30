@@ -15,7 +15,7 @@ return function(left_modules, center_modules, right_modules)
       -- move over by half a pixel so the lines don't need to be antialiased
       local _x = x + 0.5
       local _y = y + 0.5
-      local panel = common.initPanel(_x, _y, w, h, panel_line_thickness)
+      local panel = common.make_panel(_x, _y, w, h, panel_line_thickness)
       local cs_x = _x - panel_line_thickness * 0.5
       local cs_y = _y - panel_line_thickness * 0.5
       local cs_w = w + panel_line_thickness

@@ -18,7 +18,7 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- header
 
-   local header = common.Header(
+   local header = common.make_header(
       geometry.LEFT_X,
       MODULE_Y,
       geometry.SECTION_WIDTH,
@@ -28,7 +28,7 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- gpu status
 
-   local status = common.inittextRow(
+   local status = common.make_text_row(
       geometry.LEFT_X,
       header.bottom_y,
       geometry.SECTION_WIDTH,
@@ -37,7 +37,7 @@ return function(update_freq)
 
    local SEP_Y1 = header.bottom_y + SEPARATOR_SPACING
 
-   local separator1 = common.initSeparator(
+   local separator1 = common.make_separator(
       geometry.LEFT_X,
       SEP_Y1,
       geometry.SECTION_WIDTH
@@ -48,7 +48,7 @@ return function(update_freq)
 
    local INTERNAL_TEMP_Y = SEP_Y1 + SEPARATOR_SPACING
 
-   local internal_temp = common.inittextRowCrit(
+   local internal_temp = common.make_threshold_text_row(
       geometry.LEFT_X,
       INTERNAL_TEMP_Y,
       geometry.SECTION_WIDTH,
@@ -61,7 +61,7 @@ return function(update_freq)
 
    local SEP_Y2 = INTERNAL_TEMP_Y + SEPARATOR_SPACING
 
-   local separator2 = common.initSeparator(
+   local separator2 = common.make_separator(
       geometry.LEFT_X,
       SEP_Y2,
       geometry.SECTION_WIDTH
@@ -72,7 +72,7 @@ return function(update_freq)
 
    local CLOCK_SPEED_Y = SEP_Y2 + SEPARATOR_SPACING
 
-   local clock_speed = common.inittextRows(
+   local clock_speed = common.make_text_rows(
       geometry.LEFT_X,
       CLOCK_SPEED_Y,
       geometry.SECTION_WIDTH,
@@ -82,7 +82,7 @@ return function(update_freq)
 
    local SEP_Y3 = CLOCK_SPEED_Y + TEXT_SPACING * 2
 
-   local separator3 = common.initSeparator(
+   local separator3 = common.make_separator(
       geometry.LEFT_X,
       SEP_Y3,
       geometry.SECTION_WIDTH
@@ -95,8 +95,8 @@ return function(update_freq)
       if x == -1 then return NA else return __string_format('%s%%', x) end
    end
 
-   local build_plot = function(y, label)
-      return common.initPercentPlot_formatted(
+   local make_plot = function(y, label)
+      return common.make_percent_timeseries_formatted(
          geometry.LEFT_X,
          y,
          geometry.SECTION_WIDTH,
@@ -109,19 +109,19 @@ return function(update_freq)
    end
 
    local GPU_UTIL_Y = SEP_Y3 + SEPARATOR_SPACING
-   local gpu_util = build_plot(GPU_UTIL_Y, 'GPU utilization')
+   local gpu_util = make_plot(GPU_UTIL_Y, 'GPU utilization')
 
    -----------------------------------------------------------------------------
    -- gpu memory consumption plot
 
    local MEM_UTIL_Y = GPU_UTIL_Y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2
-   local mem_util = build_plot(MEM_UTIL_Y, 'memory utilization')
+   local mem_util = make_plot(MEM_UTIL_Y, 'memory utilization')
 
    -----------------------------------------------------------------------------
    -- gpu video utilization plot
 
    local VID_UTIL_Y = MEM_UTIL_Y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2
-   local vid_util = build_plot(VID_UTIL_Y, 'Video utilization')
+   local vid_util = make_plot(VID_UTIL_Y, 'Video utilization')
 
    -----------------------------------------------------------------------------
    -- update function
@@ -153,9 +153,9 @@ return function(update_freq)
       common.text_row_crit_set(internal_temp, -1)
       common.text_rows_set(clock_speed, 1, NA)
       common.text_rows_set(clock_speed, 2, NA)
-      common.percent_plot_set(gpu_util, nil)
-      common.percent_plot_set(vid_util, nil)
-      common.percent_plot_set(mem_util, nil)
+      common.percent_timeseries_set(gpu_util, nil)
+      common.percent_timeseries_set(vid_util, nil)
+      common.percent_timeseries_set(mem_util, nil)
    end
 
    local update = function()
@@ -175,9 +175,9 @@ return function(update_freq)
             common.text_rows_set(clock_speed, 1, gpu_frequency..' Mhz')
             common.text_rows_set(clock_speed, 2, memory_frequency..' Mhz')
 
-            common.percent_plot_set(gpu_util, gpu_utilization)
-            common.percent_plot_set(mem_util, used_memory / total_memory * 100)
-            common.percent_plot_set(vid_util, vid_utilization)
+            common.percent_timeseries_set(gpu_util, gpu_utilization)
+            common.percent_timeseries_set(mem_util, used_memory / total_memory * 100)
+            common.percent_timeseries_set(vid_util, vid_utilization)
          end
       else
          text.set(status.value, 'Off')
@@ -189,7 +189,7 @@ return function(update_freq)
    -- main drawing functions
 
    local draw_static = function(cr)
-      common.drawHeader(cr, header)
+      common.draw_header(cr, header)
 
       common.text_row_draw_static(status, cr)
       line.draw(separator1, cr)
@@ -200,18 +200,18 @@ return function(update_freq)
       common.text_rows_draw_static(clock_speed, cr)
       line.draw(separator3, cr)
 
-      common.percent_plot_draw_static(gpu_util, cr)
-      common.percent_plot_draw_static(mem_util, cr)
-      common.percent_plot_draw_static(vid_util, cr)
+      common.percent_timeseries_draw_static(gpu_util, cr)
+      common.percent_timeseries_draw_static(mem_util, cr)
+      common.percent_timeseries_draw_static(vid_util, cr)
    end
 
    local draw_dynamic = function(cr)
       common.text_row_draw_dynamic(status, cr)
       common.text_row_crit_draw_dynamic(internal_temp, cr)
       common.text_rows_draw_dynamic(clock_speed, cr)
-      common.percent_plot_draw_dynamic(gpu_util, cr)
-      common.percent_plot_draw_dynamic(mem_util, cr)
-      common.percent_plot_draw_dynamic(vid_util, cr)
+      common.percent_timeseries_draw_dynamic(gpu_util, cr)
+      common.percent_timeseries_draw_dynamic(mem_util, cr)
+      common.percent_timeseries_draw_dynamic(vid_util, cr)
    end
 
    return {static = draw_static, dynamic = draw_dynamic, update = update}

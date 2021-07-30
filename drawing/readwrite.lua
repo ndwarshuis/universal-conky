@@ -42,8 +42,8 @@ return function(update_freq)
       return util.precision_round_to_string(value, 3)..' '..unit..'B/s'
    end
 
-   local build_plot = function(y, label, init)
-      return common.build_rate_timeseries(
+   local make_plot = function(y, label, init)
+      return common.make_rate_timeseries(
          geometry.CENTER_LEFT_X,
          y,
          geometry.SECTION_WIDTH,
@@ -61,7 +61,7 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- header
 
-   local header = common.Header(
+   local header = common.make_header(
       geometry.CENTER_LEFT_X,
       geometry.TOP_Y,
       geometry.SECTION_WIDTH,
@@ -71,12 +71,12 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- reads
 
-   local reads = build_plot(header.bottom_y, 'Reads', init_read_bytes)
+   local reads = make_plot(header.bottom_y, 'Reads', init_read_bytes)
 
    -----------------------------------------------------------------------------
    -- writes
 
-   local writes = build_plot(
+   local writes = make_plot(
       header.bottom_y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2,
       'Writes',
       init_write_bytes
@@ -92,7 +92,7 @@ return function(update_freq)
    end
 
    local draw_static = function(cr)
-      common.drawHeader(cr, header)
+      common.draw_header(cr, header)
       common.annotated_scale_plot_draw_static(reads, cr)
       common.annotated_scale_plot_draw_static(writes, cr)
    end

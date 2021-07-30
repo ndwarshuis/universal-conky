@@ -24,7 +24,7 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- header
 
-   local header = common.Header(
+   local header = common.make_header(
       geometry.LEFT_X,
       MODULE_Y,
       geometry.SECTION_WIDTH,
@@ -55,7 +55,7 @@ return function(update_freq)
             0.8,
             nthreads
          ),
-         coretemp = common.inittextRing(
+         coretemp = common.make_text_circle(
             x,
             y,
             DIAL_INNER_RADIUS - 2,
@@ -77,7 +77,7 @@ return function(update_freq)
 
    local HWP_Y = header.bottom_y + DIAL_OUTER_RADIUS * 2 + PLOT_SECTION_BREAK
 
-   local cpu_status = common.inittextRows(
+   local cpu_status = common.make_text_rows(
       geometry.LEFT_X,
       HWP_Y,
       geometry.SECTION_WIDTH,
@@ -90,7 +90,7 @@ return function(update_freq)
 
    local SEP_Y = HWP_Y + TEXT_SPACING + SEPARATOR_SPACING
 
-   local separator = common.initSeparator(
+   local separator = common.make_separator(
       geometry.LEFT_X,
       SEP_Y,
       geometry.SECTION_WIDTH
@@ -101,7 +101,7 @@ return function(update_freq)
 
    local LOAD_Y = SEP_Y + SEPARATOR_SPACING
 
-   local total_load = common.initPercentPlot(
+   local total_load = common.make_percent_timeseries(
       geometry.LEFT_X,
       LOAD_Y,
       geometry.SECTION_WIDTH,
@@ -122,7 +122,7 @@ return function(update_freq)
       func.seq(NUM_ROWS)
    )
 
-   local tbl = common.inittable(
+   local tbl = common.make_text_table(
       geometry.LEFT_X,
       PLOT_Y + PLOT_HEIGHT + TABLE_SECTION_BREAK,
       geometry.SECTION_WIDTH,
@@ -158,7 +158,7 @@ return function(update_freq)
       end
       common.text_rows_set(cpu_status, 2, cpu.read_freq())
 
-      common.percent_plot_set(total_load, load_sum / ncpus * 100)
+      common.percent_timeseries_set(total_load, load_sum / ncpus * 100)
 
       for r = 1, NUM_ROWS do
          local pid = conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
@@ -171,7 +171,7 @@ return function(update_freq)
    end
 
    local draw_static = function(cr)
-      common.drawHeader(cr, header)
+      common.draw_header(cr, header)
 
       for i = 1, #cores do
          common.text_ring_draw_static(cores[i].coretemp, cr)
@@ -181,7 +181,7 @@ return function(update_freq)
       common.text_rows_draw_static(cpu_status, cr)
       line.draw(separator, cr)
 
-      common.percent_plot_draw_static(total_load, cr)
+      common.percent_timeseries_draw_static(total_load, cr)
 
       texttable.draw_static(tbl, cr)
    end
@@ -193,7 +193,7 @@ return function(update_freq)
       end
 
       common.text_rows_draw_dynamic(cpu_status, cr)
-      common.percent_plot_draw_dynamic(total_load, cr)
+      common.percent_timeseries_draw_dynamic(total_load, cr)
 
       texttable.draw_dynamic(tbl, cr)
    end

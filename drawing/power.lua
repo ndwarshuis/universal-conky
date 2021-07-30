@@ -49,8 +49,8 @@ return function(update_freq)
       return util.precision_round_to_string(watts, 3)..' W'
    end
 
-   local build_rate_plot = function(y, label, init)
-      return common.build_rate_timeseries(
+   local make_rate_plot = function(y, label, init)
+      return common.make_rate_timeseries(
          geometry.RIGHT_X,
          y,
          geometry.SECTION_WIDTH,
@@ -68,7 +68,7 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- header
 
-   local header = common.Header(
+   local header = common.make_header(
       geometry.RIGHT_X,
       MODULE_Y,
       geometry.SECTION_WIDTH,
@@ -78,13 +78,13 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- package 0 power plot
 
-   local pkg0 = build_rate_plot(header.bottom_y, 'PKG0', read_pkg0_joules())
+   local pkg0 = make_rate_plot(header.bottom_y, 'PKG0', read_pkg0_joules())
 
    -----------------------------------------------------------------------------
    -- DRAM power plot
 
    local DRAM_Y = header.bottom_y + TEXT_SPACING + PLOT_SEC_BREAK + PLOT_HEIGHT
-   local dram = build_rate_plot(DRAM_Y, 'DRAM', read_dram_joules())
+   local dram = make_rate_plot(DRAM_Y, 'DRAM', read_dram_joules())
 
    -----------------------------------------------------------------------------
    -- battery power plot
@@ -98,7 +98,7 @@ return function(update_freq)
    end
 
    local BAT_Y = DRAM_Y + PLOT_SEC_BREAK * 2 + PLOT_HEIGHT
-   local bat = common.initLabeledScalePlot(
+   local bat = common.make_labeled_scaled_timeseries(
       geometry.RIGHT_X,
       BAT_Y,
       geometry.SECTION_WIDTH,
@@ -121,7 +121,7 @@ return function(update_freq)
    end
 
    local draw_static = function(cr)
-      common.drawHeader(cr, header)
+      common.draw_header(cr, header)
       common.annotated_scale_plot_draw_static(pkg0, cr)
       common.annotated_scale_plot_draw_static(dram, cr)
       common.annotated_scale_plot_draw_static(bat, cr)

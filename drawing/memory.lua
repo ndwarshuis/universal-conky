@@ -30,7 +30,7 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- header
 
-   local header = common.Header(
+   local header = common.make_header(
       geometry.RIGHT_X,
       MODULE_Y,
       geometry.SECTION_WIDTH,
@@ -85,7 +85,7 @@ return function(update_freq)
    local CACHE_X = SWAP_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
    local CACHE_WIDTH = geometry.RIGHT_X + geometry.SECTION_WIDTH - CACHE_X
 
-   local cache = common.inittextRows_formatted(
+   local cache = common.make_text_rows_formatted(
       CACHE_X,
       CACHE_Y,
       CACHE_WIDTH,
@@ -99,7 +99,7 @@ return function(update_freq)
 
    local PLOT_Y = header.bottom_y + PLOT_SECTION_BREAK + DIAL_DIAMETER
 
-   local plot = common.initthemedLabelPlot(
+   local plot = common.make_label_timeseries(
       geometry.RIGHT_X,
       PLOT_Y,
       geometry.SECTION_WIDTH,
@@ -122,7 +122,7 @@ return function(update_freq)
       end,
       func.seq(NUM_ROWS))
 
-   local tbl = common.inittable(
+   local tbl = common.make_text_table(
       geometry.RIGHT_X,
       PLOT_Y + PLOT_HEIGHT + TABLE_SECTION_BREAK,
       geometry.SECTION_WIDTH,
@@ -171,7 +171,7 @@ return function(update_freq)
    end
 
    local draw_static = function(cr)
-      common.drawHeader(cr, header)
+      common.draw_header(cr, header)
       common.dial_draw_static(mem, cr)
       common.dial_draw_static(swap, cr)
       common.text_rows_draw_static(cache, cr)

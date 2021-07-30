@@ -73,7 +73,7 @@ local left_text_style = _text_row_style('left', theme.INACTIVE_TEXT_FG)
 local right_text_style = _text_row_style('right', theme.PRIMARY_FG)
 
 local _bare_text = function(pt, _text, style)
-   return text.build_plain(pt, _text, style)
+   return text.make_plain(pt, _text, style)
 end
 
 local _left_text = function(pt, _text)
@@ -87,11 +87,11 @@ end
 --------------------------------------------------------------------------------
 -- header
 
-M.Header = function(x, y, w, _text)
+M.make_header = function(x, y, w, _text)
    local bottom_y = y + HEADER_HEIGHT
    local underline_y = y + HEADER_UNDERLINE_OFFSET
    return {
-      text = text.build_plain(
+      text = text.make_plain(
          F.make_point(x, y),
          _text,
          text.style(
@@ -102,7 +102,7 @@ M.Header = function(x, y, w, _text)
          )
       ),
       bottom_y = bottom_y,
-      underline = line.build(
+      underline = line.make(
          F.make_point(x, underline_y),
          F.make_point(x + w, underline_y),
          line.config(
@@ -114,7 +114,7 @@ M.Header = function(x, y, w, _text)
    }
 end
 
-M.drawHeader = function(cr, header)
+M.draw_header = function(cr, header)
    text.draw(header.text, cr)
    line.draw(header.underline, cr)
 end
@@ -142,8 +142,8 @@ M.percent_label_config = timeseries.label_config(
    function(_) return function(z) return util.round_to_string(z * 100)..'%' end end
 )
 
-M.initthemedLabelPlot = function(x, y, w, h, label_config, update_freq)
-   return timeseries.build(
+M.make_label_timeseries = function(x, y, w, h, label_config, update_freq)
+   return timeseries.make(
       F.make_box(x, y, w, h),
       update_freq,
       default_plot_config,
@@ -154,17 +154,17 @@ end
 --------------------------------------------------------------------------------
 -- percent plot (label plot with percent signs and some indicator data above it)
 
-M.initPercentPlot_formatted = function(x, y, w, h, spacing, label, update_freq, format)
+M.make_percent_timeseries_formatted = function(x, y, w, h, spacing, label, update_freq, format)
    return {
       label = _left_text(F.make_point(x, y), label),
-      value = thresholdtext.build_formatted(
+      value = thresholdtext.make_formatted(
          F.make_point(x + w, y),
          nil,
          right_text_style,
          format,
          thresholdtext.style(theme.CRITICAL_FG, 80)
       ),
-      plot = M.initthemedLabelPlot(
+      plot = M.make_label_timeseries(
          x,
          y + spacing,
          w,
@@ -175,23 +175,23 @@ M.initPercentPlot_formatted = function(x, y, w, h, spacing, label, update_freq, 
    }
 end
 
-M.initPercentPlot = function(x, y, w, h, spacing, label, update_freq)
-   return M.initPercentPlot_formatted(x, y, w, h, spacing, label, update_freq, '%s%%')
+M.make_percent_timeseries = function(x, y, w, h, spacing, label, update_freq)
+   return M.make_percent_timeseries_formatted(x, y, w, h, spacing, label, update_freq, '%s%%')
 end
 
-M.percent_plot_draw_static = function(pp, cr)
+M.percent_timeseries_draw_static = function(pp, cr)
    text.draw(pp.label, cr)
    timeseries.draw_static(pp.plot, cr)
 end
 
-M.percent_plot_draw_dynamic = function(pp, cr)
+M.percent_timeseries_draw_dynamic = function(pp, cr)
    thresholdtext.draw(pp.value, cr)
    timeseries.draw_dynamic(pp.plot, cr)
 end
 
 -- TODO this is pretty confusing, nil means -1 which gets fed to any text
 -- formatting functions
-M.percent_plot_set = function(pp, value)
+M.percent_timeseries_set = function(pp, value)
    local t = -1
    local p = 0
    if value ~= nil then
@@ -233,38 +233,35 @@ M.converted_y_label_format_generator = function(unit)
    end
 end
 
-M.base_2_scale_data = function(m)
+local base_2_scale_data = function(m)
    return scaledtimeseries.scaling_parameters(2, m, 0.9)
 end
 
-M.initthemedScalePlot = function(x, y, w, h, f, min_domain, update_freq)
-   return scaledtimeseries.build(
+M.make_scaled_timeseries = function(x, y, w, h, f, min_domain, update_freq)
+   return scaledtimeseries.make(
       F.make_box(x, y, w, h),
       update_freq,
       default_plot_config,
-      timeseries.label_config(
-         theme.INACTIVE_TEXT_FG,
-         label_font_spec,
-         f
-      ),
-      M.base_2_scale_data(min_domain)
+      timeseries.label_config(theme.INACTIVE_TEXT_FG, label_font_spec, f),
+      base_2_scale_data(min_domain)
    )
 end
 
 --------------------------------------------------------------------------------
 -- scaled plot (with textual data above it)
 
-M.initLabeledScalePlot = function(x, y, w, h, format_fun, label_fun, spacing,
-                                  label, min_domain, update_freq)
+M.make_labeled_scaled_timeseries = function(x, y, w, h, format_fun, label_fun,
+                                            spacing, label, min_domain,
+                                            update_freq)
    return {
       label = _left_text(F.make_point(x, y), label),
-      value = text.build_formatted(
+      value = text.make_formatted(
          F.make_point(x + w, y),
          0,
          right_text_style,
          format_fun
       ),
-      plot = M.initthemedScalePlot(x, y + spacing, w, h, label_fun, min_domain, update_freq),
+      plot = M.make_scaled_timeseries(x, y + spacing, w, h, label_fun, min_domain, update_freq),
    }
 end
 
@@ -285,16 +282,7 @@ end
 --------------------------------------------------------------------------------
 -- rate timecourse plots
 
-M.compute_derivative = function(x0, x1, update_frequency)
-   -- mask overflow
-   if x1 > x0 then
-      return (x1 - x0) * update_frequency
-   else
-      return 0
-   end
-end
-
-local build_differential = function(update_frequency)
+local make_differential = function(update_frequency)
    return function(x0, x1)
       -- mask overflow
       if x1 > x0 then
@@ -305,19 +293,19 @@ local build_differential = function(update_frequency)
    end
 end
 
-M.build_rate_timeseries = function(x, y, w, h, format_fun, label_fun, spacing,
+M.make_rate_timeseries = function(x, y, w, h, format_fun, label_fun, spacing,
                                    label, min_domain, update_freq, init)
    return {
       label = _left_text(F.make_point(x, y), label),
-      value = text.build_formatted(
+      value = text.make_formatted(
          F.make_point(x + w, y),
          0,
          right_text_style,
          format_fun
       ),
-      plot = M.initthemedScalePlot(x, y + spacing, w, h, label_fun, min_domain, update_freq),
+      plot = M.make_scaled_timeseries(x, y + spacing, w, h, label_fun, min_domain, update_freq),
       prev_value = init,
-      derive = build_differential(update_freq),
+      derive = make_differential(update_freq),
    }
 end
 
@@ -329,23 +317,10 @@ M.update_rate_timeseries = function(obj, value)
 end
 
 --------------------------------------------------------------------------------
--- arc (TODO this is just a dummy now to make everything organized
-
--- TODO perhaps implement this is a special case of compound dial where
--- I have multiple layers on top of each other
-
-M.arc = function(x, y, r, thickness, pattern)
-   return arc.build(
-      F.make_semicircle(x, y, r, 90, 360),
-      arc.config(s.line(thickness, CAIRO_LINE_CAP_BUTT), pattern)
-   )
-end
-
---------------------------------------------------------------------------------
 -- ring
 
-M.initRing = function(x, y, r)
-   return arc.build(
+M.make_circle = function(x, y, r)
+   return arc.make(
       F.make_semicircle(x, y, r, 0, 360),
       arc.config(s.line(ARC_WIDTH, CAIRO_LINE_CAP_BUTT), theme.BORDER_FG)
    )
@@ -354,18 +329,13 @@ end
 --------------------------------------------------------------------------------
 -- ring with text data in the center
 
-M.inittextRing = function(x, y, r, fmt, limit)
+M.make_text_circle = function(x, y, r, fmt, limit)
    return {
-	  ring = M.initRing(x, y, r),
-	  value = thresholdtext.build_formatted(
+	  ring = M.make_circle(x, y, r),
+	  value = thresholdtext.make_formatted(
          F.make_point(x, y),
          0,
-         text.style(
-            normal_font_spec,
-            theme.PRIMARY_FG,
-            'center',
-            'center'
-         ),
+         text.style(normal_font_spec, theme.PRIMARY_FG, 'center', 'center'),
          fmt,
          thresholdtext.style(theme.CRITICAL_FG, limit)
 	  ),
@@ -397,12 +367,12 @@ end
 
 M.dial = function(x, y, radius, thickness, threshold, format)
    return {
-      dial = dial.build(
+      dial = dial.make(
          F.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
          arc.config(s.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
          threshold_indicator(threshold)
       ),
-      text_ring = M.inittextRing(x, y, radius - thickness / 2 - 2, format, threshold),
+      text_ring = M.make_text_circle(x, y, radius - thickness / 2 - 2, format, threshold),
    }
 end
 
@@ -426,7 +396,7 @@ end
 
 M.compound_dial = function(x, y, outer_radius, inner_radius, thickness,
                            threshold, num_dials)
-   return compounddial.build(
+   return compounddial.make(
       F.make_semicircle(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
       arc.config(s.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
       threshold_indicator(threshold),
@@ -440,14 +410,14 @@ end
 
 M.compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
    return {
-      labels = textcolumn.build(
+      labels = textcolumn.make(
          F.make_point(x, y),
          labels,
          left_text_style,
          nil,
          spacing
       ),
-      bars = compoundbar.build(
+      bars = compoundbar.make(
          F.make_point(x + pad, y),
          w - pad,
          line.config(
@@ -479,8 +449,8 @@ end
 --------------------------------------------------------------------------------
 -- separator (eg a horizontal line)
 
-M.initSeparator = function(x, y, w)
-   return line.build(
+M.make_separator = function(x, y, w)
+   return line.make(
       F.make_point(x, y),
       F.make_point(x + w, y),
       line.config(
@@ -494,7 +464,7 @@ end
 --------------------------------------------------------------------------------
 -- text row (label with a value, aligned as far apart as possible)
 
-M.inittextRow = function(x, y, w, label)
+M.make_text_row = function(x, y, w, label)
    return {
       label = _left_text(F.make_point(x, y), label),
       value = _right_text(F.make_point(x + w, y), nil),
@@ -516,10 +486,10 @@ end
 --------------------------------------------------------------------------------
 -- text row with critical indicator
 
-M.inittextRowCrit = function(x, y, w, label, append_end, limit)
+M.make_threshold_text_row = function(x, y, w, label, append_end, limit)
    return{
       label = _left_text(F.make_point(x, y), label),
-      value = thresholdtext.build_formatted(
+      value = thresholdtext.make_formatted(
          F.make_point(x + w, y),
          nil,
          text.style(
@@ -548,7 +518,7 @@ end
 -- text column
 
 M.text_column = function(x, y, spacing, labels, x_align, color)
-   return textcolumn.build(
+   return textcolumn.make(
       F.make_point(x, y),
       labels,
       _text_row_style(x_align, color),
@@ -560,16 +530,16 @@ end
 --------------------------------------------------------------------------------
 -- multiple text row separated by spacing
 
-M.inittextRows_color = function(x, y, w, spacing, labels, color, format)
+M.make_text_rows_color = function(x, y, w, spacing, labels, color, format)
    return {
-      labels = textcolumn.build(
+      labels = textcolumn.make(
          F.make_point(x, y),
          labels,
          left_text_style,
          nil,
          spacing
       ),
-      values = textcolumn.build_n(
+      values = textcolumn.make_n(
          F.make_point(x + w, y),
          #labels,
          _text_row_style('right', color),
@@ -580,8 +550,8 @@ M.inittextRows_color = function(x, y, w, spacing, labels, color, format)
    }
 end
 
-M.inittextRows_formatted = function(x, y, w, spacing, labels, format)
-   return M.inittextRows_color(
+M.make_text_rows_formatted = function(x, y, w, spacing, labels, format)
+   return M.make_text_rows_color(
       x,
       y,
       w,
@@ -592,8 +562,8 @@ M.inittextRows_formatted = function(x, y, w, spacing, labels, format)
    )
 end
 
-M.inittextRows = function(x, y, w, spacing, labels)
-   return M.inittextRows_formatted(
+M.make_text_rows = function(x, y, w, spacing, labels)
+   return M.make_text_rows_formatted(
       x,
       y,
       w,
@@ -648,8 +618,8 @@ local default_table_style = tbl.style(
    )
 )
 
-M.inittable = function(x, y, w, h, n, labels)
-   return tbl.build(
+M.make_text_table = function(x, y, w, h, n, labels)
+   return tbl.make(
       F.make_box(x, y, w, h),
       n,
       labels,
@@ -660,8 +630,8 @@ end
 --------------------------------------------------------------------------------
 -- panel
 
-M.initPanel = function(x, y, w, h, thickness)
-   return fillrect.build(
+M.make_panel = function(x, y, w, h, thickness)
+   return fillrect.make(
       F.make_box(x, y, w, h),
       rect.config(
          s.closed_poly(thickness, CAIRO_LINE_JOIN_MITER),

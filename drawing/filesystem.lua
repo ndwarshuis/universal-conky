@@ -13,7 +13,7 @@ return function()
    -----------------------------------------------------------------------------
    -- header
 
-   local header = common.Header(
+   local header = common.make_header(
       geometry.RIGHT_X,
       MODULE_Y,
       geometry.SECTION_WIDTH,
@@ -23,7 +23,7 @@ return function()
    -----------------------------------------------------------------------------
    -- smartd
 
-   local smart = common.inittextRow(
+   local smart = common.make_text_row(
       geometry.RIGHT_X,
       header.bottom_y,
       geometry.SECTION_WIDTH,
@@ -32,7 +32,7 @@ return function()
 
    local SEP_Y = header.bottom_y + SEPARATOR_SPACING
 
-   local separator = common.initSeparator(
+   local separator = common.make_separator(
       geometry.RIGHT_X,
       SEP_Y,
       geometry.SECTION_WIDTH
@@ -76,7 +76,7 @@ return function()
    end
 
    local draw_static = function(cr)
-      common.drawHeader(cr, header)
+      common.draw_header(cr, header)
       common.text_row_draw_static(smart, cr)
       line.draw(separator, cr)
       common.compound_bar_draw_static(fs, cr)

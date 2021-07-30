@@ -7,14 +7,14 @@ return function()
 
    local __string_match = string.match
 
-   local header = common.Header(
+   local header = common.make_header(
       geometry.LEFT_X,
       geometry.TOP_Y,
       geometry.SECTION_WIDTH,
       'SYSTEM'
    )
 
-   local rows = common.inittextRows(
+   local rows = common.make_text_rows(
       geometry.LEFT_X,
       header.bottom_y,
       geometry.SECTION_WIDTH,
@@ -35,7 +35,7 @@ return function()
    end
 
    local draw_static = function(cr)
-      common.drawHeader(cr, header)
+      common.draw_header(cr, header)
       common.text_rows_draw_static(rows, cr)
    end
 

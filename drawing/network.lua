@@ -48,8 +48,8 @@ return function(update_freq)
       return util.precision_round_to_string(value, 3)..' '..unit..'b/s'
    end
 
-   local build_plot = function(y, label, init)
-      return common.build_rate_timeseries(
+   local make_plot = function(y, label, init)
+      return common.make_rate_timeseries(
          geometry.CENTER_RIGHT_X,
          y,
          geometry.SECTION_WIDTH,
@@ -67,7 +67,7 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- header
 
-   local header = common.Header(
+   local header = common.make_header(
       geometry.CENTER_RIGHT_X,
       geometry.TOP_Y,
       geometry.SECTION_WIDTH,
@@ -77,13 +77,13 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- download plot
 
-   local rx = build_plot(header.bottom_y, 'Download', init_rx_bits)
+   local rx = make_plot(header.bottom_y, 'Download', init_rx_bits)
 
    -----------------------------------------------------------------------------
    -- upload plot
 
    local TX_Y = header.bottom_y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2
-   local tx = build_plot(TX_Y, 'Upload', init_tx_bits)
+   local tx = make_plot(TX_Y, 'Upload', init_tx_bits)
 
    -----------------------------------------------------------------------------
    -- main drawing functions
@@ -95,7 +95,7 @@ return function(update_freq)
    end
 
    local draw_static = function(cr)
-      common.drawHeader(cr, header)
+      common.draw_header(cr, header)
       common.annotated_scale_plot_draw_static(rx, cr)
       common.annotated_scale_plot_draw_static(tx, cr)
    end
