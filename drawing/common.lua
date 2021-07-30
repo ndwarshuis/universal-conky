@@ -2,7 +2,7 @@ local M = {}
 
 local F = require 'Fundamental'
 local Util = require 'Util'
-local Theme = require 'Theme'
+local theme = require 'theme'
 local Dial = require 'Dial'
 local Rect = require 'Rect'
 local FillRect = require 'FillRect'
@@ -69,8 +69,8 @@ local _text_row_style = function(x_align, color)
    return Text.style(normal_font_spec, color, x_align, 'center')
 end
 
-local left_text_style = _text_row_style('left', Theme.INACTIVE_TEXT_FG)
-local right_text_style = _text_row_style('right', Theme.PRIMARY_FG)
+local left_text_style = _text_row_style('left', theme.INACTIVE_TEXT_FG)
+local right_text_style = _text_row_style('right', theme.PRIMARY_FG)
 
 local _bare_text = function(pt, text, style)
    return Text.build_plain(pt, text, style)
@@ -96,7 +96,7 @@ M.Header = function(x, y, w, text)
          text,
          Text.style(
             make_font_spec(FONT, HEADER_FONT_SIZE, true),
-            Theme.HEADER_FG,
+            theme.HEADER_FG,
             'left',
             'top'
          )
@@ -107,7 +107,7 @@ M.Header = function(x, y, w, text)
          F.make_point(x + w, underline_y),
          Line.config(
             s.line(HEADER_UNDERLINE_THICKNESS, HEADER_UNDERLINE_CAP),
-            Theme.HEADER_FG,
+            theme.HEADER_FG,
             true
          )
       )
@@ -125,24 +125,24 @@ end
 local default_grid_config = Timeseries.grid_config(
    PLOT_GRID_X_N,
    PLOT_GRID_Y_N,
-   Theme.PLOT_GRID_FG
+   theme.PLOT_GRID_FG
 )
 
 local default_plot_config = Timeseries.config(
    PLOT_NUM_POINTS,
-   Theme.PLOT_OUTLINE_FG,
-   Theme.PLOT_FILL_BORDER_PRIMARY,
-   Theme.PLOT_FILL_BG_PRIMARY,
+   theme.PLOT_OUTLINE_FG,
+   theme.PLOT_FILL_BORDER_PRIMARY,
+   theme.PLOT_FILL_BG_PRIMARY,
    default_grid_config
 )
 
 M.percent_label_config = Timeseries.label_config(
-   Theme.INACTIVE_TEXT_FG,
+   theme.INACTIVE_TEXT_FG,
    label_font_spec,
    function(_) return function(z) return Util.round_to_string(z * 100)..'%' end end
 )
 
-M.initThemedLabelPlot = function(x, y, w, h, label_config, update_freq)
+M.initthemedLabelPlot = function(x, y, w, h, label_config, update_freq)
    return Timeseries.build(
       F.make_box(x, y, w, h),
       update_freq,
@@ -162,9 +162,9 @@ M.initPercentPlot_formatted = function(x, y, w, h, spacing, label, update_freq, 
          nil,
          right_text_style,
          format,
-         ThresholdText.style(Theme.CRITICAL_FG, 80)
+         ThresholdText.style(theme.CRITICAL_FG, 80)
       ),
-      plot = M.initThemedLabelPlot(
+      plot = M.initthemedLabelPlot(
          x,
          y + spacing,
          w,
@@ -237,13 +237,13 @@ M.base_2_scale_data = function(m)
    return ScaledTimeseries.scaling_parameters(2, m, 0.9)
 end
 
-M.initThemedScalePlot = function(x, y, w, h, f, min_domain, update_freq)
+M.initthemedScalePlot = function(x, y, w, h, f, min_domain, update_freq)
    return ScaledTimeseries.build(
       F.make_box(x, y, w, h),
       update_freq,
       default_plot_config,
       Timeseries.label_config(
-         Theme.INACTIVE_TEXT_FG,
+         theme.INACTIVE_TEXT_FG,
          label_font_spec,
          f
       ),
@@ -264,7 +264,7 @@ M.initLabeledScalePlot = function(x, y, w, h, format_fun, label_fun, spacing,
          right_text_style,
          format_fun
       ),
-      plot = M.initThemedScalePlot(x, y + spacing, w, h, label_fun, min_domain, update_freq),
+      plot = M.initthemedScalePlot(x, y + spacing, w, h, label_fun, min_domain, update_freq),
    }
 end
 
@@ -315,7 +315,7 @@ M.build_rate_timeseries = function(x, y, w, h, format_fun, label_fun, spacing,
          right_text_style,
          format_fun
       ),
-      plot = M.initThemedScalePlot(x, y + spacing, w, h, label_fun, min_domain, update_freq),
+      plot = M.initthemedScalePlot(x, y + spacing, w, h, label_fun, min_domain, update_freq),
       prev_value = init,
       derive = build_differential(update_freq),
    }
@@ -347,7 +347,7 @@ end
 M.initRing = function(x, y, r)
    return Arc.build(
       F.make_semicircle(x, y, r, 0, 360),
-      Arc.config(s.line(ARC_WIDTH, CAIRO_LINE_CAP_BUTT), Theme.BORDER_FG)
+      Arc.config(s.line(ARC_WIDTH, CAIRO_LINE_CAP_BUTT), theme.BORDER_FG)
    )
 end
 
@@ -362,12 +362,12 @@ M.initTextRing = function(x, y, r, fmt, limit)
          0,
          Text.style(
             normal_font_spec,
-            Theme.PRIMARY_FG,
+            theme.PRIMARY_FG,
             'center',
             'center'
          ),
          fmt,
-         ThresholdText.style(Theme.CRITICAL_FG, limit)
+         ThresholdText.style(theme.CRITICAL_FG, limit)
 	  ),
    }
 end
@@ -389,8 +389,8 @@ end
 
 local threshold_indicator = function(threshold)
    return F.threshold_style(
-      Theme.INDICATOR_FG_PRIMARY,
-      Theme.INDICATOR_FG_CRITICAL,
+      theme.INDICATOR_FG_PRIMARY,
+      theme.INDICATOR_FG_CRITICAL,
       threshold
    )
 end
@@ -399,7 +399,7 @@ M.dial = function(x, y, radius, thickness, threshold, format)
    return {
       dial = Dial.build(
          F.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
-         Arc.config(s.line(thickness, CAIRO_LINE_CAP_BUTT), Theme.INDICATOR_BG),
+         Arc.config(s.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
          threshold_indicator(threshold)
       ),
       text_ring = M.initTextRing(x, y, radius - thickness / 2 - 2, format, threshold),
@@ -428,7 +428,7 @@ M.compound_dial = function(x, y, outer_radius, inner_radius, thickness,
                            threshold, num_dials)
    return CompoundDial.build(
       F.make_semicircle(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
-      Arc.config(s.line(thickness, CAIRO_LINE_CAP_BUTT), Theme.INDICATOR_BG),
+      Arc.config(s.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
       threshold_indicator(threshold),
       inner_radius,
       num_dials
@@ -452,7 +452,7 @@ M.compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
          w - pad,
          Line.config(
             s.line(thickness, CAIRO_LINE_CAP_BUTT),
-            Theme.INDICATOR_BG,
+            theme.INDICATOR_BG,
             true
          ),
          threshold_indicator(threshold),
@@ -485,7 +485,7 @@ M.initSeparator = function(x, y, w)
       F.make_point(x + w, y),
       Line.config(
          s.line(SEPARATOR_THICKNESS, CAIRO_LINE_CAP_BUTT),
-         Theme.BORDER_FG,
+         theme.BORDER_FG,
          true
       )
    )
@@ -524,12 +524,12 @@ M.initTextRowCrit = function(x, y, w, label, append_end, limit)
          nil,
          Text.style(
             normal_font_spec,
-            Theme.PRIMARY_FG,
+            theme.PRIMARY_FG,
             'right',
             'center'
          ),
          append_end,
-         ThresholdText.style(Theme.CRITICAL_FG, limit)
+         ThresholdText.style(theme.CRITICAL_FG, limit)
       )
    }
 end
@@ -587,7 +587,7 @@ M.initTextRows_formatted = function(x, y, w, spacing, labels, format)
       w,
       spacing,
       labels,
-      Theme.PRIMARY_FG,
+      theme.PRIMARY_FG,
       format
    )
 end
@@ -623,21 +623,21 @@ local default_table_font_spec = make_font_spec(FONT, TABLE_FONT_SIZE, false)
 local default_table_style = Table.style(
    Rect.config(
       s.closed_poly(TABLE_LINE_THICKNESS, CAIRO_LINE_JOIN_MITER),
-      Theme.BORDER_FG
+      theme.BORDER_FG
    ),
    Line.config(
       s.line(TABLE_LINE_THICKNESS, CAIRO_LINE_CAP_BUTT),
-      Theme.BORDER_FG,
+      theme.BORDER_FG,
       true
    ),
    Table.header_config(
       default_table_font_spec,
-      Theme.PRIMARY_FG,
+      theme.PRIMARY_FG,
       TABLE_HEADER_PAD
    ),
    Table.body_config(
       default_table_font_spec,
-      Theme.INACTIVE_TEXT_FG,
+      theme.INACTIVE_TEXT_FG,
       TABLE_BODY_FORMAT
    ),
    F.padding(
@@ -665,9 +665,9 @@ M.initPanel = function(x, y, w, h, thickness)
       F.make_box(x, y, w, h),
       Rect.config(
          s.closed_poly(thickness, CAIRO_LINE_JOIN_MITER),
-         Theme.BORDER_FG
+         theme.BORDER_FG
       ),
-      Theme.PANEL_BG
+      theme.PANEL_BG
    )
 end
 

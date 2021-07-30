@@ -1,5 +1,5 @@
-local Common		= require 'Common'
-local Geometry = require 'Geometry'
+local common		= require 'common'
+local geometry = require 'geometry'
 
 return function()
    local TEXT_SPACING = 20
@@ -7,17 +7,17 @@ return function()
    local __string_match = string.match
    local __string_gmatch = string.gmatch
 
-   local header = Common.Header(
-      Geometry.RIGHT_X,
-      Geometry.TOP_Y,
-      Geometry.SECTION_WIDTH,
+   local header = common.Header(
+      geometry.RIGHT_X,
+      geometry.TOP_Y,
+      geometry.SECTION_WIDTH,
       'PACMAN'
    )
 
-   local rows = Common.initTextRows(
-      Geometry.RIGHT_X,
+   local rows = common.initTextRows(
+      geometry.RIGHT_X,
       header.bottom_y,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       TEXT_SPACING,
       {'Total', 'Explicit', 'Outdated', 'Orphaned', 'Local'}
    )
@@ -27,23 +27,23 @@ return function()
       if stats then
          local i = 1
          for v in __string_gmatch(stats, '%d+') do
-            Common.text_rows_set(rows, i, v)
+            common.text_rows_set(rows, i, v)
             i = i + 1
          end
       else
          for i=1, 5 do
-            Common.text_rows_set(rows, i, 'N/A')
+            common.text_rows_set(rows, i, 'N/A')
          end
       end
    end
 
    local draw_static = function(cr)
-      Common.drawHeader(cr, header)
-      Common.text_rows_draw_static(rows, cr)
+      common.drawHeader(cr, header)
+      common.text_rows_draw_static(rows, cr)
    end
 
    local draw_dynamic = function(cr)
-      Common.text_rows_draw_dynamic(rows, cr)
+      common.text_rows_draw_dynamic(rows, cr)
    end
 
    return {static = draw_static, dynamic = draw_dynamic, update = update}

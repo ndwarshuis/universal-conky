@@ -1,6 +1,6 @@
 local Util = require 'Util'
-local Common = require 'Common'
-local Geometry = require 'Geometry'
+local common = require 'common'
+local geometry = require 'geometry'
 local func = require 'func'
 
 return function(update_freq)
@@ -49,13 +49,13 @@ return function(update_freq)
    end
 
    local build_plot = function(y, label, init)
-      return Common.build_rate_timeseries(
-         Geometry.CENTER_RIGHT_X,
+      return common.build_rate_timeseries(
+         geometry.CENTER_RIGHT_X,
          y,
-         Geometry.SECTION_WIDTH,
+         geometry.SECTION_WIDTH,
          PLOT_HEIGHT,
          value_format_function,
-         Common.converted_y_label_format_generator('b'),
+         common.converted_y_label_format_generator('b'),
          PLOT_SEC_BREAK,
          label,
          2,
@@ -67,10 +67,10 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- header
 
-   local header = Common.Header(
-      Geometry.CENTER_RIGHT_X,
-      Geometry.TOP_Y,
-      Geometry.SECTION_WIDTH,
+   local header = common.Header(
+      geometry.CENTER_RIGHT_X,
+      geometry.TOP_Y,
+      geometry.SECTION_WIDTH,
       'NETWORK'
    )
 
@@ -90,19 +90,19 @@ return function(update_freq)
 
    local update = function()
       local rx_bits, tx_bits = read_interfaces()
-      Common.update_rate_timeseries(rx, rx_bits)
-      Common.update_rate_timeseries(tx, tx_bits)
+      common.update_rate_timeseries(rx, rx_bits)
+      common.update_rate_timeseries(tx, tx_bits)
    end
 
    local draw_static = function(cr)
-      Common.drawHeader(cr, header)
-      Common.annotated_scale_plot_draw_static(rx, cr)
-      Common.annotated_scale_plot_draw_static(tx, cr)
+      common.drawHeader(cr, header)
+      common.annotated_scale_plot_draw_static(rx, cr)
+      common.annotated_scale_plot_draw_static(tx, cr)
    end
 
    local draw_dynamic = function(cr)
-      Common.annotated_scale_plot_draw_dynamic(rx, cr)
-      Common.annotated_scale_plot_draw_dynamic(tx, cr)
+      common.annotated_scale_plot_draw_dynamic(rx, cr)
+      common.annotated_scale_plot_draw_dynamic(tx, cr)
    end
 
    return {static = draw_static, dynamic = draw_dynamic, update = update}

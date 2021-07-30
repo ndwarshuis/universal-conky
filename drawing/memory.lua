@@ -1,8 +1,8 @@
 local Timeseries = require 'Timeseries'
 local Table = require 'Table'
 local Util = require 'Util'
-local Common = require 'Common'
-local Geometry = require 'Geometry'
+local common = require 'common'
+local geometry = require 'geometry'
 local func = require 'func'
 
 return function(update_freq)
@@ -30,10 +30,10 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- header
 
-   local header = Common.Header(
-      Geometry.RIGHT_X,
+   local header = common.Header(
+      geometry.RIGHT_X,
       MODULE_Y,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       'MEMORY'
    )
 
@@ -51,11 +51,11 @@ return function(update_freq)
       return string.format('%.0f%%', x * 100)
    end
 
-   local MEM_X = Geometry.RIGHT_X + DIAL_RADIUS + DIAL_THICKNESS / 2
+   local MEM_X = geometry.RIGHT_X + DIAL_RADIUS + DIAL_THICKNESS / 2
    local MEM_Y = header.bottom_y + DIAL_RADIUS + DIAL_THICKNESS / 2
    local DIAL_DIAMETER = DIAL_RADIUS * 2 + DIAL_THICKNESS
 
-   local mem = Common.dial(
+   local mem = common.dial(
       MEM_X,
       MEM_Y,
       DIAL_RADIUS,
@@ -69,7 +69,7 @@ return function(update_freq)
 
    local SWAP_X = MEM_X + DIAL_DIAMETER + DIAL_SPACING
 
-   local swap = Common.dial(
+   local swap = common.dial(
       SWAP_X,
       MEM_Y,
       DIAL_RADIUS,
@@ -83,9 +83,9 @@ return function(update_freq)
 
    local CACHE_Y = header.bottom_y + CACHE_Y_OFFSET
    local CACHE_X = SWAP_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
-   local CACHE_WIDTH = Geometry.RIGHT_X + Geometry.SECTION_WIDTH - CACHE_X
+   local CACHE_WIDTH = geometry.RIGHT_X + geometry.SECTION_WIDTH - CACHE_X
 
-   local cache = Common.initTextRows_formatted(
+   local cache = common.initTextRows_formatted(
       CACHE_X,
       CACHE_Y,
       CACHE_WIDTH,
@@ -99,12 +99,12 @@ return function(update_freq)
 
    local PLOT_Y = header.bottom_y + PLOT_SECTION_BREAK + DIAL_DIAMETER
 
-   local plot = Common.initThemedLabelPlot(
-      Geometry.RIGHT_X,
+   local plot = common.initthemedLabelPlot(
+      geometry.RIGHT_X,
       PLOT_Y,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       PLOT_HEIGHT,
-      Common.percent_label_config,
+      common.percent_label_config,
       update_freq
    )
 
@@ -122,10 +122,10 @@ return function(update_freq)
       end,
       func.seq(NUM_ROWS))
 
-   local tbl = Common.initTable(
-      Geometry.RIGHT_X,
+   local tbl = common.initTable(
+      geometry.RIGHT_X,
       PLOT_Y + PLOT_HEIGHT + TABLE_SECTION_BREAK,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       TABLE_HEIGHT,
       NUM_ROWS,
       {'Name', 'PID', 'Mem (%)'}
@@ -153,13 +153,13 @@ return function(update_freq)
           buffers -
           sreclaimable) / memtotal
 
-      Common.dial_set(mem, used_percent)
-      Common.dial_set(swap, (swaptotal - swapfree) / swaptotal)
+      common.dial_set(mem, used_percent)
+      common.dial_set(swap, (swaptotal - swapfree) / swaptotal)
 
-      Common.text_rows_set(cache, 1, cached / memtotal * 100)
-      Common.text_rows_set(cache, 2, buffers / memtotal * 100)
-      Common.text_rows_set(cache, 3, shmem / memtotal * 100)
-      Common.text_rows_set(cache, 4, sreclaimable / memtotal * 100)
+      common.text_rows_set(cache, 1, cached / memtotal * 100)
+      common.text_rows_set(cache, 2, buffers / memtotal * 100)
+      common.text_rows_set(cache, 3, shmem / memtotal * 100)
+      common.text_rows_set(cache, 4, sreclaimable / memtotal * 100)
 
       Timeseries.update(plot, used_percent)
 
@@ -171,18 +171,18 @@ return function(update_freq)
    end
 
    local draw_static = function(cr)
-      Common.drawHeader(cr, header)
-      Common.dial_draw_static(mem, cr)
-      Common.dial_draw_static(swap, cr)
-      Common.text_rows_draw_static(cache, cr)
+      common.drawHeader(cr, header)
+      common.dial_draw_static(mem, cr)
+      common.dial_draw_static(swap, cr)
+      common.text_rows_draw_static(cache, cr)
       Timeseries.draw_static(plot, cr)
       Table.draw_static(tbl, cr)
    end
 
    local draw_dynamic = function(cr)
-      Common.dial_draw_dynamic(mem, cr)
-      Common.dial_draw_dynamic(swap, cr)
-      Common.text_rows_draw_dynamic(cache, cr)
+      common.dial_draw_dynamic(mem, cr)
+      common.dial_draw_dynamic(swap, cr)
+      common.text_rows_draw_dynamic(cache, cr)
       Timeseries.draw_dynamic(plot, cr)
       Table.draw_dynamic(tbl, cr)
    end

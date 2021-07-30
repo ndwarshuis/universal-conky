@@ -1,8 +1,8 @@
 local Text			= require 'Text'
 local Line			= require 'Line'
 local Util			= require 'Util'
-local Common		= require 'Common'
-local Geometry		= require 'Geometry'
+local common		= require 'common'
+local geometry		= require 'geometry'
 
 return function(update_freq)
    local MODULE_Y = 145
@@ -18,29 +18,29 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- header
 
-   local header = Common.Header(
-      Geometry.LEFT_X,
+   local header = common.Header(
+      geometry.LEFT_X,
       MODULE_Y,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       'NVIDIA GRAPHICS'
    )
 
    -----------------------------------------------------------------------------
    -- gpu status
 
-   local status = Common.initTextRow(
-      Geometry.LEFT_X,
+   local status = common.initTextRow(
+      geometry.LEFT_X,
       header.bottom_y,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       'Status'
    )
 
    local SEP_Y1 = header.bottom_y + SEPARATOR_SPACING
 
-   local separator1 = Common.initSeparator(
-      Geometry.LEFT_X,
+   local separator1 = common.initSeparator(
+      geometry.LEFT_X,
       SEP_Y1,
-      Geometry.SECTION_WIDTH
+      geometry.SECTION_WIDTH
    )
 
    -----------------------------------------------------------------------------
@@ -48,10 +48,10 @@ return function(update_freq)
 
    local INTERNAL_TEMP_Y = SEP_Y1 + SEPARATOR_SPACING
 
-   local internal_temp = Common.initTextRowCrit(
-      Geometry.LEFT_X,
+   local internal_temp = common.initTextRowCrit(
+      geometry.LEFT_X,
       INTERNAL_TEMP_Y,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       'Internal Temperature',
       function(s)
          if s == -1 then return NA else return string.format('%s°C', s) end
@@ -61,10 +61,10 @@ return function(update_freq)
 
    local SEP_Y2 = INTERNAL_TEMP_Y + SEPARATOR_SPACING
 
-   local separator2 = Common.initSeparator(
-      Geometry.LEFT_X,
+   local separator2 = common.initSeparator(
+      geometry.LEFT_X,
       SEP_Y2,
-      Geometry.SECTION_WIDTH
+      geometry.SECTION_WIDTH
    )
 
    -----------------------------------------------------------------------------
@@ -72,20 +72,20 @@ return function(update_freq)
 
    local CLOCK_SPEED_Y = SEP_Y2 + SEPARATOR_SPACING
 
-   local clock_speed = Common.initTextRows(
-      Geometry.LEFT_X,
+   local clock_speed = common.initTextRows(
+      geometry.LEFT_X,
       CLOCK_SPEED_Y,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       TEXT_SPACING,
-      {'GPU Clock Speed', 'Memory Clock Speed'}
+      {'GPU Clock Speed', 'memory Clock Speed'}
    )
 
    local SEP_Y3 = CLOCK_SPEED_Y + TEXT_SPACING * 2
 
-   local separator3 = Common.initSeparator(
-      Geometry.LEFT_X,
+   local separator3 = common.initSeparator(
+      geometry.LEFT_X,
       SEP_Y3,
-      Geometry.SECTION_WIDTH
+      geometry.SECTION_WIDTH
    )
 
    -----------------------------------------------------------------------------
@@ -96,10 +96,10 @@ return function(update_freq)
    end
 
    local build_plot = function(y, label)
-      return Common.initPercentPlot_formatted(
-         Geometry.LEFT_X,
+      return common.initPercentPlot_formatted(
+         geometry.LEFT_X,
          y,
-         Geometry.SECTION_WIDTH,
+         geometry.SECTION_WIDTH,
          PLOT_HEIGHT,
          PLOT_SEC_BREAK,
          label,
@@ -115,7 +115,7 @@ return function(update_freq)
    -- gpu memory consumption plot
 
    local MEM_UTIL_Y = GPU_UTIL_Y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2
-   local mem_util = build_plot(MEM_UTIL_Y, 'Memory Utilization')
+   local mem_util = build_plot(MEM_UTIL_Y, 'memory Utilization')
 
    -----------------------------------------------------------------------------
    -- gpu video utilization plot
@@ -135,8 +135,8 @@ return function(update_freq)
    --   <gpu_freq>,<mem_freq>
    --   graphics=<gpu_util>, memory=<mem_util>, video=<vid_util>, PCIe=<pci_util>
    local NV_QUERY = 'nvidia-settings -t'..
-      ' -q UsedDedicatedGPUMemory'..
-      ' -q TotalDedicatedGPUMemory'..
+      ' -q UsedDedicatedGPUmemory'..
+      ' -q TotalDedicatedGPUmemory'..
       ' -q ThermalSensorReading'..
       ' -q [gpu:0]/GPUCurrentClockFreqs'..
       ' -q [gpu:0]/GPUUtilization'
@@ -150,12 +150,12 @@ return function(update_freq)
    local GPU_BUS_CTRL = '/sys/bus/pci/devices/0000:01:00.0/power/control'
 
    local nvidia_off = function()
-      Common.text_row_crit_set(internal_temp, -1)
-      Common.text_rows_set(clock_speed, 1, NA)
-      Common.text_rows_set(clock_speed, 2, NA)
-      Common.percent_plot_set(gpu_util, nil)
-      Common.percent_plot_set(vid_util, nil)
-      Common.percent_plot_set(mem_util, nil)
+      common.text_row_crit_set(internal_temp, -1)
+      common.text_rows_set(clock_speed, 1, NA)
+      common.text_rows_set(clock_speed, 2, NA)
+      common.percent_plot_set(gpu_util, nil)
+      common.percent_plot_set(vid_util, nil)
+      common.percent_plot_set(mem_util, nil)
    end
 
    local update = function()
@@ -165,19 +165,19 @@ return function(update_freq)
             Text.set(status.value, 'Error')
             nvidia_off()
          else
-            Common.text_row_set(status, 'On')
+            common.text_row_set(status, 'On')
 
             local used_memory, total_memory, temp_reading, gpu_frequency,
                memory_frequency, gpu_utilization, vid_utilization
                = __string_match(nvidia_settings_glob, NV_REGEX)
 
-            Common.text_row_crit_set(internal_temp, temp_reading)
-            Common.text_rows_set(clock_speed, 1, gpu_frequency..' Mhz')
-            Common.text_rows_set(clock_speed, 2, memory_frequency..' Mhz')
+            common.text_row_crit_set(internal_temp, temp_reading)
+            common.text_rows_set(clock_speed, 1, gpu_frequency..' Mhz')
+            common.text_rows_set(clock_speed, 2, memory_frequency..' Mhz')
 
-            Common.percent_plot_set(gpu_util, gpu_utilization)
-            Common.percent_plot_set(mem_util, used_memory / total_memory * 100)
-            Common.percent_plot_set(vid_util, vid_utilization)
+            common.percent_plot_set(gpu_util, gpu_utilization)
+            common.percent_plot_set(mem_util, used_memory / total_memory * 100)
+            common.percent_plot_set(vid_util, vid_utilization)
          end
       else
          Text.set(status.value, 'Off')
@@ -189,29 +189,29 @@ return function(update_freq)
    -- main drawing functions
 
    local draw_static = function(cr)
-      Common.drawHeader(cr, header)
+      common.drawHeader(cr, header)
 
-      Common.text_row_draw_static(status, cr)
+      common.text_row_draw_static(status, cr)
       Line.draw(separator1, cr)
 
-      Common.text_row_crit_draw_static(internal_temp, cr)
+      common.text_row_crit_draw_static(internal_temp, cr)
       Line.draw(separator2, cr)
 
-      Common.text_rows_draw_static(clock_speed, cr)
+      common.text_rows_draw_static(clock_speed, cr)
       Line.draw(separator3, cr)
 
-      Common.percent_plot_draw_static(gpu_util, cr)
-      Common.percent_plot_draw_static(mem_util, cr)
-      Common.percent_plot_draw_static(vid_util, cr)
+      common.percent_plot_draw_static(gpu_util, cr)
+      common.percent_plot_draw_static(mem_util, cr)
+      common.percent_plot_draw_static(vid_util, cr)
    end
 
    local draw_dynamic = function(cr)
-      Common.text_row_draw_dynamic(status, cr)
-      Common.text_row_crit_draw_dynamic(internal_temp, cr)
-      Common.text_rows_draw_dynamic(clock_speed, cr)
-      Common.percent_plot_draw_dynamic(gpu_util, cr)
-      Common.percent_plot_draw_dynamic(mem_util, cr)
-      Common.percent_plot_draw_dynamic(vid_util, cr)
+      common.text_row_draw_dynamic(status, cr)
+      common.text_row_crit_draw_dynamic(internal_temp, cr)
+      common.text_rows_draw_dynamic(clock_speed, cr)
+      common.percent_plot_draw_dynamic(gpu_util, cr)
+      common.percent_plot_draw_dynamic(mem_util, cr)
+      common.percent_plot_draw_dynamic(vid_util, cr)
    end
 
    return {static = draw_static, dynamic = draw_dynamic, update = update}

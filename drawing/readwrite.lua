@@ -1,6 +1,6 @@
 local Util = require 'Util'
-local Common = require 'Common'
-local Geometry = require 'Geometry'
+local common = require 'common'
+local geometry = require 'geometry'
 local func = require 'func'
 
 return function(update_freq)
@@ -43,13 +43,13 @@ return function(update_freq)
    end
 
    local build_plot = function(y, label, init)
-      return Common.build_rate_timeseries(
-         Geometry.CENTER_LEFT_X,
+      return common.build_rate_timeseries(
+         geometry.CENTER_LEFT_X,
          y,
-         Geometry.SECTION_WIDTH,
+         geometry.SECTION_WIDTH,
          PLOT_HEIGHT,
          format_value_function,
-         Common.converted_y_label_format_generator('B'),
+         common.converted_y_label_format_generator('B'),
          PLOT_SEC_BREAK,
          label,
          2,
@@ -61,10 +61,10 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- header
 
-   local header = Common.Header(
-      Geometry.CENTER_LEFT_X,
-      Geometry.TOP_Y,
-      Geometry.SECTION_WIDTH,
+   local header = common.Header(
+      geometry.CENTER_LEFT_X,
+      geometry.TOP_Y,
+      geometry.SECTION_WIDTH,
       'INPUT / OUTPUT'
    )
 
@@ -87,19 +87,19 @@ return function(update_freq)
 
    local update = function()
       local read_bytes, write_bytes = read_devices()
-      Common.update_rate_timeseries(reads, read_bytes)
-      Common.update_rate_timeseries(writes, write_bytes)
+      common.update_rate_timeseries(reads, read_bytes)
+      common.update_rate_timeseries(writes, write_bytes)
    end
 
    local draw_static = function(cr)
-      Common.drawHeader(cr, header)
-      Common.annotated_scale_plot_draw_static(reads, cr)
-      Common.annotated_scale_plot_draw_static(writes, cr)
+      common.drawHeader(cr, header)
+      common.annotated_scale_plot_draw_static(reads, cr)
+      common.annotated_scale_plot_draw_static(writes, cr)
    end
 
    local draw_dynamic = function(cr)
-      Common.annotated_scale_plot_draw_dynamic(reads, cr)
-      Common.annotated_scale_plot_draw_dynamic(writes, cr)
+      common.annotated_scale_plot_draw_dynamic(reads, cr)
+      common.annotated_scale_plot_draw_dynamic(writes, cr)
    end
 
    return {static = draw_static, dynamic = draw_dynamic, update = update}

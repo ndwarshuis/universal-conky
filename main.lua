@@ -17,16 +17,16 @@ package.path = ABS_PATH..'?.lua;'..
    ABS_PATH..'core/widget/poly/?.lua;'
 
 local Util 			= require 'Util'
-local System 		= require 'System'
-local Network 		= require 'Network'
-local Processor 	= require 'Processor'
-local FileSystem 	= require 'FileSystem'
-local Pacman 		= require 'Pacman'
-local Power 		= require 'Power'
-local ReadWrite		= require 'ReadWrite'
-local Graphics		= require 'Graphics'
-local Memory		= require 'Memory'
-local Static		= require 'Static'
+local system 		= require 'system'
+local network 		= require 'network'
+local processor 	= require 'processor'
+local filesystem 	= require 'filesystem'
+local pacman 		= require 'pacman'
+local power 		= require 'power'
+local readwrite		= require 'readwrite'
+local graphics		= require 'graphics'
+local memory		= require 'memory'
+local static		= require 'static'
 
 local using_ac = function()
    -- for some reason it is much more efficient to test if the battery
@@ -41,17 +41,17 @@ function conky_start(update_interval)
 
    local update_freq = 1 / update_interval
 
-   local mem = Memory(update_freq)
-   local rw = ReadWrite(update_freq)
-   local net = Network(update_freq)
-   local pwr = Power(update_freq)
-   local fs = FileSystem()
-   local sys = System()
-   local gfx = Graphics(update_freq)
-   local proc = Processor(update_freq)
-   local pcm = Pacman()
+   local mem = memory(update_freq)
+   local rw = readwrite(update_freq)
+   local net = network(update_freq)
+   local pwr = power(update_freq)
+   local fs = filesystem()
+   local sys = system()
+   local gfx = graphics(update_freq)
+   local proc = processor(update_freq)
+   local pcm = pacman()
 
-   local draw_static = Static(
+   local draw_static = static(
       {sys.static, gfx.static, proc.static},
       {rw.static, net.static},
       {pcm.static, fs.static, pwr.static, mem.static}

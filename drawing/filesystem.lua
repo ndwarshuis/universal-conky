@@ -1,7 +1,7 @@
 local Line = require 'Line'
 local Util = require 'Util'
-local Common = require 'Common'
-local Geometry = require 'Geometry'
+local common = require 'common'
+local geometry = require 'geometry'
 
 return function()
    local FS_PATHS = {'/', '/boot', '/home', '/mnt/data', '/mnt/dcache', "/tmp"}
@@ -13,29 +13,29 @@ return function()
    -----------------------------------------------------------------------------
    -- header
 
-   local header = Common.Header(
-      Geometry.RIGHT_X,
+   local header = common.Header(
+      geometry.RIGHT_X,
       MODULE_Y,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       'FILE SYSTEMS'
    )
 
    -----------------------------------------------------------------------------
    -- smartd
 
-   local smart = Common.initTextRow(
-      Geometry.RIGHT_X,
+   local smart = common.initTextRow(
+      geometry.RIGHT_X,
       header.bottom_y,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       'SMART Daemon'
    )
 
    local SEP_Y = header.bottom_y + SEPARATOR_SPACING
 
-   local separator = Common.initSeparator(
-      Geometry.RIGHT_X,
+   local separator = common.initSeparator(
+      geometry.RIGHT_X,
       SEP_Y,
-      Geometry.SECTION_WIDTH
+      geometry.SECTION_WIDTH
    )
 
    -----------------------------------------------------------------------------
@@ -43,10 +43,10 @@ return function()
 
    local BAR_Y = SEP_Y + SEPARATOR_SPACING
 
-   local fs = Common.compound_bar(
-      Geometry.RIGHT_X,
+   local fs = common.compound_bar(
+      geometry.RIGHT_X,
       BAR_Y,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       BAR_PAD,
       {'root', 'boot', 'home', 'data', 'dcache', 'tmpfs'},
       SPACING,
@@ -66,25 +66,25 @@ return function()
    local update = function(trigger)
       if trigger == 0 then
          local smart_pid = Util.execute_cmd('pidof smartd', nil, '*n')
-         Common.text_row_set(smart, (smart_pid == '') and 'Error' or 'Running')
+         common.text_row_set(smart, (smart_pid == '') and 'Error' or 'Running')
 
          for i = 1, FS_NUM do
             local percent = Util.conky_numeric(CONKY_USED_PERC[i])
-            Common.compound_bar_set(fs, i, percent * 0.01)
+            common.compound_bar_set(fs, i, percent * 0.01)
          end
       end
    end
 
    local draw_static = function(cr)
-      Common.drawHeader(cr, header)
-      Common.text_row_draw_static(smart, cr)
+      common.drawHeader(cr, header)
+      common.text_row_draw_static(smart, cr)
       Line.draw(separator, cr)
-      Common.compound_bar_draw_static(fs, cr)
+      common.compound_bar_draw_static(fs, cr)
    end
 
    local draw_dynamic = function(cr)
-      Common.text_row_draw_dynamic(smart, cr)
-      Common.compound_bar_draw_dynamic(fs, cr)
+      common.text_row_draw_dynamic(smart, cr)
+      common.compound_bar_draw_dynamic(fs, cr)
    end
 
    return {static = draw_static, dynamic = draw_dynamic, update = update}

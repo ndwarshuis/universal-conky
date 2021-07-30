@@ -1,6 +1,6 @@
 local Util = require 'Util'
-local Common = require 'Common'
-local Geometry = require 'Geometry'
+local common = require 'common'
+local geometry = require 'geometry'
 
 return function(update_freq)
    local MODULE_Y = 380
@@ -41,7 +41,7 @@ return function(update_freq)
    end
 
    local power_label_function = function(plot_max)
-      local fmt = Common.y_label_format_string(plot_max, 'W')
+      local fmt = common.y_label_format_string(plot_max, 'W')
       return function(watts) return string.format(fmt, watts) end
    end
 
@@ -50,10 +50,10 @@ return function(update_freq)
    end
 
    local build_rate_plot = function(y, label, init)
-      return Common.build_rate_timeseries(
-         Geometry.RIGHT_X,
+      return common.build_rate_timeseries(
+         geometry.RIGHT_X,
          y,
-         Geometry.SECTION_WIDTH,
+         geometry.SECTION_WIDTH,
          PLOT_HEIGHT,
          format_rapl,
          power_label_function,
@@ -68,10 +68,10 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- header
 
-   local header = Common.Header(
-      Geometry.RIGHT_X,
+   local header = common.Header(
+      geometry.RIGHT_X,
       MODULE_Y,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       'POWER'
    )
 
@@ -98,10 +98,10 @@ return function(update_freq)
    end
 
    local BAT_Y = DRAM_Y + PLOT_SEC_BREAK * 2 + PLOT_HEIGHT
-   local bat = Common.initLabeledScalePlot(
-      Geometry.RIGHT_X,
+   local bat = common.initLabeledScalePlot(
+      geometry.RIGHT_X,
       BAT_Y,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       PLOT_HEIGHT,
       format_ac,
       power_label_function,
@@ -115,22 +115,22 @@ return function(update_freq)
    -- main functions
 
    local update = function(is_using_ac)
-      Common.update_rate_timeseries(pkg0, read_pkg0_joules())
-      Common.update_rate_timeseries(dram, read_dram_joules())
-      Common.annotated_scale_plot_set(bat, read_battery_power(is_using_ac))
+      common.update_rate_timeseries(pkg0, read_pkg0_joules())
+      common.update_rate_timeseries(dram, read_dram_joules())
+      common.annotated_scale_plot_set(bat, read_battery_power(is_using_ac))
    end
 
    local draw_static = function(cr)
-      Common.drawHeader(cr, header)
-      Common.annotated_scale_plot_draw_static(pkg0, cr)
-      Common.annotated_scale_plot_draw_static(dram, cr)
-      Common.annotated_scale_plot_draw_static(bat, cr)
+      common.drawHeader(cr, header)
+      common.annotated_scale_plot_draw_static(pkg0, cr)
+      common.annotated_scale_plot_draw_static(dram, cr)
+      common.annotated_scale_plot_draw_static(bat, cr)
    end
 
    local draw_dynamic = function(cr)
-      Common.annotated_scale_plot_draw_dynamic(pkg0, cr)
-      Common.annotated_scale_plot_draw_dynamic(dram, cr)
-      Common.annotated_scale_plot_draw_dynamic(bat, cr)
+      common.annotated_scale_plot_draw_dynamic(pkg0, cr)
+      common.annotated_scale_plot_draw_dynamic(dram, cr)
+      common.annotated_scale_plot_draw_dynamic(bat, cr)
    end
 
    return {static = draw_static, dynamic = draw_dynamic, update = update}

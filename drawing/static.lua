@@ -1,5 +1,5 @@
-local Common		= require 'Common'
-local Geometry		= require 'Geometry'
+local common		= require 'common'
+local geometry		= require 'geometry'
 local FillRect      = require 'FillRect'
 
 return function(left_modules, center_modules, right_modules)
@@ -15,7 +15,7 @@ return function(left_modules, center_modules, right_modules)
       -- move over by half a pixel so the lines don't need to be antialiased
       local _x = x + 0.5
       local _y = y + 0.5
-      local panel = Common.initPanel(_x, _y, w, h, panel_line_thickness)
+      local panel = common.initPanel(_x, _y, w, h, panel_line_thickness)
       local cs_x = _x - panel_line_thickness * 0.5
       local cs_y = _y - panel_line_thickness * 0.5
       local cs_w = w + panel_line_thickness
@@ -35,26 +35,26 @@ return function(left_modules, center_modules, right_modules)
    end
 
    local cs_left = _make_static_surface(
-      Geometry.LEFT_X - Geometry.PANEL_MARGIN_X,
-      Geometry.TOP_Y - Geometry.PANEL_MARGIN_Y,
-      Geometry.SECTION_WIDTH + Geometry.PANEL_MARGIN_X * 2,
-      Geometry.SIDE_HEIGHT + Geometry.PANEL_MARGIN_Y * 2,
+      geometry.LEFT_X - geometry.PANEL_MARGIN_X,
+      geometry.TOP_Y - geometry.PANEL_MARGIN_Y,
+      geometry.SECTION_WIDTH + geometry.PANEL_MARGIN_X * 2,
+      geometry.SIDE_HEIGHT + geometry.PANEL_MARGIN_Y * 2,
       left_modules
    )
 
    local cs_center = _make_static_surface(
-      Geometry.CENTER_LEFT_X - Geometry.PANEL_MARGIN_X,
-      Geometry.TOP_Y - Geometry.PANEL_MARGIN_Y,
-      Geometry.CENTER_WIDTH + Geometry.PANEL_MARGIN_Y * 2 + Geometry.CENTER_PAD,
-      Geometry.CENTER_HEIGHT + Geometry.PANEL_MARGIN_Y * 2,
+      geometry.CENTER_LEFT_X - geometry.PANEL_MARGIN_X,
+      geometry.TOP_Y - geometry.PANEL_MARGIN_Y,
+      geometry.CENTER_WIDTH + geometry.PANEL_MARGIN_Y * 2 + geometry.CENTER_PAD,
+      geometry.CENTER_HEIGHT + geometry.PANEL_MARGIN_Y * 2,
       center_modules
    )
 
    local cs_right = _make_static_surface(
-      Geometry.RIGHT_X - Geometry.PANEL_MARGIN_X,
-      Geometry.TOP_Y - Geometry.PANEL_MARGIN_Y,
-      Geometry.SECTION_WIDTH + Geometry.PANEL_MARGIN_X * 2,
-      Geometry.SIDE_HEIGHT + Geometry.PANEL_MARGIN_Y * 2,
+      geometry.RIGHT_X - geometry.PANEL_MARGIN_X,
+      geometry.TOP_Y - geometry.PANEL_MARGIN_Y,
+      geometry.SECTION_WIDTH + geometry.PANEL_MARGIN_X * 2,
+      geometry.SIDE_HEIGHT + geometry.PANEL_MARGIN_Y * 2,
       right_modules
    )
 

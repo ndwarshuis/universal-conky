@@ -2,8 +2,8 @@ local CompoundDial 	= require 'CompoundDial'
 local Line = require 'Line'
 local Table	= require 'Table'
 local Util = require 'Util'
-local Common = require 'Common'
-local Geometry = require 'Geometry'
+local common = require 'common'
+local geometry = require 'geometry'
 local CPU = require 'CPU'
 local func = require 'func'
 
@@ -24,10 +24,10 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- header
 
-   local header = Common.Header(
-      Geometry.LEFT_X,
+   local header = common.Header(
+      geometry.LEFT_X,
       MODULE_Y,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       'PROCESSOR'
    )
 
@@ -46,7 +46,7 @@ return function(update_freq)
 
    local create_core = function(x, y)
       return {
-         loads = Common.compound_dial(
+         loads = common.compound_dial(
             x,
             y,
             DIAL_OUTER_RADIUS,
@@ -55,7 +55,7 @@ return function(update_freq)
             0.8,
             nthreads
          ),
-         coretemp = Common.initTextRing(
+         coretemp = common.initTextRing(
             x,
             y,
             DIAL_INNER_RADIUS - 2,
@@ -66,8 +66,8 @@ return function(update_freq)
    end
 
    for c = 1, ncores do
-      local dial_x = Geometry.LEFT_X + DIAL_OUTER_RADIUS +
-         (Geometry.SECTION_WIDTH - 2 * DIAL_OUTER_RADIUS) * (c - 1) / 3
+      local dial_x = geometry.LEFT_X + DIAL_OUTER_RADIUS +
+         (geometry.SECTION_WIDTH - 2 * DIAL_OUTER_RADIUS) * (c - 1) / 3
       local dial_y = header.bottom_y + DIAL_OUTER_RADIUS
       cores[c] = create_core(dial_x, dial_y)
    end
@@ -77,10 +77,10 @@ return function(update_freq)
 
    local HWP_Y = header.bottom_y + DIAL_OUTER_RADIUS * 2 + PLOT_SECTION_BREAK
 
-   local cpu_status = Common.initTextRows(
-      Geometry.LEFT_X,
+   local cpu_status = common.initTextRows(
+      geometry.LEFT_X,
       HWP_Y,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       TEXT_SPACING,
       {'HWP Preference', 'Ave Freq'}
    )
@@ -90,10 +90,10 @@ return function(update_freq)
 
    local SEP_Y = HWP_Y + TEXT_SPACING + SEPARATOR_SPACING
 
-   local separator = Common.initSeparator(
-      Geometry.LEFT_X,
+   local separator = common.initSeparator(
+      geometry.LEFT_X,
       SEP_Y,
-      Geometry.SECTION_WIDTH
+      geometry.SECTION_WIDTH
    )
 
    -----------------------------------------------------------------------------
@@ -101,10 +101,10 @@ return function(update_freq)
 
    local LOAD_Y = SEP_Y + SEPARATOR_SPACING
 
-   local total_load = Common.initPercentPlot(
-      Geometry.LEFT_X,
+   local total_load = common.initPercentPlot(
+      geometry.LEFT_X,
       LOAD_Y,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       PLOT_HEIGHT,
       PLOT_SECTION_BREAK,
       "Total Load",
@@ -122,10 +122,10 @@ return function(update_freq)
       func.seq(NUM_ROWS)
    )
 
-   local tbl = Common.initTable(
-      Geometry.LEFT_X,
+   local tbl = common.initTable(
+      geometry.LEFT_X,
       PLOT_Y + PLOT_HEIGHT + TABLE_SECTION_BREAK,
-      Geometry.SECTION_WIDTH,
+      geometry.SECTION_WIDTH,
       TABLE_HEIGHT,
       NUM_ROWS,
       {'Name', 'PID', 'CPU (%)'}
@@ -147,18 +147,18 @@ return function(update_freq)
 
       for conky_core_id, path in pairs(coretemp_paths) do
          local temp = __math_floor(0.001 * Util.read_file(path, nil, '*n'))
-         Common.text_ring_set(cores[conky_core_id].coretemp, temp)
+         common.text_ring_set(cores[conky_core_id].coretemp, temp)
       end
 
       -- For some reason this call is slow (querying anything with pstate in
       -- general seems slow), but I also don't need to see an update every cycle,
       -- hence the trigger
       if trigger == 0 then
-         Common.text_rows_set(cpu_status, 1, CPU.read_hwp(hwp_paths))
+         common.text_rows_set(cpu_status, 1, CPU.read_hwp(hwp_paths))
       end
-      Common.text_rows_set(cpu_status, 2, CPU.read_freq())
+      common.text_rows_set(cpu_status, 2, CPU.read_freq())
 
-      Common.percent_plot_set(total_load, load_sum / ncpus * 100)
+      common.percent_plot_set(total_load, load_sum / ncpus * 100)
 
       for r = 1, NUM_ROWS do
          local pid = conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
@@ -171,17 +171,17 @@ return function(update_freq)
    end
 
    local draw_static = function(cr)
-      Common.drawHeader(cr, header)
+      common.drawHeader(cr, header)
 
       for i = 1, #cores do
-         Common.text_ring_draw_static(cores[i].coretemp, cr)
+         common.text_ring_draw_static(cores[i].coretemp, cr)
          CompoundDial.draw_static(cores[i].loads, cr)
       end
 
-      Common.text_rows_draw_static(cpu_status, cr)
+      common.text_rows_draw_static(cpu_status, cr)
       Line.draw(separator, cr)
 
-      Common.percent_plot_draw_static(total_load, cr)
+      common.percent_plot_draw_static(total_load, cr)
 
       Table.draw_static(tbl, cr)
    end
@@ -189,11 +189,11 @@ return function(update_freq)
    local draw_dynamic = function(cr)
       for i = 1, #cores do
          CompoundDial.draw_dynamic(cores[i].loads, cr)
-         Common.text_ring_draw_dynamic(cores[i].coretemp, cr)
+         common.text_ring_draw_dynamic(cores[i].coretemp, cr)
       end
 
-      Common.text_rows_draw_dynamic(cpu_status, cr)
-      Common.percent_plot_draw_dynamic(total_load, cr)
+      common.text_rows_draw_dynamic(cpu_status, cr)
+      common.percent_plot_draw_dynamic(total_load, cr)
 
       Table.draw_dynamic(tbl, cr)
    end
