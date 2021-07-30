@@ -1,4 +1,4 @@
-local Util = require 'Util'
+local util = require 'util'
 local common = require 'common'
 local geometry = require 'geometry'
 local func = require 'func'
@@ -28,7 +28,7 @@ return function(update_freq)
       local read_bytes = 0
       local write_bytes = 0
       for _, path in pairs(DEVICE_PATHS) do
-         local r, w = __string_match(Util.read_file(path), RW_REGEX)
+         local r, w = __string_match(util.read_file(path), RW_REGEX)
          read_bytes = read_bytes + __tonumber(r)
          write_bytes = write_bytes + __tonumber(w)
       end
@@ -38,8 +38,8 @@ return function(update_freq)
    local init_read_bytes, init_write_bytes = read_devices()
 
    local format_value_function = function(bps)
-      local unit, value = Util.convert_data_val(bps)
-      return Util.precision_round_to_string(value, 3)..' '..unit..'B/s'
+      local unit, value = util.convert_data_val(bps)
+      return util.precision_round_to_string(value, 3)..' '..unit..'B/s'
    end
 
    local build_plot = function(y, label, init)

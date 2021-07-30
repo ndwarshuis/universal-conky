@@ -1,6 +1,6 @@
 local text			= require 'text'
 local line			= require 'line'
-local Util			= require 'Util'
+local util			= require 'util'
 local common		= require 'common'
 local geometry		= require 'geometry'
 
@@ -109,19 +109,19 @@ return function(update_freq)
    end
 
    local GPU_UTIL_Y = SEP_Y3 + SEPARATOR_SPACING
-   local gpu_util = build_plot(GPU_UTIL_Y, 'GPU Utilization')
+   local gpu_util = build_plot(GPU_UTIL_Y, 'GPU utilization')
 
    -----------------------------------------------------------------------------
    -- gpu memory consumption plot
 
    local MEM_UTIL_Y = GPU_UTIL_Y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2
-   local mem_util = build_plot(MEM_UTIL_Y, 'memory Utilization')
+   local mem_util = build_plot(MEM_UTIL_Y, 'memory utilization')
 
    -----------------------------------------------------------------------------
    -- gpu video utilization plot
 
    local VID_UTIL_Y = MEM_UTIL_Y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2
-   local vid_util = build_plot(VID_UTIL_Y, 'Video Utilization')
+   local vid_util = build_plot(VID_UTIL_Y, 'Video utilization')
 
    -----------------------------------------------------------------------------
    -- update function
@@ -139,7 +139,7 @@ return function(update_freq)
       ' -q TotalDedicatedGPUmemory'..
       ' -q ThermalSensorReading'..
       ' -q [gpu:0]/GPUCurrentClockFreqs'..
-      ' -q [gpu:0]/GPUUtilization'
+      ' -q [gpu:0]/GPUutilization'
 
    local NV_REGEX = '(%d+)\n'..
       '(%d+)\n'..
@@ -159,8 +159,8 @@ return function(update_freq)
    end
 
    local update = function()
-      if Util.read_file(GPU_BUS_CTRL, nil, '*l') == 'on' then
-         local nvidia_settings_glob = Util.execute_cmd(NV_QUERY)
+      if util.read_file(GPU_BUS_CTRL, nil, '*l') == 'on' then
+         local nvidia_settings_glob = util.execute_cmd(NV_QUERY)
          if nvidia_settings_glob == '' then
             text.set(status.value, 'Error')
             nvidia_off()

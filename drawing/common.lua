@@ -1,7 +1,7 @@
 local M = {}
 
 local F = require 'primitive'
-local Util = require 'Util'
+local util = require 'util'
 local theme = require 'theme'
 local dial = require 'dial'
 local rect = require 'rect'
@@ -139,7 +139,7 @@ local default_plot_config = timeseries.config(
 M.percent_label_config = timeseries.label_config(
    theme.INACTIVE_TEXT_FG,
    label_font_spec,
-   function(_) return function(z) return Util.round_to_string(z * 100)..'%' end end
+   function(_) return function(z) return util.round_to_string(z * 100)..'%' end end
 )
 
 M.initthemedLabelPlot = function(x, y, w, h, label_config, update_freq)
@@ -224,7 +224,7 @@ end
 
 M.converted_y_label_format_generator = function(unit)
    return function(plot_max)
-      local new_prefix, new_max = Util.convert_data_val(plot_max)
+      local new_prefix, new_max = util.convert_data_val(plot_max)
       local conversion_factor = plot_max / new_max
       local fmt = M.y_label_format_string(new_max, new_prefix..unit..'/s')
       return function(bytes)

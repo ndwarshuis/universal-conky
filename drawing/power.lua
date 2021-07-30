@@ -1,4 +1,4 @@
-local Util = require 'Util'
+local util = require 'util'
 local common = require 'common'
 local geometry = require 'geometry'
 
@@ -13,7 +13,7 @@ return function(update_freq)
    local BAT_VOLTAGE_PATH = '/sys/class/power_supply/BAT0/voltage_now'
 
    local read_milli = function(path)
-      return Util.read_file(path, nil, '*n') * 0.000001
+      return util.read_file(path, nil, '*n') * 0.000001
    end
 
    local read_pkg0_joules = function()
@@ -46,7 +46,7 @@ return function(update_freq)
    end
 
    local format_rapl = function(watts)
-      return Util.precision_round_to_string(watts, 3)..' W'
+      return util.precision_round_to_string(watts, 3)..' W'
    end
 
    local build_rate_plot = function(y, label, init)

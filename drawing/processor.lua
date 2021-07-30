@@ -1,10 +1,10 @@
 local compounddial 	= require 'compounddial'
 local line = require 'line'
 local texttable = require 'texttable'
-local Util = require 'Util'
+local util = require 'util'
 local common = require 'common'
 local geometry = require 'geometry'
-local CPU = require 'CPU'
+local cpu = require 'cpu'
 local func = require 'func'
 
 local __math_floor = math.floor
@@ -34,13 +34,13 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- cores (loads and temps)
 
-   local cpu_loads = CPU.init_cpu_loads()
-   local ncpus = CPU.get_cpu_number()
-   local ncores = CPU.get_core_number()
+   local cpu_loads = cpu.init_cpu_loads()
+   local ncpus = cpu.get_cpu_number()
+   local ncores = cpu.get_core_number()
    local nthreads = ncpus / ncores
-   local hwp_paths = CPU.get_hwp_paths()
-   local coretemp_paths = CPU.get_coretemp_paths()
-   CPU.read_cpu_loads(cpu_loads) -- prime load matrix by side effect
+   local hwp_paths = cpu.get_hwp_paths()
+   local coretemp_paths = cpu.get_coretemp_paths()
+   cpu.read_cpu_loads(cpu_loads) -- prime load matrix by side effect
 
    local cores = {}
 
@@ -128,17 +128,17 @@ return function(update_freq)
       geometry.SECTION_WIDTH,
       TABLE_HEIGHT,
       NUM_ROWS,
-      {'Name', 'PID', 'CPU (%)'}
+      {'Name', 'PID', 'cpu (%)'}
    )
 
    -----------------------------------------------------------------------------
    -- main functions
 
    local update = function(trigger)
-      local conky = Util.conky
+      local conky = util.conky
       local load_sum = 0
 
-      cpu_loads = CPU.read_cpu_loads(cpu_loads)
+      cpu_loads = cpu.read_cpu_loads(cpu_loads)
       for _, load_data in pairs(cpu_loads) do
          local cur = load_data.percent_active
          load_sum = load_sum + cur
@@ -146,7 +146,7 @@ return function(update_freq)
       end
 
       for conky_core_id, path in pairs(coretemp_paths) do
-         local temp = __math_floor(0.001 * Util.read_file(path, nil, '*n'))
+         local temp = __math_floor(0.001 * util.read_file(path, nil, '*n'))
          common.text_ring_set(cores[conky_core_id].coretemp, temp)
       end
 
@@ -154,16 +154,16 @@ return function(update_freq)
       -- general seems slow), but I also don't need to see an update every cycle,
       -- hence the trigger
       if trigger == 0 then
-         common.text_rows_set(cpu_status, 1, CPU.read_hwp(hwp_paths))
+         common.text_rows_set(cpu_status, 1, cpu.read_hwp(hwp_paths))
       end
-      common.text_rows_set(cpu_status, 2, CPU.read_freq())
+      common.text_rows_set(cpu_status, 2, cpu.read_freq())
 
       common.percent_plot_set(total_load, load_sum / ncpus * 100)
 
       for r = 1, NUM_ROWS do
          local pid = conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
          if pid ~= '' then
-            texttable.set(tbl, 1, r, Util.read_file('/proc/'..pid..'/comm', '(%C+)'))
+            texttable.set(tbl, 1, r, util.read_file('/proc/'..pid..'/comm', '(%C+)'))
             texttable.set(tbl, 2, r, pid)
             texttable.set(tbl, 3, r, conky(TABLE_CONKY[r].cpu))
          end

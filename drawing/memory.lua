@@ -1,6 +1,6 @@
 local timeseries = require 'timeseries'
 local texttable = require 'texttable'
-local Util = require 'Util'
+local util = require 'util'
 local common = require 'common'
 local geometry = require 'geometry'
 local func = require 'func'
@@ -41,7 +41,7 @@ return function(update_freq)
    -- mem consumption dial
 
    local get_meminfo_field = function(field)
-      return tonumber(Util.read_file('/proc/meminfo', field..':%s+(%d+)'))
+      return tonumber(util.read_file('/proc/meminfo', field..':%s+(%d+)'))
    end
 
    local memtotal = get_meminfo_field('MemTotal')
@@ -135,7 +135,7 @@ return function(update_freq)
    -- main functions
 
    local update = function()
-      local conky = Util.conky
+      local conky = util.conky
       -- see manpage for free command for formulas
 
       local memfree,
@@ -144,7 +144,7 @@ return function(update_freq)
          swapfree,
          shmem,
          sreclaimable
-         = __string_match(Util.read_file('/proc/meminfo'), MEMINFO_REGEX)
+         = __string_match(util.read_file('/proc/meminfo'), MEMINFO_REGEX)
 
       local used_percent =
          (memtotal -
