@@ -14,7 +14,7 @@ return function()
       'SYSTEM'
    )
 
-   local rows = common.initTextRows(
+   local rows = common.inittextRows(
       geometry.LEFT_X,
       header.bottom_y,
       geometry.SECTION_WIDTH,

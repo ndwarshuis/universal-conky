@@ -14,7 +14,7 @@ return function()
       'PACMAN'
    )
 
-   local rows = common.initTextRows(
+   local rows = common.inittextRows(
       geometry.RIGHT_X,
       header.bottom_y,
       geometry.SECTION_WIDTH,

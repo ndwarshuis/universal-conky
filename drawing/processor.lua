@@ -1,6 +1,6 @@
-local CompoundDial 	= require 'CompoundDial'
-local Line = require 'Line'
-local Table	= require 'Table'
+local compounddial 	= require 'compounddial'
+local line = require 'line'
+local texttable = require 'texttable'
 local Util = require 'Util'
 local common = require 'common'
 local geometry = require 'geometry'
@@ -55,7 +55,7 @@ return function(update_freq)
             0.8,
             nthreads
          ),
-         coretemp = common.initTextRing(
+         coretemp = common.inittextRing(
             x,
             y,
             DIAL_INNER_RADIUS - 2,
@@ -77,7 +77,7 @@ return function(update_freq)
 
    local HWP_Y = header.bottom_y + DIAL_OUTER_RADIUS * 2 + PLOT_SECTION_BREAK
 
-   local cpu_status = common.initTextRows(
+   local cpu_status = common.inittextRows(
       geometry.LEFT_X,
       HWP_Y,
       geometry.SECTION_WIDTH,
@@ -122,7 +122,7 @@ return function(update_freq)
       func.seq(NUM_ROWS)
    )
 
-   local tbl = common.initTable(
+   local tbl = common.inittable(
       geometry.LEFT_X,
       PLOT_Y + PLOT_HEIGHT + TABLE_SECTION_BREAK,
       geometry.SECTION_WIDTH,
@@ -142,7 +142,7 @@ return function(update_freq)
       for _, load_data in pairs(cpu_loads) do
          local cur = load_data.percent_active
          load_sum = load_sum + cur
-         CompoundDial.set(cores[load_data.conky_core_id].loads, load_data.conky_thread_id, cur)
+         compounddial.set(cores[load_data.conky_core_id].loads, load_data.conky_thread_id, cur)
       end
 
       for conky_core_id, path in pairs(coretemp_paths) do
@@ -163,9 +163,9 @@ return function(update_freq)
       for r = 1, NUM_ROWS do
          local pid = conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
          if pid ~= '' then
-            Table.set(tbl, 1, r, Util.read_file('/proc/'..pid..'/comm', '(%C+)'))
-            Table.set(tbl, 2, r, pid)
-            Table.set(tbl, 3, r, conky(TABLE_CONKY[r].cpu))
+            texttable.set(tbl, 1, r, Util.read_file('/proc/'..pid..'/comm', '(%C+)'))
+            texttable.set(tbl, 2, r, pid)
+            texttable.set(tbl, 3, r, conky(TABLE_CONKY[r].cpu))
          end
       end
    end
@@ -175,27 +175,27 @@ return function(update_freq)
 
       for i = 1, #cores do
          common.text_ring_draw_static(cores[i].coretemp, cr)
-         CompoundDial.draw_static(cores[i].loads, cr)
+         compounddial.draw_static(cores[i].loads, cr)
       end
 
       common.text_rows_draw_static(cpu_status, cr)
-      Line.draw(separator, cr)
+      line.draw(separator, cr)
 
       common.percent_plot_draw_static(total_load, cr)
 
-      Table.draw_static(tbl, cr)
+      texttable.draw_static(tbl, cr)
    end
 
    local draw_dynamic = function(cr)
       for i = 1, #cores do
-         CompoundDial.draw_dynamic(cores[i].loads, cr)
+         compounddial.draw_dynamic(cores[i].loads, cr)
          common.text_ring_draw_dynamic(cores[i].coretemp, cr)
       end
 
       common.text_rows_draw_dynamic(cpu_status, cr)
       common.percent_plot_draw_dynamic(total_load, cr)
 
-      Table.draw_dynamic(tbl, cr)
+      texttable.draw_dynamic(tbl, cr)
    end
 
    return {static = draw_static, dynamic = draw_dynamic, update = update}

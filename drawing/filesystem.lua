@@ -1,4 +1,4 @@
-local Line = require 'Line'
+local line = require 'line'
 local Util = require 'Util'
 local common = require 'common'
 local geometry = require 'geometry'
@@ -23,7 +23,7 @@ return function()
    -----------------------------------------------------------------------------
    -- smartd
 
-   local smart = common.initTextRow(
+   local smart = common.inittextRow(
       geometry.RIGHT_X,
       header.bottom_y,
       geometry.SECTION_WIDTH,
@@ -78,7 +78,7 @@ return function()
    local draw_static = function(cr)
       common.drawHeader(cr, header)
       common.text_row_draw_static(smart, cr)
-      Line.draw(separator, cr)
+      line.draw(separator, cr)
       common.compound_bar_draw_static(fs, cr)
    end
 

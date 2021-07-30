@@ -1,5 +1,5 @@
-local Timeseries = require 'Timeseries'
-local Table = require 'Table'
+local timeseries = require 'timeseries'
+local texttable = require 'texttable'
 local Util = require 'Util'
 local common = require 'common'
 local geometry = require 'geometry'
@@ -85,7 +85,7 @@ return function(update_freq)
    local CACHE_X = SWAP_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
    local CACHE_WIDTH = geometry.RIGHT_X + geometry.SECTION_WIDTH - CACHE_X
 
-   local cache = common.initTextRows_formatted(
+   local cache = common.inittextRows_formatted(
       CACHE_X,
       CACHE_Y,
       CACHE_WIDTH,
@@ -122,7 +122,7 @@ return function(update_freq)
       end,
       func.seq(NUM_ROWS))
 
-   local tbl = common.initTable(
+   local tbl = common.inittable(
       geometry.RIGHT_X,
       PLOT_Y + PLOT_HEIGHT + TABLE_SECTION_BREAK,
       geometry.SECTION_WIDTH,
@@ -161,12 +161,12 @@ return function(update_freq)
       common.text_rows_set(cache, 3, shmem / memtotal * 100)
       common.text_rows_set(cache, 4, sreclaimable / memtotal * 100)
 
-      Timeseries.update(plot, used_percent)
+      timeseries.update(plot, used_percent)
 
       for r = 1, NUM_ROWS do
-         Table.set(tbl, 1, r, conky(TABLE_CONKY[r].comm, '(%S+)'))
-         Table.set(tbl, 2, r, conky(TABLE_CONKY[r].pid))
-         Table.set(tbl, 3, r, conky(TABLE_CONKY[r].mem))
+         texttable.set(tbl, 1, r, conky(TABLE_CONKY[r].comm, '(%S+)'))
+         texttable.set(tbl, 2, r, conky(TABLE_CONKY[r].pid))
+         texttable.set(tbl, 3, r, conky(TABLE_CONKY[r].mem))
       end
    end
 
@@ -175,16 +175,16 @@ return function(update_freq)
       common.dial_draw_static(mem, cr)
       common.dial_draw_static(swap, cr)
       common.text_rows_draw_static(cache, cr)
-      Timeseries.draw_static(plot, cr)
-      Table.draw_static(tbl, cr)
+      timeseries.draw_static(plot, cr)
+      texttable.draw_static(tbl, cr)
    end
 
    local draw_dynamic = function(cr)
       common.dial_draw_dynamic(mem, cr)
       common.dial_draw_dynamic(swap, cr)
       common.text_rows_draw_dynamic(cache, cr)
-      Timeseries.draw_dynamic(plot, cr)
-      Table.draw_dynamic(tbl, cr)
+      timeseries.draw_dynamic(plot, cr)
+      texttable.draw_dynamic(tbl, cr)
    end
 
    return {dynamic = draw_dynamic, static = draw_static, update = update}

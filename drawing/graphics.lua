@@ -1,5 +1,5 @@
-local Text			= require 'Text'
-local Line			= require 'Line'
+local text			= require 'text'
+local line			= require 'line'
 local Util			= require 'Util'
 local common		= require 'common'
 local geometry		= require 'geometry'
@@ -28,7 +28,7 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- gpu status
 
-   local status = common.initTextRow(
+   local status = common.inittextRow(
       geometry.LEFT_X,
       header.bottom_y,
       geometry.SECTION_WIDTH,
@@ -48,7 +48,7 @@ return function(update_freq)
 
    local INTERNAL_TEMP_Y = SEP_Y1 + SEPARATOR_SPACING
 
-   local internal_temp = common.initTextRowCrit(
+   local internal_temp = common.inittextRowCrit(
       geometry.LEFT_X,
       INTERNAL_TEMP_Y,
       geometry.SECTION_WIDTH,
@@ -72,7 +72,7 @@ return function(update_freq)
 
    local CLOCK_SPEED_Y = SEP_Y2 + SEPARATOR_SPACING
 
-   local clock_speed = common.initTextRows(
+   local clock_speed = common.inittextRows(
       geometry.LEFT_X,
       CLOCK_SPEED_Y,
       geometry.SECTION_WIDTH,
@@ -162,7 +162,7 @@ return function(update_freq)
       if Util.read_file(GPU_BUS_CTRL, nil, '*l') == 'on' then
          local nvidia_settings_glob = Util.execute_cmd(NV_QUERY)
          if nvidia_settings_glob == '' then
-            Text.set(status.value, 'Error')
+            text.set(status.value, 'Error')
             nvidia_off()
          else
             common.text_row_set(status, 'On')
@@ -180,7 +180,7 @@ return function(update_freq)
             common.percent_plot_set(vid_util, vid_utilization)
          end
       else
-         Text.set(status.value, 'Off')
+         text.set(status.value, 'Off')
          nvidia_off()
       end
    end
@@ -192,13 +192,13 @@ return function(update_freq)
       common.drawHeader(cr, header)
 
       common.text_row_draw_static(status, cr)
-      Line.draw(separator1, cr)
+      line.draw(separator1, cr)
 
       common.text_row_crit_draw_static(internal_temp, cr)
-      Line.draw(separator2, cr)
+      line.draw(separator2, cr)
 
       common.text_rows_draw_static(clock_speed, cr)
-      Line.draw(separator3, cr)
+      line.draw(separator3, cr)
 
       common.percent_plot_draw_static(gpu_util, cr)
       common.percent_plot_draw_static(mem_util, cr)
