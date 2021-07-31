@@ -43,7 +43,7 @@ return function()
 
    local BAR_Y = SEP_Y + SEPARATOR_SPACING
 
-   local fs = common.compound_bar(
+   local fs = common.make_compound_bar(
       geometry.RIGHT_X,
       BAR_Y,
       geometry.SECTION_WIDTH,

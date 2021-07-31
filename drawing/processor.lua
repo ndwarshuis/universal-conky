@@ -46,7 +46,7 @@ return function(update_freq)
 
    local create_core = function(x, y)
       return {
-         loads = common.compound_dial(
+         loads = common.make_compound_dial(
             x,
             y,
             DIAL_OUTER_RADIUS,
@@ -147,7 +147,7 @@ return function(update_freq)
 
       for conky_core_id, path in pairs(coretemp_paths) do
          local temp = __math_floor(0.001 * util.read_file(path, nil, '*n'))
-         common.text_ring_set(cores[conky_core_id].coretemp, temp)
+         common.text_circle_set(cores[conky_core_id].coretemp, temp)
       end
 
       -- For some reason this call is slow (querying anything with pstate in
@@ -174,7 +174,7 @@ return function(update_freq)
       common.draw_header(cr, header)
 
       for i = 1, #cores do
-         common.text_ring_draw_static(cores[i].coretemp, cr)
+         common.text_circle_draw_static(cores[i].coretemp, cr)
          compounddial.draw_static(cores[i].loads, cr)
       end
 
@@ -189,7 +189,7 @@ return function(update_freq)
    local draw_dynamic = function(cr)
       for i = 1, #cores do
          compounddial.draw_dynamic(cores[i].loads, cr)
-         common.text_ring_draw_dynamic(cores[i].coretemp, cr)
+         common.text_circle_draw_dynamic(cores[i].coretemp, cr)
       end
 
       common.text_rows_draw_dynamic(cpu_status, cr)

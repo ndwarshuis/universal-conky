@@ -55,7 +55,7 @@ return function(update_freq)
    local MEM_Y = header.bottom_y + DIAL_RADIUS + DIAL_THICKNESS / 2
    local DIAL_DIAMETER = DIAL_RADIUS * 2 + DIAL_THICKNESS
 
-   local mem = common.dial(
+   local mem = common.make_dial(
       MEM_X,
       MEM_Y,
       DIAL_RADIUS,
@@ -69,7 +69,7 @@ return function(update_freq)
 
    local SWAP_X = MEM_X + DIAL_DIAMETER + DIAL_SPACING
 
-   local swap = common.dial(
+   local swap = common.make_dial(
       SWAP_X,
       MEM_Y,
       DIAL_RADIUS,

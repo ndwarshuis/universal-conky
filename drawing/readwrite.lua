@@ -93,13 +93,13 @@ return function(update_freq)
 
    local draw_static = function(cr)
       common.draw_header(cr, header)
-      common.annotated_scale_plot_draw_static(reads, cr)
-      common.annotated_scale_plot_draw_static(writes, cr)
+      common.labeled_scale_plot_draw_static(reads, cr)
+      common.labeled_scale_plot_draw_static(writes, cr)
    end
 
    local draw_dynamic = function(cr)
-      common.annotated_scale_plot_draw_dynamic(reads, cr)
-      common.annotated_scale_plot_draw_dynamic(writes, cr)
+      common.labeled_scale_plot_draw_dynamic(reads, cr)
+      common.labeled_scale_plot_draw_dynamic(writes, cr)
    end
 
    return {static = draw_static, dynamic = draw_dynamic, update = update}

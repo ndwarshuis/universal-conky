@@ -265,16 +265,16 @@ M.make_labeled_scaled_timeseries = function(x, y, w, h, format_fun, label_fun,
    }
 end
 
-M.annotated_scale_plot_draw_static = function(asp, cr)
+M.labeled_scale_plot_draw_static = function(asp, cr)
    text.draw(asp.label, cr)
 end
 
-M.annotated_scale_plot_draw_dynamic = function(asp, cr)
+M.labeled_scale_plot_draw_dynamic = function(asp, cr)
    text.draw(asp.value, cr)
    scaledtimeseries.draw_dynamic(asp.plot, cr)
 end
 
-M.annotated_scale_plot_set = function(asp, value)
+M.labeled_scale_plot_set = function(asp, value)
    text.set(asp.value, value)
    scaledtimeseries.update(asp.plot, value)
 end
@@ -342,15 +342,15 @@ M.make_text_circle = function(x, y, r, fmt, limit)
    }
 end
 
-M.text_ring_draw_static = function(tr, cr)
+M.text_circle_draw_static = function(tr, cr)
    arc.draw(tr.ring, cr)
 end
 
-M.text_ring_draw_dynamic = function(tr, cr)
+M.text_circle_draw_dynamic = function(tr, cr)
    thresholdtext.draw(tr.value, cr)
 end
 
-M.text_ring_set = function(tr, value)
+M.text_circle_set = function(tr, value)
    thresholdtext.set(tr.value, value)
 end
 
@@ -365,36 +365,36 @@ local threshold_indicator = function(threshold)
    )
 end
 
-M.dial = function(x, y, radius, thickness, threshold, format)
+M.make_dial = function(x, y, radius, thickness, threshold, format)
    return {
       dial = dial.make(
          F.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
          arc.config(s.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
          threshold_indicator(threshold)
       ),
-      text_ring = M.make_text_circle(x, y, radius - thickness / 2 - 2, format, threshold),
+      text_circle = M.make_text_circle(x, y, radius - thickness / 2 - 2, format, threshold),
    }
 end
 
 M.dial_set = function(dl, value)
    dial.set(dl.dial, value)
-   M.text_ring_set(dl.text_ring, value)
+   M.text_circle_set(dl.text_circle, value)
 end
 
 M.dial_draw_static = function(dl, cr)
    dial.draw_static(dl.dial, cr)
-   M.text_ring_draw_static(dl.text_ring, cr)
+   M.text_circle_draw_static(dl.text_circle, cr)
 end
 
 M.dial_draw_dynamic = function(dl, cr)
    dial.draw_dynamic(dl.dial, cr)
-   M.text_ring_draw_dynamic(dl.text_ring, cr)
+   M.text_circle_draw_dynamic(dl.text_circle, cr)
 end
 
 --------------------------------------------------------------------------------
 -- compound dial
 
-M.compound_dial = function(x, y, outer_radius, inner_radius, thickness,
+M.make_compound_dial = function(x, y, outer_radius, inner_radius, thickness,
                            threshold, num_dials)
    return compounddial.make(
       F.make_semicircle(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
@@ -408,7 +408,7 @@ end
 --------------------------------------------------------------------------------
 -- annotated compound bar
 
-M.compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
+M.make_compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
    return {
       labels = textcolumn.make(
          F.make_point(x, y),
@@ -504,33 +504,20 @@ M.make_threshold_text_row = function(x, y, w, label, append_end, limit)
    }
 end
 
-M.text_row_crit_draw_static = M.text_row_draw_static
+M.threshold_text_row_draw_static = M.text_row_draw_static
 
-M.text_row_crit_draw_dynamic = function(row, cr)
+M.threshold_text_row_draw_dynamic = function(row, cr)
    thresholdtext.draw(row.value, cr)
 end
 
-M.text_row_crit_set = function(row, value)
+M.threshold_text_row_set = function(row, value)
    thresholdtext.set(row.value, value)
-end
-
---------------------------------------------------------------------------------
--- text column
-
-M.text_column = function(x, y, spacing, labels, x_align, color)
-   return textcolumn.make(
-      F.make_point(x, y),
-      labels,
-      _text_row_style(x_align, color),
-      nil,
-      spacing
-   )
 end
 
 --------------------------------------------------------------------------------
 -- multiple text row separated by spacing
 
-M.make_text_rows_color = function(x, y, w, spacing, labels, color, format)
+M.make_text_rows_formatted = function(x, y, w, spacing, labels, format)
    return {
       labels = textcolumn.make(
          F.make_point(x, y),
@@ -542,24 +529,12 @@ M.make_text_rows_color = function(x, y, w, spacing, labels, color, format)
       values = textcolumn.make_n(
          F.make_point(x + w, y),
          #labels,
-         _text_row_style('right', color),
+         _text_row_style('right', theme.PRIMARY_FG),
          format,
          spacing,
          0
       )
    }
-end
-
-M.make_text_rows_formatted = function(x, y, w, spacing, labels, format)
-   return M.make_text_rows_color(
-      x,
-      y,
-      w,
-      spacing,
-      labels,
-      theme.PRIMARY_FG,
-      format
-   )
 end
 
 M.make_text_rows = function(x, y, w, spacing, labels)

@@ -150,7 +150,7 @@ return function(update_freq)
    local GPU_BUS_CTRL = '/sys/bus/pci/devices/0000:01:00.0/power/control'
 
    local nvidia_off = function()
-      common.text_row_crit_set(internal_temp, -1)
+      common.threshold_text_row_set(internal_temp, -1)
       common.text_rows_set(clock_speed, 1, NA)
       common.text_rows_set(clock_speed, 2, NA)
       common.percent_timeseries_set(gpu_util, nil)
@@ -171,7 +171,7 @@ return function(update_freq)
                memory_frequency, gpu_utilization, vid_utilization
                = __string_match(nvidia_settings_glob, NV_REGEX)
 
-            common.text_row_crit_set(internal_temp, temp_reading)
+            common.threshold_text_row_set(internal_temp, temp_reading)
             common.text_rows_set(clock_speed, 1, gpu_frequency..' Mhz')
             common.text_rows_set(clock_speed, 2, memory_frequency..' Mhz')
 
@@ -194,7 +194,7 @@ return function(update_freq)
       common.text_row_draw_static(status, cr)
       line.draw(separator1, cr)
 
-      common.text_row_crit_draw_static(internal_temp, cr)
+      common.threshold_text_row_draw_static(internal_temp, cr)
       line.draw(separator2, cr)
 
       common.text_rows_draw_static(clock_speed, cr)
@@ -207,7 +207,7 @@ return function(update_freq)
 
    local draw_dynamic = function(cr)
       common.text_row_draw_dynamic(status, cr)
-      common.text_row_crit_draw_dynamic(internal_temp, cr)
+      common.threshold_text_row_draw_dynamic(internal_temp, cr)
       common.text_rows_draw_dynamic(clock_speed, cr)
       common.percent_timeseries_draw_dynamic(gpu_util, cr)
       common.percent_timeseries_draw_dynamic(mem_util, cr)
