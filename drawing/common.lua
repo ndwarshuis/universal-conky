@@ -16,7 +16,8 @@ local textcolumn = require 'textcolumn'
 local line = require 'line'
 local timeseries = require 'timeseries'
 local scaledtimeseries = require 'scaledtimeseries'
-local s = require 'style'
+local style = require 'style'
+local source = require 'source'
 
 --------------------------------------------------------------------------------
 -- constants
@@ -66,14 +67,14 @@ local normal_font_spec = make_font_spec(FONT, NORMAL_FONT_SIZE, false)
 local label_font_spec = make_font_spec(FONT, PLOT_LABEL_FONT_SIZE, false)
 
 local _text_row_style = function(x_align, color)
-   return text.style(normal_font_spec, color, x_align, 'center')
+   return text.config(normal_font_spec, color, x_align, 'center')
 end
 
 local _left_text_style = _text_row_style('left', theme.INACTIVE_TEXT_FG)
 local _right_text_style = _text_row_style('right', theme.PRIMARY_FG)
 
-local _bare_text = function(pt, _text, style)
-   return text.make_plain(pt, _text, style)
+local _bare_text = function(pt, _text, _style)
+   return text.make_plain(pt, _text, _style)
 end
 
 local _left_text = function(pt, _text)
@@ -106,7 +107,7 @@ local _format_percent_label = function(_)
 end
 
 local _format_percent_maybe = function(z)
-   if z == false then return 'N/A' else return string.format('%s%%', z) end
+   if z == -1 then return 'N/A' else return string.format('%s%%', z) end
 end
 
 local _percent_label_config = timeseries.label_config(
@@ -132,7 +133,7 @@ local _make_tagged_percent_timeseries = function(x, y, w, h, spacing, label, upd
          nil,
          _right_text_style,
          format,
-         thresholdtext.style(theme.CRITICAL_FG, 80)
+         thresholdtext.config(theme.CRITICAL_FG, 80)
       ),
       plot = M.make_percent_timeseries(
          x,
@@ -171,7 +172,7 @@ M.make_header = function(x, y, w, _text)
       text = text.make_plain(
          F.make_point(x, y),
          _text,
-         text.style(
+         text.config(
             make_font_spec(FONT, HEADER_FONT_SIZE, true),
             theme.HEADER_FG,
             'left',
@@ -183,7 +184,7 @@ M.make_header = function(x, y, w, _text)
          F.make_point(x, underline_y),
          F.make_point(x + w, underline_y),
          line.config(
-            s.line(HEADER_UNDERLINE_THICKNESS, HEADER_UNDERLINE_CAP),
+            style.line(HEADER_UNDERLINE_THICKNESS, HEADER_UNDERLINE_CAP),
             theme.HEADER_FG,
             true
          )
@@ -235,7 +236,7 @@ end
 
 M.tagged_maybe_percent_timeseries_set = function(obj, value)
    if value == false then
-      text.set(obj.value, false)
+      text.set(obj.value, -1)
       timeseries.update(obj.plot, 0)
    else
       M.tagged_percent_timeseries_set(obj, value)
@@ -348,7 +349,7 @@ end
 M.make_circle = function(x, y, r)
    return arc.make(
       F.make_semicircle(x, y, r, 0, 360),
-      arc.config(s.line(ARC_WIDTH, CAIRO_LINE_CAP_BUTT), theme.BORDER_FG)
+      arc.config(style.line(ARC_WIDTH, CAIRO_LINE_CAP_BUTT), theme.BORDER_FG)
    )
 end
 
@@ -361,9 +362,9 @@ M.make_text_circle = function(x, y, r, fmt, limit)
 	  value = thresholdtext.make_formatted(
          F.make_point(x, y),
          0,
-         text.style(normal_font_spec, theme.PRIMARY_FG, 'center', 'center'),
+         text.config(normal_font_spec, theme.PRIMARY_FG, 'center', 'center'),
          fmt,
-         thresholdtext.style(theme.CRITICAL_FG, limit)
+         thresholdtext.config(theme.CRITICAL_FG, limit)
 	  ),
    }
 end
@@ -384,7 +385,7 @@ end
 -- dial
 
 local threshold_indicator = function(threshold)
-   return F.threshold_style(
+   return source.threshold_config(
       theme.INDICATOR_FG_PRIMARY,
       theme.INDICATOR_FG_CRITICAL,
       threshold
@@ -395,7 +396,7 @@ M.make_dial = function(x, y, radius, thickness, threshold, format)
    return {
       dial = dial.make(
          F.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
-         arc.config(s.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
+         arc.config(style.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
          threshold_indicator(threshold)
       ),
       text_circle = M.make_text_circle(x, y, radius - thickness / 2 - 2, format, threshold),
@@ -424,7 +425,7 @@ M.make_compound_dial = function(x, y, outer_radius, inner_radius, thickness,
                            threshold, num_dials)
    return compounddial.make(
       F.make_semicircle(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
-      arc.config(s.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
+      arc.config(style.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
       threshold_indicator(threshold),
       inner_radius,
       num_dials
@@ -447,7 +448,7 @@ M.make_compound_bar = function(x, y, w, pad, labels, spacing, thickness, thresho
          F.make_point(x + pad, y),
          w - pad,
          line.config(
-            s.line(thickness, CAIRO_LINE_CAP_BUTT),
+            style.line(thickness, CAIRO_LINE_CAP_BUTT),
             theme.INDICATOR_BG,
             true
          ),
@@ -480,7 +481,7 @@ M.make_separator = function(x, y, w)
       F.make_point(x, y),
       F.make_point(x + w, y),
       line.config(
-         s.line(SEPARATOR_THICKNESS, CAIRO_LINE_CAP_BUTT),
+         style.line(SEPARATOR_THICKNESS, CAIRO_LINE_CAP_BUTT),
          theme.BORDER_FG,
          true
       )
@@ -520,7 +521,7 @@ M.make_threshold_text_row = function(x, y, w, label, append_end, limit)
          nil,
          _right_text_style,
          append_end,
-         thresholdtext.style(theme.CRITICAL_FG, limit)
+         thresholdtext.config(theme.CRITICAL_FG, limit)
       )
    }
 end
@@ -586,13 +587,13 @@ end
 
 local default_table_font_spec = make_font_spec(FONT, TABLE_FONT_SIZE, false)
 
-local default_table_style = tbl.style(
+local default_table_style = tbl.config(
    rect.config(
-      s.closed_poly(TABLE_LINE_THICKNESS, CAIRO_LINE_JOIN_MITER),
+      style.closed_poly(TABLE_LINE_THICKNESS, CAIRO_LINE_JOIN_MITER),
       theme.BORDER_FG
    ),
    line.config(
-      s.line(TABLE_LINE_THICKNESS, CAIRO_LINE_CAP_BUTT),
+      style.line(TABLE_LINE_THICKNESS, CAIRO_LINE_CAP_BUTT),
       theme.BORDER_FG,
       true
    ),
@@ -630,7 +631,7 @@ M.make_panel = function(x, y, w, h, thickness)
    return fillrect.make(
       F.make_box(x, y, w, h),
       rect.config(
-         s.closed_poly(thickness, CAIRO_LINE_JOIN_MITER),
+         style.closed_poly(thickness, CAIRO_LINE_JOIN_MITER),
          theme.BORDER_FG
       ),
       theme.PANEL_BG
