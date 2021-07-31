@@ -99,12 +99,11 @@ return function(update_freq)
 
    local PLOT_Y = header.bottom_y + PLOT_SECTION_BREAK + DIAL_DIAMETER
 
-   local plot = common.make_label_timeseries(
+   local plot = common.make_percent_timeseries(
       geometry.RIGHT_X,
       PLOT_Y,
       geometry.SECTION_WIDTH,
       PLOT_HEIGHT,
-      common.percent_label_config,
       update_freq
    )
 

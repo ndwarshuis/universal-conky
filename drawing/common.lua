@@ -51,12 +51,12 @@ local DIAL_THETA0 = 90
 local DIAL_THETA1 = 360
 
 --------------------------------------------------------------------------------
--- helper functions
+-- text helper functions
 
-local make_font_spec = function(f, s, bold)
+local make_font_spec = function(f, size, bold)
    return {
       family = f,
-      size = s,
+      size = size,
       weight = bold and CAIRO_FONT_WEIGHT_BOLD or CAIRO_FONT_WEIGHT_NORMAL,
       slant = CAIRO_FONT_WEIGHT_NORMAL,
    }
@@ -69,19 +69,96 @@ local _text_row_style = function(x_align, color)
    return text.style(normal_font_spec, color, x_align, 'center')
 end
 
-local left_text_style = _text_row_style('left', theme.INACTIVE_TEXT_FG)
-local right_text_style = _text_row_style('right', theme.PRIMARY_FG)
+local _left_text_style = _text_row_style('left', theme.INACTIVE_TEXT_FG)
+local _right_text_style = _text_row_style('right', theme.PRIMARY_FG)
 
 local _bare_text = function(pt, _text, style)
    return text.make_plain(pt, _text, style)
 end
 
 local _left_text = function(pt, _text)
-   return _bare_text(pt, _text, left_text_style)
+   return _bare_text(pt, _text, _left_text_style)
 end
 
 local _right_text = function(pt, _text)
-   return _bare_text(pt, _text, right_text_style)
+   return _bare_text(pt, _text, _right_text_style)
+end
+
+--------------------------------------------------------------------------------
+-- timeseries helper functions
+
+local _default_grid_config = timeseries.grid_config(
+   PLOT_GRID_X_N,
+   PLOT_GRID_Y_N,
+   theme.PLOT_GRID_FG
+)
+
+local _default_plot_config = timeseries.config(
+   PLOT_NUM_POINTS,
+   theme.PLOT_OUTLINE_FG,
+   theme.PLOT_FILL_BORDER_PRIMARY,
+   theme.PLOT_FILL_BG_PRIMARY,
+   _default_grid_config
+)
+
+local _format_percent_label = function(_)
+   return function(z) return util.round_to_string(z * 100)..'%' end
+end
+
+local _format_percent_maybe = function(z)
+   if z == false then return 'N/A' else return string.format('%s%%', z) end
+end
+
+local _percent_label_config = timeseries.label_config(
+   theme.INACTIVE_TEXT_FG,
+   label_font_spec,
+   _format_percent_label
+)
+
+local _make_timeseries = function(x, y, w, h, label_config, update_freq)
+   return timeseries.make(
+      F.make_box(x, y, w, h),
+      update_freq,
+      _default_plot_config,
+      label_config
+   )
+end
+
+local _make_tagged_percent_timeseries = function(x, y, w, h, spacing, label, update_freq, format)
+   return {
+      label = _left_text(F.make_point(x, y), label),
+      value = thresholdtext.make_formatted(
+         F.make_point(x + w, y),
+         nil,
+         _right_text_style,
+         format,
+         thresholdtext.style(theme.CRITICAL_FG, 80)
+      ),
+      plot = M.make_percent_timeseries(
+         x,
+         y + spacing,
+         w,
+         h,
+         update_freq
+      ),
+   }
+end
+
+--------------------------------------------------------------------------------
+-- scaled timeseries helper functions
+
+local _base_2_scale_data = function(m)
+   return scaledtimeseries.scaling_parameters(2, m, 0.9)
+end
+
+local _make_scaled_timeseries = function(x, y, w, h, f, min_domain, update_freq)
+   return scaledtimeseries.make(
+      F.make_box(x, y, w, h),
+      update_freq,
+      _default_plot_config,
+      timeseries.label_config(theme.INACTIVE_TEXT_FG, label_font_spec, f),
+      _base_2_scale_data(min_domain)
+   )
 end
 
 --------------------------------------------------------------------------------
@@ -120,86 +197,49 @@ M.draw_header = function(cr, header)
 end
 
 --------------------------------------------------------------------------------
--- label plot
+-- percent timeseries
 
-local default_grid_config = timeseries.grid_config(
-   PLOT_GRID_X_N,
-   PLOT_GRID_Y_N,
-   theme.PLOT_GRID_FG
-)
-
-local default_plot_config = timeseries.config(
-   PLOT_NUM_POINTS,
-   theme.PLOT_OUTLINE_FG,
-   theme.PLOT_FILL_BORDER_PRIMARY,
-   theme.PLOT_FILL_BG_PRIMARY,
-   default_grid_config
-)
-
-M.percent_label_config = timeseries.label_config(
-   theme.INACTIVE_TEXT_FG,
-   label_font_spec,
-   function(_) return function(z) return util.round_to_string(z * 100)..'%' end end
-)
-
-M.make_label_timeseries = function(x, y, w, h, label_config, update_freq)
-   return timeseries.make(
-      F.make_box(x, y, w, h),
-      update_freq,
-      default_plot_config,
-      label_config
-   )
+M.make_percent_timeseries = function(x, y, w, h, update_freq)
+   return _make_timeseries(x, y, w, h, _percent_label_config, update_freq)
 end
 
 --------------------------------------------------------------------------------
--- percent plot (label plot with percent signs and some indicator data above it)
+-- tagged percent timeseries
 
-M.make_percent_timeseries_formatted = function(x, y, w, h, spacing, label, update_freq, format)
-   return {
-      label = _left_text(F.make_point(x, y), label),
-      value = thresholdtext.make_formatted(
-         F.make_point(x + w, y),
-         nil,
-         right_text_style,
-         format,
-         thresholdtext.style(theme.CRITICAL_FG, 80)
-      ),
-      plot = M.make_label_timeseries(
-         x,
-         y + spacing,
-         w,
-         h,
-         M.percent_label_config,
-         update_freq
-      ),
-   }
+M.make_tagged_percent_timeseries = function(x, y, w, h, spacing, label, update_freq)
+   return _make_tagged_percent_timeseries(
+      x, y, w, h, spacing, label, update_freq, '%s%%'
+   )
 end
 
-M.make_percent_timeseries = function(x, y, w, h, spacing, label, update_freq)
-   return M.make_percent_timeseries_formatted(x, y, w, h, spacing, label, update_freq, '%s%%')
+M.make_tagged_maybe_percent_timeseries = function(x, y, w, h, spacing, label, update_freq)
+   return _make_tagged_percent_timeseries(
+      x, y, w, h, spacing, label, update_freq, _format_percent_maybe
+   )
 end
 
-M.percent_timeseries_draw_static = function(pp, cr)
+M.tagged_percent_timeseries_draw_static = function(pp, cr)
    text.draw(pp.label, cr)
    timeseries.draw_static(pp.plot, cr)
 end
 
-M.percent_timeseries_draw_dynamic = function(pp, cr)
-   thresholdtext.draw(pp.value, cr)
-   timeseries.draw_dynamic(pp.plot, cr)
+M.tagged_percent_timeseries_draw_dynamic = function(obj, cr)
+   thresholdtext.draw(obj.value, cr)
+   timeseries.draw_dynamic(obj.plot, cr)
 end
 
--- TODO this is pretty confusing, nil means -1 which gets fed to any text
--- formatting functions
-M.percent_timeseries_set = function(pp, value)
-   local t = -1
-   local p = 0
-   if value ~= nil then
-      t = math.floor(value)
-      p = value * 0.01
+M.tagged_percent_timeseries_set = function(obj, value)
+   text.set(obj.value, math.floor(value))
+   timeseries.update(obj.plot, value * 0.01)
+end
+
+M.tagged_maybe_percent_timeseries_set = function(obj, value)
+   if value == false then
+      text.set(obj.value, false)
+      timeseries.update(obj.plot, 0)
+   else
+      M.tagged_percent_timeseries_set(obj, value)
    end
-   text.set(pp.value, t)
-   timeseries.update(pp.plot, p)
 end
 
 --------------------------------------------------------------------------------
@@ -233,48 +273,34 @@ M.converted_y_label_format_generator = function(unit)
    end
 end
 
-local base_2_scale_data = function(m)
-   return scaledtimeseries.scaling_parameters(2, m, 0.9)
-end
-
-M.make_scaled_timeseries = function(x, y, w, h, f, min_domain, update_freq)
-   return scaledtimeseries.make(
-      F.make_box(x, y, w, h),
-      update_freq,
-      default_plot_config,
-      timeseries.label_config(theme.INACTIVE_TEXT_FG, label_font_spec, f),
-      base_2_scale_data(min_domain)
-   )
-end
-
 --------------------------------------------------------------------------------
--- scaled plot (with textual data above it)
+-- tagged scaled plot
 
-M.make_labeled_scaled_timeseries = function(x, y, w, h, format_fun, label_fun,
-                                            spacing, label, min_domain,
-                                            update_freq)
+M.make_tagged_scaled_timeseries = function(x, y, w, h, format_fun, label_fun,
+                                           spacing, label, min_domain,
+                                           update_freq)
    return {
       label = _left_text(F.make_point(x, y), label),
       value = text.make_formatted(
          F.make_point(x + w, y),
          0,
-         right_text_style,
+         _right_text_style,
          format_fun
       ),
-      plot = M.make_scaled_timeseries(x, y + spacing, w, h, label_fun, min_domain, update_freq),
+      plot = _make_scaled_timeseries(x, y + spacing, w, h, label_fun, min_domain, update_freq),
    }
 end
 
-M.labeled_scale_plot_draw_static = function(asp, cr)
+M.tagged_scaled_timeseries_draw_static = function(asp, cr)
    text.draw(asp.label, cr)
 end
 
-M.labeled_scale_plot_draw_dynamic = function(asp, cr)
+M.tagged_scaled_timeseries_draw_dynamic = function(asp, cr)
    text.draw(asp.value, cr)
    scaledtimeseries.draw_dynamic(asp.plot, cr)
 end
 
-M.labeled_scale_plot_set = function(asp, value)
+M.tagged_scaled_timeseries_set = function(asp, value)
    text.set(asp.value, value)
    scaledtimeseries.update(asp.plot, value)
 end
@@ -300,10 +326,10 @@ M.make_rate_timeseries = function(x, y, w, h, format_fun, label_fun, spacing,
       value = text.make_formatted(
          F.make_point(x + w, y),
          0,
-         right_text_style,
+         _right_text_style,
          format_fun
       ),
-      plot = M.make_scaled_timeseries(x, y + spacing, w, h, label_fun, min_domain, update_freq),
+      plot = _make_scaled_timeseries(x, y + spacing, w, h, label_fun, min_domain, update_freq),
       prev_value = init,
       derive = make_differential(update_freq),
    }
@@ -317,7 +343,7 @@ M.update_rate_timeseries = function(obj, value)
 end
 
 --------------------------------------------------------------------------------
--- ring
+-- circle
 
 M.make_circle = function(x, y, r)
    return arc.make(
@@ -413,7 +439,7 @@ M.make_compound_bar = function(x, y, w, pad, labels, spacing, thickness, thresho
       labels = textcolumn.make(
          F.make_point(x, y),
          labels,
-         left_text_style,
+         _left_text_style,
          nil,
          spacing
       ),
@@ -492,12 +518,7 @@ M.make_threshold_text_row = function(x, y, w, label, append_end, limit)
       value = thresholdtext.make_formatted(
          F.make_point(x + w, y),
          nil,
-         text.style(
-            normal_font_spec,
-            theme.PRIMARY_FG,
-            'right',
-            'center'
-         ),
+         _right_text_style,
          append_end,
          thresholdtext.style(theme.CRITICAL_FG, limit)
       )
@@ -522,14 +543,14 @@ M.make_text_rows_formatted = function(x, y, w, spacing, labels, format)
       labels = textcolumn.make(
          F.make_point(x, y),
          labels,
-         left_text_style,
+         _left_text_style,
          nil,
          spacing
       ),
       values = textcolumn.make_n(
          F.make_point(x + w, y),
          #labels,
-         _text_row_style('right', theme.PRIMARY_FG),
+         _right_text_style,
          format,
          spacing,
          0

@@ -96,13 +96,13 @@ return function(update_freq)
 
    local draw_static = function(cr)
       common.draw_header(cr, header)
-      common.labeled_scale_plot_draw_static(rx, cr)
-      common.labeled_scale_plot_draw_static(tx, cr)
+      common.tagged_scaled_timeseries_draw_static(rx, cr)
+      common.tagged_scaled_timeseries_draw_static(tx, cr)
    end
 
    local draw_dynamic = function(cr)
-      common.labeled_scale_plot_draw_dynamic(rx, cr)
-      common.labeled_scale_plot_draw_dynamic(tx, cr)
+      common.tagged_scaled_timeseries_draw_dynamic(rx, cr)
+      common.tagged_scaled_timeseries_draw_dynamic(tx, cr)
    end
 
    return {static = draw_static, dynamic = draw_dynamic, update = update}

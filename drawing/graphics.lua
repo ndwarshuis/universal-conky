@@ -91,20 +91,15 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- gpu utilization plot
 
-   local na_percent_format = function(x)
-      if x == -1 then return NA else return __string_format('%s%%', x) end
-   end
-
    local make_plot = function(y, label)
-      return common.make_percent_timeseries_formatted(
+      return common.make_tagged_maybe_percent_timeseries(
          geometry.LEFT_X,
          y,
          geometry.SECTION_WIDTH,
          PLOT_HEIGHT,
          PLOT_SEC_BREAK,
          label,
-         update_freq,
-         na_percent_format
+         update_freq
       )
    end
 
@@ -153,9 +148,9 @@ return function(update_freq)
       common.threshold_text_row_set(internal_temp, -1)
       common.text_rows_set(clock_speed, 1, NA)
       common.text_rows_set(clock_speed, 2, NA)
-      common.percent_timeseries_set(gpu_util, nil)
-      common.percent_timeseries_set(vid_util, nil)
-      common.percent_timeseries_set(mem_util, nil)
+      common.tagged_maybe_percent_timeseries_set(gpu_util, false)
+      common.tagged_maybe_percent_timeseries_set(vid_util, false)
+      common.tagged_maybe_percent_timeseries_set(mem_util, false)
    end
 
    local update = function()
@@ -170,14 +165,15 @@ return function(update_freq)
             local used_memory, total_memory, temp_reading, gpu_frequency,
                memory_frequency, gpu_utilization, vid_utilization
                = __string_match(nvidia_settings_glob, NV_REGEX)
+            local mem_utilization = used_memory / total_memory * 100
 
             common.threshold_text_row_set(internal_temp, temp_reading)
             common.text_rows_set(clock_speed, 1, gpu_frequency..' Mhz')
             common.text_rows_set(clock_speed, 2, memory_frequency..' Mhz')
 
-            common.percent_timeseries_set(gpu_util, gpu_utilization)
-            common.percent_timeseries_set(mem_util, used_memory / total_memory * 100)
-            common.percent_timeseries_set(vid_util, vid_utilization)
+            common.tagged_maybe_percent_timeseries_set(gpu_util, gpu_utilization)
+            common.tagged_maybe_percent_timeseries_set(mem_util, mem_utilization)
+            common.tagged_maybe_percent_timeseries_set(vid_util, vid_utilization)
          end
       else
          text.set(status.value, 'Off')
@@ -200,18 +196,18 @@ return function(update_freq)
       common.text_rows_draw_static(clock_speed, cr)
       line.draw(separator3, cr)
 
-      common.percent_timeseries_draw_static(gpu_util, cr)
-      common.percent_timeseries_draw_static(mem_util, cr)
-      common.percent_timeseries_draw_static(vid_util, cr)
+      common.tagged_percent_timeseries_draw_static(gpu_util, cr)
+      common.tagged_percent_timeseries_draw_static(mem_util, cr)
+      common.tagged_percent_timeseries_draw_static(vid_util, cr)
    end
 
    local draw_dynamic = function(cr)
       common.text_row_draw_dynamic(status, cr)
       common.threshold_text_row_draw_dynamic(internal_temp, cr)
       common.text_rows_draw_dynamic(clock_speed, cr)
-      common.percent_timeseries_draw_dynamic(gpu_util, cr)
-      common.percent_timeseries_draw_dynamic(mem_util, cr)
-      common.percent_timeseries_draw_dynamic(vid_util, cr)
+      common.tagged_percent_timeseries_draw_dynamic(gpu_util, cr)
+      common.tagged_percent_timeseries_draw_dynamic(mem_util, cr)
+      common.tagged_percent_timeseries_draw_dynamic(vid_util, cr)
    end
 
    return {static = draw_static, dynamic = draw_dynamic, update = update}

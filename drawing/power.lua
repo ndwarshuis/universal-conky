@@ -98,7 +98,7 @@ return function(update_freq)
    end
 
    local BAT_Y = DRAM_Y + PLOT_SEC_BREAK * 2 + PLOT_HEIGHT
-   local bat = common.make_labeled_scaled_timeseries(
+   local bat = common.make_tagged_scaled_timeseries(
       geometry.RIGHT_X,
       BAT_Y,
       geometry.SECTION_WIDTH,
@@ -117,20 +117,20 @@ return function(update_freq)
    local update = function(is_using_ac)
       common.update_rate_timeseries(pkg0, read_pkg0_joules())
       common.update_rate_timeseries(dram, read_dram_joules())
-      common.labeled_scale_plot_set(bat, read_battery_power(is_using_ac))
+      common.tagged_scaled_timeseries_set(bat, read_battery_power(is_using_ac))
    end
 
    local draw_static = function(cr)
       common.draw_header(cr, header)
-      common.labeled_scale_plot_draw_static(pkg0, cr)
-      common.labeled_scale_plot_draw_static(dram, cr)
-      common.labeled_scale_plot_draw_static(bat, cr)
+      common.tagged_scaled_timeseries_draw_static(pkg0, cr)
+      common.tagged_scaled_timeseries_draw_static(dram, cr)
+      common.tagged_scaled_timeseries_draw_static(bat, cr)
    end
 
    local draw_dynamic = function(cr)
-      common.labeled_scale_plot_draw_dynamic(pkg0, cr)
-      common.labeled_scale_plot_draw_dynamic(dram, cr)
-      common.labeled_scale_plot_draw_dynamic(bat, cr)
+      common.tagged_scaled_timeseries_draw_dynamic(pkg0, cr)
+      common.tagged_scaled_timeseries_draw_dynamic(dram, cr)
+      common.tagged_scaled_timeseries_draw_dynamic(bat, cr)
    end
 
    return {static = draw_static, dynamic = draw_dynamic, update = update}

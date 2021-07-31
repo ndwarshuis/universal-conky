@@ -101,7 +101,7 @@ return function(update_freq)
 
    local LOAD_Y = SEP_Y + SEPARATOR_SPACING
 
-   local total_load = common.make_percent_timeseries(
+   local total_load = common.make_tagged_percent_timeseries(
       geometry.LEFT_X,
       LOAD_Y,
       geometry.SECTION_WIDTH,
@@ -158,7 +158,7 @@ return function(update_freq)
       end
       common.text_rows_set(cpu_status, 2, cpu.read_freq())
 
-      common.percent_timeseries_set(total_load, load_sum / ncpus * 100)
+      common.tagged_percent_timeseries_set(total_load, load_sum / ncpus * 100)
 
       for r = 1, NUM_ROWS do
          local pid = conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
@@ -181,7 +181,7 @@ return function(update_freq)
       common.text_rows_draw_static(cpu_status, cr)
       line.draw(separator, cr)
 
-      common.percent_timeseries_draw_static(total_load, cr)
+      common.tagged_percent_timeseries_draw_static(total_load, cr)
 
       texttable.draw_static(tbl, cr)
    end
@@ -193,7 +193,7 @@ return function(update_freq)
       end
 
       common.text_rows_draw_dynamic(cpu_status, cr)
-      common.percent_timeseries_draw_dynamic(total_load, cr)
+      common.tagged_percent_timeseries_draw_dynamic(total_load, cr)
 
       texttable.draw_dynamic(tbl, cr)
    end
