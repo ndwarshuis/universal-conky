@@ -8,6 +8,7 @@ local rect = require 'rect'
 local fillrect = require 'fillrect'
 local compounddial = require 'compounddial'
 local arc = require 'arc'
+local circle = require 'circle'
 local text = require 'text'
 local tbl = require 'texttable'
 local compoundbar = require 'compoundbar'
@@ -50,6 +51,13 @@ local ARC_WIDTH = 2
 
 local DIAL_THETA0 = 90
 local DIAL_THETA1 = 360
+
+--------------------------------------------------------------------------------
+-- line helper functions
+
+local _make_horizontal_line = function(x, y, w)
+   return F.make_line(F.make_point(x, y), F.make_point(x + w, y))
+end
 
 --------------------------------------------------------------------------------
 -- text helper functions
@@ -181,8 +189,7 @@ M.make_header = function(x, y, w, _text)
       ),
       bottom_y = bottom_y,
       underline = line.make(
-         F.make_point(x, underline_y),
-         F.make_point(x + w, underline_y),
+         _make_horizontal_line(x, underline_y, w),
          line.config(
             style.line(HEADER_UNDERLINE_THICKNESS, HEADER_UNDERLINE_CAP),
             theme.HEADER_FG,
@@ -347,9 +354,9 @@ end
 -- circle
 
 M.make_circle = function(x, y, r)
-   return arc.make(
-      F.make_semicircle(x, y, r, 0, 360),
-      arc.config(style.line(ARC_WIDTH, CAIRO_LINE_CAP_BUTT), theme.BORDER_FG)
+   return circle.make(
+      F.make_circle(x, y, r),
+      circle.config(style.line(ARC_WIDTH, CAIRO_LINE_CAP_BUTT), theme.BORDER_FG)
    )
 end
 
@@ -395,7 +402,7 @@ end
 M.make_dial = function(x, y, radius, thickness, threshold, format)
    return {
       dial = dial.make(
-         F.make_semicircle(x, y, radius, DIAL_THETA0, DIAL_THETA1),
+         F.make_arc(x, y, radius, DIAL_THETA0, DIAL_THETA1),
          arc.config(style.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
          threshold_indicator(threshold)
       ),
@@ -424,7 +431,7 @@ end
 M.make_compound_dial = function(x, y, outer_radius, inner_radius, thickness,
                            threshold, num_dials)
    return compounddial.make(
-      F.make_semicircle(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
+      F.make_arc(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
       arc.config(style.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
       threshold_indicator(threshold),
       inner_radius,
@@ -478,8 +485,7 @@ end
 
 M.make_separator = function(x, y, w)
    return line.make(
-      F.make_point(x, y),
-      F.make_point(x + w, y),
+      _make_horizontal_line(x, y, w),
       line.config(
          style.line(SEPARATOR_THICKNESS, CAIRO_LINE_CAP_BUTT),
          theme.BORDER_FG,
