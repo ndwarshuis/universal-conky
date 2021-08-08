@@ -38,10 +38,6 @@ function conky_start(update_interval)
    local devices = {'sda', 'nvme0n1'}
    local battery = 'BAT0'
    local fs_paths = {'/', '/boot', '/home', '/mnt/data', '/mnt/dcache', "/tmp"}
-   local STATS_FILE = '/tmp/.conky_pacman'
-
-   -- TODO so far this seems like the best way to 'fork' a process from conky
-   i_o.execute_cmd('systemctl --user start conky_pacman.timer')
 
    local mem = memory(update_freq)
    local rw = readwrite(update_freq, devices)
@@ -61,6 +57,7 @@ function conky_start(update_interval)
       {pcm.static, fs.static, pwr.static, mem.static}
    )
 
+   local STATS_FILE = '/tmp/.conky_pacman'
 
    draw_dynamic = function(cr, _updates)
       -- draw static components
@@ -92,10 +89,6 @@ function conky_start(update_interval)
       pwr.dynamic(cr)
       mem.dynamic(cr)
    end
-end
-
-function conky_stop()
-   i_o.execute_cmd('systemctl --user stop conky_pacman.timer')
 end
 
 local updates = -2 -- this accounts for the first few spazzy iterations
