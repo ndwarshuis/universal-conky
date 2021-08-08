@@ -593,40 +593,47 @@ end
 
 local default_table_font_spec = make_font_spec(FONT, TABLE_FONT_SIZE, false)
 
-local default_table_style = tbl.config(
-   rect.config(
-      style.closed_poly(TABLE_LINE_THICKNESS, CAIRO_LINE_JOIN_MITER),
-      theme.BORDER_FG
-   ),
-   line.config(
-      style.line(TABLE_LINE_THICKNESS, CAIRO_LINE_CAP_BUTT),
-      theme.BORDER_FG,
-      true
-   ),
-   tbl.header_config(
-      default_table_font_spec,
-      theme.PRIMARY_FG,
-      TABLE_HEADER_PAD
-   ),
-   tbl.body_config(
-      default_table_font_spec,
-      theme.INACTIVE_TEXT_FG,
-      TABLE_BODY_FORMAT
-   ),
-   F.padding(
-      TABLE_HORZ_PAD,
-      TABLE_VERT_PAD,
-      TABLE_HORZ_PAD,
-      TABLE_VERT_PAD
+local default_table_config = function(label)
+   return tbl.config(
+      rect.config(
+         style.closed_poly(TABLE_LINE_THICKNESS, CAIRO_LINE_JOIN_MITER),
+         theme.BORDER_FG
+      ),
+      line.config(
+         style.line(TABLE_LINE_THICKNESS, CAIRO_LINE_CAP_BUTT),
+         theme.BORDER_FG,
+         true
+      ),
+      tbl.header_config(
+         default_table_font_spec,
+         theme.PRIMARY_FG,
+         TABLE_HEADER_PAD
+      ),
+      tbl.body_config(
+         default_table_font_spec,
+         theme.INACTIVE_TEXT_FG,
+         -- TABLE_BODY_FORMAT,
+         {
+            tbl.column_config('Name', TABLE_BODY_FORMAT),
+            tbl.column_config('PID', false),
+            tbl.column_config(label, false),
+         }
+      ),
+      tbl.padding(
+         TABLE_HORZ_PAD,
+         TABLE_VERT_PAD,
+         TABLE_HORZ_PAD,
+         TABLE_VERT_PAD
+      )
    )
-)
+end
 
-M.make_text_table = function(x, y, w, h, n, labels)
+M.make_text_table = function(x, y, w, h, n, label)
    return tbl.make(
       F.make_box(x, y, w, h),
       n,
-      labels,
-      default_table_style
+      -- labels,
+      default_table_config(label)
    )
 end
 

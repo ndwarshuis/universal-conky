@@ -128,7 +128,7 @@ return function(update_freq)
       geometry.SECTION_WIDTH,
       TABLE_HEIGHT,
       NUM_ROWS,
-      {'Name', 'PID', 'cpu (%)'}
+      'CPU (%)'
    )
 
    -----------------------------------------------------------------------------
