@@ -1,5 +1,5 @@
 local timeseries = require 'timeseries'
-local texttable = require 'texttable'
+local text_table = require 'text_table'
 local i_o = require 'i_o'
 local common = require 'common'
 local geometry = require 'geometry'
@@ -161,9 +161,9 @@ return function(update_freq)
       timeseries.update(plot, used_percent)
 
       for r = 1, NUM_ROWS do
-         texttable.set(tbl, 1, r, i_o.conky(TABLE_CONKY[r].comm, '(%S+)'))
-         texttable.set(tbl, 2, r, i_o.conky(TABLE_CONKY[r].pid))
-         texttable.set(tbl, 3, r, i_o.conky(TABLE_CONKY[r].mem))
+         text_table.set(tbl, 1, r, i_o.conky(TABLE_CONKY[r].comm, '(%S+)'))
+         text_table.set(tbl, 2, r, i_o.conky(TABLE_CONKY[r].pid))
+         text_table.set(tbl, 3, r, i_o.conky(TABLE_CONKY[r].mem))
       end
    end
 
@@ -173,7 +173,7 @@ return function(update_freq)
       common.dial_draw_static(swap, cr)
       common.text_rows_draw_static(cache, cr)
       timeseries.draw_static(plot, cr)
-      texttable.draw_static(tbl, cr)
+      text_table.draw_static(tbl, cr)
    end
 
    local draw_dynamic = function(cr)
@@ -181,7 +181,7 @@ return function(update_freq)
       common.dial_draw_dynamic(swap, cr)
       common.text_rows_draw_dynamic(cache, cr)
       timeseries.draw_dynamic(plot, cr)
-      texttable.draw_dynamic(tbl, cr)
+      text_table.draw_dynamic(tbl, cr)
    end
 
    return {dynamic = draw_dynamic, static = draw_static, update = update}

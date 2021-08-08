@@ -1,6 +1,6 @@
-local compounddial 	= require 'compounddial'
+local compound_dial 	= require 'compound_dial'
 local line = require 'line'
-local texttable = require 'texttable'
+local text_table = require 'text_table'
 local i_o = require 'i_o'
 local common = require 'common'
 local geometry = require 'geometry'
@@ -141,7 +141,7 @@ return function(update_freq)
       for _, load_data in pairs(cpu_loads) do
          local cur = load_data.percent_active
          load_sum = load_sum + cur
-         compounddial.set(cores[load_data.conky_core_id].loads, load_data.conky_thread_id, cur)
+         compound_dial.set(cores[load_data.conky_core_id].loads, load_data.conky_thread_id, cur)
       end
 
       for conky_core_id, path in pairs(coretemp_paths) do
@@ -162,9 +162,9 @@ return function(update_freq)
       for r = 1, NUM_ROWS do
          local pid = i_o.conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
          if pid ~= '' then
-            texttable.set(tbl, 1, r, i_o.read_file('/proc/'..pid..'/comm', '(%C+)'))
-            texttable.set(tbl, 2, r, pid)
-            texttable.set(tbl, 3, r, i_o.conky(TABLE_CONKY[r].cpu))
+            text_table.set(tbl, 1, r, i_o.read_file('/proc/'..pid..'/comm', '(%C+)'))
+            text_table.set(tbl, 2, r, pid)
+            text_table.set(tbl, 3, r, i_o.conky(TABLE_CONKY[r].cpu))
          end
       end
    end
@@ -174,7 +174,7 @@ return function(update_freq)
 
       for i = 1, #cores do
          common.text_circle_draw_static(cores[i].coretemp, cr)
-         compounddial.draw_static(cores[i].loads, cr)
+         compound_dial.draw_static(cores[i].loads, cr)
       end
 
       common.text_rows_draw_static(cpu_status, cr)
@@ -182,19 +182,19 @@ return function(update_freq)
 
       common.tagged_percent_timeseries_draw_static(total_load, cr)
 
-      texttable.draw_static(tbl, cr)
+      text_table.draw_static(tbl, cr)
    end
 
    local draw_dynamic = function(cr)
       for i = 1, #cores do
-         compounddial.draw_dynamic(cores[i].loads, cr)
+         compound_dial.draw_dynamic(cores[i].loads, cr)
          common.text_circle_draw_dynamic(cores[i].coretemp, cr)
       end
 
       common.text_rows_draw_dynamic(cpu_status, cr)
       common.tagged_percent_timeseries_draw_dynamic(total_load, cr)
 
-      texttable.draw_dynamic(tbl, cr)
+      text_table.draw_dynamic(tbl, cr)
    end
 
    return {static = draw_static, dynamic = draw_dynamic, update = update}

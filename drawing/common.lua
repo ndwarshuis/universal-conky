@@ -5,18 +5,18 @@ local format = require 'format'
 local theme = require 'theme'
 local dial = require 'dial'
 local rect = require 'rect'
-local fillrect = require 'fillrect'
-local compounddial = require 'compounddial'
+local fill_rect = require 'fill_rect'
+local compound_dial = require 'compound_dial'
 local arc = require 'arc'
 local circle = require 'circle'
 local text = require 'text'
-local tbl = require 'texttable'
-local compoundbar = require 'compoundbar'
-local thresholdtext = require 'thresholdtext'
-local textcolumn = require 'textcolumn'
+local tbl = require 'text_table'
+local compound_bar = require 'compound_bar'
+local text_threshold = require 'text_threshold'
+local text_column = require 'text_column'
 local line = require 'line'
 local timeseries = require 'timeseries'
-local scaledtimeseries = require 'scaledtimeseries'
+local scaled_timeseries = require 'scaled_timeseries'
 local style = require 'style'
 local source = require 'source'
 
@@ -136,12 +136,12 @@ end
 local _make_tagged_percent_timeseries = function(x, y, w, h, spacing, label, update_freq, format)
    return {
       label = _left_text(geom.make_point(x, y), label),
-      value = thresholdtext.make_formatted(
+      value = text_threshold.make_formatted(
          geom.make_point(x + w, y),
          nil,
          _right_text_style,
          format,
-         thresholdtext.config(theme.CRITICAL_FG, 80)
+         text_threshold.config(theme.CRITICAL_FG, 80)
       ),
       plot = M.make_percent_timeseries(
          x,
@@ -157,11 +157,11 @@ end
 -- scaled timeseries helper functions
 
 local _base_2_scale_data = function(m)
-   return scaledtimeseries.scaling_parameters(2, m, 0.9)
+   return scaled_timeseries.scaling_parameters(2, m, 0.9)
 end
 
 local _make_scaled_timeseries = function(x, y, w, h, f, min_domain, update_freq)
-   return scaledtimeseries.make(
+   return scaled_timeseries.make(
       geom.make_box(x, y, w, h),
       update_freq,
       _default_plot_config,
@@ -232,7 +232,7 @@ M.tagged_percent_timeseries_draw_static = function(pp, cr)
 end
 
 M.tagged_percent_timeseries_draw_dynamic = function(obj, cr)
-   thresholdtext.draw(obj.value, cr)
+   text_threshold.draw(obj.value, cr)
    timeseries.draw_dynamic(obj.plot, cr)
 end
 
@@ -305,12 +305,12 @@ end
 
 M.tagged_scaled_timeseries_draw_dynamic = function(asp, cr)
    text.draw(asp.value, cr)
-   scaledtimeseries.draw_dynamic(asp.plot, cr)
+   scaled_timeseries.draw_dynamic(asp.plot, cr)
 end
 
 M.tagged_scaled_timeseries_set = function(asp, value)
    text.set(asp.value, value)
-   scaledtimeseries.update(asp.plot, value)
+   scaled_timeseries.update(asp.plot, value)
 end
 
 --------------------------------------------------------------------------------
@@ -346,7 +346,7 @@ end
 M.update_rate_timeseries = function(obj, value)
    local rate = obj.derive(obj.prev_value, value)
    text.set(obj.value, rate)
-   scaledtimeseries.update(obj.plot, rate)
+   scaled_timeseries.update(obj.plot, rate)
    obj.prev_value = value
 end
 
@@ -366,12 +366,12 @@ end
 M.make_text_circle = function(x, y, r, fmt, limit)
    return {
 	  ring = M.make_circle(x, y, r),
-	  value = thresholdtext.make_formatted(
+	  value = text_threshold.make_formatted(
          geom.make_point(x, y),
          0,
          text.config(normal_font_spec, theme.PRIMARY_FG, 'center', 'center'),
          fmt,
-         thresholdtext.config(theme.CRITICAL_FG, limit)
+         text_threshold.config(theme.CRITICAL_FG, limit)
 	  ),
    }
 end
@@ -381,11 +381,11 @@ M.text_circle_draw_static = function(tr, cr)
 end
 
 M.text_circle_draw_dynamic = function(tr, cr)
-   thresholdtext.draw(tr.value, cr)
+   text_threshold.draw(tr.value, cr)
 end
 
 M.text_circle_set = function(tr, value)
-   thresholdtext.set(tr.value, value)
+   text_threshold.set(tr.value, value)
 end
 
 --------------------------------------------------------------------------------
@@ -430,7 +430,7 @@ end
 
 M.make_compound_dial = function(x, y, outer_radius, inner_radius, thickness,
                            threshold, num_dials)
-   return compounddial.make(
+   return compound_dial.make(
       geom.make_arc(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
       arc.config(style.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
       threshold_indicator(threshold),
@@ -444,14 +444,14 @@ end
 
 M.make_compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
    return {
-      labels = textcolumn.make(
+      labels = text_column.make(
          geom.make_point(x, y),
          labels,
          _left_text_style,
          nil,
          spacing
       ),
-      bars = compoundbar.make(
+      bars = compound_bar.make(
          geom.make_point(x + pad, y),
          w - pad,
          line.config(
@@ -468,16 +468,16 @@ M.make_compound_bar = function(x, y, w, pad, labels, spacing, thickness, thresho
 end
 
 M.compound_bar_draw_static = function(cb, cr)
-   textcolumn.draw(cb.labels, cr)
-   compoundbar.draw_static(cb.bars, cr)
+   text_column.draw(cb.labels, cr)
+   compound_bar.draw_static(cb.bars, cr)
 end
 
 M.compound_bar_draw_dynamic = function(cb, cr)
-   compoundbar.draw_dynamic(cb.bars, cr)
+   compound_bar.draw_dynamic(cb.bars, cr)
 end
 
 M.compound_bar_set = function(cb, i, value)
-   compoundbar.set(cb.bars, i, value)
+   compound_bar.set(cb.bars, i, value)
 end
 
 --------------------------------------------------------------------------------
@@ -522,12 +522,12 @@ end
 M.make_threshold_text_row = function(x, y, w, label, append_end, limit)
    return{
       label = _left_text(geom.make_point(x, y), label),
-      value = thresholdtext.make_formatted(
+      value = text_threshold.make_formatted(
          geom.make_point(x + w, y),
          nil,
          _right_text_style,
          append_end,
-         thresholdtext.config(theme.CRITICAL_FG, limit)
+         text_threshold.config(theme.CRITICAL_FG, limit)
       )
    }
 end
@@ -535,11 +535,11 @@ end
 M.threshold_text_row_draw_static = M.text_row_draw_static
 
 M.threshold_text_row_draw_dynamic = function(row, cr)
-   thresholdtext.draw(row.value, cr)
+   text_threshold.draw(row.value, cr)
 end
 
 M.threshold_text_row_set = function(row, value)
-   thresholdtext.set(row.value, value)
+   text_threshold.set(row.value, value)
 end
 
 --------------------------------------------------------------------------------
@@ -547,14 +547,14 @@ end
 
 M.make_text_rows_formatted = function(x, y, w, spacing, labels, format)
    return {
-      labels = textcolumn.make(
+      labels = text_column.make(
          geom.make_point(x, y),
          labels,
          _left_text_style,
          nil,
          spacing
       ),
-      values = textcolumn.make_n(
+      values = text_column.make_n(
          geom.make_point(x + w, y),
          #labels,
          _right_text_style,
@@ -577,15 +577,15 @@ M.make_text_rows = function(x, y, w, spacing, labels)
 end
 
 M.text_rows_draw_static = function(rows, cr)
-   textcolumn.draw(rows.labels, cr)
+   text_column.draw(rows.labels, cr)
 end
 
 M.text_rows_draw_dynamic = function(rows, cr)
-   textcolumn.draw(rows.values, cr)
+   text_column.draw(rows.values, cr)
 end
 
 M.text_rows_set = function(rows, i, value)
-   textcolumn.set(rows.values, i, value)
+   text_column.set(rows.values, i, value)
 end
 
 --------------------------------------------------------------------------------
@@ -639,7 +639,7 @@ end
 -- panel
 
 M.make_panel = function(x, y, w, h, thickness)
-   return fillrect.make(
+   return fill_rect.make(
       geom.make_box(x, y, w, h),
       rect.config(
          style.closed_poly(thickness, CAIRO_LINE_JOIN_MITER),

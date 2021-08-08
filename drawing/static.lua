@@ -1,6 +1,6 @@
 local common		= require 'common'
 local geometry		= require 'geometry'
-local fillrect      = require 'fillrect'
+local fill_rect      = require 'fill_rect'
 
 return function(left_modules, center_modules, right_modules)
    local __cairo_set_source_surface = cairo_set_source_surface
@@ -26,7 +26,7 @@ return function(left_modules, center_modules, right_modules)
 
       __cairo_translate(cr, -cs_x, -cs_y)
 
-      fillrect.draw(panel, cr)
+      fill_rect.draw(panel, cr)
       for _, f in pairs(modules) do
          f(cr)
       end

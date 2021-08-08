@@ -14,7 +14,7 @@ package.path = ABS_PATH..'?.lua;'..
    ABS_PATH..'core/widget/text/?.lua;'..
    ABS_PATH..'core/widget/timeseries/?.lua;'..
    ABS_PATH..'core/widget/rect/?.lua;'..
-   ABS_PATH..'core/widget/poly/?.lua;'
+   ABS_PATH..'core/widget/line/?.lua;'
 
 local i_o 			= require 'i_o'
 local system 		= require 'system'
