@@ -19,9 +19,8 @@ return function(update_freq)
    local __tonumber = tonumber
    local __string_match = string.match
 
-   -- TODO any way to make better lambda functions?
    local DEVICE_PATHS = pure.map(
-      function(s) return string.format('/sys/block/%s/stat', s) end,
+      pure.partial(string.format, '/sys/block/%s/stat', true),
       DEVICES
    )
 
