@@ -1,6 +1,6 @@
 local M = {}
 
-local F = require 'geom'
+local geom = require 'geom'
 local format = require 'format'
 local theme = require 'theme'
 local dial = require 'dial'
@@ -56,7 +56,7 @@ local DIAL_THETA1 = 360
 -- line helper functions
 
 local _make_horizontal_line = function(x, y, w)
-   return F.make_line(F.make_point(x, y), F.make_point(x + w, y))
+   return geom.make_line(geom.make_point(x, y), geom.make_point(x + w, y))
 end
 
 --------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ local _percent_label_config = timeseries.label_config(
 
 local _make_timeseries = function(x, y, w, h, label_config, update_freq)
    return timeseries.make(
-      F.make_box(x, y, w, h),
+      geom.make_box(x, y, w, h),
       update_freq,
       _default_plot_config,
       label_config
@@ -135,9 +135,9 @@ end
 
 local _make_tagged_percent_timeseries = function(x, y, w, h, spacing, label, update_freq, format)
    return {
-      label = _left_text(F.make_point(x, y), label),
+      label = _left_text(geom.make_point(x, y), label),
       value = thresholdtext.make_formatted(
-         F.make_point(x + w, y),
+         geom.make_point(x + w, y),
          nil,
          _right_text_style,
          format,
@@ -162,7 +162,7 @@ end
 
 local _make_scaled_timeseries = function(x, y, w, h, f, min_domain, update_freq)
    return scaledtimeseries.make(
-      F.make_box(x, y, w, h),
+      geom.make_box(x, y, w, h),
       update_freq,
       _default_plot_config,
       timeseries.label_config(theme.INACTIVE_TEXT_FG, label_font_spec, f),
@@ -178,7 +178,7 @@ M.make_header = function(x, y, w, _text)
    local underline_y = y + HEADER_UNDERLINE_OFFSET
    return {
       text = text.make_plain(
-         F.make_point(x, y),
+         geom.make_point(x, y),
          _text,
          text.config(
             make_font_spec(FONT, HEADER_FONT_SIZE, true),
@@ -288,9 +288,9 @@ M.make_tagged_scaled_timeseries = function(x, y, w, h, format_fun, label_fun,
                                            spacing, label, min_domain,
                                            update_freq)
    return {
-      label = _left_text(F.make_point(x, y), label),
+      label = _left_text(geom.make_point(x, y), label),
       value = text.make_formatted(
-         F.make_point(x + w, y),
+         geom.make_point(x + w, y),
          0,
          _right_text_style,
          format_fun
@@ -330,9 +330,9 @@ end
 M.make_rate_timeseries = function(x, y, w, h, format_fun, label_fun, spacing,
                                    label, min_domain, update_freq, init)
    return {
-      label = _left_text(F.make_point(x, y), label),
+      label = _left_text(geom.make_point(x, y), label),
       value = text.make_formatted(
-         F.make_point(x + w, y),
+         geom.make_point(x + w, y),
          0,
          _right_text_style,
          format_fun
@@ -355,7 +355,7 @@ end
 
 M.make_circle = function(x, y, r)
    return circle.make(
-      F.make_circle(x, y, r),
+      geom.make_circle(x, y, r),
       circle.config(style.line(ARC_WIDTH, CAIRO_LINE_CAP_BUTT), theme.BORDER_FG)
    )
 end
@@ -367,7 +367,7 @@ M.make_text_circle = function(x, y, r, fmt, limit)
    return {
 	  ring = M.make_circle(x, y, r),
 	  value = thresholdtext.make_formatted(
-         F.make_point(x, y),
+         geom.make_point(x, y),
          0,
          text.config(normal_font_spec, theme.PRIMARY_FG, 'center', 'center'),
          fmt,
@@ -402,7 +402,7 @@ end
 M.make_dial = function(x, y, radius, thickness, threshold, format)
    return {
       dial = dial.make(
-         F.make_arc(x, y, radius, DIAL_THETA0, DIAL_THETA1),
+         geom.make_arc(x, y, radius, DIAL_THETA0, DIAL_THETA1),
          arc.config(style.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
          threshold_indicator(threshold)
       ),
@@ -431,7 +431,7 @@ end
 M.make_compound_dial = function(x, y, outer_radius, inner_radius, thickness,
                            threshold, num_dials)
    return compounddial.make(
-      F.make_arc(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
+      geom.make_arc(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
       arc.config(style.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
       threshold_indicator(threshold),
       inner_radius,
@@ -445,14 +445,14 @@ end
 M.make_compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
    return {
       labels = textcolumn.make(
-         F.make_point(x, y),
+         geom.make_point(x, y),
          labels,
          _left_text_style,
          nil,
          spacing
       ),
       bars = compoundbar.make(
-         F.make_point(x + pad, y),
+         geom.make_point(x + pad, y),
          w - pad,
          line.config(
             style.line(thickness, CAIRO_LINE_CAP_BUTT),
@@ -499,8 +499,8 @@ end
 
 M.make_text_row = function(x, y, w, label)
    return {
-      label = _left_text(F.make_point(x, y), label),
-      value = _right_text(F.make_point(x + w, y), nil),
+      label = _left_text(geom.make_point(x, y), label),
+      value = _right_text(geom.make_point(x + w, y), nil),
    }
 end
 
@@ -521,9 +521,9 @@ end
 
 M.make_threshold_text_row = function(x, y, w, label, append_end, limit)
    return{
-      label = _left_text(F.make_point(x, y), label),
+      label = _left_text(geom.make_point(x, y), label),
       value = thresholdtext.make_formatted(
-         F.make_point(x + w, y),
+         geom.make_point(x + w, y),
          nil,
          _right_text_style,
          append_end,
@@ -548,14 +548,14 @@ end
 M.make_text_rows_formatted = function(x, y, w, spacing, labels, format)
    return {
       labels = textcolumn.make(
-         F.make_point(x, y),
+         geom.make_point(x, y),
          labels,
          _left_text_style,
          nil,
          spacing
       ),
       values = textcolumn.make_n(
-         F.make_point(x + w, y),
+         geom.make_point(x + w, y),
          #labels,
          _right_text_style,
          format,
@@ -612,7 +612,6 @@ local default_table_config = function(label)
       tbl.body_config(
          default_table_font_spec,
          theme.INACTIVE_TEXT_FG,
-         -- TABLE_BODY_FORMAT,
          {
             tbl.column_config('Name', TABLE_BODY_FORMAT),
             tbl.column_config('PID', false),
@@ -630,9 +629,8 @@ end
 
 M.make_text_table = function(x, y, w, h, n, label)
    return tbl.make(
-      F.make_box(x, y, w, h),
+      geom.make_box(x, y, w, h),
       n,
-      -- labels,
       default_table_config(label)
    )
 end
@@ -642,7 +640,7 @@ end
 
 M.make_panel = function(x, y, w, h, thickness)
    return fillrect.make(
-      F.make_box(x, y, w, h),
+      geom.make_box(x, y, w, h),
       rect.config(
          style.closed_poly(thickness, CAIRO_LINE_JOIN_MITER),
          theme.BORDER_FG
