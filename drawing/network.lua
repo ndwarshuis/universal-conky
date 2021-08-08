@@ -2,30 +2,12 @@ local format = require 'format'
 local i_o = require 'i_o'
 local common = require 'common'
 local geometry = require 'geometry'
-local pure = require 'pure'
+local sys = require 'sys'
 
 return function(update_freq)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
-
-   local get_interfaces = function()
-      local s = i_o.execute_cmd('realpath /sys/class/net/* | grep -v virtual')
-      local interfaces = {}
-      for iface in string.gmatch(s, '/([^/\n]+)\n') do
-         interfaces[#interfaces + 1] = iface
-      end
-      return interfaces
-   end
-
-   local INTERFACES = get_interfaces()
-
-   local INTERFACE_PATHS = pure.map(
-      function(s)
-         local dir = string.format('/sys/class/net/%s/statistics/', s)
-         return {rx = dir..'rx_bytes', tx = dir..'tx_bytes'}
-      end,
-      INTERFACES
-   )
+   local INTERFACE_PATHS = sys.get_net_interface_paths()
 
    local get_bits = function(path)
       return i_o.read_file(path, nil, '*n') * 8

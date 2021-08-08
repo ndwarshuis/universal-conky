@@ -12,7 +12,6 @@ return function(update_freq)
    local PLOT_HEIGHT = 56
    local NA = 'N/A'
    local __string_match	= string.match
-   local __string_format = string.format
 
 
    -----------------------------------------------------------------------------

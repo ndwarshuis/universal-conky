@@ -1,43 +1,24 @@
 local format = require 'format'
-local i_o = require 'i_o'
+-- local i_o = require 'i_o'
 local common = require 'common'
 local geometry = require 'geometry'
+local sys = require 'sys'
 
-return function(update_freq)
+return function(update_freq, battery)
    local MODULE_Y = 380
    local TEXT_SPACING = 20
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
-   local PKG0_PATH = '/sys/class/powercap/intel-rapl:0/energy_uj'
-   local DRAM_PATH = '/sys/class/powercap/intel-rapl:0:2/energy_uj'
-   local BAT_CURRENT_PATH = '/sys/class/power_supply/BAT0/current_now'
-   local BAT_VOLTAGE_PATH = '/sys/class/power_supply/BAT0/voltage_now'
+   local read_pkg0_joules = sys.intel_powercap_reader('intel-rapl:0')
+   local read_dram_joules = sys.intel_powercap_reader('intel-rapl:0:2')
 
-   local read_milli = function(path)
-      return i_o.read_file(path, nil, '*n') * 0.000001
-   end
-
-   local read_pkg0_joules = function()
-      return read_milli(PKG0_PATH)
-   end
-
-   local read_dram_joules = function()
-      return read_milli(DRAM_PATH)
-   end
-
-   local read_battery_current = function()
-      return read_milli(BAT_CURRENT_PATH)
-   end
-
-   local read_battery_voltage = function()
-      return read_milli(BAT_VOLTAGE_PATH)
-   end
+   local _read_battery_power = sys.battery_power_reader(battery)
 
    local read_battery_power = function(is_using_ac)
       if is_using_ac then
          return 0
       else
-         return read_battery_current() * read_battery_voltage()
+         return _read_battery_power()
       end
    end
 

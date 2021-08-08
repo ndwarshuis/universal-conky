@@ -111,7 +111,7 @@ return function(update_freq)
    -- memory top table
 
    local NUM_ROWS = 5
-   local TABLE_CONKY = pure.map(
+   local TABLE_CONKY = pure.map_n(
       function(i)
          return {
             comm = '${top_mem name '..i..'}',
@@ -119,7 +119,7 @@ return function(update_freq)
             mem = '${top_mem mem '..i..'}',
          }
       end,
-      pure.seq(NUM_ROWS))
+      NUM_ROWS)
 
    local tbl = common.make_text_table(
       geometry.RIGHT_X,

@@ -17,6 +17,7 @@ package.path = ABS_PATH..'?.lua;'..
    ABS_PATH..'core/widget/line/?.lua;'
 
 local i_o 			= require 'i_o'
+local sys 			= require 'sys'
 local system 		= require 'system'
 local network 		= require 'network'
 local processor 	= require 'processor'
@@ -28,31 +29,30 @@ local graphics		= require 'graphics'
 local memory		= require 'memory'
 local static		= require 'static'
 
-local using_ac = function()
-   -- for some reason it is much more efficient to test if the battery
-   -- is off than if the ac is on
-   return i_o.read_file('/sys/class/power_supply/BAT0/status', nil, '*l') ~= 'Discharging'
-end
-
 local draw_dynamic
 
 function conky_start(update_interval)
    conky_set_update_interval(update_interval)
 
    local update_freq = 1 / update_interval
+   local devices = {'sda', 'nvme0n1'}
+   local battery = 'BAT0'
+   local fs_paths = {'/', '/boot', '/home', '/mnt/data', '/mnt/dcache', "/tmp"}
 
    local mem = memory(update_freq)
-   local rw = readwrite(update_freq)
+   local rw = readwrite(update_freq, devices)
    local net = network(update_freq)
    local pwr = power(update_freq)
-   local fs = filesystem()
-   local sys = system()
+   local fs = filesystem(fs_paths)
+   local stm = system()
    local gfx = graphics(update_freq)
    local proc = processor(update_freq)
    local pcm = pacman()
 
+   local using_ac = sys.battery_status_reader(battery)
+
    local draw_static = static(
-      {sys.static, gfx.static, proc.static},
+      {stm.static, gfx.static, proc.static},
       {rw.static, net.static},
       {pcm.static, fs.static, pwr.static, mem.static}
    )
@@ -68,18 +68,18 @@ function conky_start(update_interval)
       local pacman_stats = i_o.read_file(STATS_FILE)
       local is_using_ac = using_ac()
 
-      sys.update(pacman_stats)
+      stm.update(pacman_stats)
       gfx.update()
       proc.update(t1)
       rw.update()
       net.update()
       pcm.update(pacman_stats)
       fs.update(t1)
-      pwr.update(is_using_ac)
+      pwr.update(is_using_ac, battery)
       mem.update()
 
       -- draw dynamic components
-      sys.dynamic(cr)
+      stm.dynamic(cr)
       gfx.dynamic(cr)
       proc.dynamic(cr)
       rw.dynamic(cr)

@@ -1,5 +1,5 @@
-local i_o			= require 'i_o'
-local common		= require 'common'
+local i_o = require 'i_o'
+local common = require 'common'
 local geometry = require 'geometry'
 
 return function()

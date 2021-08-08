@@ -1,41 +1,14 @@
-local i_o = require 'i_o'
 local format = require 'format'
 local common = require 'common'
 local geometry = require 'geometry'
-local pure = require 'pure'
+local sys = require 'sys'
 
-return function(update_freq)
+return function(update_freq, devices)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
-   local DEVICES = {'sda', 'nvme0n1'}
+   local DEVICE_PATHS = sys.get_disk_paths(devices)
 
-   -- the sector size of any block device in linux is 512 bytes
-   -- see https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/linux/types.h?id=v4.4-rc6#n121
-   local BLOCK_SIZE_BYTES = 512
-
-   -- fields 3 and 7 (sectors read and written)
-   local RW_REGEX = '%s+%d+%s+%d+%s+(%d+)%s+%d+%s+%d+%s+%d+%s+(%d+)'
-
-   local __tonumber = tonumber
-   local __string_match = string.match
-
-   local DEVICE_PATHS = pure.map(
-      pure.partial(string.format, '/sys/block/%s/stat', true),
-      DEVICES
-   )
-
-   local read_devices = function()
-      local read_bytes = 0
-      local write_bytes = 0
-      for _, path in pairs(DEVICE_PATHS) do
-         local r, w = __string_match(i_o.read_file(path), RW_REGEX)
-         read_bytes = read_bytes + __tonumber(r)
-         write_bytes = write_bytes + __tonumber(w)
-      end
-      return read_bytes * BLOCK_SIZE_BYTES, write_bytes * BLOCK_SIZE_BYTES
-   end
-
-   local init_read_bytes, init_write_bytes = read_devices()
+   local init_read_bytes, init_write_bytes = sys.get_total_disk_io(DEVICE_PATHS)
 
    local format_value_function = function(bps)
       local unit, value = format.convert_data_val(bps)
@@ -86,7 +59,7 @@ return function(update_freq)
    -- main drawing functions
 
    local update = function()
-      local read_bytes, write_bytes = read_devices()
+      local read_bytes, write_bytes = sys.get_total_disk_io(DEVICE_PATHS)
       common.update_rate_timeseries(reads, read_bytes)
       common.update_rate_timeseries(writes, write_bytes)
    end

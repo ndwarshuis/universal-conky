@@ -2,9 +2,10 @@ local line = require 'line'
 local i_o = require 'i_o'
 local common = require 'common'
 local geometry = require 'geometry'
+local pure = require 'pure'
+local impure = require 'impure'
 
-return function()
-   local FS_PATHS = {'/', '/boot', '/home', '/mnt/data', '/mnt/dcache', "/tmp"}
+return function(paths)
    local MODULE_Y = 170
    local SPACING = 20
    local BAR_PAD = 100
@@ -54,10 +55,13 @@ return function()
       0.8
    )
 
-   local FS_NUM = #FS_PATHS
-   local CONKY_USED_PERC = {}
-   for i, v in pairs(FS_PATHS) do
-      CONKY_USED_PERC[i] = '${fs_used_perc '..v..'}'
+   local CONKY_CMDS = pure.map(
+      pure.partial(string.format, '${fs_used_perc %s}', true),
+      paths
+   )
+
+   local read_fs = function(index, cmd)
+      common.compound_bar_set(fs, index, i_o.conky_numeric(cmd) * 0.01)
    end
 
    -----------------------------------------------------------------------------
@@ -67,11 +71,7 @@ return function()
       if trigger == 0 then
          local smart_pid = i_o.execute_cmd('pidof smartd', nil, '*n')
          common.text_row_set(smart, (smart_pid == '') and 'Error' or 'Running')
-
-         for i = 1, FS_NUM do
-            local percent = i_o.conky_numeric(CONKY_USED_PERC[i])
-            common.compound_bar_set(fs, i, percent * 0.01)
-         end
+         impure.ieach(read_fs, CONKY_CMDS)
       end
    end
 
