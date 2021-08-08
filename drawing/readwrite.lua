@@ -1,7 +1,7 @@
 local util = require 'util'
 local common = require 'common'
 local geometry = require 'geometry'
-local func = require 'func'
+local pure = require 'pure'
 
 return function(update_freq)
    local PLOT_SEC_BREAK = 20
@@ -19,7 +19,7 @@ return function(update_freq)
    local __string_match = string.match
 
    -- TODO any way to make better lambda functions?
-   local DEVICE_PATHS = func.map(
+   local DEVICE_PATHS = pure.map(
       function(s) return string.format('/sys/block/%s/stat', s) end,
       DEVICES
    )

@@ -4,8 +4,8 @@ local texttable = require 'texttable'
 local util = require 'util'
 local common = require 'common'
 local geometry = require 'geometry'
-local cpu = require 'cpu'
-local func = require 'func'
+local cpu = require 'sys'
+local pure = require 'pure'
 
 local __math_floor = math.floor
 
@@ -117,9 +117,9 @@ return function(update_freq)
    -- cpu top table
 
    local NUM_ROWS = 5
-   local TABLE_CONKY = func.map(
+   local TABLE_CONKY = pure.map(
       function(i) return {pid = '${top pid '..i..'}', cpu = '${top cpu '..i..'}'} end,
-      func.seq(NUM_ROWS)
+      pure.seq(NUM_ROWS)
    )
 
    local tbl = common.make_text_table(

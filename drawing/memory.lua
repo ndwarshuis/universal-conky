@@ -3,7 +3,7 @@ local texttable = require 'texttable'
 local util = require 'util'
 local common = require 'common'
 local geometry = require 'geometry'
-local func = require 'func'
+local pure = require 'pure'
 
 return function(update_freq)
    local MODULE_Y = 712
@@ -111,7 +111,7 @@ return function(update_freq)
    -- memory top table
 
    local NUM_ROWS = 5
-   local TABLE_CONKY = func.map(
+   local TABLE_CONKY = pure.map(
       function(i)
          return {
             comm = '${top_mem name '..i..'}',
@@ -119,7 +119,7 @@ return function(update_freq)
             mem = '${top_mem mem '..i..'}',
          }
       end,
-      func.seq(NUM_ROWS))
+      pure.seq(NUM_ROWS))
 
    local tbl = common.make_text_table(
       geometry.RIGHT_X,

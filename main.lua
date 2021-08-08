@@ -8,11 +8,11 @@ local ABS_PATH = debug.getinfo(1).source:match("@?(.*/)")
 package.path = ABS_PATH..'?.lua;'..
    ABS_PATH..'drawing/?.lua;'..
    ABS_PATH..'schema/?.lua;'..
-   ABS_PATH..'core/func/?.lua;'..
+   ABS_PATH..'core/?.lua;'..
    ABS_PATH..'core/widget/?.lua;'..
    ABS_PATH..'core/widget/arc/?.lua;'..
    ABS_PATH..'core/widget/text/?.lua;'..
-   ABS_PATH..'core/widget/plot/?.lua;'..
+   ABS_PATH..'core/widget/timeseries/?.lua;'..
    ABS_PATH..'core/widget/rect/?.lua;'..
    ABS_PATH..'core/widget/poly/?.lua;'
 

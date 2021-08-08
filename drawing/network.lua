@@ -1,7 +1,7 @@
 local util = require 'util'
 local common = require 'common'
 local geometry = require 'geometry'
-local func = require 'func'
+local pure = require 'pure'
 
 return function(update_freq)
    local PLOT_SEC_BREAK = 20
@@ -18,7 +18,7 @@ return function(update_freq)
 
    local INTERFACES = get_interfaces()
 
-   local INTERFACE_PATHS = func.map(
+   local INTERFACE_PATHS = pure.map(
       function(s)
          local dir = string.format('/sys/class/net/%s/statistics/', s)
          return {rx = dir..'rx_bytes', tx = dir..'tx_bytes'}

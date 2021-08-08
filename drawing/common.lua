@@ -1,6 +1,6 @@
 local M = {}
 
-local F = require 'primitive'
+local F = require 'geom'
 local util = require 'util'
 local theme = require 'theme'
 local dial = require 'dial'
