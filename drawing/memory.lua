@@ -1,6 +1,6 @@
 local timeseries = require 'timeseries'
 local texttable = require 'texttable'
-local util = require 'util'
+local i_o = require 'i_o'
 local common = require 'common'
 local geometry = require 'geometry'
 local pure = require 'pure'
@@ -41,7 +41,7 @@ return function(update_freq)
    -- mem consumption dial
 
    local get_meminfo_field = function(field)
-      return tonumber(util.read_file('/proc/meminfo', field..':%s+(%d+)'))
+      return tonumber(i_o.read_file('/proc/meminfo', field..':%s+(%d+)'))
    end
 
    local memtotal = get_meminfo_field('MemTotal')
@@ -134,16 +134,14 @@ return function(update_freq)
    -- main functions
 
    local update = function()
-      local conky = util.conky
       -- see manpage for free command for formulas
-
       local memfree,
          buffers,
          cached,
          swapfree,
          shmem,
          sreclaimable
-         = __string_match(util.read_file('/proc/meminfo'), MEMINFO_REGEX)
+         = __string_match(i_o.read_file('/proc/meminfo'), MEMINFO_REGEX)
 
       local used_percent =
          (memtotal -
@@ -163,9 +161,9 @@ return function(update_freq)
       timeseries.update(plot, used_percent)
 
       for r = 1, NUM_ROWS do
-         texttable.set(tbl, 1, r, conky(TABLE_CONKY[r].comm, '(%S+)'))
-         texttable.set(tbl, 2, r, conky(TABLE_CONKY[r].pid))
-         texttable.set(tbl, 3, r, conky(TABLE_CONKY[r].mem))
+         texttable.set(tbl, 1, r, i_o.conky(TABLE_CONKY[r].comm, '(%S+)'))
+         texttable.set(tbl, 2, r, i_o.conky(TABLE_CONKY[r].pid))
+         texttable.set(tbl, 3, r, i_o.conky(TABLE_CONKY[r].mem))
       end
    end
 

@@ -1,7 +1,7 @@
 local compounddial 	= require 'compounddial'
 local line = require 'line'
 local texttable = require 'texttable'
-local util = require 'util'
+local i_o = require 'i_o'
 local common = require 'common'
 local geometry = require 'geometry'
 local cpu = require 'sys'
@@ -135,7 +135,6 @@ return function(update_freq)
    -- main functions
 
    local update = function(trigger)
-      local conky = util.conky
       local load_sum = 0
 
       cpu_loads = cpu.read_cpu_loads(cpu_loads)
@@ -146,7 +145,7 @@ return function(update_freq)
       end
 
       for conky_core_id, path in pairs(coretemp_paths) do
-         local temp = __math_floor(0.001 * util.read_file(path, nil, '*n'))
+         local temp = __math_floor(0.001 * i_o.read_file(path, nil, '*n'))
          common.text_circle_set(cores[conky_core_id].coretemp, temp)
       end
 
@@ -161,11 +160,11 @@ return function(update_freq)
       common.tagged_percent_timeseries_set(total_load, load_sum / ncpus * 100)
 
       for r = 1, NUM_ROWS do
-         local pid = conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
+         local pid = i_o.conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
          if pid ~= '' then
-            texttable.set(tbl, 1, r, util.read_file('/proc/'..pid..'/comm', '(%C+)'))
+            texttable.set(tbl, 1, r, i_o.read_file('/proc/'..pid..'/comm', '(%C+)'))
             texttable.set(tbl, 2, r, pid)
-            texttable.set(tbl, 3, r, conky(TABLE_CONKY[r].cpu))
+            texttable.set(tbl, 3, r, i_o.conky(TABLE_CONKY[r].cpu))
          end
       end
    end

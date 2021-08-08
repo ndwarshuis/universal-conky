@@ -1,4 +1,5 @@
-local util = require 'util'
+local format = require 'format'
+local i_o = require 'i_o'
 local common = require 'common'
 local geometry = require 'geometry'
 local pure = require 'pure'
@@ -8,7 +9,7 @@ return function(update_freq)
    local PLOT_HEIGHT = 56
 
    local get_interfaces = function()
-      local s = util.execute_cmd('realpath /sys/class/net/* | grep -v virtual')
+      local s = i_o.execute_cmd('realpath /sys/class/net/* | grep -v virtual')
       local interfaces = {}
       for iface in string.gmatch(s, '/([^/\n]+)\n') do
          interfaces[#interfaces + 1] = iface
@@ -27,7 +28,7 @@ return function(update_freq)
    )
 
    local get_bits = function(path)
-      return util.read_file(path, nil, '*n') * 8
+      return i_o.read_file(path, nil, '*n') * 8
    end
 
    local read_interfaces = function()
@@ -44,8 +45,8 @@ return function(update_freq)
    local init_rx_bits, init_tx_bits = read_interfaces()
 
    local value_format_function = function(bits)
-      local unit, value = util.convert_data_val(bits)
-      return util.precision_round_to_string(value, 3)..' '..unit..'b/s'
+      local unit, value = format.convert_data_val(bits)
+      return format.precision_round_to_string(value, 3)..' '..unit..'b/s'
    end
 
    local make_plot = function(y, label, init)

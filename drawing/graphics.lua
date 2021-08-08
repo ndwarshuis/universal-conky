@@ -1,6 +1,6 @@
 local text			= require 'text'
 local line			= require 'line'
-local util			= require 'util'
+local i_o			= require 'i_o'
 local common		= require 'common'
 local geometry		= require 'geometry'
 
@@ -154,8 +154,8 @@ return function(update_freq)
    end
 
    local update = function()
-      if util.read_file(GPU_BUS_CTRL, nil, '*l') == 'on' then
-         local nvidia_settings_glob = util.execute_cmd(NV_QUERY)
+      if i_o.read_file(GPU_BUS_CTRL, nil, '*l') == 'on' then
+         local nvidia_settings_glob = i_o.execute_cmd(NV_QUERY)
          if nvidia_settings_glob == '' then
             text.set(status.value, 'Error')
             nvidia_off()

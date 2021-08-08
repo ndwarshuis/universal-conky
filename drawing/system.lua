@@ -1,4 +1,4 @@
-local util			= require 'util'
+local i_o			= require 'i_o'
 local common		= require 'common'
 local geometry = require 'geometry'
 
@@ -28,8 +28,8 @@ return function()
          last_update, last_sync = __string_match(pacman_stats, "^%d+%s+([^%s]+)%s+([^%s]+).*")
       end
       -- TODO this doesn't need to be update every time
-      common.text_rows_set(rows, 1, util.conky('$kernel'))
-      common.text_rows_set(rows, 2, util.conky('$uptime'))
+      common.text_rows_set(rows, 1, i_o.conky('$kernel'))
+      common.text_rows_set(rows, 2, i_o.conky('$uptime'))
       common.text_rows_set(rows, 3, last_update)
       common.text_rows_set(rows, 4, last_sync)
    end

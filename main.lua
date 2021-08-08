@@ -16,7 +16,7 @@ package.path = ABS_PATH..'?.lua;'..
    ABS_PATH..'core/widget/rect/?.lua;'..
    ABS_PATH..'core/widget/poly/?.lua;'
 
-local util 			= require 'util'
+local i_o 			= require 'i_o'
 local system 		= require 'system'
 local network 		= require 'network'
 local processor 	= require 'processor'
@@ -31,7 +31,7 @@ local static		= require 'static'
 local using_ac = function()
    -- for some reason it is much more efficient to test if the battery
    -- is off than if the ac is on
-   return util.read_file('/sys/class/power_supply/BAT0/status', nil, '*l') ~= 'Discharging'
+   return i_o.read_file('/sys/class/power_supply/BAT0/status', nil, '*l') ~= 'Discharging'
 end
 
 local draw_dynamic
@@ -65,7 +65,7 @@ function conky_start(update_interval)
 
       -- update dynamic components
       local t1 = _updates % (update_freq * 10)
-      local pacman_stats = util.read_file(STATS_FILE)
+      local pacman_stats = i_o.read_file(STATS_FILE)
       local is_using_ac = using_ac()
 
       sys.update(pacman_stats)

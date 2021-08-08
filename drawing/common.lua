@@ -1,7 +1,7 @@
 local M = {}
 
 local F = require 'geom'
-local util = require 'util'
+local format = require 'format'
 local theme = require 'theme'
 local dial = require 'dial'
 local rect = require 'rect'
@@ -111,7 +111,7 @@ local _default_plot_config = timeseries.config(
 )
 
 local _format_percent_label = function(_)
-   return function(z) return util.round_to_string(z * 100)..'%' end
+   return function(z) return string.format('%i%%', z * 100) end
 end
 
 local _format_percent_maybe = function(z)
@@ -272,7 +272,7 @@ end
 
 M.converted_y_label_format_generator = function(unit)
    return function(plot_max)
-      local new_prefix, new_max = util.convert_data_val(plot_max)
+      local new_prefix, new_max = format.convert_data_val(plot_max)
       local conversion_factor = plot_max / new_max
       local fmt = M.y_label_format_string(new_max, new_prefix..unit..'/s')
       return function(bytes)

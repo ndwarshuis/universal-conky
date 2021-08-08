@@ -1,5 +1,5 @@
 local line = require 'line'
-local util = require 'util'
+local i_o = require 'i_o'
 local common = require 'common'
 local geometry = require 'geometry'
 
@@ -65,11 +65,11 @@ return function()
 
    local update = function(trigger)
       if trigger == 0 then
-         local smart_pid = util.execute_cmd('pidof smartd', nil, '*n')
+         local smart_pid = i_o.execute_cmd('pidof smartd', nil, '*n')
          common.text_row_set(smart, (smart_pid == '') and 'Error' or 'Running')
 
          for i = 1, FS_NUM do
-            local percent = util.conky_numeric(CONKY_USED_PERC[i])
+            local percent = i_o.conky_numeric(CONKY_USED_PERC[i])
             common.compound_bar_set(fs, i, percent * 0.01)
          end
       end
