@@ -12,6 +12,7 @@ return function(update_freq)
    local PLOT_HEIGHT = 56
    local NA = 'N/A'
    local __string_match	= string.match
+   local __tonumber = tonumber
 
 
    -----------------------------------------------------------------------------
@@ -166,7 +167,7 @@ return function(update_freq)
                = __string_match(nvidia_settings_glob, NV_REGEX)
             local mem_utilization = used_memory / total_memory * 100
 
-            common.threshold_text_row_set(internal_temp, temp_reading)
+            common.threshold_text_row_set(internal_temp, __tonumber(temp_reading))
             common.text_rows_set(clock_speed, 1, gpu_frequency..' Mhz')
             common.text_rows_set(clock_speed, 2, memory_frequency..' Mhz')
 
