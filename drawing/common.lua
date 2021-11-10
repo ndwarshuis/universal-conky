@@ -19,6 +19,7 @@ local timeseries = require 'timeseries'
 local scaled_timeseries = require 'scaled_timeseries'
 local style = require 'style'
 local source = require 'source'
+local pure = require 'pure'
 
 --------------------------------------------------------------------------------
 -- constants
@@ -133,14 +134,14 @@ local _make_timeseries = function(x, y, w, h, label_config, update_freq)
    )
 end
 
-local _make_tagged_percent_timeseries = function(x, y, w, h, spacing, label, update_freq, format)
+local _make_tagged_percent_timeseries = function(x, y, w, h, spacing, label, update_freq, _format)
    return {
       label = _left_text(geom.make_point(x, y), label),
       value = text_threshold.make_formatted(
          geom.make_point(x + w, y),
          nil,
          _right_text_style,
-         format,
+         _format,
          text_threshold.config(theme.CRITICAL_FG, 80)
       ),
       plot = M.make_percent_timeseries(
@@ -236,17 +237,18 @@ M.tagged_percent_timeseries_draw_dynamic = function(obj, cr)
    timeseries.draw_dynamic(obj.plot, cr)
 end
 
-M.tagged_percent_timeseries_set = function(obj, value)
-   text.set(obj.value, math.floor(value))
-   timeseries.update(obj.plot, value * 0.01)
+M.tagged_percent_timeseries_set = function(obj, percent)
+   local _percent = pure.round_percent(percent)
+   text.set(obj.value, _percent)
+   timeseries.update(obj.plot, _percent / 100)
 end
 
-M.tagged_maybe_percent_timeseries_set = function(obj, value)
-   if value == false then
+M.tagged_maybe_percent_timeseries_set = function(obj, percent)
+   if percent == false then
       text.set(obj.value, -1)
       timeseries.update(obj.plot, 0)
    else
-      M.tagged_percent_timeseries_set(obj, value)
+      M.tagged_percent_timeseries_set(obj, percent)
    end
 end
 
