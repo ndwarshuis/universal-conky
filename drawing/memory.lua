@@ -50,7 +50,7 @@ return function(update_freq)
    local swaptotal = get_meminfo_field('SwapTotal')
 
    local FORMAT_PERCENT = function(x)
-      return string.format('%i%%', __math_floor(x))
+      return string.format('%i%%', x)
    end
 
    local MEM_X = geometry.RIGHT_X + DIAL_RADIUS + DIAL_THICKNESS / 2
@@ -63,7 +63,8 @@ return function(update_freq)
       DIAL_RADIUS,
       DIAL_THICKNESS,
       80,
-      FORMAT_PERCENT
+      FORMAT_PERCENT,
+      __math_floor
    )
 
    -----------------------------------------------------------------------------
@@ -77,7 +78,8 @@ return function(update_freq)
       DIAL_RADIUS,
       DIAL_THICKNESS,
       80,
-      FORMAT_PERCENT
+      FORMAT_PERCENT,
+      __math_floor
    )
 
    -----------------------------------------------------------------------------

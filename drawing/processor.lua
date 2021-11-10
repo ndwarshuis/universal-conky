@@ -60,7 +60,8 @@ return function(update_freq)
             y,
             DIAL_INNER_RADIUS - 2,
             '%s°C',
-            80
+            80,
+            __math_floor
          )
       }
    end

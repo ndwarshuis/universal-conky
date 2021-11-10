@@ -142,7 +142,7 @@ local _make_tagged_percent_timeseries = function(x, y, w, h, spacing, label, upd
          nil,
          _right_text_style,
          _format,
-         text_threshold.config(theme.CRITICAL_FG, 80)
+         text_threshold.config(theme.CRITICAL_FG, 80, false)
       ),
       plot = M.make_percent_timeseries(
          x,
@@ -365,7 +365,7 @@ end
 --------------------------------------------------------------------------------
 -- ring with text data in the center
 
-M.make_text_circle = function(x, y, r, fmt, threshhold)
+M.make_text_circle = function(x, y, r, fmt, threshhold, pre_function)
    return {
 	  ring = M.make_circle(x, y, r),
 	  value = text_threshold.make_formatted(
@@ -373,7 +373,7 @@ M.make_text_circle = function(x, y, r, fmt, threshhold)
          0,
          text.config(normal_font_spec, theme.PRIMARY_FG, 'center', 'center'),
          fmt,
-         text_threshold.config(theme.CRITICAL_FG, threshhold)
+         text_threshold.config(theme.CRITICAL_FG, threshhold, pre_function)
 	  ),
    }
 end
@@ -401,14 +401,14 @@ local threshold_indicator = function(threshold)
    )
 end
 
-M.make_dial = function(x, y, radius, thickness, threshold, _format)
+M.make_dial = function(x, y, radius, thickness, threshold, _format, pre_function)
    return {
       dial = dial.make(
          geom.make_arc(x, y, radius, DIAL_THETA0, DIAL_THETA1),
          arc.config(style.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
          threshold_indicator(threshold)
       ),
-      text_circle = M.make_text_circle(x, y, radius - thickness / 2 - 2, _format, threshold),
+      text_circle = M.make_text_circle(x, y, radius - thickness / 2 - 2, _format, threshold, pre_function),
    }
 end
 
@@ -529,7 +529,7 @@ M.make_threshold_text_row = function(x, y, w, label, append_end, limit)
          nil,
          _right_text_style,
          append_end,
-         text_threshold.config(theme.CRITICAL_FG, limit)
+         text_threshold.config(theme.CRITICAL_FG, limit, false)
       )
    }
 end
