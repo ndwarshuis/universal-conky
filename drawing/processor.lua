@@ -52,7 +52,7 @@ return function(update_freq)
             DIAL_OUTER_RADIUS,
             DIAL_INNER_RADIUS,
             DIAL_THICKNESS,
-            0.8,
+            80,
             nthreads
          ),
          coretemp = common.make_text_circle(
@@ -60,7 +60,7 @@ return function(update_freq)
             y,
             DIAL_INNER_RADIUS - 2,
             '%s°C',
-            90
+            80
          )
       }
    end
@@ -141,7 +141,10 @@ return function(update_freq)
       for _, load_data in pairs(cpu_loads) do
          local cur = load_data.percent_active
          load_sum = load_sum + cur
-         compound_dial.set(cores[load_data.conky_core_id].loads, load_data.conky_thread_id, cur)
+         compound_dial.set(
+            cores[load_data.conky_core_id].loads,
+            load_data.conky_thread_id,
+            cur * 100)
       end
 
       for conky_core_id, path in pairs(coretemp_paths) do

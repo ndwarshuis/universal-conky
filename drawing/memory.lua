@@ -5,6 +5,7 @@ local common = require 'common'
 local geometry = require 'geometry'
 local pure = require 'pure'
 
+
 return function(update_freq)
    local MODULE_Y = 712
    local DIAL_THICKNESS = 8
@@ -26,6 +27,7 @@ return function(update_freq)
       '\nSReclaimable:%s+(%d+)'
 
    local __string_match	= string.match
+   local __math_floor = math.floor
 
    -----------------------------------------------------------------------------
    -- header
@@ -48,7 +50,7 @@ return function(update_freq)
    local swaptotal = get_meminfo_field('SwapTotal')
 
    local FORMAT_PERCENT = function(x)
-      return string.format('%.0f%%', x * 100)
+      return string.format('%i%%', __math_floor(x))
    end
 
    local MEM_X = geometry.RIGHT_X + DIAL_RADIUS + DIAL_THICKNESS / 2
@@ -60,7 +62,7 @@ return function(update_freq)
       MEM_Y,
       DIAL_RADIUS,
       DIAL_THICKNESS,
-      0.8,
+      80,
       FORMAT_PERCENT
    )
 
@@ -74,7 +76,7 @@ return function(update_freq)
       MEM_Y,
       DIAL_RADIUS,
       DIAL_THICKNESS,
-      0.8,
+      80,
       FORMAT_PERCENT
    )
 
@@ -150,8 +152,8 @@ return function(update_freq)
           buffers -
           sreclaimable) / memtotal
 
-      common.dial_set(mem, used_percent)
-      common.dial_set(swap, (swaptotal - swapfree) / swaptotal)
+      common.dial_set(mem, used_percent * 100)
+      common.dial_set(swap, (swaptotal - swapfree) / swaptotal * 100)
 
       common.text_rows_set(cache, 1, cached / memtotal * 100)
       common.text_rows_set(cache, 2, buffers / memtotal * 100)

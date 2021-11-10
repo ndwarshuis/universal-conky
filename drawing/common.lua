@@ -363,7 +363,7 @@ end
 --------------------------------------------------------------------------------
 -- ring with text data in the center
 
-M.make_text_circle = function(x, y, r, fmt, limit)
+M.make_text_circle = function(x, y, r, fmt, threshhold)
    return {
 	  ring = M.make_circle(x, y, r),
 	  value = text_threshold.make_formatted(
@@ -371,7 +371,7 @@ M.make_text_circle = function(x, y, r, fmt, limit)
          0,
          text.config(normal_font_spec, theme.PRIMARY_FG, 'center', 'center'),
          fmt,
-         text_threshold.config(theme.CRITICAL_FG, limit)
+         text_threshold.config(theme.CRITICAL_FG, threshhold)
 	  ),
    }
 end
@@ -399,14 +399,14 @@ local threshold_indicator = function(threshold)
    )
 end
 
-M.make_dial = function(x, y, radius, thickness, threshold, format)
+M.make_dial = function(x, y, radius, thickness, threshold, _format)
    return {
       dial = dial.make(
          geom.make_arc(x, y, radius, DIAL_THETA0, DIAL_THETA1),
          arc.config(style.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
          threshold_indicator(threshold)
       ),
-      text_circle = M.make_text_circle(x, y, radius - thickness / 2 - 2, format, threshold),
+      text_circle = M.make_text_circle(x, y, radius - thickness / 2 - 2, _format, threshold),
    }
 end
 
