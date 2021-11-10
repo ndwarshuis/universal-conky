@@ -52,7 +52,7 @@ return function(paths)
       {'root', 'boot', 'home', 'data', 'dcache', 'tmpfs'},
       SPACING,
       12,
-      0.8
+      80
    )
 
    local CONKY_CMDS = pure.map(
@@ -61,7 +61,7 @@ return function(paths)
    )
 
    local read_fs = function(index, cmd)
-      common.compound_bar_set(fs, index, i_o.conky_numeric(cmd) * 0.01)
+      common.compound_bar_set(fs, index, i_o.conky_numeric(cmd))
    end
 
    -----------------------------------------------------------------------------
