@@ -52,9 +52,11 @@ function conky_start(update_interval)
    local using_ac = sys.battery_status_reader(battery)
 
    local draw_static = static(
-      {stm.static, gfx.static, proc.static},
-      {rw.static, net.static},
-      {pcm.static, fs.static, pwr.static, mem.static}
+      {
+         {stm.static, gfx.static, proc.static},
+         {rw.static, net.static},
+         {pcm.static, fs.static, pwr.static, mem.static}
+      }
    )
 
    local STATS_FILE = '/tmp/.conky_pacman'
