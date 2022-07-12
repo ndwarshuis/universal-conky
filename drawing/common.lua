@@ -651,4 +651,42 @@ M.make_panel = function(x, y, w, h, thickness)
    )
 end
 
+--------------------------------------------------------------------------------
+-- setup functions
+
+local _combine_blocks = function(acc, new)
+   if new.active == true then
+      local n = new.f(acc.y + new.offset)
+      table.insert(acc.objs, n.obj)
+      acc.y = acc.y + n.h + new.offset
+   end
+   return acc
+end
+
+local non_false = function(xs)
+   return pure.filter(function(x) return x ~= false end, xs)
+end
+
+M.reduce_blocks = function(y, blocks)
+   local r = pure.reduce(_combine_blocks, {y = y, objs = {}}, blocks)
+   local us, ss, ds = table.unpack(pure.unzip(r.objs))
+   return {
+      updater = pure.compose(table.unpack(non_false(pure.reverse(us)))),
+      static_drawer = pure.sequence(table.unpack(ss)),
+      dynamic_drawer = pure.sequence(table.unpack(non_false(ds)))
+   }
+end
+
+M.mk_acc = function(h, u, s, d)
+   return {h = h, obj = {u, s, d}}
+end
+
+M.mk_acc_static = function(h, s)
+   return M.mk_acc(h, false, s, false)
+end
+
+M.mk_block = function(f, active, offset)
+   return {f = f, active = active, offset = offset}
+end
+
 return M

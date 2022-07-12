@@ -28,12 +28,16 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- header
 
-   local header = common.make_header(
-      geometry.LEFT_X,
-      MODULE_Y,
-      geometry.SECTION_WIDTH,
-      'PROCESSOR'
-   )
+   local mk_header = function(y)
+      local header = common.make_header(
+         geometry.LEFT_X,
+         MODULE_Y,
+         geometry.SECTION_WIDTH,
+         'PROCESSOR'
+      )
+      local static = function(cr) common.draw_header(cr, header) end
+      return common.mk_acc_static(header.bottom_y - y, static)
+   end
 
    -----------------------------------------------------------------------------
    -- cores (loads and temps)
@@ -77,6 +81,7 @@ return function(update_freq)
    local mk_cores = function(y)
       local coretemp_paths = cpu.get_coretemp_paths()
       local cores = {}
+      -- TODO what happens when the number of cores changes?
       for c = 1, ncores do
          local dial_x = geometry.LEFT_X + DIAL_OUTER_RADIUS +
             (geometry.SECTION_WIDTH - 2 * DIAL_OUTER_RADIUS) * (c - 1) / 3
@@ -109,11 +114,11 @@ return function(update_freq)
       end
       local dynamic = function(cr)
          for i = 1, #cores do
-            compound_dial.draw_dynamic(cores[i].loads, cr)
             common.text_circle_draw_dynamic(cores[i].coretemp, cr)
+            compound_dial.draw_dynamic(cores[i].loads, cr)
          end
       end
-      return {h = DIAL_OUTER_RADIUS * 2, obj = {update, static, dynamic}}
+      return common.mk_acc(DIAL_OUTER_RADIUS * 2, update, static, dynamic)
    end
 
    -----------------------------------------------------------------------------
@@ -140,7 +145,7 @@ return function(update_freq)
       end
       local static = pure.partial(common.text_rows_draw_static, cpu_status)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, cpu_status)
-      return {h = TEXT_SPACING, obj = {update, static, dynamic}}
+      return common.mk_acc(TEXT_SPACING, update, static, dynamic)
    end
 
    -----------------------------------------------------------------------------
@@ -153,7 +158,7 @@ return function(update_freq)
          geometry.SECTION_WIDTH
       )
       local static = pure.partial(line.draw, separator)
-      return {h = 0, obj = {nil, static, nil}}
+      return common.mk_acc_static(0, static)
    end
 
    -----------------------------------------------------------------------------
@@ -178,7 +183,7 @@ return function(update_freq)
       end
       local static = pure.partial(common.tagged_percent_timeseries_draw_static, total_load)
       local dynamic = pure.partial(common.tagged_percent_timeseries_draw_dynamic, total_load)
-      return {h = PLOT_HEIGHT + PLOT_SECTION_BREAK, obj = {update, static, dynamic}}
+      return common.mk_acc(PLOT_HEIGHT + PLOT_SECTION_BREAK, update, static, dynamic)
    end
 
    -----------------------------------------------------------------------------
@@ -211,55 +216,32 @@ return function(update_freq)
       end
       local static = pure.partial(text_table.draw_static, tbl)
       local dynamic = pure.partial(text_table.draw_dynamic, tbl)
-      return {h = TABLE_HEIGHT, obj = {update, static, dynamic}}
+      return common.mk_acc(TABLE_HEIGHT, update, static, dynamic)
    end
 
    -----------------------------------------------------------------------------
    -- main functions
 
-   local combine = function(acc, new)
-      if new.active == true then
-         local n = new.f(acc.y + new.offset)
-         table.insert(acc.objs, n.obj)
-         acc.y = acc.y + n.h + new.offset
-      end
-      return acc
-   end
-
-   local all = pure.reduce(
-      combine,
-      {y = header.bottom_y, objs = {}},
+   local rbs = common.reduce_blocks(
+      MODULE_Y,
       {
-         {f = mk_cores, active = true, offset = 0},
-         {f = mk_hwp_freq, active = true, offset = TEXT_SPACING},
-         {f = mk_sep, active = true, offset = SEPARATOR_SPACING},
-         {f = mk_load_plot, active = true, offset = SEPARATOR_SPACING},
-         {f = mk_tbl, active = true, offset = TABLE_SECTION_BREAK}
+         common.mk_block(mk_header, true, 0),
+         common.mk_block(mk_cores, true, 0),
+         common.mk_block(mk_hwp_freq, true, TEXT_SPACING),
+         common.mk_block(mk_sep, true, SEPARATOR_SPACING),
+         common.mk_block(mk_load_plot, true, SEPARATOR_SPACING),
+         common.mk_block(mk_tbl, true, TABLE_SECTION_BREAK)
       }
    )
 
-   local update_state_ = pure.compose(
-      table.unpack(
-         pure.non_nil(
-            pure.reverse(pure.map(function(x) return x[1] end, all.objs))
-         )
-      )
-   )
-
    local update = function(trigger)
-      update_state_(update_state(trigger, state.cpu_loads))
+      rbs.updater(update_state(trigger, state.cpu_loads))
    end
 
-   local draw_static = pure.sequence(
-      function(cr) common.draw_header(cr, header) end,
-      table.unpack(pure.map(function(x) return x[2] end, all.objs))
-   )
-
-   local draw_dynamic = pure.sequence(
-      table.unpack(
-         pure.non_nil(
-            pure.map(function(x) return x[3] end, all.objs)))
-   )
-
-   return {static = draw_static, dynamic = draw_dynamic, update = update}
+   -- TODO return the bottom y/height of the entire module
+   return {
+      static = rbs.static_drawer,
+      dynamic = rbs.dynamic_drawer,
+      update = update
+   }
 end
