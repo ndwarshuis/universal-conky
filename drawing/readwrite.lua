@@ -6,6 +6,7 @@ local sys = require 'sys'
 return function(update_freq, devices)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
+   -- TODO currently this will find any block device
    local DEVICE_PATHS = sys.get_disk_paths(devices)
 
    local init_read_bytes, init_write_bytes = sys.get_total_disk_io(DEVICE_PATHS)

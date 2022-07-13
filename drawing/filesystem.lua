@@ -5,11 +5,13 @@ local geometry = require 'geometry'
 local pure = require 'pure'
 local impure = require 'impure'
 
-return function(paths)
+return function(pathspecs)
    local MODULE_Y = 170
    local SPACING = 20
    local BAR_PAD = 100
    local SEPARATOR_SPACING = 20
+
+   local paths, names = table.unpack(pure.unzip(pathspecs))
 
    -----------------------------------------------------------------------------
    -- header
@@ -49,7 +51,7 @@ return function(paths)
       BAR_Y,
       geometry.SECTION_WIDTH,
       BAR_PAD,
-      {'root', 'boot', 'home', 'data', 'dcache', 'tmpfs'},
+      names,
       SPACING,
       12,
       80

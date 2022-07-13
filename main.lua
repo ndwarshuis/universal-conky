@@ -37,7 +37,14 @@ function conky_start(update_interval)
    local update_freq = 1 / update_interval
    local devices = {'sda', 'nvme0n1'}
    local battery = 'BAT0'
-   local fs_paths = {'/', '/boot', '/home', '/mnt/data', '/mnt/dcache', "/tmp"}
+   local fs_paths = {
+      {'/', 'root'},
+      {'/boot', 'boot'},
+      {'/home', 'home'},
+      {'/mnt/data', 'data'},
+      {'/mnt/dcache', 'dcache'},
+      {'/tmp', 'tmpfs'}
+   }
 
    local mem = memory(update_freq)
    local rw = readwrite(update_freq, devices)
