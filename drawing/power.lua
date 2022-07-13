@@ -1,5 +1,5 @@
 local format = require 'format'
--- local i_o = require 'i_o'
+local pure = require 'pure'
 local common = require 'common'
 local geometry = require 'geometry'
 local sys = require 'sys'
@@ -31,8 +31,16 @@ return function(update_freq, battery)
       return format.precision_round_to_string(watts, 3)..' W'
    end
 
-   local make_rate_plot = function(y, label, init)
-      return common.make_rate_timeseries(
+   local mk_static = function(obj)
+      return pure.partial(common.tagged_scaled_timeseries_draw_static, obj)
+   end
+
+   local mk_dynamic = function(obj)
+      return pure.partial(common.tagged_scaled_timeseries_draw_dynamic, obj)
+   end
+
+   local mk_rate_plot = function(label, read, y)
+      local obj = common.make_rate_timeseries(
          geometry.RIGHT_X,
          y,
          geometry.SECTION_WIDTH,
@@ -43,30 +51,35 @@ return function(update_freq, battery)
          label,
          0,
          update_freq,
-         init
+         read()
+      )
+      return common.mk_acc(
+         PLOT_HEIGHT + PLOT_SEC_BREAK,
+         function(_) common.update_rate_timeseries(obj, read()) end,
+         mk_static(obj),
+         mk_dynamic(obj)
       )
    end
 
    -----------------------------------------------------------------------------
    -- header
 
-   local header = common.make_header(
-      geometry.RIGHT_X,
-      MODULE_Y,
+   local mk_header = pure.partial(
+      common.mk_header,
+      'POWER',
       geometry.SECTION_WIDTH,
-      'POWER'
+      geometry.RIGHT_X
    )
 
    -----------------------------------------------------------------------------
    -- package 0 power plot
 
-   local pkg0 = make_rate_plot(header.bottom_y, 'PKG0', read_pkg0_joules())
+   local mk_pkg0 = pure.partial(mk_rate_plot, 'PKG0', read_pkg0_joules)
 
    -----------------------------------------------------------------------------
    -- DRAM power plot
 
-   local DRAM_Y = header.bottom_y + TEXT_SPACING + PLOT_SEC_BREAK + PLOT_HEIGHT
-   local dram = make_rate_plot(DRAM_Y, 'DRAM', read_dram_joules())
+   local mk_dram = pure.partial(mk_rate_plot, 'DRAM', read_dram_joules)
 
    -----------------------------------------------------------------------------
    -- battery power plot
@@ -79,41 +92,45 @@ return function(update_freq, battery)
       end
    end
 
-   local BAT_Y = DRAM_Y + PLOT_SEC_BREAK * 2 + PLOT_HEIGHT
-   local bat = common.make_tagged_scaled_timeseries(
-      geometry.RIGHT_X,
-      BAT_Y,
-      geometry.SECTION_WIDTH,
-      PLOT_HEIGHT,
-      format_ac,
-      power_label_function,
-      PLOT_SEC_BREAK,
-      'Battery Draw',
-      0,
-      update_freq
-   )
+   local mk_bat = function(y)
+      local obj = common.make_tagged_scaled_timeseries(
+         geometry.RIGHT_X,
+         y,
+         geometry.SECTION_WIDTH,
+         PLOT_HEIGHT,
+         format_ac,
+         power_label_function,
+         PLOT_SEC_BREAK,
+         'Battery Draw',
+         0,
+         update_freq
+      )
+      return common.mk_acc(
+         PLOT_HEIGHT + PLOT_SEC_BREAK,
+         function(ac)
+            common.tagged_scaled_timeseries_set(obj, read_battery_power(ac))
+         end,
+         mk_static(obj),
+         mk_dynamic(obj)
+      )
+   end
 
    -----------------------------------------------------------------------------
    -- main functions
 
-   local update = function(is_using_ac)
-      common.update_rate_timeseries(pkg0, read_pkg0_joules())
-      common.update_rate_timeseries(dram, read_dram_joules())
-      common.tagged_scaled_timeseries_set(bat, read_battery_power(is_using_ac))
-   end
+   local rbs = common.reduce_blocks_(
+      MODULE_Y,
+      {
+         common.mk_block(mk_header, true, 0),
+         common.mk_block(mk_pkg0, true, 0),
+         common.mk_block(mk_dram, true, TEXT_SPACING),
+         common.mk_block(mk_bat, true, TEXT_SPACING),
+      }
+   )
 
-   local draw_static = function(cr)
-      common.draw_header(cr, header)
-      common.tagged_scaled_timeseries_draw_static(pkg0, cr)
-      common.tagged_scaled_timeseries_draw_static(dram, cr)
-      common.tagged_scaled_timeseries_draw_static(bat, cr)
-   end
-
-   local draw_dynamic = function(cr)
-      common.tagged_scaled_timeseries_draw_dynamic(pkg0, cr)
-      common.tagged_scaled_timeseries_draw_dynamic(dram, cr)
-      common.tagged_scaled_timeseries_draw_dynamic(bat, cr)
-   end
-
-   return {static = draw_static, dynamic = draw_dynamic, update = update}
+   return {
+      static = rbs.static_drawer,
+      dynamic = rbs.dynamic_drawer,
+      update = rbs.updater
+   }
 end
