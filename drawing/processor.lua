@@ -28,16 +28,12 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- header
 
-   local mk_header = function(y)
-      local header = common.make_header(
-         geometry.LEFT_X,
-         MODULE_Y,
-         geometry.SECTION_WIDTH,
-         'PROCESSOR'
-      )
-      local static = function(cr) common.draw_header(cr, header) end
-      return common.mk_acc_static(header.bottom_y - y, static)
-   end
+   local mk_header = pure.partial(
+      common.mk_header,
+      'PROCESSOR',
+      geometry.SECTION_WIDTH,
+      geometry.LEFT_X
+   )
 
    -----------------------------------------------------------------------------
    -- cores (loads and temps)
@@ -151,15 +147,11 @@ return function(update_freq)
    -----------------------------------------------------------------------------
    -- frequency
 
-   local mk_sep = function(y)
-      local separator = common.make_separator(
-         geometry.LEFT_X,
-         y,
-         geometry.SECTION_WIDTH
-      )
-      local static = pure.partial(line.draw, separator)
-      return common.mk_acc_static(0, static)
-   end
+   local mk_sep = pure.partial(
+      common.mk_seperator,
+      geometry.SECTION_WIDTH,
+      geometry.LEFT_X
+   )
 
    -----------------------------------------------------------------------------
    -- total load plot

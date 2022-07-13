@@ -667,15 +667,19 @@ local non_false = function(xs)
    return pure.filter(function(x) return x ~= false end, xs)
 end
 
-M.reduce_blocks = function(y, blocks)
+M.reduce_blocks_inner = function(f, y, blocks)
    local r = pure.reduce(_combine_blocks, {y = y, objs = {}}, blocks)
    local us, ss, ds = table.unpack(pure.unzip(r.objs))
    return {
-      updater = pure.compose(table.unpack(non_false(pure.reverse(us)))),
+      updater = f(table.unpack(non_false(pure.reverse(us)))),
       static_drawer = pure.sequence(table.unpack(ss)),
       dynamic_drawer = pure.sequence(table.unpack(non_false(ds)))
    }
 end
+
+M.reduce_blocks = pure.partial(M.reduce_blocks_inner, pure.compose)
+
+M.reduce_blocks_ = pure.partial(M.reduce_blocks_inner, pure.sequence)
 
 M.mk_acc = function(h, u, s, d)
    return {h = h, obj = {u, s, d}}
@@ -687,6 +691,19 @@ end
 
 M.mk_block = function(f, active, offset)
    return {f = f, active = active, offset = offset}
+end
+
+M.mk_header = function(header_text, width, x, y)
+   local header = M.make_header(x, y, width, header_text)
+   return M.mk_acc_static(
+      header.bottom_y - y,
+      function(cr) M.draw_header(cr, header) end
+   )
+end
+
+M.mk_seperator = function(width, x, y)
+   local separator = M.make_separator(x, y, width)
+   return M.mk_acc_static(0, pure.partial(line.draw, separator))
 end
 
 return M

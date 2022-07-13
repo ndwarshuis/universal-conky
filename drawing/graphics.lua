@@ -1,5 +1,4 @@
-local text			= require 'text'
-local line			= require 'line'
+local pure			= require 'pure'
 local i_o			= require 'i_o'
 local common		= require 'common'
 local geometry		= require 'geometry'
@@ -14,85 +13,21 @@ return function(update_freq)
    local __string_match	= string.match
    local __tonumber = tonumber
 
-
    -----------------------------------------------------------------------------
-   -- header
+   -- helper functions
 
-   local header = common.make_header(
-      geometry.LEFT_X,
-      MODULE_Y,
-      geometry.SECTION_WIDTH,
-      'NVIDIA GRAPHICS'
-   )
+   local _from_state = function(def, f, set)
+      return function(s)
+         if s.error == false then
+            set(f(s))
+         else
+            set(def)
+         end
+      end
+   end
 
-   -----------------------------------------------------------------------------
-   -- gpu status
-
-   local status = common.make_text_row(
-      geometry.LEFT_X,
-      header.bottom_y,
-      geometry.SECTION_WIDTH,
-      'Status'
-   )
-
-   local SEP_Y1 = header.bottom_y + SEPARATOR_SPACING
-
-   local separator1 = common.make_separator(
-      geometry.LEFT_X,
-      SEP_Y1,
-      geometry.SECTION_WIDTH
-   )
-
-   -----------------------------------------------------------------------------
-   -- gpu temperature
-
-   local INTERNAL_TEMP_Y = SEP_Y1 + SEPARATOR_SPACING
-
-   local internal_temp = common.make_threshold_text_row(
-      geometry.LEFT_X,
-      INTERNAL_TEMP_Y,
-      geometry.SECTION_WIDTH,
-      'Internal Temperature',
-      function(s)
-         if s == -1 then return NA else return string.format('%s°C', s) end
-      end,
-      80
-   )
-
-   local SEP_Y2 = INTERNAL_TEMP_Y + SEPARATOR_SPACING
-
-   local separator2 = common.make_separator(
-      geometry.LEFT_X,
-      SEP_Y2,
-      geometry.SECTION_WIDTH
-   )
-
-   -----------------------------------------------------------------------------
-   -- gpu clock speeds
-
-   local CLOCK_SPEED_Y = SEP_Y2 + SEPARATOR_SPACING
-
-   local clock_speed = common.make_text_rows(
-      geometry.LEFT_X,
-      CLOCK_SPEED_Y,
-      geometry.SECTION_WIDTH,
-      TEXT_SPACING,
-      {'GPU Clock Speed', 'memory Clock Speed'}
-   )
-
-   local SEP_Y3 = CLOCK_SPEED_Y + TEXT_SPACING * 2
-
-   local separator3 = common.make_separator(
-      geometry.LEFT_X,
-      SEP_Y3,
-      geometry.SECTION_WIDTH
-   )
-
-   -----------------------------------------------------------------------------
-   -- gpu utilization plot
-
-   local make_plot = function(y, label)
-      return common.make_tagged_maybe_percent_timeseries(
+   local _mk_plot = function(label, getter, y)
+      local obj = common.make_tagged_maybe_percent_timeseries(
          geometry.LEFT_X,
          y,
          geometry.SECTION_WIDTH,
@@ -101,25 +36,132 @@ return function(update_freq)
          label,
          update_freq
       )
+      local update = _from_state(
+         false,
+         getter,
+         pure.partial(common.tagged_maybe_percent_timeseries_set, obj)
+      )
+      local static = pure.partial(common.tagged_percent_timeseries_draw_static, obj)
+      local dynamic = pure.partial(common.tagged_percent_timeseries_draw_dynamic, obj)
+      return common.mk_acc(PLOT_HEIGHT + PLOT_SEC_BREAK, update, static, dynamic)
    end
 
-   local GPU_UTIL_Y = SEP_Y3 + SEPARATOR_SPACING
-   local gpu_util = make_plot(GPU_UTIL_Y, 'GPU utilization')
+   -----------------------------------------------------------------------------
+   -- header
+
+   local mk_header = pure.partial(
+      common.mk_header,
+      'NVIDIA GRAPHICS',
+      geometry.SECTION_WIDTH,
+      geometry.LEFT_X
+   )
+
+   -----------------------------------------------------------------------------
+   -- gpu status
+
+   local mk_status = function(y)
+      local obj = common.make_text_row(
+         geometry.LEFT_X,
+         y,
+         geometry.SECTION_WIDTH,
+         'Status'
+      )
+      local update = function(s)
+         if s.error == false then
+            common.text_row_set(obj, 'On')
+         else
+            common.text_row_set(obj, s.error)
+         end
+      end
+      local static = pure.partial(common.text_row_draw_static, obj)
+      local dynamic = pure.partial(common.text_row_draw_dynamic, obj)
+      return common.mk_acc(0, update, static, dynamic)
+   end
+
+   local mk_sep = pure.partial(
+      common.mk_seperator,
+      geometry.SECTION_WIDTH,
+      geometry.LEFT_X
+   )
+
+   -----------------------------------------------------------------------------
+   -- gpu temperature
+
+   local mk_temp = function(y)
+      local obj = common.make_threshold_text_row(
+         geometry.LEFT_X,
+         y,
+         geometry.SECTION_WIDTH,
+         'Internal Temperature',
+         function(s)
+            if s == -1 then return NA else return string.format('%s°C', s) end
+         end,
+         80
+      )
+      local update = _from_state(
+         -1,
+         function(s) return __tonumber(s.temp_reading) end,
+         pure.partial(common.threshold_text_row_set, obj)
+      )
+      local static = pure.partial(common.threshold_text_row_draw_static, obj)
+      local dynamic = pure.partial(common.threshold_text_row_draw_dynamic, obj)
+      return common.mk_acc(0, update, static, dynamic)
+   end
+
+   -----------------------------------------------------------------------------
+   -- gpu clock speeds
+
+   local mk_clock = function(y)
+      local obj = common.make_text_rows(
+         geometry.LEFT_X,
+         y,
+         geometry.SECTION_WIDTH,
+         TEXT_SPACING,
+         {'GPU Clock Speed', 'memory Clock Speed'}
+      )
+      local update = function(s)
+         if s.error == false then
+            common.text_rows_set(obj, 1, s.gpu_frequency..' Mhz')
+            common.text_rows_set(obj, 2, s.memory_frequency..' Mhz')
+         else
+            common.text_rows_set(obj, 1, NA)
+            common.text_rows_set(obj, 2, NA)
+         end
+      end
+      local static = pure.partial(common.text_rows_draw_static, obj)
+      local dynamic = pure.partial(common.text_rows_draw_dynamic, obj)
+      return common.mk_acc(TEXT_SPACING, update, static, dynamic)
+   end
+
+   -----------------------------------------------------------------------------
+   -- gpu utilization plot
+
+   local mk_gpu_util = pure.partial(
+      _mk_plot,
+      'GPU utilization',
+      function(s) return s.gpu_utilization end
+   )
 
    -----------------------------------------------------------------------------
    -- gpu memory consumption plot
 
-   local MEM_UTIL_Y = GPU_UTIL_Y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2
-   local mem_util = make_plot(MEM_UTIL_Y, 'memory utilization')
+   local mk_mem_util = pure.partial(
+      _mk_plot,
+      'Memory utilization',
+      function(s) return s.used_memory / s.total_memory * 100 end
+   )
 
    -----------------------------------------------------------------------------
    -- gpu video utilization plot
 
-   local VID_UTIL_Y = MEM_UTIL_Y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2
-   local vid_util = make_plot(VID_UTIL_Y, 'Video utilization')
+   local mk_vid_util = pure.partial(
+      _mk_plot,
+      'Video utilization',
+      function(s) return s.vid_utilization end
+   )
 
    -----------------------------------------------------------------------------
-   -- update function
+   -- nvidia state
 
    -- vars to process the nv settings glob
    --
@@ -144,71 +186,61 @@ return function(update_freq)
 
    local GPU_BUS_CTRL = '/sys/bus/pci/devices/0000:01:00.0/power/control'
 
-   local nvidia_off = function()
-      common.threshold_text_row_set(internal_temp, -1)
-      common.text_rows_set(clock_speed, 1, NA)
-      common.text_rows_set(clock_speed, 2, NA)
-      common.tagged_maybe_percent_timeseries_set(gpu_util, false)
-      common.tagged_maybe_percent_timeseries_set(vid_util, false)
-      common.tagged_maybe_percent_timeseries_set(mem_util, false)
-   end
+   local state = {
+      error = false,
+      used_memory = 0,
+      total_memory = 0,
+      temp_reading = 0,
+      gpu_frequency = 0,
+      memory_frequency = 0,
+      gpu_utilization = 0,
+      vid_utilization = 0
+   }
 
-   local update = function()
+   local update_state = function()
       if i_o.read_file(GPU_BUS_CTRL, nil, '*l') == 'on' then
          local nvidia_settings_glob = i_o.execute_cmd(NV_QUERY)
          if nvidia_settings_glob == '' then
-            text.set(status.value, 'Error')
-            nvidia_off()
+            state.error = 'Error'
          else
-            common.text_row_set(status, 'On')
-
-            local used_memory, total_memory, temp_reading, gpu_frequency,
-               memory_frequency, gpu_utilization, vid_utilization
+            state.used_memory,
+               state.total_memory,
+               state.temp_reading,
+               state.gpu_frequency,
+               state.memory_frequency,
+               state.gpu_utilization,
+               state.vid_utilization
                = __string_match(nvidia_settings_glob, NV_REGEX)
-            local mem_utilization = used_memory / total_memory * 100
-
-            common.threshold_text_row_set(internal_temp, __tonumber(temp_reading))
-            common.text_rows_set(clock_speed, 1, gpu_frequency..' Mhz')
-            common.text_rows_set(clock_speed, 2, memory_frequency..' Mhz')
-
-            common.tagged_maybe_percent_timeseries_set(gpu_util, gpu_utilization)
-            common.tagged_maybe_percent_timeseries_set(mem_util, mem_utilization)
-            common.tagged_maybe_percent_timeseries_set(vid_util, vid_utilization)
+            state.error = false
          end
       else
-         text.set(status.value, 'Off')
-         nvidia_off()
+         state.error = 'Off'
       end
+      return state
    end
 
    -----------------------------------------------------------------------------
    -- main drawing functions
 
-   local draw_static = function(cr)
-      common.draw_header(cr, header)
+   local rbs = common.reduce_blocks_(
+      MODULE_Y,
+      {
+         common.mk_block(mk_header, true, 0),
+         common.mk_block(mk_status, true, 0),
+         common.mk_block(mk_sep, true, SEPARATOR_SPACING),
+         common.mk_block(mk_temp, true, TEXT_SPACING),
+         common.mk_block(mk_sep, true, SEPARATOR_SPACING),
+         common.mk_block(mk_clock, true, SEPARATOR_SPACING),
+         common.mk_block(mk_sep, true, SEPARATOR_SPACING),
+         common.mk_block(mk_gpu_util, true, PLOT_SEC_BREAK),
+         common.mk_block(mk_mem_util, true, PLOT_SEC_BREAK),
+         common.mk_block(mk_vid_util, true, PLOT_SEC_BREAK)
+      }
+   )
 
-      common.text_row_draw_static(status, cr)
-      line.draw(separator1, cr)
-
-      common.threshold_text_row_draw_static(internal_temp, cr)
-      line.draw(separator2, cr)
-
-      common.text_rows_draw_static(clock_speed, cr)
-      line.draw(separator3, cr)
-
-      common.tagged_percent_timeseries_draw_static(gpu_util, cr)
-      common.tagged_percent_timeseries_draw_static(mem_util, cr)
-      common.tagged_percent_timeseries_draw_static(vid_util, cr)
-   end
-
-   local draw_dynamic = function(cr)
-      common.text_row_draw_dynamic(status, cr)
-      common.threshold_text_row_draw_dynamic(internal_temp, cr)
-      common.text_rows_draw_dynamic(clock_speed, cr)
-      common.tagged_percent_timeseries_draw_dynamic(gpu_util, cr)
-      common.tagged_percent_timeseries_draw_dynamic(mem_util, cr)
-      common.tagged_percent_timeseries_draw_dynamic(vid_util, cr)
-   end
-
-   return {static = draw_static, dynamic = draw_dynamic, update = update}
+   return {
+      static = rbs.static_drawer,
+      dynamic = rbs.dynamic_drawer,
+      update = function() rbs.updater(update_state()) end
+   }
 end
