@@ -1,5 +1,4 @@
 local compound_dial = require 'compound_dial'
-local line = require 'line'
 local text_table = require 'text_table'
 local i_o = require 'i_o'
 local common = require 'common'

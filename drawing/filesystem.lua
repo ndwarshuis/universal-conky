@@ -1,4 +1,3 @@
-local line = require 'line'
 local i_o = require 'i_o'
 local common = require 'common'
 local geometry = require 'geometry'
@@ -11,83 +10,97 @@ return function(pathspecs)
    local BAR_PAD = 100
    local SEPARATOR_SPACING = 20
 
-   local paths, names = table.unpack(pure.unzip(pathspecs))
-
    -----------------------------------------------------------------------------
    -- header
 
-   local header = common.make_header(
-      geometry.RIGHT_X,
-      MODULE_Y,
+   local mk_header = pure.partial(
+      common.mk_header,
+      'FILE SYSTEMS',
       geometry.SECTION_WIDTH,
-      'FILE SYSTEMS'
+      geometry.RIGHT_X
    )
 
    -----------------------------------------------------------------------------
    -- smartd
 
-   local smart = common.make_text_row(
-      geometry.RIGHT_X,
-      header.bottom_y,
+   local mk_smart = function(y)
+      local obj = common.make_text_row(
+         geometry.RIGHT_X,
+         y,
+         geometry.SECTION_WIDTH,
+         'SMART Daemon'
+      )
+      local update = function(trigger)
+         if trigger == 0 then
+            local pid = i_o.execute_cmd('pidof smartd', nil, '*n')
+            common.text_row_set(obj, (pid == '') and 'Error' or 'Running')
+         end
+      end
+      return common.mk_acc(
+         0,
+         update,
+         pure.partial(common.text_row_draw_static, obj),
+         pure.partial(common.text_row_draw_dynamic, obj)
+      )
+   end
+
+   local mk_sep = pure.partial(
+      common.mk_seperator,
       geometry.SECTION_WIDTH,
-      'SMART Daemon'
-   )
-
-   local SEP_Y = header.bottom_y + SEPARATOR_SPACING
-
-   local separator = common.make_separator(
-      geometry.RIGHT_X,
-      SEP_Y,
-      geometry.SECTION_WIDTH
+      geometry.RIGHT_X
    )
 
    -----------------------------------------------------------------------------
    -- filesystem bar chart
 
-   local BAR_Y = SEP_Y + SEPARATOR_SPACING
-
-   local fs = common.make_compound_bar(
-      geometry.RIGHT_X,
-      BAR_Y,
-      geometry.SECTION_WIDTH,
-      BAR_PAD,
-      names,
-      SPACING,
-      12,
-      80
-   )
-
-   local CONKY_CMDS = pure.map(
-      pure.partial(string.format, '${fs_used_perc %s}', true),
-      paths
-   )
-
-   local read_fs = function(index, cmd)
-      common.compound_bar_set(fs, index, i_o.conky_numeric(cmd))
+   local mk_bars = function(y)
+      local paths, names = table.unpack(pure.unzip(pathspecs))
+      local CONKY_CMDS = pure.map(
+         pure.partial(string.format, '${fs_used_perc %s}', true),
+         paths
+      )
+      local obj = common.make_compound_bar(
+         geometry.RIGHT_X,
+         y,
+         geometry.SECTION_WIDTH,
+         BAR_PAD,
+         names,
+         SPACING,
+         12,
+         80
+      )
+      local read_fs = function(index, cmd)
+         common.compound_bar_set(obj, index, i_o.conky_numeric(cmd))
+      end
+      local update = function(trigger)
+         if trigger == 0 then
+            impure.ieach(read_fs, CONKY_CMDS)
+         end
+      end
+      return common.mk_acc(
+         (#pathspecs - 1) * SPACING,
+         update,
+         pure.partial(common.compound_bar_draw_static, obj),
+         pure.partial(common.compound_bar_draw_dynamic, obj)
+      )
    end
 
    -----------------------------------------------------------------------------
    -- main functions
 
-   local update = function(trigger)
-      if trigger == 0 then
-         local smart_pid = i_o.execute_cmd('pidof smartd', nil, '*n')
-         common.text_row_set(smart, (smart_pid == '') and 'Error' or 'Running')
-         impure.ieach(read_fs, CONKY_CMDS)
-      end
-   end
+   local rbs = common.reduce_blocks_(
+      MODULE_Y,
+      {
+         common.mk_block(mk_header, true, 0),
+         common.mk_block(mk_smart, true, 0),
+         common.mk_block(mk_sep, true, SEPARATOR_SPACING),
+         common.mk_block(mk_bars, true, SEPARATOR_SPACING),
+      }
+   )
 
-   local draw_static = function(cr)
-      common.draw_header(cr, header)
-      common.text_row_draw_static(smart, cr)
-      line.draw(separator, cr)
-      common.compound_bar_draw_static(fs, cr)
-   end
-
-   local draw_dynamic = function(cr)
-      common.text_row_draw_dynamic(smart, cr)
-      common.compound_bar_draw_dynamic(fs, cr)
-   end
-
-   return {static = draw_static, dynamic = draw_dynamic, update = update}
+   return {
+      static = rbs.static_drawer,
+      dynamic = rbs.dynamic_drawer,
+      update = rbs.updater
+   }
 end
