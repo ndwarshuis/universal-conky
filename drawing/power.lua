@@ -61,16 +61,6 @@ return function(update_freq, battery, point)
    end
 
    -----------------------------------------------------------------------------
-   -- header
-
-   local mk_header = pure.partial(
-      common.mk_header,
-      'POWER',
-      geometry.SECTION_WIDTH,
-      point.x
-   )
-
-   -----------------------------------------------------------------------------
    -- package 0 power plot
 
    local mk_pkg0 = pure.partial(mk_rate_plot, 'PKG0', read_pkg0_joules)
@@ -118,9 +108,10 @@ return function(update_freq, battery, point)
    -- main functions
 
    return common.reduce_blocks_(
-      point.y,
+      'POWER',
+      point,
+      geometry.SECTION_WIDTH,
       {
-         common.mk_block(mk_header, true, 0),
          common.mk_block(mk_pkg0, true, 0),
          common.mk_block(mk_dram, true, TEXT_SPACING),
          common.mk_block(mk_bat, true, TEXT_SPACING),

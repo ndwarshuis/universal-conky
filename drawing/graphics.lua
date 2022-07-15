@@ -46,16 +46,6 @@ return function(update_freq, point)
    end
 
    -----------------------------------------------------------------------------
-   -- header
-
-   local mk_header = pure.partial(
-      common.mk_header,
-      'NVIDIA GRAPHICS',
-      geometry.SECTION_WIDTH,
-      point.x
-   )
-
-   -----------------------------------------------------------------------------
    -- gpu status
 
    local mk_status = function(y)
@@ -222,9 +212,10 @@ return function(update_freq, point)
    -- main drawing functions
 
    local rbs = common.reduce_blocks_(
-      point.y,
+      'NVIDIA GRAPHICS',
+      point,
+      geometry.SECTION_WIDTH,
       {
-         common.mk_block(mk_header, true, 0),
          common.mk_block(mk_status, true, 0),
          common.mk_block(mk_sep, true, SEPARATOR_SPACING),
          common.mk_block(mk_temp, true, TEXT_SPACING),

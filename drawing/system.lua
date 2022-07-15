@@ -8,13 +8,6 @@ return function(point)
 
    local __string_match = string.match
 
-   local mk_header = pure.partial(
-      common.mk_header,
-      'SYSTEM',
-      geometry.SECTION_WIDTH,
-      point.x
-   )
-
    local mk_stats = function(y)
       local obj = common.make_text_rows(
          point.x,
@@ -40,10 +33,9 @@ return function(point)
    end
 
    return common.reduce_blocks_(
-      point.y,
-      {
-         common.mk_block(mk_header, true, 0),
-         common.mk_block(mk_stats, true, 0),
-      }
+      'SYSTEM',
+      point,
+      geometry.SECTION_WIDTH,
+      {common.mk_block(mk_stats, true, 0)}
    )
 end

@@ -667,8 +667,19 @@ local non_false = function(xs)
    return pure.filter(function(x) return x ~= false end, xs)
 end
 
-M.reduce_blocks_inner = function(f, y, blocks)
-   local r = pure.reduce(_combine_blocks, {y = y, objs = {}}, blocks)
+M.reduce_blocks_inner = function(f, header, point, width, blocks)
+   local mk_header = function(y)
+      local obj = M.make_header(point.x, y, width, header)
+      return M.mk_acc_static(
+         obj.bottom_y - y,
+         function(cr) M.draw_header(cr, obj) end
+      )
+   end
+   local r = pure.reduce(
+      _combine_blocks,
+      {y = point.y, objs = {}},
+      {M.mk_block(mk_header, true, 0), table.unpack(blocks)}
+   )
    local us, ss, ds = table.unpack(pure.unzip(r.objs))
    return {
       y = r.y,
@@ -692,14 +703,6 @@ end
 
 M.mk_block = function(f, active, offset)
    return {f = f, active = active, offset = offset}
-end
-
-M.mk_header = function(header_text, width, x, y)
-   local header = M.make_header(x, y, width, header_text)
-   return M.mk_acc_static(
-      header.bottom_y - y,
-      function(cr) M.draw_header(cr, header) end
-   )
 end
 
 M.mk_seperator = function(width, x, y)

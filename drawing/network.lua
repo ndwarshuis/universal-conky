@@ -35,6 +35,9 @@ return function(update_freq, point)
       return format.precision_round_to_string(value, 3)..' '..unit..'b/s'
    end
 
+   -----------------------------------------------------------------------------
+   -- down/up plots
+
    local mk_plot = function(label, key, y)
       local obj = common.make_rate_timeseries(
          point.x,
@@ -57,19 +60,6 @@ return function(update_freq, point)
       )
    end
 
-   -----------------------------------------------------------------------------
-   -- header
-
-   local mk_header = pure.partial(
-      common.mk_header,
-      'NETWORK',
-      geometry.SECTION_WIDTH,
-      point.x
-   )
-
-   -----------------------------------------------------------------------------
-   -- down/up plots
-
    local mk_rx = pure.partial(mk_plot, 'Download', 'rx_bits')
    local mk_tx = pure.partial(mk_plot, 'Upload', 'tx_bits')
 
@@ -77,9 +67,10 @@ return function(update_freq, point)
    -- main drawing functions
 
    local rbs = common.reduce_blocks_(
-      point.y,
+      'NETWORK',
+      point,
+      geometry.SECTION_WIDTH,
       {
-         common.mk_block(mk_header, true, 0),
          common.mk_block(mk_rx, true, 0),
          common.mk_block(mk_tx, true, PLOT_SEC_BREAK),
       }

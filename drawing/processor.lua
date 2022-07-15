@@ -24,16 +24,6 @@ return function(update_freq, point)
    local TABLE_HEIGHT = 114
 
    -----------------------------------------------------------------------------
-   -- header
-
-   local mk_header = pure.partial(
-      common.mk_header,
-      'PROCESSOR',
-      geometry.SECTION_WIDTH,
-      point.x
-   )
-
-   -----------------------------------------------------------------------------
    -- cores (loads and temps)
 
    -- this totally is not supposed to be a state monad (ssssh...)
@@ -213,9 +203,10 @@ return function(update_freq, point)
    -- main functions
 
    local rbs = common.reduce_blocks(
-      point.y,
+      'PROCESSOR',
+      point,
+      geometry.SECTION_WIDTH,
       {
-         common.mk_block(mk_header, true, 0),
          common.mk_block(mk_cores, true, 0),
          common.mk_block(mk_hwp_freq, true, TEXT_SPACING),
          common.mk_block(mk_sep, true, SEPARATOR_SPACING),

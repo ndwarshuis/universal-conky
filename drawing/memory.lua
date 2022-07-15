@@ -21,16 +21,6 @@ return function(update_freq, point)
    local __math_floor = math.floor
 
    -----------------------------------------------------------------------------
-   -- header
-
-   local mk_header = pure.partial(
-      common.mk_header,
-      'MEMORY',
-      geometry.SECTION_WIDTH,
-      point.x
-   )
-
-   -----------------------------------------------------------------------------
    -- mem stats (dial + text)
 
    local mk_stats = function(y)
@@ -189,9 +179,10 @@ return function(update_freq, point)
    -- main functions
 
    local rbs = common.reduce_blocks_(
-      point.y,
+      'MEMORY',
+      point,
+      geometry.SECTION_WIDTH,
       {
-         common.mk_block(mk_header, true, 0),
          common.mk_block(mk_stats, true, 0),
          common.mk_block(mk_plot, true, PLOT_SECTION_BREAK),
          common.mk_block(mk_tbl, true, TABLE_SECTION_BREAK),
