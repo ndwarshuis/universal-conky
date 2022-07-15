@@ -1,4 +1,5 @@
 local i_o = require 'i_o'
+local pure = require 'pure'
 local common = require 'common'
 local geometry = require 'geometry'
 
@@ -7,41 +8,42 @@ return function(point)
 
    local __string_match = string.match
 
-   local header = common.make_header(
-      point.x,
-      point.y,
+   local mk_header = pure.partial(
+      common.mk_header,
+      'SYSTEM',
       geometry.SECTION_WIDTH,
-      'SYSTEM'
+      point.x
    )
 
-   local rows = common.make_text_rows(
-      point.x,
-      header.bottom_y,
-      geometry.SECTION_WIDTH,
-      TEXT_SPACING,
-      {'Kernel', 'Uptime', 'Last Upgrade', 'Last Sync'}
-   )
-
-   local update = function(pacman_stats)
-      local last_update, last_sync = "N/A", "N/A"
-      if pacman_stats then
-         last_update, last_sync = __string_match(pacman_stats, "^%d+%s+([^%s]+)%s+([^%s]+).*")
+   local mk_stats = function(y)
+      local obj = common.make_text_rows(
+         point.x,
+         y,
+         geometry.SECTION_WIDTH,
+         TEXT_SPACING,
+         {'Kernel', 'Uptime', 'Last Upgrade', 'Last Sync'}
+      )
+      local update = function(pacman_stats)
+         local last_update, last_sync
+         if pacman_stats then
+            last_update, last_sync = __string_match(pacman_stats, "^%d+%s+([^%s]+)%s+([^%s]+).*")
+         end
+         -- TODO this doesn't need to be update every time
+         common.text_rows_set(obj, 1, i_o.conky('$kernel'))
+         common.text_rows_set(obj, 2, i_o.conky('$uptime'))
+         common.text_rows_set(obj, 3, last_update)
+         common.text_rows_set(obj, 4, last_sync)
       end
-      -- TODO this doesn't need to be update every time
-      common.text_rows_set(rows, 1, i_o.conky('$kernel'))
-      common.text_rows_set(rows, 2, i_o.conky('$uptime'))
-      common.text_rows_set(rows, 3, last_update)
-      common.text_rows_set(rows, 4, last_sync)
+      local static = pure.partial(common.text_rows_draw_static, obj)
+      local dynamic = pure.partial(common.text_rows_draw_dynamic, obj)
+      return common.mk_acc(TEXT_SPACING * 3, update, static, dynamic)
    end
 
-   local draw_static = function(cr)
-      common.draw_header(cr, header)
-      common.text_rows_draw_static(rows, cr)
-   end
-
-   local draw_dynamic = function(cr)
-      common.text_rows_draw_dynamic(rows, cr)
-   end
-
-   return {static = draw_static, dynamic = draw_dynamic, update = update}
+   return common.reduce_blocks_(
+      point.y,
+      {
+         common.mk_block(mk_header, true, 0),
+         common.mk_block(mk_stats, true, 0),
+      }
+   )
 end
