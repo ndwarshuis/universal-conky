@@ -4,8 +4,7 @@ local common = require 'common'
 local geometry = require 'geometry'
 local sys = require 'sys'
 
-return function(update_freq, battery)
-   local MODULE_Y = 380
+return function(update_freq, battery, point)
    local TEXT_SPACING = 20
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
@@ -41,7 +40,7 @@ return function(update_freq, battery)
 
    local mk_rate_plot = function(label, read, y)
       local obj = common.make_rate_timeseries(
-         geometry.RIGHT_X,
+         point.x,
          y,
          geometry.SECTION_WIDTH,
          PLOT_HEIGHT,
@@ -68,7 +67,7 @@ return function(update_freq, battery)
       common.mk_header,
       'POWER',
       geometry.SECTION_WIDTH,
-      geometry.RIGHT_X
+      point.x
    )
 
    -----------------------------------------------------------------------------
@@ -94,7 +93,7 @@ return function(update_freq, battery)
 
    local mk_bat = function(y)
       local obj = common.make_tagged_scaled_timeseries(
-         geometry.RIGHT_X,
+         point.x,
          y,
          geometry.SECTION_WIDTH,
          PLOT_HEIGHT,
@@ -118,8 +117,8 @@ return function(update_freq, battery)
    -----------------------------------------------------------------------------
    -- main functions
 
-   local rbs = common.reduce_blocks_(
-      MODULE_Y,
+   return common.reduce_blocks_(
+      point.y,
       {
          common.mk_block(mk_header, true, 0),
          common.mk_block(mk_pkg0, true, 0),
@@ -127,10 +126,4 @@ return function(update_freq, battery)
          common.mk_block(mk_bat, true, TEXT_SPACING),
       }
    )
-
-   return {
-      static = rbs.static_drawer,
-      dynamic = rbs.dynamic_drawer,
-      update = rbs.updater
-   }
 end

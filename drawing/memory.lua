@@ -5,8 +5,7 @@ local common = require 'common'
 local geometry = require 'geometry'
 local pure = require 'pure'
 
-return function(update_freq)
-   local MODULE_Y = 712
+return function(update_freq, point)
    local DIAL_THICKNESS = 8
    local DIAL_RADIUS = 32
    local DIAL_SPACING = 40
@@ -28,18 +27,18 @@ return function(update_freq)
       common.mk_header,
       'MEMORY',
       geometry.SECTION_WIDTH,
-      geometry.RIGHT_X
+      point.x
    )
 
    -----------------------------------------------------------------------------
    -- mem stats (dial + text)
 
    local mk_stats = function(y)
-      local MEM_X = geometry.RIGHT_X + DIAL_RADIUS + DIAL_THICKNESS / 2
+      local MEM_X = point.x + DIAL_RADIUS + DIAL_THICKNESS / 2
       local DIAL_DIAMETER = DIAL_RADIUS * 2 + DIAL_THICKNESS
       local SWAP_X = MEM_X + DIAL_DIAMETER + DIAL_SPACING
       local CACHE_X = SWAP_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
-      local CACHE_WIDTH = geometry.RIGHT_X + geometry.SECTION_WIDTH - CACHE_X
+      local CACHE_WIDTH = point.x + geometry.SECTION_WIDTH - CACHE_X
       local format_percent = function(x)
          return string.format('%i%%', x)
       end
@@ -98,7 +97,7 @@ return function(update_freq)
 
    local mk_plot = function(y)
       local obj = common.make_percent_timeseries(
-         geometry.RIGHT_X,
+         point.x,
          y,
          geometry.SECTION_WIDTH,
          PLOT_HEIGHT,
@@ -127,7 +126,7 @@ return function(update_freq)
          end,
          NUM_ROWS)
       local obj = common.make_text_table(
-         geometry.RIGHT_X,
+         point.x,
          y,
          geometry.SECTION_WIDTH,
          TABLE_HEIGHT,
@@ -190,7 +189,7 @@ return function(update_freq)
    -- main functions
 
    local rbs = common.reduce_blocks_(
-      MODULE_Y,
+      point.y,
       {
          common.mk_block(mk_header, true, 0),
          common.mk_block(mk_stats, true, 0),
@@ -198,10 +197,5 @@ return function(update_freq)
          common.mk_block(mk_tbl, true, TABLE_SECTION_BREAK),
       }
    )
-
-   return {
-      static = rbs.static_drawer,
-      dynamic = rbs.dynamic_drawer,
-      update = function() rbs.updater(read_state()) end,
-   }
+   return pure.map_at("update", function(f) return function() f(read_state()) end end, rbs)
 end

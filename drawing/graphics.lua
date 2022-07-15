@@ -3,8 +3,7 @@ local i_o			= require 'i_o'
 local common		= require 'common'
 local geometry		= require 'geometry'
 
-return function(update_freq)
-   local MODULE_Y = 145
+return function(update_freq, point)
    local SEPARATOR_SPACING = 20
    local TEXT_SPACING = 20
    local PLOT_SEC_BREAK = 20
@@ -28,7 +27,7 @@ return function(update_freq)
 
    local _mk_plot = function(label, getter, y)
       local obj = common.make_tagged_maybe_percent_timeseries(
-         geometry.LEFT_X,
+         point.x,
          y,
          geometry.SECTION_WIDTH,
          PLOT_HEIGHT,
@@ -53,7 +52,7 @@ return function(update_freq)
       common.mk_header,
       'NVIDIA GRAPHICS',
       geometry.SECTION_WIDTH,
-      geometry.LEFT_X
+      point.x
    )
 
    -----------------------------------------------------------------------------
@@ -61,7 +60,7 @@ return function(update_freq)
 
    local mk_status = function(y)
       local obj = common.make_text_row(
-         geometry.LEFT_X,
+         point.x,
          y,
          geometry.SECTION_WIDTH,
          'Status'
@@ -81,7 +80,7 @@ return function(update_freq)
    local mk_sep = pure.partial(
       common.mk_seperator,
       geometry.SECTION_WIDTH,
-      geometry.LEFT_X
+      point.x
    )
 
    -----------------------------------------------------------------------------
@@ -89,7 +88,7 @@ return function(update_freq)
 
    local mk_temp = function(y)
       local obj = common.make_threshold_text_row(
-         geometry.LEFT_X,
+         point.x,
          y,
          geometry.SECTION_WIDTH,
          'Internal Temperature',
@@ -113,7 +112,7 @@ return function(update_freq)
 
    local mk_clock = function(y)
       local obj = common.make_text_rows(
-         geometry.LEFT_X,
+         point.x,
          y,
          geometry.SECTION_WIDTH,
          TEXT_SPACING,
@@ -223,7 +222,7 @@ return function(update_freq)
    -- main drawing functions
 
    local rbs = common.reduce_blocks_(
-      MODULE_Y,
+      point.y,
       {
          common.mk_block(mk_header, true, 0),
          common.mk_block(mk_status, true, 0),
@@ -237,10 +236,5 @@ return function(update_freq)
          common.mk_block(mk_vid_util, true, PLOT_SEC_BREAK)
       }
    )
-
-   return {
-      static = rbs.static_drawer,
-      dynamic = rbs.dynamic_drawer,
-      update = function() rbs.updater(update_state()) end
-   }
+   return pure.map_at("update", function(f) return function() f(update_state()) end end, rbs)
 end

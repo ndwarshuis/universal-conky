@@ -3,7 +3,7 @@ local common = require 'common'
 local geometry = require 'geometry'
 local sys = require 'sys'
 
-return function(update_freq, devices)
+return function(update_freq, devices, point)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
    -- TODO currently this will find any block device
@@ -18,7 +18,7 @@ return function(update_freq, devices)
 
    local make_plot = function(y, label, init)
       return common.make_rate_timeseries(
-         geometry.CENTER_LEFT_X,
+         point.x,
          y,
          geometry.SECTION_WIDTH,
          PLOT_HEIGHT,
@@ -36,8 +36,8 @@ return function(update_freq, devices)
    -- header
 
    local header = common.make_header(
-      geometry.CENTER_LEFT_X,
-      geometry.TOP_Y,
+      point.x,
+      point.y,
       geometry.SECTION_WIDTH,
       'INPUT / OUTPUT'
    )

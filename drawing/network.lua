@@ -4,7 +4,7 @@ local common = require 'common'
 local geometry = require 'geometry'
 local sys = require 'sys'
 
-return function(update_freq)
+return function(update_freq, point)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
    local INTERFACE_PATHS = sys.get_net_interface_paths()
@@ -33,7 +33,7 @@ return function(update_freq)
 
    local make_plot = function(y, label, init)
       return common.make_rate_timeseries(
-         geometry.CENTER_RIGHT_X,
+         point.x,
          y,
          geometry.SECTION_WIDTH,
          PLOT_HEIGHT,
@@ -51,8 +51,8 @@ return function(update_freq)
    -- header
 
    local header = common.make_header(
-      geometry.CENTER_RIGHT_X,
-      geometry.TOP_Y,
+      point.x,
+      point.y,
       geometry.SECTION_WIDTH,
       'NETWORK'
    )

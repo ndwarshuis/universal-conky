@@ -2,20 +2,20 @@ local i_o = require 'i_o'
 local common = require 'common'
 local geometry = require 'geometry'
 
-return function()
+return function(point)
    local TEXT_SPACING = 20
 
    local __string_match = string.match
 
    local header = common.make_header(
-      geometry.LEFT_X,
-      geometry.TOP_Y,
+      point.x,
+      point.y,
       geometry.SECTION_WIDTH,
       'SYSTEM'
    )
 
    local rows = common.make_text_rows(
-      geometry.LEFT_X,
+      point.x,
       header.bottom_y,
       geometry.SECTION_WIDTH,
       TEXT_SPACING,

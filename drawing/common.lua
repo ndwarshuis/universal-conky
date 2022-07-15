@@ -671,9 +671,10 @@ M.reduce_blocks_inner = function(f, y, blocks)
    local r = pure.reduce(_combine_blocks, {y = y, objs = {}}, blocks)
    local us, ss, ds = table.unpack(pure.unzip(r.objs))
    return {
-      updater = f(table.unpack(non_false(pure.reverse(us)))),
-      static_drawer = pure.sequence(table.unpack(ss)),
-      dynamic_drawer = pure.sequence(table.unpack(non_false(ds)))
+      y = r.y,
+      update = f(table.unpack(non_false(pure.reverse(us)))),
+      static = pure.sequence(table.unpack(ss)),
+      dynamic = pure.sequence(table.unpack(non_false(ds)))
    }
 end
 

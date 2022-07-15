@@ -8,12 +8,11 @@ local pure = require 'pure'
 
 local __math_floor = math.floor
 
-return function(update_freq)
+return function(update_freq, point)
    -- local SHOW_DIALS = true
    -- local SHOW_TIMESERIES = true
    -- local SHOW_TABLE = true
 
-   local MODULE_Y = 614
    local DIAL_INNER_RADIUS = 30
    local DIAL_OUTER_RADIUS = 42
    local DIAL_THICKNESS = 5.5
@@ -31,7 +30,7 @@ return function(update_freq)
       common.mk_header,
       'PROCESSOR',
       geometry.SECTION_WIDTH,
-      geometry.LEFT_X
+      point.x
    )
 
    -----------------------------------------------------------------------------
@@ -78,7 +77,7 @@ return function(update_freq)
       local cores = {}
       -- TODO what happens when the number of cores changes?
       for c = 1, ncores do
-         local dial_x = geometry.LEFT_X + DIAL_OUTER_RADIUS +
+         local dial_x = point.x + DIAL_OUTER_RADIUS +
             (geometry.SECTION_WIDTH - 2 * DIAL_OUTER_RADIUS) * (c - 1) / 3
          local dial_y = y + DIAL_OUTER_RADIUS
          cores[c] = create_core(dial_x, dial_y)
@@ -122,7 +121,7 @@ return function(update_freq)
    local mk_hwp_freq = function(y)
       local hwp_paths = cpu.get_hwp_paths()
       local cpu_status = common.make_text_rows(
-         geometry.LEFT_X,
+         point.x,
          y,
          geometry.SECTION_WIDTH,
          TEXT_SPACING,
@@ -149,7 +148,7 @@ return function(update_freq)
    local mk_sep = pure.partial(
       common.mk_seperator,
       geometry.SECTION_WIDTH,
-      geometry.LEFT_X
+      point.x
    )
 
    -----------------------------------------------------------------------------
@@ -157,7 +156,7 @@ return function(update_freq)
 
    local mk_load_plot = function(y)
       local total_load = common.make_tagged_percent_timeseries(
-         geometry.LEFT_X,
+         point.x,
          y,
          geometry.SECTION_WIDTH,
          PLOT_HEIGHT,
@@ -187,7 +186,7 @@ return function(update_freq)
          NUM_ROWS
       )
       local tbl = common.make_text_table(
-         geometry.LEFT_X,
+         point.x,
          y,
          geometry.SECTION_WIDTH,
          TABLE_HEIGHT,
@@ -214,7 +213,7 @@ return function(update_freq)
    -- main functions
 
    local rbs = common.reduce_blocks(
-      MODULE_Y,
+      point.y,
       {
          common.mk_block(mk_header, true, 0),
          common.mk_block(mk_cores, true, 0),
@@ -225,14 +224,13 @@ return function(update_freq)
       }
    )
 
-   local update = function(trigger)
-      rbs.updater(update_state(trigger, state.cpu_loads))
-   end
-
-   -- TODO return the bottom y/height of the entire module
-   return {
-      static = rbs.static_drawer,
-      dynamic = rbs.dynamic_drawer,
-      update = update
-   }
+   return pure.map_at(
+      "update",
+      function(f)
+         return function(trigger)
+            f(update_state(trigger, state.cpu_loads))
+         end
+      end,
+      rbs
+   )
 end

@@ -4,6 +4,24 @@ local geometry = require 'geometry'
 local geom = require 'geom'
 local fill_rect = require 'fill_rect'
 
+local _combine_modules = function(acc, new)
+   local n = new(acc.point)
+   table.insert(acc.funs, n.fun)
+   acc.point = geom.make_point(acc.point.x, acc.point + n.y)
+   return acc
+end
+
+local reduce_modules_inner = function(y, mods)
+   local r = pure.reduce(_combine_modules, {y = y, mods = {}}, mods)
+   -- local us, ss, ds = table.unpack(pure.unzip(r.mods))
+   return pure.unzip(r.mods)
+   -- return {
+   --    updater = pure.sequence(table.unpack(us)),
+   --    draw_static = pure.sequence(table.unpack(ss)),
+   --    draw_dynamic = pure.sequence(table.unpack(ds))
+   -- }
+end
+
 return function(module_sets)
    local __cairo_set_source_surface = cairo_set_source_surface
    local __cairo_image_surface_create = cairo_image_surface_create
@@ -65,6 +83,7 @@ return function(module_sets)
       __cairo_paint(cr)
    end
 
+   -- return a table with update, static, and dynamic components
    return function(cr)
       for i = 1, #cs do
          draw_static_surface(cr, cs[i])

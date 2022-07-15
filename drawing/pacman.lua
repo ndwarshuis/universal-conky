@@ -1,21 +1,21 @@
 local common		= require 'common'
 local geometry = require 'geometry'
 
-return function()
+return function(point)
    local TEXT_SPACING = 20
 
    local __string_match = string.match
    local __string_gmatch = string.gmatch
 
    local header = common.make_header(
-      geometry.RIGHT_X,
-      geometry.TOP_Y,
+      point.x,
+      point.y,
       geometry.SECTION_WIDTH,
       'PACMAN'
    )
 
    local rows = common.make_text_rows(
-      geometry.RIGHT_X,
+      point.x,
       header.bottom_y,
       geometry.SECTION_WIDTH,
       TEXT_SPACING,

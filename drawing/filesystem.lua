@@ -4,8 +4,7 @@ local geometry = require 'geometry'
 local pure = require 'pure'
 local impure = require 'impure'
 
-return function(pathspecs)
-   local MODULE_Y = 170
+return function(pathspecs, point)
    local SPACING = 20
    local BAR_PAD = 100
    local SEPARATOR_SPACING = 20
@@ -17,7 +16,7 @@ return function(pathspecs)
       common.mk_header,
       'FILE SYSTEMS',
       geometry.SECTION_WIDTH,
-      geometry.RIGHT_X
+      point.x
    )
 
    -----------------------------------------------------------------------------
@@ -25,7 +24,7 @@ return function(pathspecs)
 
    local mk_smart = function(y)
       local obj = common.make_text_row(
-         geometry.RIGHT_X,
+         point.x,
          y,
          geometry.SECTION_WIDTH,
          'SMART Daemon'
@@ -47,7 +46,7 @@ return function(pathspecs)
    local mk_sep = pure.partial(
       common.mk_seperator,
       geometry.SECTION_WIDTH,
-      geometry.RIGHT_X
+      point.x
    )
 
    -----------------------------------------------------------------------------
@@ -60,7 +59,7 @@ return function(pathspecs)
          paths
       )
       local obj = common.make_compound_bar(
-         geometry.RIGHT_X,
+         point.x,
          y,
          geometry.SECTION_WIDTH,
          BAR_PAD,
@@ -88,8 +87,8 @@ return function(pathspecs)
    -----------------------------------------------------------------------------
    -- main functions
 
-   local rbs = common.reduce_blocks_(
-      MODULE_Y,
+   return common.reduce_blocks_(
+      point.y,
       {
          common.mk_block(mk_header, true, 0),
          common.mk_block(mk_smart, true, 0),
@@ -97,10 +96,4 @@ return function(pathspecs)
          common.mk_block(mk_bars, true, SEPARATOR_SPACING),
       }
    )
-
-   return {
-      static = rbs.static_drawer,
-      dynamic = rbs.dynamic_drawer,
-      update = rbs.updater
-   }
 end

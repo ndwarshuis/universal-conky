@@ -17,6 +17,8 @@ package.path = ABS_PATH..'?.lua;'..
    ABS_PATH..'core/widget/line/?.lua;'
 
 local i_o 			= require 'i_o'
+local geom 			= require 'geom'
+local geometry 		= require 'geometry'
 local sys 			= require 'sys'
 local system 		= require 'system'
 local network 		= require 'network'
@@ -46,15 +48,15 @@ function conky_start(update_interval)
       {'/tmp', 'tmpfs'}
    }
 
-   local mem = memory(update_freq)
-   local rw = readwrite(update_freq, devices)
-   local net = network(update_freq)
-   local pwr = power(update_freq, battery)
-   local fs = filesystem(fs_paths)
-   local stm = system()
-   local gfx = graphics(update_freq)
-   local proc = processor(update_freq)
-   local pcm = pacman()
+   local mem = memory(update_freq, geom.make_point(geometry.RIGHT_X, 712))
+   local rw = readwrite(update_freq, devices, geom.make_point(geometry.CENTER_LEFT_X, geometry.TOP_Y))
+   local net = network(update_freq, geom.make_point(geometry.CENTER_RIGHT_X, geometry.TOP_Y))
+   local pwr = power(update_freq, battery, geom.make_point(geometry.RIGHT_X, 380))
+   local fs = filesystem(fs_paths, geom.make_point(geometry.RIGHT_X, 170))
+   local stm = system(geom.make_point(geometry.LEFT_X, geometry.TOP_Y))
+   local gfx = graphics(update_freq, geom.make_point(geometry.LEFT_X, 145))
+   local proc = processor(update_freq, geom.make_point(geometry.LEFT_X, 614))
+   local pcm = pacman(geom.make_point(geometry.RIGHT_X, geometry.TOP_Y))
 
    local using_ac = sys.battery_status_reader(battery)
 
