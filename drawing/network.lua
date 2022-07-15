@@ -1,4 +1,5 @@
 local format = require 'format'
+local pure = require 'pure'
 local i_o = require 'i_o'
 local common = require 'common'
 local geometry = require 'geometry'
@@ -13,26 +14,29 @@ return function(update_freq, point)
       return i_o.read_file(path, nil, '*n') * 8
    end
 
+   local state = {rx_bits = 0, tx_bits = 0}
+
    local read_interfaces = function()
-      local rx = 0
-      local tx = 0
+      state.rx_bits = 0
+      state.tx_bits = 0
       for i = 1, #INTERFACE_PATHS do
          local p = INTERFACE_PATHS[i]
-         rx = rx + get_bits(p.rx)
-         tx = tx + get_bits(p.tx)
+         state.rx_bits = state.rx_bits + get_bits(p.rx)
+         state.tx_bits = state.tx_bits + get_bits(p.tx)
       end
-      return rx, tx
+      return state
    end
 
-   local init_rx_bits, init_tx_bits = read_interfaces()
+   -- prime initial state
+   read_interfaces()
 
    local value_format_function = function(bits)
       local unit, value = format.convert_data_val(bits)
       return format.precision_round_to_string(value, 3)..' '..unit..'b/s'
    end
 
-   local make_plot = function(y, label, init)
-      return common.make_rate_timeseries(
+   local mk_plot = function(label, key, y)
+      local obj = common.make_rate_timeseries(
          point.x,
          y,
          geometry.SECTION_WIDTH,
@@ -43,50 +47,43 @@ return function(update_freq, point)
          label,
          2,
          update_freq,
-         init
+         state[key]
+      )
+      return common.mk_acc(
+         PLOT_HEIGHT + PLOT_SEC_BREAK,
+         function(s) common.update_rate_timeseries(obj, s[key]) end,
+         pure.partial(common.tagged_scaled_timeseries_draw_static, obj),
+         pure.partial(common.tagged_scaled_timeseries_draw_dynamic, obj)
       )
    end
 
    -----------------------------------------------------------------------------
    -- header
 
-   local header = common.make_header(
-      point.x,
-      point.y,
+   local mk_header = pure.partial(
+      common.mk_header,
+      'NETWORK',
       geometry.SECTION_WIDTH,
-      'NETWORK'
+      point.x
    )
 
    -----------------------------------------------------------------------------
-   -- download plot
+   -- down/up plots
 
-   local rx = make_plot(header.bottom_y, 'Download', init_rx_bits)
-
-   -----------------------------------------------------------------------------
-   -- upload plot
-
-   local TX_Y = header.bottom_y + PLOT_HEIGHT + PLOT_SEC_BREAK * 2
-   local tx = make_plot(TX_Y, 'Upload', init_tx_bits)
+   local mk_rx = pure.partial(mk_plot, 'Download', 'rx_bits')
+   local mk_tx = pure.partial(mk_plot, 'Upload', 'tx_bits')
 
    -----------------------------------------------------------------------------
    -- main drawing functions
 
-   local update = function()
-      local rx_bits, tx_bits = read_interfaces()
-      common.update_rate_timeseries(rx, rx_bits)
-      common.update_rate_timeseries(tx, tx_bits)
-   end
+   local rbs = common.reduce_blocks_(
+      point.y,
+      {
+         common.mk_block(mk_header, true, 0),
+         common.mk_block(mk_rx, true, 0),
+         common.mk_block(mk_tx, true, PLOT_SEC_BREAK),
+      }
+   )
 
-   local draw_static = function(cr)
-      common.draw_header(cr, header)
-      common.tagged_scaled_timeseries_draw_static(rx, cr)
-      common.tagged_scaled_timeseries_draw_static(tx, cr)
-   end
-
-   local draw_dynamic = function(cr)
-      common.tagged_scaled_timeseries_draw_dynamic(rx, cr)
-      common.tagged_scaled_timeseries_draw_dynamic(tx, cr)
-   end
-
-   return {static = draw_static, dynamic = draw_dynamic, update = update}
+   return pure.map_at("update", function(f) return function() f(read_interfaces()) end end, rbs)
 end
