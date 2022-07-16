@@ -4,7 +4,7 @@ local common = require 'common'
 local geometry = require 'geometry'
 local sys = require 'sys'
 
-return function(update_freq, battery, point)
+return function(update_freq, battery, main_state, point)
    local TEXT_SPACING = 20
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
@@ -98,8 +98,11 @@ return function(update_freq, battery, point)
       return common.mk_acc(
          geometry.SECTION_WIDTH,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
-         function(state)
-            common.tagged_scaled_timeseries_set(obj, read_battery_power(state.is_using_ac))
+         function()
+            common.tagged_scaled_timeseries_set(
+               obj,
+               read_battery_power(main_state.is_using_ac
+            ))
          end,
          mk_static(obj),
          mk_dynamic(obj)

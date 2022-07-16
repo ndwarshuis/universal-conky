@@ -33,8 +33,6 @@ local static		= require 'static'
 
 local draw_dynamic
 
-local main_state = {}
-
 function conky_start(update_interval)
    conky_set_update_interval(update_interval)
 
@@ -50,15 +48,17 @@ function conky_start(update_interval)
       {'/tmp', 'tmpfs'}
    }
 
+   local main_state = {}
+
    local mem = pure.partial(memory, update_freq)
    local rw = pure.partial(readwrite, update_freq, devices)
    local net = pure.partial(network, update_freq)
-   local pwr = pure.partial(power, update_freq, battery)
-   local fs = pure.partial(filesystem, fs_paths)
-   local stm = system
+   local pwr = pure.partial(power, update_freq, battery, main_state)
+   local fs = pure.partial(filesystem, fs_paths, main_state)
+   local stm = pure.partial(system, main_state)
    local gfx = pure.partial(graphics, update_freq)
-   local proc = pure.partial(processor, update_freq)
-   local pcm = pacman
+   local proc = pure.partial(processor, update_freq, main_state)
+   local pcm = pure.partial(pacman, main_state)
 
    local using_ac = sys.battery_status_reader(battery)
 
@@ -81,7 +81,7 @@ function conky_start(update_interval)
       main_state.is_using_ac = using_ac()
 
       compiled.static(cr)
-      compiled.update(main_state)
+      compiled.update()
       compiled.dynamic(cr)
    end
 end

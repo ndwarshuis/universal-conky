@@ -3,7 +3,7 @@ local pure = require 'pure'
 local common = require 'common'
 local geometry = require 'geometry'
 
-return function(point)
+return function(main_state, point)
    local TEXT_SPACING = 20
 
    local __string_match = string.match
@@ -16,11 +16,11 @@ return function(point)
          TEXT_SPACING,
          {'Kernel', 'Uptime', 'Last Upgrade', 'Last Sync'}
       )
-      local update = function(state)
+      local update = function()
          local last_update, last_sync
-         if state.pacman_stats then
+         if main_state.pacman_stats then
             last_update, last_sync = __string_match(
-               state.pacman_stats,
+               main_state.pacman_stats,
                "^%d+%s+([^%s]+)%s+([^%s]+).*"
             )
          end

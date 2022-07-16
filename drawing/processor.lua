@@ -8,7 +8,7 @@ local pure = require 'pure'
 
 local __math_floor = math.floor
 
-return function(update_freq, point)
+return function(update_freq, main_state, point)
    -- local SHOW_DIALS = true
    -- local SHOW_TIMESERIES = true
    -- local SHOW_TABLE = true
@@ -27,15 +27,15 @@ return function(update_freq, point)
    -- cores (loads and temps)
 
    -- this totally is not supposed to be a state monad (ssssh...)
-   local update_state = function(trigger, cpu_loads)
+   local update_state = function(cpu_loads)
       return {
          cpu_loads = cpu.read_cpu_loads(cpu_loads),
          load_sum = 0,
-         trigger = trigger
+         trigger = main_state.trigger10
       }
    end
 
-   local state = update_state(0, cpu.init_cpu_loads())
+   local state = update_state(cpu.init_cpu_loads())
    local ncpus = cpu.get_cpu_number()
    local ncores = cpu.get_core_number()
    local nthreads = ncpus / ncores
@@ -242,8 +242,8 @@ return function(update_freq, point)
    return pure.map_at(
       "update",
       function(f)
-         return function(main_state)
-            f(update_state(main_state.trigger10, state.cpu_loads))
+         return function()
+            f(update_state(state.cpu_loads))
          end
       end,
       rbs

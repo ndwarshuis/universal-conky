@@ -4,7 +4,7 @@ local geometry = require 'geometry'
 local pure = require 'pure'
 local impure = require 'impure'
 
-return function(pathspecs, point)
+return function(pathspecs, main_state, point)
    local SPACING = 20
    local BAR_PAD = 100
    local SEPARATOR_SPACING = 20
@@ -19,8 +19,8 @@ return function(pathspecs, point)
          geometry.SECTION_WIDTH,
          'SMART Daemon'
       )
-      local update = function(state)
-         if state.trigger10 == 0 then
+      local update = function()
+         if main_state.trigger10 == 0 then
             local pid = i_o.execute_cmd('pidof smartd', nil, '*n')
             common.text_row_set(obj, (pid == '') and 'Error' or 'Running')
          end
@@ -62,8 +62,8 @@ return function(pathspecs, point)
       local read_fs = function(index, cmd)
          common.compound_bar_set(obj, index, i_o.conky_numeric(cmd))
       end
-      local update = function(state)
-         if state.trigger10 == 0 then
+      local update = function()
+         if main_state.trigger10 == 0 then
             impure.ieach(read_fs, CONKY_CMDS)
          end
       end

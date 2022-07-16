@@ -72,7 +72,7 @@ local build_surface = function(box, fs)
    return {x = cs_x, y = cs_y, s = cs}
 end
 
-local reduce_static = function(y, margins, spacing, acc, panel_mods)
+local reduce_static = function(y, margins, acc, panel_mods)
    if type(panel_mods) == "number" then
       acc.next_x = acc.next_x + panel_mods
    else
@@ -97,8 +97,7 @@ return function(point, module_sets)
       pure.partial(
          reduce_static,
          point.y,
-         {x = geometry.PANEL_MARGIN_X, y = geometry.PANEL_MARGIN_Y},
-         20
+         {x = geometry.PANEL_MARGIN_X, y = geometry.PANEL_MARGIN_Y}
       ),
       {next_x = point.x, static = {}, update = {}, dynamic = {}},
       module_sets

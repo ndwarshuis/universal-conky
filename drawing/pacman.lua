@@ -2,7 +2,7 @@ local common = require 'common'
 local pure = require 'pure'
 local geometry = require 'geometry'
 
-return function(point)
+return function(main_state, point)
    local TEXT_SPACING = 20
 
    local __string_match = string.match
@@ -16,9 +16,9 @@ return function(point)
          TEXT_SPACING,
          {'Total', 'Explicit', 'Outdated', 'Orphaned', 'Local'}
       )
-      local update = function(state)
+      local update = function()
          local stats = __string_match(
-            state.pacman_stats,
+            main_state.pacman_stats,
             '%d+%s+[^%s]+%s+[^%s]+%s+(.*)$'
          )
          if stats then
