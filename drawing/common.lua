@@ -656,10 +656,11 @@ end
 
 local _combine_blocks = function(acc, new)
    if new.active == true then
-      local n = new.f(acc.y + new.offset)
+      local n = new.f(acc.next_y)
       table.insert(acc.objs, n.obj)
       acc.w = math.max(acc.w, n.w)
-      acc.y = acc.y + n.h + new.offset
+      acc.final_y = acc.next_y + n.h
+      acc.next_y = acc.final_y + new.offset
    end
    return acc
 end
@@ -679,13 +680,13 @@ M.reduce_blocks_inner = function(f, header, point, width, blocks)
    end
    local r = pure.reduce(
       _combine_blocks,
-      {w = 0, y = point.y, objs = {}},
+      {w = 0, next_y = point.y, final_y = point.y, objs = {}},
       {M.mk_block(mk_header, true, 0), table.unpack(blocks)}
    )
    local us, ss, ds = table.unpack(pure.unzip(r.objs))
    return {
       next_x = point.x + r.w,
-      next_y = r.y,
+      next_y = r.final_y,
       update = f(table.unpack(non_false(pure.reverse(us)))),
       static = pure.sequence(table.unpack(ss)),
       dynamic = pure.sequence(table.unpack(non_false(ds)))

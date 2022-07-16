@@ -222,15 +222,15 @@ return function(update_freq, point)
       point,
       geometry.SECTION_WIDTH,
       {
-         common.mk_block(mk_status, true, 0),
-         common.mk_block(mk_sep, true, SEPARATOR_SPACING),
-         common.mk_block(mk_temp, true, TEXT_SPACING),
+         common.mk_block(mk_status, true, SEPARATOR_SPACING),
+         common.mk_block(mk_sep, true, TEXT_SPACING),
+         common.mk_block(mk_temp, true, SEPARATOR_SPACING),
          common.mk_block(mk_sep, true, SEPARATOR_SPACING),
          common.mk_block(mk_clock, true, SEPARATOR_SPACING),
-         common.mk_block(mk_sep, true, SEPARATOR_SPACING),
+         common.mk_block(mk_sep, true, PLOT_SEC_BREAK),
          common.mk_block(mk_gpu_util, true, PLOT_SEC_BREAK),
          common.mk_block(mk_mem_util, true, PLOT_SEC_BREAK),
-         common.mk_block(mk_vid_util, true, PLOT_SEC_BREAK)
+         common.mk_block(mk_vid_util, true, 0)
       }
    )
    return pure.map_at("update", function(f) return function(_) f(update_state()) end end, rbs)

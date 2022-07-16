@@ -84,9 +84,9 @@ return function(pathspecs, main_state, point)
       point,
       geometry.SECTION_WIDTH,
       {
-         common.mk_block(mk_smart, true, 0),
+         common.mk_block(mk_smart, true, SEPARATOR_SPACING),
          common.mk_block(mk_sep, true, SEPARATOR_SPACING),
-         common.mk_block(mk_bars, true, SEPARATOR_SPACING),
+         common.mk_block(mk_bars, true, 0),
       }
    )
 end

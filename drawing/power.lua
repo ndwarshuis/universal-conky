@@ -117,9 +117,9 @@ return function(update_freq, battery, main_state, point)
       point,
       geometry.SECTION_WIDTH,
       {
-         common.mk_block(mk_pkg0, true, 0),
+         common.mk_block(mk_pkg0, true, TEXT_SPACING),
          common.mk_block(mk_dram, true, TEXT_SPACING),
-         common.mk_block(mk_bat, true, TEXT_SPACING),
+         common.mk_block(mk_bat, true, 0),
       }
    )
 end

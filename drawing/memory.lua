@@ -185,9 +185,9 @@ return function(update_freq, point)
       point,
       geometry.SECTION_WIDTH,
       {
-         common.mk_block(mk_stats, true, 0),
-         common.mk_block(mk_plot, true, PLOT_SECTION_BREAK),
-         common.mk_block(mk_tbl, true, TABLE_SECTION_BREAK),
+         common.mk_block(mk_stats, true, PLOT_SECTION_BREAK),
+         common.mk_block(mk_plot, true, TABLE_SECTION_BREAK),
+         common.mk_block(mk_tbl, true, 0),
       }
    )
    return pure.map_at("update", function(f) return function(_) f(read_state()) end end, rbs)

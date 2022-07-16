@@ -56,8 +56,8 @@ return function(update_freq, devices, point)
       point,
       geometry.SECTION_WIDTH,
       {
-         common.mk_block(mk_reads, true, 0),
-         common.mk_block(mk_writes, true, PLOT_SEC_BREAK),
+         common.mk_block(mk_reads, true, PLOT_SEC_BREAK),
+         common.mk_block(mk_writes, true, 0),
       }
    )
 

@@ -231,11 +231,11 @@ return function(update_freq, main_state, point)
       point,
       geometry.SECTION_WIDTH,
       {
-         common.mk_block(mk_cores, true, 0),
-         common.mk_block(mk_hwp_freq, true, TEXT_SPACING),
+         common.mk_block(mk_cores, true, TEXT_SPACING),
+         common.mk_block(mk_hwp_freq, true, SEPARATOR_SPACING),
          common.mk_block(mk_sep, true, SEPARATOR_SPACING),
-         common.mk_block(mk_load_plot, true, SEPARATOR_SPACING),
-         common.mk_block(mk_tbl, true, TABLE_SECTION_BREAK)
+         common.mk_block(mk_load_plot, true, TABLE_SECTION_BREAK),
+         common.mk_block(mk_tbl, true, 0)
       }
    )
 
