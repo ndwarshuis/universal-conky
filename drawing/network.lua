@@ -53,6 +53,7 @@ return function(update_freq, point)
          state[key]
       )
       return common.mk_acc(
+         geometry.SECTION_WIDTH,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
          function(s) common.update_rate_timeseries(obj, s[key]) end,
          pure.partial(common.tagged_scaled_timeseries_draw_static, obj),
@@ -76,5 +77,5 @@ return function(update_freq, point)
       }
    )
 
-   return pure.map_at("update", function(f) return function() f(read_interfaces()) end end, rbs)
+   return pure.map_at("update", function(f) return function(_) f(read_interfaces()) end end, rbs)
 end

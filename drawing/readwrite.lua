@@ -36,6 +36,8 @@ return function(update_freq, devices, point)
          state[key]
       )
       return common.mk_acc(
+         -- TODO construct this more sanely without referring to hardcoded vars
+         geometry.SECTION_WIDTH,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
          function() common.update_rate_timeseries(obj, state[key]) end,
          pure.partial(common.tagged_scaled_timeseries_draw_static, obj),
@@ -62,7 +64,7 @@ return function(update_freq, devices, point)
    return pure.map_at(
       "update",
       function(f)
-         return function()
+         return function(_)
             state.read, state.write = sys.get_total_disk_io(DEVICE_PATHS)
             f()
          end

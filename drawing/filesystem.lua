@@ -19,13 +19,14 @@ return function(pathspecs, point)
          geometry.SECTION_WIDTH,
          'SMART Daemon'
       )
-      local update = function(trigger)
-         if trigger == 0 then
+      local update = function(state)
+         if state.trigger10 == 0 then
             local pid = i_o.execute_cmd('pidof smartd', nil, '*n')
             common.text_row_set(obj, (pid == '') and 'Error' or 'Running')
          end
       end
       return common.mk_acc(
+         geometry.SECTION_WIDTH,
          0,
          update,
          pure.partial(common.text_row_draw_static, obj),
@@ -61,12 +62,13 @@ return function(pathspecs, point)
       local read_fs = function(index, cmd)
          common.compound_bar_set(obj, index, i_o.conky_numeric(cmd))
       end
-      local update = function(trigger)
-         if trigger == 0 then
+      local update = function(state)
+         if state.trigger10 == 0 then
             impure.ieach(read_fs, CONKY_CMDS)
          end
       end
       return common.mk_acc(
+         geometry.SECTION_WIDTH,
          (#pathspecs - 1) * SPACING,
          update,
          pure.partial(common.compound_bar_draw_static, obj),

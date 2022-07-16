@@ -102,7 +102,13 @@ return function(update_freq, point)
             compound_dial.draw_dynamic(cores[i].loads, cr)
          end
       end
-      return common.mk_acc(DIAL_OUTER_RADIUS * 2, update, static, dynamic)
+      return common.mk_acc(
+         geometry.SECTION_WIDTH,
+         DIAL_OUTER_RADIUS * 2,
+         update,
+         static,
+         dynamic
+      )
    end
 
    -----------------------------------------------------------------------------
@@ -129,7 +135,13 @@ return function(update_freq, point)
       end
       local static = pure.partial(common.text_rows_draw_static, cpu_status)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, cpu_status)
-      return common.mk_acc(TEXT_SPACING, update, static, dynamic)
+      return common.mk_acc(
+         geometry.SECTION_WIDTH,
+         TEXT_SPACING,
+         update,
+         static,
+         dynamic
+      )
    end
 
    -----------------------------------------------------------------------------
@@ -163,7 +175,13 @@ return function(update_freq, point)
       end
       local static = pure.partial(common.tagged_percent_timeseries_draw_static, total_load)
       local dynamic = pure.partial(common.tagged_percent_timeseries_draw_dynamic, total_load)
-      return common.mk_acc(PLOT_HEIGHT + PLOT_SECTION_BREAK, update, static, dynamic)
+      return common.mk_acc(
+         geometry.SECTION_WIDTH,
+         PLOT_HEIGHT + PLOT_SECTION_BREAK,
+         update,
+         static,
+         dynamic
+      )
    end
 
    -----------------------------------------------------------------------------
@@ -196,7 +214,13 @@ return function(update_freq, point)
       end
       local static = pure.partial(text_table.draw_static, tbl)
       local dynamic = pure.partial(text_table.draw_dynamic, tbl)
-      return common.mk_acc(TABLE_HEIGHT, update, static, dynamic)
+      return common.mk_acc(
+         geometry.SECTION_WIDTH,
+         TABLE_HEIGHT,
+         update,
+         static,
+         dynamic
+      )
    end
 
    -----------------------------------------------------------------------------
@@ -218,8 +242,8 @@ return function(update_freq, point)
    return pure.map_at(
       "update",
       function(f)
-         return function(trigger)
-            f(update_state(trigger, state.cpu_loads))
+         return function(main_state)
+            f(update_state(main_state.trigger10, state.cpu_loads))
          end
       end,
       rbs

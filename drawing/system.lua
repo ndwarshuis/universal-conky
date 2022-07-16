@@ -16,10 +16,13 @@ return function(point)
          TEXT_SPACING,
          {'Kernel', 'Uptime', 'Last Upgrade', 'Last Sync'}
       )
-      local update = function(pacman_stats)
+      local update = function(state)
          local last_update, last_sync
-         if pacman_stats then
-            last_update, last_sync = __string_match(pacman_stats, "^%d+%s+([^%s]+)%s+([^%s]+).*")
+         if state.pacman_stats then
+            last_update, last_sync = __string_match(
+               state.pacman_stats,
+               "^%d+%s+([^%s]+)%s+([^%s]+).*"
+            )
          end
          -- TODO this doesn't need to be update every time
          common.text_rows_set(obj, 1, i_o.conky('$kernel'))
@@ -29,7 +32,13 @@ return function(point)
       end
       local static = pure.partial(common.text_rows_draw_static, obj)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, obj)
-      return common.mk_acc(TEXT_SPACING * 3, update, static, dynamic)
+      return common.mk_acc(
+         geometry.SECTION_WIDTH,
+         TEXT_SPACING * 3,
+         update,
+         static,
+         dynamic
+      )
    end
 
    return common.reduce_blocks_(

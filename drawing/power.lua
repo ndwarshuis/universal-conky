@@ -53,6 +53,7 @@ return function(update_freq, battery, point)
          read()
       )
       return common.mk_acc(
+         geometry.SECTION_WIDTH,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
          function(_) common.update_rate_timeseries(obj, read()) end,
          mk_static(obj),
@@ -95,9 +96,10 @@ return function(update_freq, battery, point)
          update_freq
       )
       return common.mk_acc(
+         geometry.SECTION_WIDTH,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
-         function(ac)
-            common.tagged_scaled_timeseries_set(obj, read_battery_power(ac))
+         function(state)
+            common.tagged_scaled_timeseries_set(obj, read_battery_power(state.is_using_ac))
          end,
          mk_static(obj),
          mk_dynamic(obj)

@@ -18,7 +18,7 @@ package.path = ABS_PATH..'?.lua;'..
 
 local i_o 			= require 'i_o'
 local geom 			= require 'geom'
-local geometry 		= require 'geometry'
+local pure 			= require 'pure'
 local sys 			= require 'sys'
 local system 		= require 'system'
 local network 		= require 'network'
@@ -32,6 +32,8 @@ local memory		= require 'memory'
 local static		= require 'static'
 
 local draw_dynamic
+
+local main_state = {}
 
 function conky_start(update_interval)
    conky_set_update_interval(update_interval)
@@ -48,57 +50,39 @@ function conky_start(update_interval)
       {'/tmp', 'tmpfs'}
    }
 
-   local mem = memory(update_freq, geom.make_point(geometry.RIGHT_X, 712))
-   local rw = readwrite(update_freq, devices, geom.make_point(geometry.CENTER_LEFT_X, geometry.TOP_Y))
-   local net = network(update_freq, geom.make_point(geometry.CENTER_RIGHT_X, geometry.TOP_Y))
-   local pwr = power(update_freq, battery, geom.make_point(geometry.RIGHT_X, 380))
-   local fs = filesystem(fs_paths, geom.make_point(geometry.RIGHT_X, 170))
-   local stm = system(geom.make_point(geometry.LEFT_X, geometry.TOP_Y))
-   local gfx = graphics(update_freq, geom.make_point(geometry.LEFT_X, 145))
-   local proc = processor(update_freq, geom.make_point(geometry.LEFT_X, 614))
-   local pcm = pacman(geom.make_point(geometry.RIGHT_X, geometry.TOP_Y))
+   local mem = pure.partial(memory, update_freq)
+   local rw = pure.partial(readwrite, update_freq, devices)
+   local net = pure.partial(network, update_freq)
+   local pwr = pure.partial(power, update_freq, battery)
+   local fs = pure.partial(filesystem, fs_paths)
+   local stm = system
+   local gfx = pure.partial(graphics, update_freq)
+   local proc = pure.partial(processor, update_freq)
+   local pcm = pacman
 
    local using_ac = sys.battery_status_reader(battery)
 
-   local draw_static = static(
+   local compiled = static(
+      geom.make_point(12, 11),
       {
-         {stm.static, gfx.static, proc.static},
-         {rw.static, net.static},
-         {pcm.static, fs.static, pwr.static, mem.static}
+         {{stm, 19, gfx, 16, proc}},
+         10,
+         {{rw}, 20, {net}},
+         10,
+         {{pcm, 24, fs, 24, pwr, 19, mem}}
       }
    )
 
    local STATS_FILE = '/tmp/.conky_pacman'
 
    draw_dynamic = function(cr, _updates)
-      -- draw static components
-      draw_static(cr)
+      main_state.trigger10 = _updates % (update_freq * 10)
+      main_state.pacman_stats = i_o.read_file(STATS_FILE)
+      main_state.is_using_ac = using_ac()
 
-      -- update dynamic components
-      local t1 = _updates % (update_freq * 10)
-      local pacman_stats = i_o.read_file(STATS_FILE)
-      local is_using_ac = using_ac()
-
-      stm.update(pacman_stats)
-      gfx.update()
-      proc.update(t1)
-      rw.update()
-      net.update()
-      pcm.update(pacman_stats)
-      fs.update(t1)
-      pwr.update(is_using_ac)
-      mem.update()
-
-      -- draw dynamic components
-      stm.dynamic(cr)
-      gfx.dynamic(cr)
-      proc.dynamic(cr)
-      rw.dynamic(cr)
-      net.dynamic(cr)
-      pcm.dynamic(cr)
-      fs.dynamic(cr)
-      pwr.dynamic(cr)
-      mem.dynamic(cr)
+      compiled.static(cr)
+      compiled.update(main_state)
+      compiled.dynamic(cr)
    end
 end
 

@@ -16,8 +16,11 @@ return function(point)
          TEXT_SPACING,
          {'Total', 'Explicit', 'Outdated', 'Orphaned', 'Local'}
       )
-      local update = function(pacman_stats)
-         local stats = __string_match(pacman_stats, '%d+%s+[^%s]+%s+[^%s]+%s+(.*)$')
+      local update = function(state)
+         local stats = __string_match(
+            state.pacman_stats,
+            '%d+%s+[^%s]+%s+[^%s]+%s+(.*)$'
+         )
          if stats then
             local i = 1
             for v in __string_gmatch(stats, '%d+') do
@@ -31,6 +34,7 @@ return function(point)
          end
       end
       return common.mk_acc(
+         geometry.SECTION_WIDTH,
          TEXT_SPACING * 4,
          update,
          pure.partial(common.text_rows_draw_static, obj),

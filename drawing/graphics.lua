@@ -42,7 +42,13 @@ return function(update_freq, point)
       )
       local static = pure.partial(common.tagged_percent_timeseries_draw_static, obj)
       local dynamic = pure.partial(common.tagged_percent_timeseries_draw_dynamic, obj)
-      return common.mk_acc(PLOT_HEIGHT + PLOT_SEC_BREAK, update, static, dynamic)
+      return common.mk_acc(
+         geometry.SECTION_WIDTH,
+         PLOT_HEIGHT + PLOT_SEC_BREAK,
+         update,
+         static,
+         dynamic
+      )
    end
 
    -----------------------------------------------------------------------------
@@ -64,7 +70,7 @@ return function(update_freq, point)
       end
       local static = pure.partial(common.text_row_draw_static, obj)
       local dynamic = pure.partial(common.text_row_draw_dynamic, obj)
-      return common.mk_acc(0, update, static, dynamic)
+      return common.mk_acc(geometry.SECTION_WIDTH, 0, update, static, dynamic)
    end
 
    local mk_sep = pure.partial(
@@ -94,7 +100,7 @@ return function(update_freq, point)
       )
       local static = pure.partial(common.threshold_text_row_draw_static, obj)
       local dynamic = pure.partial(common.threshold_text_row_draw_dynamic, obj)
-      return common.mk_acc(0, update, static, dynamic)
+      return common.mk_acc(geometry.SECTION_WIDTH, 0, update, static, dynamic)
    end
 
    -----------------------------------------------------------------------------
@@ -119,7 +125,7 @@ return function(update_freq, point)
       end
       local static = pure.partial(common.text_rows_draw_static, obj)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, obj)
-      return common.mk_acc(TEXT_SPACING, update, static, dynamic)
+      return common.mk_acc(geometry.SECTION_WIDTH, TEXT_SPACING, update, static, dynamic)
    end
 
    -----------------------------------------------------------------------------
@@ -227,5 +233,5 @@ return function(update_freq, point)
          common.mk_block(mk_vid_util, true, PLOT_SEC_BREAK)
       }
    )
-   return pure.map_at("update", function(f) return function() f(update_state()) end end, rbs)
+   return pure.map_at("update", function(f) return function(_) f(update_state()) end end, rbs)
 end

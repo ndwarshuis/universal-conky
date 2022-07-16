@@ -79,7 +79,7 @@ return function(update_freq, point)
          common.dial_draw_dynamic(swap, cr)
          common.text_rows_draw_dynamic(cache, cr)
       end
-      return common.mk_acc(DIAL_DIAMETER, update, static, dynamic)
+      return common.mk_acc(geometry.SECTION_WIDTH, DIAL_DIAMETER, update, static, dynamic)
    end
 
    -----------------------------------------------------------------------------
@@ -94,6 +94,7 @@ return function(update_freq, point)
          update_freq
       )
       return common.mk_acc(
+         geometry.SECTION_WIDTH,
          PLOT_HEIGHT,
          function(s) timeseries.update(obj, s.mem.used_percent) end,
          pure.partial(timeseries.draw_static, obj),
@@ -131,6 +132,7 @@ return function(update_freq, point)
          end
       end
       return common.mk_acc(
+         geometry.SECTION_WIDTH,
          TABLE_HEIGHT,
          update,
          pure.partial(text_table.draw_static, obj),
@@ -188,5 +190,5 @@ return function(update_freq, point)
          common.mk_block(mk_tbl, true, TABLE_SECTION_BREAK),
       }
    )
-   return pure.map_at("update", function(f) return function() f(read_state()) end end, rbs)
+   return pure.map_at("update", function(f) return function(_) f(read_state()) end end, rbs)
 end

@@ -658,6 +658,7 @@ local _combine_blocks = function(acc, new)
    if new.active == true then
       local n = new.f(acc.y + new.offset)
       table.insert(acc.objs, n.obj)
+      acc.w = math.max(acc.w, n.w)
       acc.y = acc.y + n.h + new.offset
    end
    return acc
@@ -671,18 +672,20 @@ M.reduce_blocks_inner = function(f, header, point, width, blocks)
    local mk_header = function(y)
       local obj = M.make_header(point.x, y, width, header)
       return M.mk_acc_static(
+         width,
          obj.bottom_y - y,
          function(cr) M.draw_header(cr, obj) end
       )
    end
    local r = pure.reduce(
       _combine_blocks,
-      {y = point.y, objs = {}},
+      {w = 0, y = point.y, objs = {}},
       {M.mk_block(mk_header, true, 0), table.unpack(blocks)}
    )
    local us, ss, ds = table.unpack(pure.unzip(r.objs))
    return {
-      y = r.y,
+      next_x = point.x + r.w,
+      next_y = r.y,
       update = f(table.unpack(non_false(pure.reverse(us)))),
       static = pure.sequence(table.unpack(ss)),
       dynamic = pure.sequence(table.unpack(non_false(ds)))
@@ -693,12 +696,12 @@ M.reduce_blocks = pure.partial(M.reduce_blocks_inner, pure.compose)
 
 M.reduce_blocks_ = pure.partial(M.reduce_blocks_inner, pure.sequence)
 
-M.mk_acc = function(h, u, s, d)
-   return {h = h, obj = {u, s, d}}
+M.mk_acc = function(w, h, u, s, d)
+   return {w = w, h = h, obj = {u, s, d}}
 end
 
-M.mk_acc_static = function(h, s)
-   return M.mk_acc(h, false, s, false)
+M.mk_acc_static = function(w, h, s)
+   return M.mk_acc(w, h, false, s, false)
 end
 
 M.mk_block = function(f, active, offset)
@@ -707,7 +710,7 @@ end
 
 M.mk_seperator = function(width, x, y)
    local separator = M.make_separator(x, y, width)
-   return M.mk_acc_static(0, pure.partial(line.draw, separator))
+   return M.mk_acc_static(width, 0, pure.partial(line.draw, separator))
 end
 
 return M
