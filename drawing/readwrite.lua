@@ -49,23 +49,19 @@ return function(update_freq, config, common, width, point)
    -----------------------------------------------------------------------------
    -- main drawing functions
 
-   local rbs = common.compile_module(
-      'INPUT / OUTPUT',
-      point,
-      width,
-      {
-         {mk_reads, true, PLOT_SEC_BREAK},
-         {mk_writes, true, 0},
-      }
-   )
-
-   return pure.map_at(
-      "update",
-      function(f)
+   return {
+      header = 'INPUT / OUTPUT',
+      point = point,
+      width = width,
+      update_wrapper = function(f)
          return function(_)
             state.read, state.write = sys.get_total_disk_io(DEVICE_PATHS)
             f()
          end
       end,
-      rbs)
+      top = {
+         {mk_reads, true, PLOT_SEC_BREAK},
+         {mk_writes, true, 0},
+      }
+   }
 end

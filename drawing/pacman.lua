@@ -40,10 +40,11 @@ return function(main_state, common, width, point)
       )
    end
 
-   return common.compile_module(
-      'PACMAN',
-      point,
-      width,
-      {{mk_stats, true, 0}}
-   )
+   return {
+      header = 'PACMAN',
+      point = point,
+      width = width,
+      update_wrapper = nil,
+      top = {{mk_stats, true, 0}}
+   }
 end

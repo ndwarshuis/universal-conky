@@ -178,15 +178,15 @@ return function(update_freq, config, common, width, point)
    -----------------------------------------------------------------------------
    -- main functions
 
-   local rbs = common.compile_module(
-      'MEMORY',
-      point,
-      width,
-      {
+   return {
+      header = 'MEMORY',
+      point = point,
+      width = width,
+      update_wrapper = function(f) return function(_) f(read_state()) end end,
+      top = {
          {mk_stats, config.show_stats, PLOT_SECTION_BREAK},
          {mk_plot, config.show_plot, TABLE_SECTION_BREAK},
          {mk_tbl, config.show_table, 0},
       }
-   )
-   return pure.map_at("update", function(f) return function(_) f(read_state()) end end, rbs)
+   }
 end

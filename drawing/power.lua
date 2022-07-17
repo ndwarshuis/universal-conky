@@ -105,14 +105,15 @@ return function(update_freq, config, common, width, point)
    -----------------------------------------------------------------------------
    -- main functions
 
-   return common.compile_module(
-      'POWER',
-      point,
-      width,
-      pure.concat(
+   return {
+      header = 'POWER',
+      point = point,
+      width = width,
+      update_wrapper = nil,
+      top = pure.concat(
          pure.map(mk_rate_blockspec, config.rapl_specs),
          -- TODO what happens if this is nil?
          {{mk_bat, config.battery ~= nil, 0}}
       )
-   )
+   }
 end

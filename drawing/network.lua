@@ -65,15 +65,14 @@ return function(update_freq, common, width, point)
    -----------------------------------------------------------------------------
    -- main drawing functions
 
-   local rbs = common.compile_module(
-      'NETWORK',
-      point,
-      width,
-      {
+   return {
+      header = 'NETWORK',
+      point = point,
+      width = width,
+      update_wrapper = function(f) return function(_) f(read_interfaces()) end end,
+      top = {
          {mk_rx, true, PLOT_SEC_BREAK},
          {mk_tx, true, 0},
       }
-   )
-
-   return pure.map_at("update", function(f) return function(_) f(read_interfaces()) end end, rbs)
+   }
 end

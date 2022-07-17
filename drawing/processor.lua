@@ -213,11 +213,17 @@ return function(update_freq, config, main_state, common, width, point)
    -----------------------------------------------------------------------------
    -- main functions
 
-   local rbs = common.compile_module(
-      'PROCESSOR',
-      point,
-      width,
-      {
+   return {
+      header = 'PROCESSOR',
+      point = point,
+      width = width,
+      update_wrapper = function(f)
+         return function()
+            update_state()
+            f()
+         end
+      end,
+      top = {
          {mk_cores, config.show_cores, TEXT_SPACING},
          {mk_hwp_freq, config.show_stats, SEPARATOR_SPACING},
       },
@@ -227,16 +233,5 @@ return function(update_freq, config, main_state, common, width, point)
          {mk_load_plot, config.show_plot, TABLE_SECTION_BREAK},
          {mk_tbl, config.show_table, 0}
       )
-   )
-
-   return pure.map_at(
-      "update",
-      function(f)
-         return function()
-            update_state()
-            f()
-         end
-      end,
-      rbs
-   )
+   }
 end

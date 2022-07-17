@@ -215,11 +215,12 @@ return function(update_freq, config, common, width, point)
    -----------------------------------------------------------------------------
    -- main drawing functions
 
-   local rbs = common.compile_module(
-      'NVIDIA GRAPHICS',
-      point,
-      width,
-      {{mk_status, true, SEPARATOR_SPACING}},
+   return {
+      header = 'NVIDIA GRAPHICS',
+      point = point,
+      width = width,
+      update_wrapper = function(f) return function(_) f(update_state()) end end,
+      top = {{mk_status, true, SEPARATOR_SPACING}},
       common.mk_section(
          SEPARATOR_SPACING,
          mk_sep,
@@ -237,6 +238,5 @@ return function(update_freq, config, common, width, point)
          {mk_mem_util, config.show_mem_util, PLOT_SEC_BREAK},
          {mk_vid_util, config.show_vid_util, 0}
       )
-   )
-   return pure.map_at("update", function(f) return function(_) f(update_state()) end end, rbs)
+   }
 end

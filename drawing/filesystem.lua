@@ -69,11 +69,12 @@ return function(config, main_state, common, width, point)
    -----------------------------------------------------------------------------
    -- main functions
 
-   return common.compile_module(
-      'FILE SYSTEMS',
-      point,
-      width,
-      {{mk_smart, config.show_smart, SEPARATOR_SPACING}},
+   return {
+      header = 'FILE SYSTEMS',
+      point = point,
+      width = width,
+      update_wrapper = nil,
+      top = {{mk_smart, config.show_smart, SEPARATOR_SPACING}},
       common.mk_section(SEPARATOR_SPACING, mk_sep, {mk_bars, true, 0})
-   )
+   }
 end

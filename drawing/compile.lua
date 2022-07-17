@@ -3,7 +3,6 @@ local M = {}
 local pure = require 'pure'
 local geom = require 'geom'
 local fill_rect = require 'fill_rect'
-local line = require 'line'
 
 --------------------------------------------------------------------------------
 -- compile entire layout
@@ -12,8 +11,16 @@ local reduce_modules_y = function(common, modlist, init_x, width, acc, new)
    if type(new) == "number" then
       acc.next_y = acc.next_y + new
    else
-      print(new)
-      local r = modlist[new](common, width, geom.make_point(init_x, acc.next_y))
+      -- gross...
+      local m = modlist[new](common, width, geom.make_point(init_x, acc.next_y))
+      local secs = {}
+      for i = 1, #m do
+         secs[i] = m[i]
+      end
+      local r = common.compile_module(m.header, m.point, m.width, m.top, table.unpack(secs))
+      if m.update_wrapper ~= nil then
+         r = pure.map_at("update", m.update_wrapper, r)
+      end
       table.insert(acc.fgroups, {update = r.update, static = r.static, dynamic = r.dynamic})
       acc.next_x = math.max(acc.next_x, r.next_x)
       acc.next_y = r.next_y
