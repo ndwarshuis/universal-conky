@@ -15,7 +15,10 @@ package.path = ABS_PATH..'?.lua;'..
    ABS_PATH..'core/widget/timeseries/?.lua;'..
    ABS_PATH..'core/widget/rect/?.lua;'..
    ABS_PATH..'core/widget/line/?.lua;'..
-   ABS_PATH..'lib/share/lua/5.4/?.lua;'
+   ABS_PATH..'lib/share/lua/5.4/?.lua;'..
+   ABS_PATH..'lib/share/lua/5.4/?/init.lua;'
+
+package.cpath = ABS_PATH..'lib/lib/lua/5.4/?.so;'
 
 local i_o 			= require 'i_o'
 local geom 			= require 'geom'
@@ -30,7 +33,7 @@ local readwrite		= require 'readwrite'
 local graphics		= require 'graphics'
 local memory		= require 'memory'
 local static		= require 'static'
-local yaml          = require 'tinyyaml'
+local yaml          = require 'lyaml'
 
 local draw_dynamic
 
@@ -41,28 +44,25 @@ function conky_start(update_interval)
 
    local main_state = {}
 
-   local config = yaml.parse(i_o.read_file(ABS_PATH..'config.yml'))
+   local config = yaml.load(i_o.read_file(ABS_PATH..'config.yml'))
    local cmods = config.modules
 
-   local mem = pure.partial(memory, update_freq, cmods.memory)
-   local rw = pure.partial(readwrite, update_freq, cmods.readwrite)
-   local net = pure.partial(network, update_freq)
-   local pwr = pure.partial(power, update_freq, cmods.power)
-   local fs = pure.partial(filesystem, cmods.filesystem, main_state)
-   local stm = pure.partial(system, main_state)
-   local gfx = pure.partial(graphics, update_freq, cmods.graphics)
-   local proc = pure.partial(processor, update_freq, cmods.processor, main_state)
-   local pcm = pure.partial(pacman, main_state)
+   local mods = {
+      memory = pure.partial(memory, update_freq, cmods.memory),
+      readwrite = pure.partial(readwrite, update_freq, cmods.readwrite),
+      network = pure.partial(network, update_freq),
+      power = pure.partial(power, update_freq, cmods.power),
+      filesystem = pure.partial(filesystem, cmods.filesystem, main_state),
+      system = pure.partial(system, main_state),
+      graphics = pure.partial(graphics, update_freq, cmods.graphics),
+      processor = pure.partial(processor, update_freq, cmods.processor, main_state),
+      pacman = pure.partial(pacman, main_state)
+   }
 
    local compiled = static(
       geom.make_point(table.unpack(config.layout.anchor)),
-      {
-         {{stm, 19, gfx, 16, proc}},
-         10,
-         {{rw}, 20, {net}},
-         10,
-         {{pcm, 24, fs, 24, pwr, 19, mem}}
-      }
+      mods,
+      config.layout.panels
    )
 
    local STATS_FILE = '/tmp/.conky_pacman'

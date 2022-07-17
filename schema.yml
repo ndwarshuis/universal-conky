@@ -152,7 +152,3 @@ properties:
                           pattern:
                             "^system|graphics|processor|readwrite|\
                             network|pacman|filesystem|power|memory$"
-
-
-
-
