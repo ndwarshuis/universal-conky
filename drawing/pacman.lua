@@ -1,7 +1,7 @@
-local common = require 'common'
+local compile = require 'compile'
 local pure = require 'pure'
 
-return function(main_state, width, point)
+return function(main_state, common, width, point)
    local TEXT_SPACING = 20
 
    local __string_match = string.match
@@ -32,7 +32,7 @@ return function(main_state, width, point)
             end
          end
       end
-      return common.mk_acc(
+      return compile.mk_acc(
          width,
          TEXT_SPACING * 4,
          update,
@@ -41,7 +41,8 @@ return function(main_state, width, point)
       )
    end
 
-   return common.reduce_blocks_(
+   return compile.compile_module(
+      common,
       'PACMAN',
       point,
       width,

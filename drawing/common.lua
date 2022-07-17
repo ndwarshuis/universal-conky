@@ -1,8 +1,7 @@
-local M = {}
-
 local geom = require 'geom'
 local format = require 'format'
-local theme = require 'theme'
+local color = require 'color'
+-- local theme = require 'theme'
 local dial = require 'dial'
 local rect = require 'rect'
 local fill_rect = require 'fill_rect'
@@ -21,722 +20,672 @@ local style = require 'style'
 local source = require 'source'
 local pure = require 'pure'
 
---------------------------------------------------------------------------------
--- constants
+local compile_patterns
 
-local FONT = 'Neuropolitical'
+compile_patterns = function(patterns)
+   local r = {}
+   for k, v in pairs(patterns) do
+      if type(v) == "number" then
+         r[k] = color.rgb(v)
+      elseif v.color ~= nil then
+         r[k] = color.rgba(v.color, v.alpha)
+      elseif v.gradient ~= nil then
+         local p = {}
+         local g = v.gradient
+         for i = 1, #g do
+            local _g = g[i]
+            p[_g.stop] = _g.color
+         end
+         r[k] = color.gradient_rgb(p)
+      elseif v.gradient_alpha ~= nil then
+         local p = {}
+         local g = v.gradient_alpha
+         for i = 1, #g do
+            local _g = g[i]
+            p[_g.stop] = {_g.color, _g.alpha}
+         end
+         r[k] = color.gradient_rgba(p)
+      else
+         r[k] = compile_patterns(v)
+      end
+   end
+   return r
+end
 
-local NORMAL_FONT_SIZE = 13
-local PLOT_LABEL_FONT_SIZE = 8
-local TABLE_FONT_SIZE = 11
-local HEADER_FONT_SIZE = 15
+return function(config)
+   local M = {}
 
-local HEADER_HEIGHT = 45
-local HEADER_UNDERLINE_CAP = CAIRO_LINE_CAP_ROUND
-local HEADER_UNDERLINE_OFFSET = 26
-local HEADER_UNDERLINE_THICKNESS = 3
+   local patterns = compile_patterns(config.theme.patterns)
 
-local SEPARATOR_THICKNESS = 1
+   -----------------------------------------------------------------------------
+   -- constants
 
-local TABLE_BODY_FORMAT = 8
-local TABLE_VERT_PAD = 15
-local TABLE_HORZ_PAD = 5
-local TABLE_HEADER_PAD = 20
-local TABLE_LINE_THICKNESS = 1
+   local FONT = config.theme.font
 
-local PLOT_NUM_POINTS = 90
-local PLOT_GRID_X_N = 9
-local PLOT_GRID_Y_N = 4
+   local NORMAL_FONT_SIZE = 13
+   local PLOT_LABEL_FONT_SIZE = 8
+   local TABLE_FONT_SIZE = 11
+   local HEADER_FONT_SIZE = 15
 
-local ARC_WIDTH = 2
+   local HEADER_HEIGHT = 45
+   local HEADER_UNDERLINE_CAP = CAIRO_LINE_CAP_ROUND
+   local HEADER_UNDERLINE_OFFSET = 26
+   local HEADER_UNDERLINE_THICKNESS = 3
 
-local DIAL_THETA0 = 90
-local DIAL_THETA1 = 360
+   local SEPARATOR_THICKNESS = 1
 
---------------------------------------------------------------------------------
--- line helper functions
+   local TABLE_BODY_FORMAT = 8
+   local TABLE_VERT_PAD = 15
+   local TABLE_HORZ_PAD = 5
+   local TABLE_HEADER_PAD = 20
+   local TABLE_LINE_THICKNESS = 1
 
-local _make_horizontal_line = function(x, y, w)
+   local PLOT_NUM_POINTS = 90
+   local PLOT_GRID_X_N = 9
+   local PLOT_GRID_Y_N = 4
+
+   local ARC_WIDTH = 2
+
+   local DIAL_THETA0 = 90
+   local DIAL_THETA1 = 360
+
+   -----------------------------------------------------------------------------
+   -- line helper functions
+
+   local _make_horizontal_line = function(x, y, w)
    return geom.make_line(geom.make_point(x, y), geom.make_point(x + w, y))
-end
+   end
 
---------------------------------------------------------------------------------
--- text helper functions
+   -----------------------------------------------------------------------------
+   -- text helper functions
 
-local make_font_spec = function(f, size, bold)
+   local make_font_spec = function(f, size, bold)
    return {
-      family = f,
-      size = size,
-      weight = bold and CAIRO_FONT_WEIGHT_BOLD or CAIRO_FONT_WEIGHT_NORMAL,
-      slant = CAIRO_FONT_WEIGHT_NORMAL,
+       family = f,
+       size = size,
+       weight = bold and CAIRO_FONT_WEIGHT_BOLD or CAIRO_FONT_WEIGHT_NORMAL,
+       slant = CAIRO_FONT_WEIGHT_NORMAL,
    }
-end
+   end
 
-local normal_font_spec = make_font_spec(FONT, NORMAL_FONT_SIZE, false)
-local label_font_spec = make_font_spec(FONT, PLOT_LABEL_FONT_SIZE, false)
+   local normal_font_spec = make_font_spec(FONT, NORMAL_FONT_SIZE, false)
+   local label_font_spec = make_font_spec(FONT, PLOT_LABEL_FONT_SIZE, false)
 
-local _text_row_style = function(x_align, color)
-   return text.config(normal_font_spec, color, x_align, 'center')
-end
+   local _text_row_style = function(x_align, color)
+      return text.config(normal_font_spec, color, x_align, 'center')
+   end
 
-local _left_text_style = _text_row_style('left', theme.INACTIVE_TEXT_FG)
-local _right_text_style = _text_row_style('right', theme.PRIMARY_FG)
+   local _left_text_style = _text_row_style('left', patterns.text.inactive)
+   local _right_text_style = _text_row_style('right', patterns.text.active)
 
-local _bare_text = function(pt, _text, _style)
+   local _bare_text = function(pt, _text, _style)
    return text.make_plain(pt, _text, _style)
-end
+   end
 
-local _left_text = function(pt, _text)
+   local _left_text = function(pt, _text)
    return _bare_text(pt, _text, _left_text_style)
-end
+   end
 
-local _right_text = function(pt, _text)
+   local _right_text = function(pt, _text)
    return _bare_text(pt, _text, _right_text_style)
-end
+   end
 
---------------------------------------------------------------------------------
--- timeseries helper functions
+   -----------------------------------------------------------------------------
+   -- timeseries helper functions
 
-local _default_grid_config = timeseries.grid_config(
+   local _default_grid_config = timeseries.grid_config(
    PLOT_GRID_X_N,
    PLOT_GRID_Y_N,
-   theme.PLOT_GRID_FG
-)
+   patterns.plot.grid
+   )
 
-local _default_plot_config = timeseries.config(
+   local _default_plot_config = timeseries.config(
    PLOT_NUM_POINTS,
-   theme.PLOT_OUTLINE_FG,
-   theme.PLOT_FILL_BORDER_PRIMARY,
-   theme.PLOT_FILL_BG_PRIMARY,
+   patterns.plot.outline,
+   patterns.plot.data.border,
+   patterns.plot.data.fill,
    _default_grid_config
-)
+   )
 
-local _format_percent_label = function(_)
+   local _format_percent_label = function(_)
    return function(z) return string.format('%i%%', z * 100) end
-end
+   end
 
-local _format_percent_maybe = function(z)
+   local _format_percent_maybe = function(z)
    if z == -1 then return 'N/A' else return string.format('%s%%', z) end
-end
+   end
 
-local _percent_label_config = timeseries.label_config(
-   theme.INACTIVE_TEXT_FG,
+   local _percent_label_config = timeseries.label_config(
+   patterns.text.inactive,
    label_font_spec,
    _format_percent_label
-)
+   )
 
-local _make_timeseries = function(x, y, w, h, label_config, update_freq)
+   local _make_timeseries = function(x, y, w, h, label_config, update_freq)
    return timeseries.make(
-      geom.make_box(x, y, w, h),
-      update_freq,
-      _default_plot_config,
-      label_config
+       geom.make_box(x, y, w, h),
+       update_freq,
+       _default_plot_config,
+       label_config
    )
-end
+   end
 
-local _make_tagged_percent_timeseries = function(x, y, w, h, spacing, label, update_freq, _format)
+   local _make_tagged_percent_timeseries = function(x, y, w, h, spacing, label, update_freq, _format)
    return {
-      label = _left_text(geom.make_point(x, y), label),
-      value = text_threshold.make_formatted(
-         geom.make_point(x + w, y),
-         nil,
-         _right_text_style,
-         _format,
-         text_threshold.config(theme.CRITICAL_FG, 80, false)
-      ),
-      plot = M.make_percent_timeseries(
-         x,
-         y + spacing,
-         w,
-         h,
-         update_freq
-      ),
+       label = _left_text(geom.make_point(x, y), label),
+       value = text_threshold.make_formatted(
+           geom.make_point(x + w, y),
+           nil,
+           _right_text_style,
+           _format,
+           text_threshold.config(patterns.text.critical, 80, false)
+       ),
+       plot = M.make_percent_timeseries(
+           x,
+           y + spacing,
+           w,
+           h,
+           update_freq
+       ),
    }
-end
+   end
 
---------------------------------------------------------------------------------
--- scaled timeseries helper functions
+   -----------------------------------------------------------------------------
+   -- scaled timeseries helper functions
 
-local _base_2_scale_data = function(m)
+   local _base_2_scale_data = function(m)
    return scaled_timeseries.scaling_parameters(2, m, 0.9)
-end
+   end
 
-local _make_scaled_timeseries = function(x, y, w, h, f, min_domain, update_freq)
+   local _make_scaled_timeseries = function(x, y, w, h, f, min_domain, update_freq)
    return scaled_timeseries.make(
-      geom.make_box(x, y, w, h),
-      update_freq,
-      _default_plot_config,
-      timeseries.label_config(theme.INACTIVE_TEXT_FG, label_font_spec, f),
-      _base_2_scale_data(min_domain)
+       geom.make_box(x, y, w, h),
+       update_freq,
+       _default_plot_config,
+       timeseries.label_config(patterns.text.inactive, label_font_spec, f),
+       _base_2_scale_data(min_domain)
    )
-end
+   end
 
---------------------------------------------------------------------------------
--- header
+   -----------------------------------------------------------------------------
+   -- header
 
-M.make_header = function(x, y, w, _text)
+   M.make_header = function(x, y, w, _text)
    local bottom_y = y + HEADER_HEIGHT
    local underline_y = y + HEADER_UNDERLINE_OFFSET
    return {
-      text = text.make_plain(
-         geom.make_point(x, y),
-         _text,
-         text.config(
-            make_font_spec(FONT, HEADER_FONT_SIZE, true),
-            theme.HEADER_FG,
-            'left',
-            'top'
-         )
-      ),
-      bottom_y = bottom_y,
-      underline = line.make(
-         _make_horizontal_line(x, underline_y, w),
-         line.config(
-            style.line(HEADER_UNDERLINE_THICKNESS, HEADER_UNDERLINE_CAP),
-            theme.HEADER_FG,
-            true
-         )
-      )
+       text = text.make_plain(
+           geom.make_point(x, y),
+           _text,
+           text.config(
+               make_font_spec(FONT, HEADER_FONT_SIZE, true),
+               patterns.header,
+               'left',
+               'top'
+           )
+       ),
+       bottom_y = bottom_y,
+       underline = line.make(
+           _make_horizontal_line(x, underline_y, w),
+           line.config(
+               style.line(HEADER_UNDERLINE_THICKNESS, HEADER_UNDERLINE_CAP),
+               patterns.header,
+               true
+           )
+       )
    }
-end
+   end
 
-M.draw_header = function(cr, header)
+   M.draw_header = function(cr, header)
    text.draw(header.text, cr)
    line.draw(header.underline, cr)
-end
+   end
 
---------------------------------------------------------------------------------
--- percent timeseries
+   -----------------------------------------------------------------------------
+   -- percent timeseries
 
-M.make_percent_timeseries = function(x, y, w, h, update_freq)
+   M.make_percent_timeseries = function(x, y, w, h, update_freq)
    return _make_timeseries(x, y, w, h, _percent_label_config, update_freq)
-end
+   end
 
---------------------------------------------------------------------------------
--- tagged percent timeseries
+   -----------------------------------------------------------------------------
+   -- tagged percent timeseries
 
-M.make_tagged_percent_timeseries = function(x, y, w, h, spacing, label, update_freq)
+   M.make_tagged_percent_timeseries = function(x, y, w, h, spacing, label, update_freq)
    return _make_tagged_percent_timeseries(
-      x, y, w, h, spacing, label, update_freq, '%s%%'
+       x, y, w, h, spacing, label, update_freq, '%s%%'
    )
-end
+   end
 
-M.make_tagged_maybe_percent_timeseries = function(x, y, w, h, spacing, label, update_freq)
+   M.make_tagged_maybe_percent_timeseries = function(x, y, w, h, spacing, label, update_freq)
    return _make_tagged_percent_timeseries(
-      x, y, w, h, spacing, label, update_freq, _format_percent_maybe
+       x, y, w, h, spacing, label, update_freq, _format_percent_maybe
    )
-end
+   end
 
-M.tagged_percent_timeseries_draw_static = function(pp, cr)
+   M.tagged_percent_timeseries_draw_static = function(pp, cr)
    text.draw(pp.label, cr)
    timeseries.draw_static(pp.plot, cr)
-end
+   end
 
-M.tagged_percent_timeseries_draw_dynamic = function(obj, cr)
+   M.tagged_percent_timeseries_draw_dynamic = function(obj, cr)
    text_threshold.draw(obj.value, cr)
    timeseries.draw_dynamic(obj.plot, cr)
-end
+   end
 
-M.tagged_percent_timeseries_set = function(obj, percent)
+   M.tagged_percent_timeseries_set = function(obj, percent)
    local _percent = pure.round_percent(percent)
    text.set(obj.value, _percent)
    timeseries.update(obj.plot, _percent / 100)
-end
-
-M.tagged_maybe_percent_timeseries_set = function(obj, percent)
-   if percent == false then
-      text.set(obj.value, -1)
-      timeseries.update(obj.plot, 0)
-   else
-      M.tagged_percent_timeseries_set(obj, percent)
    end
-end
 
---------------------------------------------------------------------------------
--- scaled plot
+   M.tagged_maybe_percent_timeseries_set = function(obj, percent)
+   if percent == false then
+       text.set(obj.value, -1)
+       timeseries.update(obj.plot, 0)
+   else
+       M.tagged_percent_timeseries_set(obj, percent)
+   end
+   end
 
--- Generate a format string for labels on y axis of plots. If the max of the
--- plot if numerically less than the number of grid lines, this means that
--- some number of decimal places are necessary to accurately display the number.
--- Note that this for now only works when the number of y grid lines if 4, as
--- it gives enough resolution for 1, 0.75, 0.5, and 0.25 but no more
-M.y_label_format_string = function(plot_max, unit)
+   -----------------------------------------------------------------------------
+   -- scaled plot
+
+   -- Generate a format string for labels on y axis of plots. If the max of the
+   -- plot if numerically less than the number of grid lines, this means that
+   -- some number of decimal places are necessary to accurately display the number.
+   -- Note that this for now only works when the number of y grid lines if 4, as
+   -- it gives enough resolution for 1, 0.75, 0.5, and 0.25 but no more
+   M.y_label_format_string = function(plot_max, unit)
    local num_fmt
    if plot_max < 2 then
-      num_fmt = '%.2f'
+       num_fmt = '%.2f'
    elseif plot_max < 4 then
-      num_fmt = '%.1f'
+       num_fmt = '%.1f'
    else
-      num_fmt = '%.0f'
+       num_fmt = '%.0f'
    end
    return string.format('%s %s', num_fmt, unit)
-end
-
-M.converted_y_label_format_generator = function(unit)
-   return function(plot_max)
-      local new_prefix, new_max = format.convert_data_val(plot_max)
-      local conversion_factor = plot_max / new_max
-      local fmt = M.y_label_format_string(new_max, new_prefix..unit..'/s')
-      return function(bytes)
-         return string.format(fmt, bytes / conversion_factor)
-      end
    end
-end
 
---------------------------------------------------------------------------------
--- tagged scaled plot
+   M.converted_y_label_format_generator = function(unit)
+   return function(plot_max)
+       local new_prefix, new_max = format.convert_data_val(plot_max)
+       local conversion_factor = plot_max / new_max
+       local fmt = M.y_label_format_string(new_max, new_prefix..unit..'/s')
+       return function(bytes)
+           return string.format(fmt, bytes / conversion_factor)
+       end
+   end
+   end
 
-M.make_tagged_scaled_timeseries = function(x, y, w, h, format_fun, label_fun,
+   -----------------------------------------------------------------------------
+   -- tagged scaled plot
+
+   M.make_tagged_scaled_timeseries = function(x, y, w, h, format_fun, label_fun,
                                            spacing, label, min_domain,
                                            update_freq)
    return {
-      label = _left_text(geom.make_point(x, y), label),
-      value = text.make_formatted(
-         geom.make_point(x + w, y),
-         0,
-         _right_text_style,
-         format_fun
-      ),
-      plot = _make_scaled_timeseries(x, y + spacing, w, h, label_fun, min_domain, update_freq),
+       label = _left_text(geom.make_point(x, y), label),
+       value = text.make_formatted(
+           geom.make_point(x + w, y),
+           0,
+           _right_text_style,
+           format_fun
+       ),
+       plot = _make_scaled_timeseries(x, y + spacing, w, h, label_fun, min_domain, update_freq),
    }
-end
+   end
 
-M.tagged_scaled_timeseries_draw_static = function(asp, cr)
+   M.tagged_scaled_timeseries_draw_static = function(asp, cr)
    text.draw(asp.label, cr)
-end
+   end
 
-M.tagged_scaled_timeseries_draw_dynamic = function(asp, cr)
+   M.tagged_scaled_timeseries_draw_dynamic = function(asp, cr)
    text.draw(asp.value, cr)
    scaled_timeseries.draw_dynamic(asp.plot, cr)
-end
+   end
 
-M.tagged_scaled_timeseries_set = function(asp, value)
+   M.tagged_scaled_timeseries_set = function(asp, value)
    text.set(asp.value, value)
    scaled_timeseries.update(asp.plot, value)
-end
-
---------------------------------------------------------------------------------
--- rate timecourse plots
-
-local make_differential = function(update_frequency)
-   return function(x0, x1)
-      -- mask overflow
-      if x1 > x0 then
-         return (x1 - x0) * update_frequency
-      else
-         return 0
-      end
    end
-end
 
-M.make_rate_timeseries = function(x, y, w, h, format_fun, label_fun, spacing,
+   -----------------------------------------------------------------------------
+   -- rate timecourse plots
+
+   local make_differential = function(update_frequency)
+   return function(x0, x1)
+       -- mask overflow
+       if x1 > x0 then
+           return (x1 - x0) * update_frequency
+       else
+           return 0
+       end
+   end
+   end
+
+   M.make_rate_timeseries = function(x, y, w, h, format_fun, label_fun, spacing,
                                    label, min_domain, update_freq, init)
    return {
-      label = _left_text(geom.make_point(x, y), label),
-      value = text.make_formatted(
-         geom.make_point(x + w, y),
-         0,
-         _right_text_style,
-         format_fun
-      ),
-      plot = _make_scaled_timeseries(x, y + spacing, w, h, label_fun, min_domain, update_freq),
-      prev_value = init,
-      derive = make_differential(update_freq),
+       label = _left_text(geom.make_point(x, y), label),
+       value = text.make_formatted(
+           geom.make_point(x + w, y),
+           0,
+           _right_text_style,
+           format_fun
+       ),
+       plot = _make_scaled_timeseries(x, y + spacing, w, h, label_fun, min_domain, update_freq),
+       prev_value = init,
+       derive = make_differential(update_freq),
    }
-end
+   end
 
-M.update_rate_timeseries = function(obj, value)
+   M.update_rate_timeseries = function(obj, value)
    local rate = obj.derive(obj.prev_value, value)
    text.set(obj.value, rate)
    scaled_timeseries.update(obj.plot, rate)
    obj.prev_value = value
-end
+   end
 
---------------------------------------------------------------------------------
--- circle
+   -----------------------------------------------------------------------------
+   -- circle
 
-M.make_circle = function(x, y, r)
+   M.make_circle = function(x, y, r)
    return circle.make(
-      geom.make_circle(x, y, r),
-      circle.config(style.line(ARC_WIDTH, CAIRO_LINE_CAP_BUTT), theme.BORDER_FG)
+       geom.make_circle(x, y, r),
+       circle.config(style.line(ARC_WIDTH, CAIRO_LINE_CAP_BUTT), patterns.border)
    )
-end
+   end
 
---------------------------------------------------------------------------------
--- ring with text data in the center
+   -----------------------------------------------------------------------------
+   -- ring with text data in the center
 
-M.make_text_circle = function(x, y, r, fmt, threshhold, pre_function)
+   M.make_text_circle = function(x, y, r, fmt, threshhold, pre_function)
    return {
-	  ring = M.make_circle(x, y, r),
-	  value = text_threshold.make_formatted(
-         geom.make_point(x, y),
-         0,
-         text.config(normal_font_spec, theme.PRIMARY_FG, 'center', 'center'),
-         fmt,
-         text_threshold.config(theme.CRITICAL_FG, threshhold, pre_function)
-	  ),
+       ring = M.make_circle(x, y, r),
+       value = text_threshold.make_formatted(
+           geom.make_point(x, y),
+           0,
+           text.config(normal_font_spec, patterns.text.active, 'center', 'center'),
+           fmt,
+           text_threshold.config(patterns.text.critical, threshhold, pre_function)
+       ),
    }
-end
+   end
 
-M.text_circle_draw_static = function(tr, cr)
+   M.text_circle_draw_static = function(tr, cr)
    arc.draw(tr.ring, cr)
-end
+   end
 
-M.text_circle_draw_dynamic = function(tr, cr)
+   M.text_circle_draw_dynamic = function(tr, cr)
    text_threshold.draw(tr.value, cr)
-end
+   end
 
-M.text_circle_set = function(tr, value)
+   M.text_circle_set = function(tr, value)
    text_threshold.set(tr.value, value)
-end
+   end
 
---------------------------------------------------------------------------------
--- dial
+   -----------------------------------------------------------------------------
+   -- dial
 
-local threshold_indicator = function(threshold)
+   local threshold_indicator = function(threshold)
    return source.threshold_config(
-      theme.INDICATOR_FG_PRIMARY,
-      theme.INDICATOR_FG_CRITICAL,
-      threshold
+       patterns.indicator.fg.active,
+       patterns.indicator.fg.critical,
+       threshold
    )
-end
+   end
 
-M.make_dial = function(x, y, radius, thickness, threshold, _format, pre_function)
+   M.make_dial = function(x, y, radius, thickness, threshold, _format, pre_function)
    return {
-      dial = dial.make(
-         geom.make_arc(x, y, radius, DIAL_THETA0, DIAL_THETA1),
-         arc.config(style.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
-         threshold_indicator(threshold)
-      ),
-      text_circle = M.make_text_circle(x, y, radius - thickness / 2 - 2, _format, threshold, pre_function),
+       dial = dial.make(
+           geom.make_arc(x, y, radius, DIAL_THETA0, DIAL_THETA1),
+           arc.config(style.line(thickness, CAIRO_LINE_CAP_BUTT), patterns.indicator.bg),
+           threshold_indicator(threshold)
+       ),
+       text_circle = M.make_text_circle(x, y, radius - thickness / 2 - 2, _format, threshold, pre_function),
    }
-end
+   end
 
-M.dial_set = function(dl, value)
+   M.dial_set = function(dl, value)
    dial.set(dl.dial, value)
    M.text_circle_set(dl.text_circle, value)
-end
+   end
 
-M.dial_draw_static = function(dl, cr)
+   M.dial_draw_static = function(dl, cr)
    dial.draw_static(dl.dial, cr)
    M.text_circle_draw_static(dl.text_circle, cr)
-end
+   end
 
-M.dial_draw_dynamic = function(dl, cr)
+   M.dial_draw_dynamic = function(dl, cr)
    dial.draw_dynamic(dl.dial, cr)
    M.text_circle_draw_dynamic(dl.text_circle, cr)
-end
+   end
 
---------------------------------------------------------------------------------
--- compound dial
+   -----------------------------------------------------------------------------
+   -- compound dial
 
-M.make_compound_dial = function(x, y, outer_radius, inner_radius, thickness,
+   M.make_compound_dial = function(x, y, outer_radius, inner_radius, thickness,
                            threshold, num_dials)
    return compound_dial.make(
-      geom.make_arc(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
-      arc.config(style.line(thickness, CAIRO_LINE_CAP_BUTT), theme.INDICATOR_BG),
-      threshold_indicator(threshold),
-      inner_radius,
-      num_dials
+       geom.make_arc(x, y, outer_radius, DIAL_THETA0, DIAL_THETA1),
+       arc.config(style.line(thickness, CAIRO_LINE_CAP_BUTT), patterns.indicator.bg),
+       threshold_indicator(threshold),
+       inner_radius,
+       num_dials
    )
-end
+   end
 
---------------------------------------------------------------------------------
--- annotated compound bar
+   -----------------------------------------------------------------------------
+   -- annotated compound bar
 
-M.make_compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
+   M.make_compound_bar = function(x, y, w, pad, labels, spacing, thickness, threshold)
    return {
-      labels = text_column.make(
-         geom.make_point(x, y),
-         labels,
-         _left_text_style,
-         nil,
-         spacing
-      ),
-      bars = compound_bar.make(
-         geom.make_point(x + pad, y),
-         w - pad,
-         line.config(
-            style.line(thickness, CAIRO_LINE_CAP_BUTT),
-            theme.INDICATOR_BG,
-            true
-         ),
-         threshold_indicator(threshold),
-         spacing,
-         #labels,
-         false
-      )
+       labels = text_column.make(
+           geom.make_point(x, y),
+           labels,
+           _left_text_style,
+           nil,
+           spacing
+       ),
+       bars = compound_bar.make(
+           geom.make_point(x + pad, y),
+           w - pad,
+           line.config(
+               style.line(thickness, CAIRO_LINE_CAP_BUTT),
+               patterns.indicator.bg,
+               true
+           ),
+           threshold_indicator(threshold),
+           spacing,
+           #labels,
+           false
+       )
    }
-end
+   end
 
-M.compound_bar_draw_static = function(cb, cr)
+   M.compound_bar_draw_static = function(cb, cr)
    text_column.draw(cb.labels, cr)
    compound_bar.draw_static(cb.bars, cr)
-end
+   end
 
-M.compound_bar_draw_dynamic = function(cb, cr)
+   M.compound_bar_draw_dynamic = function(cb, cr)
    compound_bar.draw_dynamic(cb.bars, cr)
-end
+   end
 
-M.compound_bar_set = function(cb, i, value)
+   M.compound_bar_set = function(cb, i, value)
    compound_bar.set(cb.bars, i, value)
-end
+   end
 
---------------------------------------------------------------------------------
--- separator (eg a horizontal line)
+   -----------------------------------------------------------------------------
+   -- separator (eg a horizontal line)
 
-M.make_separator = function(x, y, w)
+   M.make_separator = function(x, y, w)
    return line.make(
-      _make_horizontal_line(x, y, w),
-      line.config(
-         style.line(SEPARATOR_THICKNESS, CAIRO_LINE_CAP_BUTT),
-         theme.BORDER_FG,
-         true
-      )
+       _make_horizontal_line(x, y, w),
+       line.config(
+           style.line(SEPARATOR_THICKNESS, CAIRO_LINE_CAP_BUTT),
+           patterns.border,
+           true
+       )
    )
-end
+   end
 
---------------------------------------------------------------------------------
--- text row (label with a value, aligned as far apart as possible)
+   -----------------------------------------------------------------------------
+   -- text row (label with a value, aligned as far apart as possible)
 
-M.make_text_row = function(x, y, w, label)
+   M.make_text_row = function(x, y, w, label)
    return {
-      label = _left_text(geom.make_point(x, y), label),
-      value = _right_text(geom.make_point(x + w, y), nil),
+       label = _left_text(geom.make_point(x, y), label),
+       value = _right_text(geom.make_point(x + w, y), nil),
    }
-end
+   end
 
-M.text_row_draw_static = function(row, cr)
+   M.text_row_draw_static = function(row, cr)
    text.draw(row.label, cr)
-end
+   end
 
-M.text_row_draw_dynamic = function(row, cr)
+   M.text_row_draw_dynamic = function(row, cr)
    text.draw(row.value, cr)
-end
+   end
 
-M.text_row_set = function(row, value)
+   M.text_row_set = function(row, value)
    text.set(row.value, value)
-end
+   end
 
---------------------------------------------------------------------------------
--- text row with critical indicator
+   -----------------------------------------------------------------------------
+   -- text row with critical indicator
 
-M.make_threshold_text_row = function(x, y, w, label, append_end, limit)
+   M.make_threshold_text_row = function(x, y, w, label, append_end, limit)
    return{
-      label = _left_text(geom.make_point(x, y), label),
-      value = text_threshold.make_formatted(
-         geom.make_point(x + w, y),
-         nil,
-         _right_text_style,
-         append_end,
-         text_threshold.config(theme.CRITICAL_FG, limit, false)
-      )
+       label = _left_text(geom.make_point(x, y), label),
+       value = text_threshold.make_formatted(
+           geom.make_point(x + w, y),
+           nil,
+           _right_text_style,
+           append_end,
+           text_threshold.config(patterns.text.critical, limit, false)
+       )
    }
-end
+   end
 
-M.threshold_text_row_draw_static = M.text_row_draw_static
+   M.threshold_text_row_draw_static = M.text_row_draw_static
 
-M.threshold_text_row_draw_dynamic = function(row, cr)
+   M.threshold_text_row_draw_dynamic = function(row, cr)
    text_threshold.draw(row.value, cr)
-end
+   end
 
-M.threshold_text_row_set = function(row, value)
+   M.threshold_text_row_set = function(row, value)
    text_threshold.set(row.value, value)
-end
+   end
 
---------------------------------------------------------------------------------
--- multiple text row separated by spacing
+   -----------------------------------------------------------------------------
+   -- multiple text row separated by spacing
 
-M.make_text_rows_formatted = function(x, y, w, spacing, labels, format)
+   M.make_text_rows_formatted = function(x, y, w, spacing, labels, format)
    return {
-      labels = text_column.make(
-         geom.make_point(x, y),
-         labels,
-         _left_text_style,
-         nil,
-         spacing
-      ),
-      values = text_column.make_n(
-         geom.make_point(x + w, y),
-         #labels,
-         _right_text_style,
-         format,
-         spacing,
-         0
-      )
+       labels = text_column.make(
+           geom.make_point(x, y),
+           labels,
+           _left_text_style,
+           nil,
+           spacing
+       ),
+       values = text_column.make_n(
+           geom.make_point(x + w, y),
+           #labels,
+           _right_text_style,
+           format,
+           spacing,
+           0
+       )
    }
-end
+   end
 
-M.make_text_rows = function(x, y, w, spacing, labels)
+   M.make_text_rows = function(x, y, w, spacing, labels)
    return M.make_text_rows_formatted(
-      x,
-      y,
-      w,
-      spacing,
-      labels,
-      nil
+       x,
+       y,
+       w,
+       spacing,
+       labels,
+       nil
    )
-end
+   end
 
-M.text_rows_draw_static = function(rows, cr)
+   M.text_rows_draw_static = function(rows, cr)
    text_column.draw(rows.labels, cr)
-end
+   end
 
-M.text_rows_draw_dynamic = function(rows, cr)
+   M.text_rows_draw_dynamic = function(rows, cr)
    text_column.draw(rows.values, cr)
-end
+   end
 
-M.text_rows_set = function(rows, i, value)
+   M.text_rows_set = function(rows, i, value)
    text_column.set(rows.values, i, value)
-end
+   end
 
---------------------------------------------------------------------------------
--- table
+   -----------------------------------------------------------------------------
+   -- table
 
-local default_table_font_spec = make_font_spec(FONT, TABLE_FONT_SIZE, false)
+   local default_table_font_spec = make_font_spec(FONT, TABLE_FONT_SIZE, false)
 
-local default_table_config = function(label)
+   local default_table_config = function(label)
    return tbl.config(
-      rect.config(
-         style.closed_poly(TABLE_LINE_THICKNESS, CAIRO_LINE_JOIN_MITER),
-         theme.BORDER_FG
-      ),
-      line.config(
-         style.line(TABLE_LINE_THICKNESS, CAIRO_LINE_CAP_BUTT),
-         theme.BORDER_FG,
-         true
-      ),
-      tbl.header_config(
-         default_table_font_spec,
-         theme.PRIMARY_FG,
-         TABLE_HEADER_PAD
-      ),
-      tbl.body_config(
-         default_table_font_spec,
-         theme.INACTIVE_TEXT_FG,
-         {
-            tbl.column_config('Name', TABLE_BODY_FORMAT),
-            tbl.column_config('PID', false),
-            tbl.column_config(label, false),
-         }
-      ),
-      tbl.padding(
-         TABLE_HORZ_PAD,
-         TABLE_VERT_PAD,
-         TABLE_HORZ_PAD,
-         TABLE_VERT_PAD
-      )
+       rect.config(
+           style.closed_poly(TABLE_LINE_THICKNESS, CAIRO_LINE_JOIN_MITER),
+           patterns.border
+       ),
+       line.config(
+           style.line(TABLE_LINE_THICKNESS, CAIRO_LINE_CAP_BUTT),
+           patterns.border,
+           true
+       ),
+       tbl.header_config(
+           default_table_font_spec,
+           patterns.text.active,
+           TABLE_HEADER_PAD
+       ),
+       tbl.body_config(
+           default_table_font_spec,
+           patterns.text.inactive,
+           {
+               tbl.column_config('Name', TABLE_BODY_FORMAT),
+               tbl.column_config('PID', false),
+               tbl.column_config(label, false),
+           }
+       ),
+       tbl.padding(
+           TABLE_HORZ_PAD,
+           TABLE_VERT_PAD,
+           TABLE_HORZ_PAD,
+           TABLE_VERT_PAD
+       )
    )
-end
+   end
 
-M.make_text_table = function(x, y, w, h, n, label)
+   M.make_text_table = function(x, y, w, h, n, label)
    return tbl.make(
-      geom.make_box(x, y, w, h),
-      n,
-      default_table_config(label)
+       geom.make_box(x, y, w, h),
+       n,
+       default_table_config(label)
    )
-end
+   end
 
---------------------------------------------------------------------------------
--- panel
+   -----------------------------------------------------------------------------
+   -- panel
 
-M.make_panel = function(x, y, w, h, thickness)
+   M.make_panel = function(x, y, w, h, thickness)
    return fill_rect.make(
-      geom.make_box(x, y, w, h),
-      rect.config(
-         style.closed_poly(thickness, CAIRO_LINE_JOIN_MITER),
-         theme.BORDER_FG
-      ),
-      theme.PANEL_BG
+       geom.make_box(x, y, w, h),
+       rect.config(
+           style.closed_poly(thickness, CAIRO_LINE_JOIN_MITER),
+           patterns.border
+       ),
+       patterns.panel
    )
-end
-
---------------------------------------------------------------------------------
--- setup functions
-
-local _combine_blocks = function(acc, new)
-   if new.active == true then
-      local n = new.f(acc.next_y)
-      table.insert(acc.objs, n.obj)
-      acc.w = math.max(acc.w, n.w)
-      acc.final_y = acc.next_y + n.h
-      acc.next_y = acc.final_y + new.offset
    end
-   return acc
-end
 
-local non_false = function(xs)
-   return pure.filter(function(x) return x ~= false end, xs)
+   return M
 end
-
-local active_blocks = function(blockspecs)
-   local bs = pure.filter(function(b) return b[2] end, blockspecs)
-   return pure.map(function(b) return M.mk_block(table.unpack(b)) end, bs)
-end
-
-local flatten_sections = function(top, ...)
-   local f = function(acc, new)
-      if #new.blocks == 0 then
-         return acc
-      elseif #acc == 0 then
-         return new.blocks
-      else
-         return pure.flatten(
-            {acc, {M.mk_block(new.sep_fun, true, new.top)}, new.blocks}
-         )
-      end
-   end
-   return pure.reduce(f, active_blocks(top), {...})
-end
-
-M.reduce_blocks_ = function(header, point, width, top_blocks, ...)
-   local mk_header = function(y)
-      local obj = M.make_header(point.x, y, width, header)
-      return M.mk_acc_static(
-         width,
-         obj.bottom_y - y,
-         function(cr) M.draw_header(cr, obj) end
-      )
-   end
-   local blocks = flatten_sections(top_blocks, ...)
-   local r = pure.reduce(
-      _combine_blocks,
-      {w = 0, next_y = point.y, final_y = point.y, objs = {}},
-      {M.mk_block(mk_header, true, 0), table.unpack(blocks)}
-   )
-   local us, ss, ds = table.unpack(pure.unzip(r.objs))
-   return {
-      next_x = point.x + r.w,
-      next_y = r.final_y,
-      update = pure.sequence(table.unpack(non_false(us))),
-      static = pure.sequence(table.unpack(ss)),
-      dynamic = pure.sequence(table.unpack(non_false(ds)))
-   }
-end
-
-M.mk_acc = function(w, h, u, s, d)
-   return {w = w, h = h, obj = {u, s, d}}
-end
-
-M.mk_acc_static = function(w, h, s)
-   return M.mk_acc(w, h, false, s, false)
-end
-
-M.mk_block = function(f, active, offset)
-   return {f = f, active = active, offset = offset}
-end
-
-M.mk_section = function(top, sep_fun, ...)
-   return {
-      top = top,
-      sep_fun = sep_fun,
-      blocks = active_blocks({...})
-   }
-end
-
-M.mk_seperator = function(width, x, y)
-   local separator = M.make_separator(x, y, width)
-   return M.mk_acc_static(width, 0, pure.partial(line.draw, separator))
-end
-
-return M

@@ -1,10 +1,9 @@
 local i_o = require 'i_o'
-local common = require 'common'
+local compile = require 'compile'
 local pure = require 'pure'
 local impure = require 'impure'
 
--- ASSUME pathspecs will be at least 1 long
-return function(config, main_state, width, point)
+return function(config, main_state, common, width, point)
    local SPACING = 20
    local BAR_PAD = 100
    local SEPARATOR_SPACING = 20
@@ -20,7 +19,7 @@ return function(config, main_state, width, point)
             common.text_row_set(obj, (pid == '') and 'Error' or 'Running')
          end
       end
-      return common.mk_acc(
+      return compile.mk_acc(
          width,
          0,
          update,
@@ -29,7 +28,7 @@ return function(config, main_state, width, point)
       )
    end
 
-   local mk_sep = pure.partial(common.mk_seperator, width, point.x)
+   local mk_sep = pure.partial(compile.mk_seperator, common, width, point.x)
 
    -----------------------------------------------------------------------------
    -- filesystem bar chart
@@ -37,7 +36,6 @@ return function(config, main_state, width, point)
    local mk_bars = function(y)
       local paths = pure.map_keys('path', config.fs_paths)
       local names = pure.map_keys('name', config.fs_paths)
-      -- local paths, names = table.unpack(pure.unzip(config.fs_paths))
       local CONKY_CMDS = pure.map(
          pure.partial(string.format, '${fs_used_perc %s}', true),
          paths
@@ -60,7 +58,7 @@ return function(config, main_state, width, point)
             impure.ieach(read_fs, CONKY_CMDS)
          end
       end
-      return common.mk_acc(
+      return compile.mk_acc(
          width,
          (#config.fs_paths - 1) * SPACING,
          update,
@@ -72,11 +70,12 @@ return function(config, main_state, width, point)
    -----------------------------------------------------------------------------
    -- main functions
 
-   return common.reduce_blocks_(
+   return compile.compile_module(
+      common,
       'FILE SYSTEMS',
       point,
       width,
       {{mk_smart, config.show_smart, SEPARATOR_SPACING}},
-      common.mk_section(SEPARATOR_SPACING, mk_sep, {mk_bars, true, 0})
+      compile.mk_section(SEPARATOR_SPACING, mk_sep, {mk_bars, true, 0})
    )
 end

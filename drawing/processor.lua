@@ -1,13 +1,13 @@
 local compound_dial = require 'compound_dial'
 local text_table = require 'text_table'
 local i_o = require 'i_o'
-local common = require 'common'
+local compile = require 'compile'
 local cpu = require 'sys'
 local pure = require 'pure'
 
 local __math_floor = math.floor
 
-return function(update_freq, config, main_state, width, point)
+return function(update_freq, config, main_state, common, width, point)
    local DIAL_INNER_RADIUS = 30
    local DIAL_OUTER_RADIUS = 42
    local DIAL_THICKNESS = 5.5
@@ -91,7 +91,7 @@ return function(update_freq, config, main_state, width, point)
             compound_dial.draw_dynamic(cores[i].loads, cr)
          end
       end
-      return common.mk_acc(
+      return compile.mk_acc(
          width,
          DIAL_OUTER_RADIUS * 2,
          update,
@@ -123,7 +123,7 @@ return function(update_freq, config, main_state, width, point)
       end
       local static = pure.partial(common.text_rows_draw_static, cpu_status)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, cpu_status)
-      return common.mk_acc(
+      return compile.mk_acc(
          width,
          TEXT_SPACING,
          update,
@@ -136,7 +136,8 @@ return function(update_freq, config, main_state, width, point)
    -- frequency
 
    local mk_sep = pure.partial(
-      common.mk_seperator,
+      compile.mk_seperator,
+      common,
       width,
       point.x
    )
@@ -163,7 +164,7 @@ return function(update_freq, config, main_state, width, point)
       end
       local static = pure.partial(common.tagged_percent_timeseries_draw_static, total_load)
       local dynamic = pure.partial(common.tagged_percent_timeseries_draw_dynamic, total_load)
-      return common.mk_acc(
+      return compile.mk_acc(
          width,
          PLOT_HEIGHT + PLOT_SECTION_BREAK,
          update,
@@ -202,7 +203,7 @@ return function(update_freq, config, main_state, width, point)
       end
       local static = pure.partial(text_table.draw_static, tbl)
       local dynamic = pure.partial(text_table.draw_dynamic, tbl)
-      return common.mk_acc(
+      return compile.mk_acc(
          width,
          TABLE_HEIGHT,
          update,
@@ -214,7 +215,8 @@ return function(update_freq, config, main_state, width, point)
    -----------------------------------------------------------------------------
    -- main functions
 
-   local rbs = common.reduce_blocks_(
+   local rbs = compile.compile_module(
+      common,
       'PROCESSOR',
       point,
       width,
@@ -222,7 +224,7 @@ return function(update_freq, config, main_state, width, point)
          {mk_cores, config.show_cores, TEXT_SPACING},
          {mk_hwp_freq, config.show_stats, SEPARATOR_SPACING},
       },
-      common.mk_section(
+      compile.mk_section(
          SEPARATOR_SPACING,
          mk_sep,
          {mk_load_plot, config.show_plot, TABLE_SECTION_BREAK},

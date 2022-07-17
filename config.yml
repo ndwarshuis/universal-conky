@@ -69,8 +69,8 @@ theme:
             - {stop: 1, color: 0x1e90ff}
         fill:
           gradient_alpha:
-            - {stop: 0.2, color: 0x003f7c, alpha: 0.5}
-            - {stop: 1, color: 0x1e90ff, alpha: 1.0}
+            - {stop: 0.2, color: 0x316ece, alpha: 0.5}
+            - {stop: 1, color: 0x8cc7ff, alpha: 1.0}
     indicator:
       bg:
         gradient:

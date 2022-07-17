@@ -1,10 +1,10 @@
 local timeseries = require 'timeseries'
 local text_table = require 'text_table'
 local i_o = require 'i_o'
-local common = require 'common'
 local pure = require 'pure'
+local compile = require 'compile'
 
-return function(update_freq, config, width, point)
+return function(update_freq, config, common, width, point)
    local DIAL_THICKNESS = 8
    local DIAL_RADIUS = 32
    local DIAL_SPACING = 40
@@ -78,7 +78,7 @@ return function(update_freq, config, width, point)
          common.dial_draw_dynamic(swap, cr)
          common.text_rows_draw_dynamic(cache, cr)
       end
-      return common.mk_acc(width, DIAL_DIAMETER, update, static, dynamic)
+      return compile.mk_acc(width, DIAL_DIAMETER, update, static, dynamic)
    end
 
    -----------------------------------------------------------------------------
@@ -92,7 +92,7 @@ return function(update_freq, config, width, point)
          PLOT_HEIGHT,
          update_freq
       )
-      return common.mk_acc(
+      return compile.mk_acc(
          width,
          PLOT_HEIGHT,
          function(s) timeseries.update(obj, s.mem.used_percent) end,
@@ -130,7 +130,7 @@ return function(update_freq, config, width, point)
             text_table.set(obj, 3, r, i_o.conky(TABLE_CONKY[r].mem))
          end
       end
-      return common.mk_acc(
+      return compile.mk_acc(
          width,
          TABLE_HEIGHT,
          update,
@@ -179,7 +179,8 @@ return function(update_freq, config, width, point)
    -----------------------------------------------------------------------------
    -- main functions
 
-   local rbs = common.reduce_blocks_(
+   local rbs = compile.compile_module(
+      common,
       'MEMORY',
       point,
       width,

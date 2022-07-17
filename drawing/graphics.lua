@@ -1,8 +1,8 @@
 local pure			= require 'pure'
 local i_o			= require 'i_o'
-local common		= require 'common'
+local compile		= require 'compile'
 
-return function(update_freq, config, width, point)
+return function(update_freq, config, common, width, point)
    local SEPARATOR_SPACING = 20
    local TEXT_SPACING = 20
    local PLOT_SEC_BREAK = 20
@@ -41,7 +41,7 @@ return function(update_freq, config, width, point)
       )
       local static = pure.partial(common.tagged_percent_timeseries_draw_static, obj)
       local dynamic = pure.partial(common.tagged_percent_timeseries_draw_dynamic, obj)
-      return common.mk_acc(
+      return compile.mk_acc(
          width,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
          update,
@@ -69,11 +69,12 @@ return function(update_freq, config, width, point)
       end
       local static = pure.partial(common.text_row_draw_static, obj)
       local dynamic = pure.partial(common.text_row_draw_dynamic, obj)
-      return common.mk_acc(width, 0, update, static, dynamic)
+      return compile.mk_acc(width, 0, update, static, dynamic)
    end
 
    local mk_sep = pure.partial(
-      common.mk_seperator,
+      compile.mk_seperator,
+      common,
       width,
       point.x
    )
@@ -99,7 +100,7 @@ return function(update_freq, config, width, point)
       )
       local static = pure.partial(common.threshold_text_row_draw_static, obj)
       local dynamic = pure.partial(common.threshold_text_row_draw_dynamic, obj)
-      return common.mk_acc(width, 0, update, static, dynamic)
+      return compile.mk_acc(width, 0, update, static, dynamic)
    end
 
    -----------------------------------------------------------------------------
@@ -124,7 +125,7 @@ return function(update_freq, config, width, point)
       end
       local static = pure.partial(common.text_rows_draw_static, obj)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, obj)
-      return common.mk_acc(width, TEXT_SPACING, update, static, dynamic)
+      return compile.mk_acc(width, TEXT_SPACING, update, static, dynamic)
    end
 
    -----------------------------------------------------------------------------
@@ -216,22 +217,23 @@ return function(update_freq, config, width, point)
    -----------------------------------------------------------------------------
    -- main drawing functions
 
-   local rbs = common.reduce_blocks_(
+   local rbs = compile.compile_module(
+      common,
       'NVIDIA GRAPHICS',
       point,
       width,
       {{mk_status, true, SEPARATOR_SPACING}},
-      common.mk_section(
+      compile.mk_section(
          SEPARATOR_SPACING,
          mk_sep,
          {mk_temp, config.show_temp, SEPARATOR_SPACING}
       ),
-      common.mk_section(
+      compile.mk_section(
          SEPARATOR_SPACING,
          mk_sep,
          {mk_clock, config.show_clock, SEPARATOR_SPACING}
       ),
-      common.mk_section(
+      compile.mk_section(
          SEPARATOR_SPACING,
          mk_sep,
          {mk_gpu_util, config.show_gpu_util, PLOT_SEC_BREAK},

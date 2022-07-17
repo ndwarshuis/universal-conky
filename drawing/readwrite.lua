@@ -1,9 +1,9 @@
 local format = require 'format'
 local pure = require 'pure'
-local common = require 'common'
+local compile = require 'compile'
 local sys = require 'sys'
 
-return function(update_freq, config, width, point)
+return function(update_freq, config, common, width, point)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
    -- TODO currently this will find any block device
@@ -34,7 +34,7 @@ return function(update_freq, config, width, point)
          update_freq,
          state[key]
       )
-      return common.mk_acc(
+      return compile.mk_acc(
          -- TODO construct this more sanely without referring to hardcoded vars
          width,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
@@ -50,7 +50,8 @@ return function(update_freq, config, width, point)
    -----------------------------------------------------------------------------
    -- main drawing functions
 
-   local rbs = common.reduce_blocks_(
+   local rbs = compile.compile_module(
+      common,
       'INPUT / OUTPUT',
       point,
       width,

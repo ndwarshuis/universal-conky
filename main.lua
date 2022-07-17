@@ -32,20 +32,18 @@ local power 		= require 'power'
 local readwrite		= require 'readwrite'
 local graphics		= require 'graphics'
 local memory		= require 'memory'
-local static		= require 'static'
+local compile		= require 'compile'
+local common		= require 'common'
 local yaml          = require 'lyaml'
 
 local draw_dynamic
 
-function conky_start(update_interval)
-   conky_set_update_interval(update_interval)
-
+local build_main = function(update_interval, config_path)
    local update_freq = 1 / update_interval
+   local config = yaml.load(i_o.read_file(config_path))
+   local cmods = config.modules
 
    local main_state = {}
-
-   local config = yaml.load(i_o.read_file(ABS_PATH..'config.yml'))
-   local cmods = config.modules
 
    local mods = {
       memory = pure.partial(memory, update_freq, cmods.memory),
@@ -59,7 +57,8 @@ function conky_start(update_interval)
       pacman = pure.partial(pacman, main_state)
    }
 
-   local compiled = static(
+   local compiled = compile.compile_layout(
+      common(config),
       geom.make_point(table.unpack(config.layout.anchor)),
       mods,
       config.layout.panels
@@ -67,7 +66,7 @@ function conky_start(update_interval)
 
    local STATS_FILE = '/tmp/.conky_pacman'
 
-   draw_dynamic = function(cr, _updates)
+   return function(cr, _updates)
       main_state.trigger10 = _updates % (update_freq * 10)
       main_state.pacman_stats = i_o.read_file(STATS_FILE)
 
@@ -75,6 +74,12 @@ function conky_start(update_interval)
       compiled.update()
       compiled.dynamic(cr)
    end
+end
+
+function conky_start(update_interval)
+   conky_set_update_interval(update_interval)
+
+   draw_dynamic = build_main(update_interval, ABS_PATH..'config.yml')
 end
 
 local updates = -2 -- this accounts for the first few spazzy iterations

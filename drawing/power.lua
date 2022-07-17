@@ -1,9 +1,9 @@
 local format = require 'format'
 local pure = require 'pure'
-local common = require 'common'
+local compile = require 'compile'
 local sys = require 'sys'
 
-return function(update_freq, config, width, point)
+return function(update_freq, config, common, width, point)
    local TEXT_SPACING = 20
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
@@ -40,7 +40,7 @@ return function(update_freq, config, width, point)
          update_freq,
          read_joules()
       )
-      return common.mk_acc(
+      return compile.mk_acc(
          width,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
          function(_) common.update_rate_timeseries(obj, read_joules()) end,
@@ -89,7 +89,7 @@ return function(update_freq, config, width, point)
          0,
          update_freq
       )
-      return common.mk_acc(
+      return compile.mk_acc(
          width,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
          function()
@@ -106,7 +106,8 @@ return function(update_freq, config, width, point)
    -----------------------------------------------------------------------------
    -- main functions
 
-   return common.reduce_blocks_(
+   return compile.compile_module(
+      common,
       'POWER',
       point,
       width,
