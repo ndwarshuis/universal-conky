@@ -5,7 +5,12 @@ local common = require 'common'
 local geometry = require 'geometry'
 local pure = require 'pure'
 
-return function(update_freq, point)
+return function(update_freq, config, point)
+   -- local config = {
+   --    show_stats = true,
+   --    show_plot = true,
+   --    show_table = true,
+   -- }
    local DIAL_THICKNESS = 8
    local DIAL_RADIUS = 32
    local DIAL_SPACING = 40
@@ -185,9 +190,9 @@ return function(update_freq, point)
       point,
       geometry.SECTION_WIDTH,
       {
-         common.mk_block(mk_stats, true, PLOT_SECTION_BREAK),
-         common.mk_block(mk_plot, true, TABLE_SECTION_BREAK),
-         common.mk_block(mk_tbl, true, 0),
+         {mk_stats, config.show_stats, PLOT_SECTION_BREAK},
+         {mk_plot, config.show_plot, TABLE_SECTION_BREAK},
+         {mk_tbl, config.show_table, 0},
       }
    )
    return pure.map_at("update", function(f) return function(_) f(read_state()) end end, rbs)

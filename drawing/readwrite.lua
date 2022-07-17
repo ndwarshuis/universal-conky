@@ -4,11 +4,11 @@ local common = require 'common'
 local geometry = require 'geometry'
 local sys = require 'sys'
 
-return function(update_freq, devices, point)
+return function(update_freq, config, point)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
    -- TODO currently this will find any block device
-   local DEVICE_PATHS = sys.get_disk_paths(devices)
+   local DEVICE_PATHS = sys.get_disk_paths(config.devices)
 
    local state = {read = 0, write = 0}
    state.read, state.write = sys.get_total_disk_io(DEVICE_PATHS)
@@ -56,8 +56,8 @@ return function(update_freq, devices, point)
       point,
       geometry.SECTION_WIDTH,
       {
-         common.mk_block(mk_reads, true, PLOT_SEC_BREAK),
-         common.mk_block(mk_writes, true, 0),
+         {mk_reads, true, PLOT_SEC_BREAK},
+         {mk_writes, true, 0},
       }
    )
 

@@ -45,6 +45,6 @@ return function(main_state, point)
       'SYSTEM',
       point,
       geometry.SECTION_WIDTH,
-      {common.mk_block(mk_stats, true, 0)}
+      {{mk_stats, true, 0}}
    )
 end

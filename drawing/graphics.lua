@@ -3,7 +3,14 @@ local i_o			= require 'i_o'
 local common		= require 'common'
 local geometry		= require 'geometry'
 
-return function(update_freq, point)
+return function(update_freq, config, point)
+   -- local config = {
+   --    show_temp = true,
+   --    show_clock = true,
+   --    show_gpu_util = true,
+   --    show_mem_util = true,
+   --    show_vid_util = true
+   -- }
    local SEPARATOR_SPACING = 20
    local TEXT_SPACING = 20
    local PLOT_SEC_BREAK = 20
@@ -221,17 +228,24 @@ return function(update_freq, point)
       'NVIDIA GRAPHICS',
       point,
       geometry.SECTION_WIDTH,
-      {
-         common.mk_block(mk_status, true, SEPARATOR_SPACING),
-         common.mk_block(mk_sep, true, TEXT_SPACING),
-         common.mk_block(mk_temp, true, SEPARATOR_SPACING),
-         common.mk_block(mk_sep, true, SEPARATOR_SPACING),
-         common.mk_block(mk_clock, true, SEPARATOR_SPACING),
-         common.mk_block(mk_sep, true, PLOT_SEC_BREAK),
-         common.mk_block(mk_gpu_util, true, PLOT_SEC_BREAK),
-         common.mk_block(mk_mem_util, true, PLOT_SEC_BREAK),
-         common.mk_block(mk_vid_util, true, 0)
-      }
+      {{mk_status, true, SEPARATOR_SPACING}},
+      common.mk_section(
+         SEPARATOR_SPACING,
+         mk_sep,
+         {mk_temp, config.show_temp, SEPARATOR_SPACING}
+      ),
+      common.mk_section(
+         SEPARATOR_SPACING,
+         mk_sep,
+         {mk_clock, config.show_clock, SEPARATOR_SPACING}
+      ),
+      common.mk_section(
+         SEPARATOR_SPACING,
+         mk_sep,
+         {mk_gpu_util, config.show_gpu_util, PLOT_SEC_BREAK},
+         {mk_mem_util, config.show_mem_util, PLOT_SEC_BREAK},
+         {mk_vid_util, config.show_vid_util, 0}
+      )
    )
    return pure.map_at("update", function(f) return function(_) f(update_state()) end end, rbs)
 end

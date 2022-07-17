@@ -669,7 +669,27 @@ local non_false = function(xs)
    return pure.filter(function(x) return x ~= false end, xs)
 end
 
-M.reduce_blocks_inner = function(f, header, point, width, blocks)
+local active_blocks = function(blockspecs)
+   local bs = pure.filter(function(b) return b[2] end, blockspecs)
+   return pure.map(function(b) return M.mk_block(table.unpack(b)) end, bs)
+end
+
+local flatten_sections = function(top, ...)
+   local f = function(acc, new)
+      if #new.blocks == 0 then
+         return acc
+      elseif #acc == 0 then
+         return new.blocks
+      else
+         return pure.flatten(
+            {acc, {M.mk_block(new.sep_fun, true, new.top)}, new.blocks}
+         )
+      end
+   end
+   return pure.reduce(f, active_blocks(top), {...})
+end
+
+M.reduce_blocks_ = function(header, point, width, top_blocks, ...)
    local mk_header = function(y)
       local obj = M.make_header(point.x, y, width, header)
       return M.mk_acc_static(
@@ -678,6 +698,7 @@ M.reduce_blocks_inner = function(f, header, point, width, blocks)
          function(cr) M.draw_header(cr, obj) end
       )
    end
+   local blocks = flatten_sections(top_blocks, ...)
    local r = pure.reduce(
       _combine_blocks,
       {w = 0, next_y = point.y, final_y = point.y, objs = {}},
@@ -687,15 +708,11 @@ M.reduce_blocks_inner = function(f, header, point, width, blocks)
    return {
       next_x = point.x + r.w,
       next_y = r.final_y,
-      update = f(table.unpack(non_false(pure.reverse(us)))),
+      update = pure.sequence(table.unpack(non_false(us))),
       static = pure.sequence(table.unpack(ss)),
       dynamic = pure.sequence(table.unpack(non_false(ds)))
    }
 end
-
-M.reduce_blocks = pure.partial(M.reduce_blocks_inner, pure.compose)
-
-M.reduce_blocks_ = pure.partial(M.reduce_blocks_inner, pure.sequence)
 
 M.mk_acc = function(w, h, u, s, d)
    return {w = w, h = h, obj = {u, s, d}}
@@ -707,6 +724,14 @@ end
 
 M.mk_block = function(f, active, offset)
    return {f = f, active = active, offset = offset}
+end
+
+M.mk_section = function(top, sep_fun, ...)
+   return {
+      top = top,
+      sep_fun = sep_fun,
+      blocks = active_blocks({...})
+   }
 end
 
 M.mk_seperator = function(width, x, y)

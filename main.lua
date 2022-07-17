@@ -37,30 +37,60 @@ function conky_start(update_interval)
    conky_set_update_interval(update_interval)
 
    local update_freq = 1 / update_interval
-   local devices = {'sda', 'nvme0n1'}
-   local battery = 'BAT0'
-   local fs_paths = {
-      {'/', 'root'},
-      {'/boot', 'boot'},
-      {'/home', 'home'},
-      {'/mnt/data', 'data'},
-      {'/mnt/dcache', 'dcache'},
-      {'/tmp', 'tmpfs'}
-   }
 
    local main_state = {}
 
-   local mem = pure.partial(memory, update_freq)
-   local rw = pure.partial(readwrite, update_freq, devices)
-   local net = pure.partial(network, update_freq)
-   local pwr = pure.partial(power, update_freq, battery, main_state)
-   local fs = pure.partial(filesystem, fs_paths, main_state)
-   local stm = pure.partial(system, main_state)
-   local gfx = pure.partial(graphics, update_freq)
-   local proc = pure.partial(processor, update_freq, main_state)
-   local pcm = pure.partial(pacman, main_state)
+   local config = {
+      filesystem = {
+         show_smart = true,
+         fs_paths = {
+            {'/', 'root'},
+            {'/boot', 'boot'},
+            {'/home', 'home'},
+            {'/mnt/data', 'data'},
+            {'/mnt/dcache', 'dcache'},
+            {'/tmp', 'tmpfs'}
+         }
+      },
+      graphics = {
+         show_temp = true,
+         show_clock = true,
+         show_gpu_util = true,
+         show_mem_util = true,
+         show_vid_util = true
+      },
+      memory = {
+         show_stats = true,
+         show_plot = true,
+         show_table = true,
+      },
+      power = {
+         battery = 'BAT0',
+         rapl_specs = {
+            {'PKG0', 'intel-rapl:0'},
+            {'DRAM', 'intel-rapl:0:2'}
+         }
+      },
+      processor = {
+         show_cores = true,
+         show_stats = true,
+         show_plot = true,
+         show_table = true,
+      },
+      readwrite = {
+         devices = {'sda', 'nvme0n1'},
+      },
+   }
 
-   local using_ac = sys.battery_status_reader(battery)
+   local mem = pure.partial(memory, update_freq, config.memory)
+   local rw = pure.partial(readwrite, update_freq, config.readwrite)
+   local net = pure.partial(network, update_freq)
+   local pwr = pure.partial(power, update_freq, config.power)
+   local fs = pure.partial(filesystem, config.filesystem, main_state)
+   local stm = pure.partial(system, main_state)
+   local gfx = pure.partial(graphics, update_freq, config.graphics)
+   local proc = pure.partial(processor, update_freq, config.processor, main_state)
+   local pcm = pure.partial(pacman, main_state)
 
    local compiled = static(
       geom.make_point(12, 11),
@@ -78,7 +108,6 @@ function conky_start(update_interval)
    draw_dynamic = function(cr, _updates)
       main_state.trigger10 = _updates % (update_freq * 10)
       main_state.pacman_stats = i_o.read_file(STATS_FILE)
-      main_state.is_using_ac = using_ac()
 
       compiled.static(cr)
       compiled.update()

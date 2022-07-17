@@ -46,6 +46,6 @@ return function(main_state, point)
       'PACMAN',
       point,
       geometry.SECTION_WIDTH,
-      {common.mk_block(mk_stats, true, 0)}
+      {{mk_stats, true, 0}}
    )
 end

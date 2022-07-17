@@ -8,11 +8,7 @@ local pure = require 'pure'
 
 local __math_floor = math.floor
 
-return function(update_freq, main_state, point)
-   -- local SHOW_DIALS = true
-   -- local SHOW_TIMESERIES = true
-   -- local SHOW_TABLE = true
-
+return function(update_freq, config, main_state, point)
    local DIAL_INNER_RADIUS = 30
    local DIAL_OUTER_RADIUS = 42
    local DIAL_THICKNESS = 5.5
@@ -24,18 +20,17 @@ return function(update_freq, main_state, point)
    local TABLE_HEIGHT = 114
 
    -----------------------------------------------------------------------------
-   -- cores (loads and temps)
+   -- processor state
 
-   -- this totally is not supposed to be a state monad (ssssh...)
-   local update_state = function(cpu_loads)
-      return {
-         cpu_loads = cpu.read_cpu_loads(cpu_loads),
-         load_sum = 0,
-         trigger = main_state.trigger10
-      }
+   local mod_state = cpu.read_cpu_loads(cpu.init_cpu_loads())
+
+   local update_state = function()
+      mod_state = cpu.read_cpu_loads(mod_state)
    end
 
-   local state = update_state(cpu.init_cpu_loads())
+   -----------------------------------------------------------------------------
+   -- cores (loads and temps)
+
    local ncpus = cpu.get_cpu_number()
    local ncores = cpu.get_core_number()
    local nthreads = ncpus / ncores
@@ -72,23 +67,18 @@ return function(update_freq, main_state, point)
          local dial_y = y + DIAL_OUTER_RADIUS
          cores[c] = create_core(dial_x, dial_y)
       end
-      local update = function(state_)
-         local s = state_.load_sum
-         for _, load_data in pairs(state_.cpu_loads) do
-            local cur = load_data.percent_active
-            s = s + cur
+      local update = function()
+         for _, load_data in pairs(mod_state) do
             compound_dial.set(
                cores[load_data.conky_core_id].loads,
                load_data.conky_thread_id,
-               cur * 100
+               load_data.percent_active * 100
             )
          end
          for conky_core_id, path in pairs(coretemp_paths) do
             local temp = __math_floor(0.001 * i_o.read_file(path, nil, '*n'))
             common.text_circle_set(cores[conky_core_id].coretemp, temp)
          end
-         state_.load_sum = s
-         return state_
       end
       local static = function(cr)
          for i = 1, #cores do
@@ -123,15 +113,14 @@ return function(update_freq, main_state, point)
          TEXT_SPACING,
          {'HWP Preference', 'Ave Freq'}
       )
-      local update = function(state_)
+      local update = function()
          -- For some reason this call is slow (querying anything with pstate in
          -- general seems slow), but I also don't need to see an update every
          -- cycle, hence the trigger
-         if state_.trigger == 0 then
+         if main_state.trigger10 == 0 then
             common.text_rows_set(cpu_status, 1, cpu.read_hwp(hwp_paths))
          end
          common.text_rows_set(cpu_status, 2, cpu.read_freq())
-         return state_
       end
       local static = pure.partial(common.text_rows_draw_static, cpu_status)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, cpu_status)
@@ -166,12 +155,12 @@ return function(update_freq, main_state, point)
          "Total Load",
          update_freq
       )
-      local update = function(state_)
-         common.tagged_percent_timeseries_set(
-            total_load,
-            state_.load_sum / ncpus * 100
-         )
-         return state_
+      local update = function()
+         local s = 0
+         for i = 1, #mod_state do
+            s = s + mod_state[i].percent_active
+         end
+         common.tagged_percent_timeseries_set(total_load, s / ncpus * 100)
       end
       local static = pure.partial(common.tagged_percent_timeseries_draw_static, total_load)
       local dynamic = pure.partial(common.tagged_percent_timeseries_draw_dynamic, total_load)
@@ -226,24 +215,28 @@ return function(update_freq, main_state, point)
    -----------------------------------------------------------------------------
    -- main functions
 
-   local rbs = common.reduce_blocks(
+   local rbs = common.reduce_blocks_(
       'PROCESSOR',
       point,
       geometry.SECTION_WIDTH,
       {
-         common.mk_block(mk_cores, true, TEXT_SPACING),
-         common.mk_block(mk_hwp_freq, true, SEPARATOR_SPACING),
-         common.mk_block(mk_sep, true, SEPARATOR_SPACING),
-         common.mk_block(mk_load_plot, true, TABLE_SECTION_BREAK),
-         common.mk_block(mk_tbl, true, 0)
-      }
+         {mk_cores, config.show_cores, TEXT_SPACING},
+         {mk_hwp_freq, config.show_stats, SEPARATOR_SPACING},
+      },
+      common.mk_section(
+         SEPARATOR_SPACING,
+         mk_sep,
+         {mk_load_plot, config.show_plot, TABLE_SECTION_BREAK},
+         {mk_tbl, config.show_table, 0}
+      )
    )
 
    return pure.map_at(
       "update",
       function(f)
          return function()
-            f(update_state(state.cpu_loads))
+            update_state()
+            f()
          end
       end,
       rbs
