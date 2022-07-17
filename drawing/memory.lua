@@ -19,6 +19,43 @@ return function(update_freq, config, common, width, point)
    local __math_floor = math.floor
 
    -----------------------------------------------------------------------------
+   -- state
+
+   local MEMINFO_REGEX = '\nMemFree:%s+(%d+).+'..
+      '\nBuffers:%s+(%d+).+'..
+      '\nCached:%s+(%d+).+'..
+      '\nSwapFree:%s+(%d+).+'..
+      '\nShmem:%s+(%d+).+'..
+      '\nSReclaimable:%s+(%d+)'
+
+   local get_meminfo_field = function(field)
+      return tonumber(i_o.read_file('/proc/meminfo', field..':%s+(%d+)'))
+   end
+
+   local mod_state = {
+      mem = {total = get_meminfo_field('MemTotal')},
+      swap = {total = get_meminfo_field('SwapTotal')}
+   }
+   local read_state = function()
+      local m = mod_state.mem
+      -- see manpage for free command for formulas
+      m.memfree,
+         m.buffers,
+         m.cached,
+         mod_state.swap.free,
+         m.shmem,
+         m.sreclaimable
+         = __string_match(i_o.read_file('/proc/meminfo'), MEMINFO_REGEX)
+      m.used_percent =
+         (m.total -
+          m.memfree -
+          m.cached -
+          m.buffers -
+          m.sreclaimable) / m.total
+   end
+
+
+   -----------------------------------------------------------------------------
    -- mem stats (dial + text)
 
    local mk_stats = function(y)
@@ -56,9 +93,9 @@ return function(update_freq, config, common, width, point)
          {'Page Cache', 'Buffers', 'Shared', 'Kernel Slab'},
          '%.1f%%'
       )
-      local update = function(s)
-         local m = s.mem
-         local w = s.swap
+      local update = function()
+         local m = mod_state.mem
+         local w = mod_state.swap
          common.dial_set(mem, m.used_percent * 100)
          common.dial_set(swap, (w.total - w.free) / w.total * 100)
 
@@ -94,7 +131,7 @@ return function(update_freq, config, common, width, point)
       return common.mk_acc(
          width,
          PLOT_HEIGHT,
-         function(s) timeseries.update(obj, s.mem.used_percent) end,
+         function() timeseries.update(obj, mod_state.mem.used_percent) end,
          pure.partial(timeseries.draw_static, obj),
          pure.partial(timeseries.draw_dynamic, obj)
       )
@@ -122,7 +159,7 @@ return function(update_freq, config, common, width, point)
          NUM_ROWS,
          'Mem (%)'
       )
-      local update = function(_)
+      local update = function()
          for r = 1, NUM_ROWS do
             text_table.set(obj, 1, r, i_o.conky(TABLE_CONKY[r].comm, '(%S+)'))
             text_table.set(obj, 2, r, i_o.conky(TABLE_CONKY[r].pid))
@@ -139,50 +176,13 @@ return function(update_freq, config, common, width, point)
    end
 
    -----------------------------------------------------------------------------
-   -- state
-
-   local MEMINFO_REGEX = '\nMemFree:%s+(%d+).+'..
-      '\nBuffers:%s+(%d+).+'..
-      '\nCached:%s+(%d+).+'..
-      '\nSwapFree:%s+(%d+).+'..
-      '\nShmem:%s+(%d+).+'..
-      '\nSReclaimable:%s+(%d+)'
-
-   local get_meminfo_field = function(field)
-      return tonumber(i_o.read_file('/proc/meminfo', field..':%s+(%d+)'))
-   end
-
-   local state = {
-      mem = {total = get_meminfo_field('MemTotal')},
-      swap = {total = get_meminfo_field('SwapTotal')}
-   }
-   local read_state = function()
-      local m = state.mem
-      -- see manpage for free command for formulas
-      m.memfree,
-         m.buffers,
-         m.cached,
-         state.swap.free,
-         m.shmem,
-         m.sreclaimable
-         = __string_match(i_o.read_file('/proc/meminfo'), MEMINFO_REGEX)
-      m.used_percent =
-         (m.total -
-          m.memfree -
-          m.cached -
-          m.buffers -
-          m.sreclaimable) / m.total
-      return state
-   end
-
-   -----------------------------------------------------------------------------
    -- main functions
 
    return {
       header = 'MEMORY',
       point = point,
       width = width,
-      update_wrapper = function(f) return function(_) f(read_state()) end end,
+      update_wrapper = function(f) return function(_) read_state() f() end end,
       top = {
          {mk_stats, config.show_stats, PLOT_SECTION_BREAK},
          {mk_plot, config.show_plot, TABLE_SECTION_BREAK},

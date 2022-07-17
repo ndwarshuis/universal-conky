@@ -12,17 +12,16 @@ return function(update_freq, common, width, point)
       return i_o.read_file(path, nil, '*n') * 8
    end
 
-   local state = {rx_bits = 0, tx_bits = 0}
+   local mod_state = {rx_bits = 0, tx_bits = 0}
 
    local read_interfaces = function()
-      state.rx_bits = 0
-      state.tx_bits = 0
+      mod_state.rx_bits = 0
+      mod_state.tx_bits = 0
       for i = 1, #INTERFACE_PATHS do
          local p = INTERFACE_PATHS[i]
-         state.rx_bits = state.rx_bits + get_bits(p.rx)
-         state.tx_bits = state.tx_bits + get_bits(p.tx)
+         mod_state.rx_bits = mod_state.rx_bits + get_bits(p.rx)
+         mod_state.tx_bits = mod_state.tx_bits + get_bits(p.tx)
       end
-      return state
    end
 
    -- prime initial state
@@ -48,12 +47,12 @@ return function(update_freq, common, width, point)
          label,
          2,
          update_freq,
-         state[key]
+         mod_state[key]
       )
       return common.mk_acc(
          width,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
-         function(s) common.update_rate_timeseries(obj, s[key]) end,
+         function() common.update_rate_timeseries(obj, mod_state[key]) end,
          pure.partial(common.tagged_scaled_timeseries_draw_static, obj),
          pure.partial(common.tagged_scaled_timeseries_draw_dynamic, obj)
       )
@@ -69,7 +68,7 @@ return function(update_freq, common, width, point)
       header = 'NETWORK',
       point = point,
       width = width,
-      update_wrapper = function(f) return function(_) f(read_interfaces()) end end,
+      update_wrapper = function(f) return function(_) read_interfaces() f() end end,
       top = {
          {mk_rx, true, PLOT_SEC_BREAK},
          {mk_tx, true, 0},

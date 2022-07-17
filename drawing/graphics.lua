@@ -11,12 +11,70 @@ return function(update_freq, config, common, width, point)
    local __tonumber = tonumber
 
    -----------------------------------------------------------------------------
+   -- nvidia state
+
+   -- vars to process the nv settings glob
+   --
+   -- glob will be of the form:
+   --   <used_mem>
+   --   <total_mem>
+   --   <temp>
+   --   <gpu_freq>,<mem_freq>
+   --   graphics=<gpu_util>, memory=<mem_util>, video=<vid_util>, PCIe=<pci_util>
+   local NV_QUERY = 'nvidia-settings -t'..
+      ' -q UsedDedicatedGPUmemory'..
+      ' -q TotalDedicatedGPUmemory'..
+      ' -q ThermalSensorReading'..
+      ' -q [gpu:0]/GPUCurrentClockFreqs'..
+      ' -q [gpu:0]/GPUutilization'
+
+   local NV_REGEX = '(%d+)\n'..
+      '(%d+)\n'..
+      '(%d+)\n'..
+      '(%d+),(%d+)\n'..
+      'graphics=(%d+), memory=%d+, video=(%d+), PCIe=%d+\n'
+
+   local GPU_BUS_CTRL = '/sys/bus/pci/devices/0000:01:00.0/power/control'
+
+   local mod_state = {
+      error = false,
+      used_memory = 0,
+      total_memory = 0,
+      temp_reading = 0,
+      gpu_frequency = 0,
+      memory_frequency = 0,
+      gpu_utilization = 0,
+      vid_utilization = 0
+   }
+
+   local update_state = function()
+      if i_o.read_file(GPU_BUS_CTRL, nil, '*l') == 'on' then
+         local nvidia_settings_glob = i_o.execute_cmd(NV_QUERY)
+         if nvidia_settings_glob == '' then
+            mod_state.error = 'Error'
+         else
+            mod_state.used_memory,
+               mod_state.total_memory,
+               mod_state.temp_reading,
+               mod_state.gpu_frequency,
+               mod_state.memory_frequency,
+               mod_state.gpu_utilization,
+               mod_state.vid_utilization
+               = __string_match(nvidia_settings_glob, NV_REGEX)
+            mod_state.error = false
+         end
+      else
+         mod_state.error = 'Off'
+      end
+   end
+
+   -----------------------------------------------------------------------------
    -- helper functions
 
-   local _from_state = function(def, f, set)
-      return function(s)
-         if s.error == false then
-            set(f(s))
+   local _from_state = function(def, get, set)
+      return function()
+         if mod_state.error == false then
+            set(get(mod_state))
          else
             set(def)
          end
@@ -59,11 +117,11 @@ return function(update_freq, config, common, width, point)
          width,
          'Status'
       )
-      local update = function(s)
-         if s.error == false then
+      local update = function()
+         if mod_state.error == false then
             common.text_row_set(obj, 'On')
          else
-            common.text_row_set(obj, s.error)
+            common.text_row_set(obj, mod_state.error)
          end
       end
       local static = pure.partial(common.text_row_draw_static, obj)
@@ -106,10 +164,10 @@ return function(update_freq, config, common, width, point)
          TEXT_SPACING,
          {'GPU Clock Speed', 'memory Clock Speed'}
       )
-      local update = function(s)
-         if s.error == false then
-            common.text_rows_set(obj, 1, s.gpu_frequency..' Mhz')
-            common.text_rows_set(obj, 2, s.memory_frequency..' Mhz')
+      local update = function()
+         if mod_state.error == false then
+            common.text_rows_set(obj, 1, mod_state.gpu_frequency..' Mhz')
+            common.text_rows_set(obj, 2, mod_state.memory_frequency..' Mhz')
          else
             common.text_rows_set(obj, 1, NA)
             common.text_rows_set(obj, 2, NA)
@@ -148,72 +206,13 @@ return function(update_freq, config, common, width, point)
    )
 
    -----------------------------------------------------------------------------
-   -- nvidia state
-
-   -- vars to process the nv settings glob
-   --
-   -- glob will be of the form:
-   --   <used_mem>
-   --   <total_mem>
-   --   <temp>
-   --   <gpu_freq>,<mem_freq>
-   --   graphics=<gpu_util>, memory=<mem_util>, video=<vid_util>, PCIe=<pci_util>
-   local NV_QUERY = 'nvidia-settings -t'..
-      ' -q UsedDedicatedGPUmemory'..
-      ' -q TotalDedicatedGPUmemory'..
-      ' -q ThermalSensorReading'..
-      ' -q [gpu:0]/GPUCurrentClockFreqs'..
-      ' -q [gpu:0]/GPUutilization'
-
-   local NV_REGEX = '(%d+)\n'..
-      '(%d+)\n'..
-      '(%d+)\n'..
-      '(%d+),(%d+)\n'..
-      'graphics=(%d+), memory=%d+, video=(%d+), PCIe=%d+\n'
-
-   local GPU_BUS_CTRL = '/sys/bus/pci/devices/0000:01:00.0/power/control'
-
-   local state = {
-      error = false,
-      used_memory = 0,
-      total_memory = 0,
-      temp_reading = 0,
-      gpu_frequency = 0,
-      memory_frequency = 0,
-      gpu_utilization = 0,
-      vid_utilization = 0
-   }
-
-   local update_state = function()
-      if i_o.read_file(GPU_BUS_CTRL, nil, '*l') == 'on' then
-         local nvidia_settings_glob = i_o.execute_cmd(NV_QUERY)
-         if nvidia_settings_glob == '' then
-            state.error = 'Error'
-         else
-            state.used_memory,
-               state.total_memory,
-               state.temp_reading,
-               state.gpu_frequency,
-               state.memory_frequency,
-               state.gpu_utilization,
-               state.vid_utilization
-               = __string_match(nvidia_settings_glob, NV_REGEX)
-            state.error = false
-         end
-      else
-         state.error = 'Off'
-      end
-      return state
-   end
-
-   -----------------------------------------------------------------------------
    -- main drawing functions
 
    return {
       header = 'NVIDIA GRAPHICS',
       point = point,
       width = width,
-      update_wrapper = function(f) return function(_) f(update_state()) end end,
+      update_wrapper = function(f) return function(_) update_state() f() end end,
       top = {{mk_status, true, SEPARATOR_SPACING}},
       common.mk_section(
          SEPARATOR_SPACING,
