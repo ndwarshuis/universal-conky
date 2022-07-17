@@ -4,13 +4,6 @@ local common		= require 'common'
 local geometry		= require 'geometry'
 
 return function(update_freq, config, point)
-   -- local config = {
-   --    show_temp = true,
-   --    show_clock = true,
-   --    show_gpu_util = true,
-   --    show_mem_util = true,
-   --    show_vid_util = true
-   -- }
    local SEPARATOR_SPACING = 20
    local TEXT_SPACING = 20
    local PLOT_SEC_BREAK = 20

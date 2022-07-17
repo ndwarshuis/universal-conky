@@ -1,0 +1,48 @@
+modules:
+  filesystem:
+    show_smart: true
+    fs_paths:
+      - path: /
+        name: root
+      - path: /boot
+        name: boot
+      - path: /home
+        name: home
+      - path: /mnt/data
+        name: data
+      - path: /mnt/dcache
+        name: dcache
+      - path: /tmp
+        name: tmpfs
+  graphics:
+    show_temp: true
+    show_clock: true
+    show_gpu_util: true
+    show_mem_util: true
+    show_vid_util: true
+  memory:
+    show_stats: true
+    show_plot: true
+    show_table: true
+  power:
+    battery: BAT0
+    rapl_specs:
+      - name: PKG0
+        address: intel-rapl:0
+      - name: DRAM
+        address: intel-rapl:0:2
+  processor:
+    show_cores: true
+    show_stats: true
+    show_plot: true
+    show_table: true
+  readwrite:
+    devices: [sda, nvme0n1]
+layout:
+  anchor: [12, 11]
+  panels:
+    - !!seq [[system, 19, graphics, 16, processor]]
+    - 10
+    - !!seq [[readwrite], 20, [network]]
+    - 10
+    - !!seq [[pacman, 24, filesystem, 24, power, 19, memory]]

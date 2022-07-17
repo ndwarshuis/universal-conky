@@ -6,9 +6,6 @@ local impure = require 'impure'
 
 -- ASSUME pathspecs will be at least 1 long
 return function(config, main_state, point)
-   -- local config = {
-   --    show_smart = true
-   -- }
    local SPACING = 20
    local BAR_PAD = 100
    local SEPARATOR_SPACING = 20
@@ -48,7 +45,9 @@ return function(config, main_state, point)
    -- filesystem bar chart
 
    local mk_bars = function(y)
-      local paths, names = table.unpack(pure.unzip(config.fs_paths))
+      local paths = pure.map_keys('path', config.fs_paths)
+      local names = pure.map_keys('name', config.fs_paths)
+      -- local paths, names = table.unpack(pure.unzip(config.fs_paths))
       local CONKY_CMDS = pure.map(
          pure.partial(string.format, '${fs_used_perc %s}', true),
          paths
@@ -89,8 +88,5 @@ return function(config, main_state, point)
       geometry.SECTION_WIDTH,
       {{mk_smart, config.show_smart, SEPARATOR_SPACING}},
       common.mk_section(SEPARATOR_SPACING, mk_sep, {mk_bars, true, 0})
-         -- common.mk_block(mk_sep, config.show_smart, SEPARATOR_SPACING),
-         -- common.mk_block(mk_bars, true, 0),
-      -- }
    )
 end

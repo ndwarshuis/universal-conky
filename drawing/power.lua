@@ -51,7 +51,7 @@ return function(update_freq, config, point)
    end
 
    local mk_rate_blockspec = function(spec)
-      local f = pure.partial(mk_rate_plot, table.unpack(spec))
+      local f = pure.partial(mk_rate_plot, spec.name, spec.address)
       return {f, true, TEXT_SPACING}
    end
 

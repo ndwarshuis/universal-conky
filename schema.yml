@@ -1,0 +1,158 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+description: over-engineered conky schema
+required: [modules, layout]
+additionalProperties: false
+properties:
+
+  modules:
+    additionalProperties: false
+    properties:
+      filesystem:
+        required: [show_smart, fs_paths]
+        additionalProperties: false
+        properties:
+          show_smart:
+            description: show the smart deamon indicator
+            type: boolean
+          fs_paths:
+            description: the filesystem paths for which usage should be shown
+            type: array
+            minItems: 1
+            items:
+              type: object
+              required: [name, path]
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                path:
+                  type: string
+
+      graphics:
+        required: [show_temp, show_clock, show_gpu_util, show_mem_util, show_vid_util]
+        additionalProperties: false
+        properties:
+          show_temp:
+            description: show the GPU temp
+            type: boolean
+          show_clock:
+            description: show the GPU clock speeds
+            type: boolean
+          show_gpu_util:
+            description: show the GPU utilization plot
+            type: boolean
+          show_mem_util:
+            description: show the GPU memory utilization plot
+            type: boolean
+          show_vid_util:
+            description: show the GPU video utilization plot
+            type: boolean
+
+      memory:
+        required: [show_stats, show_plot, show_table]
+        additionalProperties: false
+        properties:
+          show_stats:
+            description: show memory stats/dial
+            type: boolean
+          show_plot:
+            description: show the RAM utilization plot
+            type: boolean
+          show_table:
+            description: show the memory process table
+            type: boolean
+
+      power:
+        required: [battery, rapl_specs]
+        additionalProperties: false
+        properties:
+          battery:
+            description: the battery device to use (if applicable)
+            anyOf:
+              - type: string
+              - type: "null"
+          rapl_specs:
+            description: the Intel RAPL specs for which plots should be made
+            type: array
+            items:
+              type: object
+              required: [name, address]
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                address:
+                  type: string
+
+      processor:
+        required: [show_cores, show_stats, show_plot, show_table]
+        additionalProperties: false
+        properties:
+          show_cores:
+            description: show individual CPU cores
+            type: boolean
+          show_stats:
+            description: show frequency/HWP stats
+            type: boolean
+          show_plot:
+            description: show CPU utilization plot
+            type: boolean
+          show_table:
+            description: show the CPU process table
+            type: boolean
+
+      readwrite:
+        required: [devices]
+        additionalProperties: false
+        properties:
+          devices:
+            description: the devices to include in I/O summations
+            type: array
+            minItems: 1
+            items:
+              type: string
+
+  layout:
+    required: [anchor, panels]
+    additionalProperties: false
+    properties:
+      anchor:
+        description: the coordinates of the upper-left corner to anchor the app
+        type: array
+        minItems: 2
+        maxItems: 2
+        items:
+          type: integer
+      panels:
+        description: either a panel (array) or padding between panels (int)
+        type: array
+        items:
+          anyOf:
+            - type: integer
+              minimum: 0
+            - type: array
+              description: |
+                either a list of columns in a panel (array) or padding between
+                columns (int)
+              minItems: 1
+              items:
+                anyOf:
+                  - type: integer
+                    minimum: 0
+                  - type: array
+                    description: |
+                      either a list of modules in a panel column (array) or
+                      padding between modules
+                    minItems: 1
+                    items:
+                      anyOf:
+                        - type: integer
+                          minimum: 0
+                        - type: string
+                          pattern:
+                            "^system|graphics|processor|readwrite|\
+                            network|pacman|filesystem|power|memory$"
+
+
+
+
