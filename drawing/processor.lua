@@ -132,15 +132,6 @@ return function(update_freq, config, main_state, common, width, point)
    end
 
    -----------------------------------------------------------------------------
-   -- frequency
-
-   local mk_sep = pure.partial(
-      common.mk_seperator,
-      width,
-      point.x
-   )
-
-   -----------------------------------------------------------------------------
    -- total load plot
 
    local mk_load_plot = function(y)
@@ -229,7 +220,6 @@ return function(update_freq, config, main_state, common, width, point)
       },
       common.mk_section(
          SEPARATOR_SPACING,
-         mk_sep,
          {mk_load_plot, config.show_plot, TABLE_SECTION_BREAK},
          {mk_tbl, config.show_table, 0}
       )

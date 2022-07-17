@@ -27,8 +27,6 @@ return function(config, main_state, common, width, point)
       )
    end
 
-   local mk_sep = pure.partial(common.mk_seperator, width, point.x)
-
    -----------------------------------------------------------------------------
    -- filesystem bar chart
 
@@ -75,6 +73,6 @@ return function(config, main_state, common, width, point)
       width = width,
       update_wrapper = nil,
       top = {{mk_smart, config.show_smart, SEPARATOR_SPACING}},
-      common.mk_section(SEPARATOR_SPACING, mk_sep, {mk_bars, true, 0})
+      common.mk_section(SEPARATOR_SPACING, {mk_bars, true, 0})
    }
 end

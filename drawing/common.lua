@@ -683,7 +683,7 @@ return function(config)
            style.closed_poly(thickness, CAIRO_LINE_JOIN_MITER),
            patterns.border
        ),
-       patterns.panel
+       patterns.panel.bg
    )
    end
 
@@ -715,7 +715,12 @@ return function(config)
       return pure.map(function(b) return mk_block(table.unpack(b)) end, bs)
    end
 
-   local flatten_sections = function(top, ...)
+   local mk_separator = function(width, x, y)
+      local separator = M.make_separator(x, y, width)
+      return M.mk_acc_static(width, 0, pure.partial(line.draw, separator))
+   end
+
+   local flatten_sections = function(point, width, top, ...)
       local f = function(acc, new)
          if #new.blocks == 0 then
             return acc
@@ -723,24 +728,22 @@ return function(config)
             return new.blocks
          else
             return pure.flatten(
-               {acc, {mk_block(new.sep_fun, true, new.top)}, new.blocks}
+               {
+                  acc,
+                  {mk_block(pure.partial(mk_separator, width, point.x), true, new.top)},
+                  new.blocks
+               }
             )
          end
       end
       return pure.reduce(f, active_blocks(top), {...})
    end
 
-   M.mk_section = function(top, sep_fun, ...)
+   M.mk_section = function(top, ...)
       return {
          top = top,
-         sep_fun = sep_fun,
          blocks = active_blocks({...})
       }
-   end
-
-   M.mk_seperator = function(width, x, y)
-      local separator = M.make_separator(x, y, width)
-      return M.mk_acc_static(width, 0, pure.partial(line.draw, separator))
    end
 
    M.mk_acc = function(w, h, u, s, d)
@@ -760,7 +763,7 @@ return function(config)
             function(cr) M.draw_header(cr, obj) end
          )
       end
-      local blocks = flatten_sections(top_blocks, ...)
+      local blocks = flatten_sections(point, width, top_blocks, ...)
       local r = pure.reduce(
          _combine_blocks,
          {w = 0, next_y = point.y, final_y = point.y, objs = {}},

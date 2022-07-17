@@ -71,12 +71,6 @@ return function(update_freq, config, common, width, point)
       return common.mk_acc(width, 0, update, static, dynamic)
    end
 
-   local mk_sep = pure.partial(
-      common.mk_seperator,
-      width,
-      point.x
-   )
-
    -----------------------------------------------------------------------------
    -- gpu temperature
 
@@ -223,17 +217,14 @@ return function(update_freq, config, common, width, point)
       top = {{mk_status, true, SEPARATOR_SPACING}},
       common.mk_section(
          SEPARATOR_SPACING,
-         mk_sep,
          {mk_temp, config.show_temp, SEPARATOR_SPACING}
       ),
       common.mk_section(
          SEPARATOR_SPACING,
-         mk_sep,
          {mk_clock, config.show_clock, SEPARATOR_SPACING}
       ),
       common.mk_section(
          SEPARATOR_SPACING,
-         mk_sep,
          {mk_gpu_util, config.show_gpu_util, PLOT_SEC_BREAK},
          {mk_mem_util, config.show_mem_util, PLOT_SEC_BREAK},
          {mk_vid_util, config.show_vid_util, 0}
