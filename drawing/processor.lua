@@ -1,7 +1,6 @@
 local compound_dial = require 'compound_dial'
 local text_table = require 'text_table'
 local i_o = require 'i_o'
-local compile = require 'compile'
 local cpu = require 'sys'
 local pure = require 'pure'
 
@@ -91,7 +90,7 @@ return function(update_freq, config, main_state, common, width, point)
             compound_dial.draw_dynamic(cores[i].loads, cr)
          end
       end
-      return compile.mk_acc(
+      return common.mk_acc(
          width,
          DIAL_OUTER_RADIUS * 2,
          update,
@@ -123,7 +122,7 @@ return function(update_freq, config, main_state, common, width, point)
       end
       local static = pure.partial(common.text_rows_draw_static, cpu_status)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, cpu_status)
-      return compile.mk_acc(
+      return common.mk_acc(
          width,
          TEXT_SPACING,
          update,
@@ -136,8 +135,7 @@ return function(update_freq, config, main_state, common, width, point)
    -- frequency
 
    local mk_sep = pure.partial(
-      compile.mk_seperator,
-      common,
+      common.mk_seperator,
       width,
       point.x
    )
@@ -164,7 +162,7 @@ return function(update_freq, config, main_state, common, width, point)
       end
       local static = pure.partial(common.tagged_percent_timeseries_draw_static, total_load)
       local dynamic = pure.partial(common.tagged_percent_timeseries_draw_dynamic, total_load)
-      return compile.mk_acc(
+      return common.mk_acc(
          width,
          PLOT_HEIGHT + PLOT_SECTION_BREAK,
          update,
@@ -203,7 +201,7 @@ return function(update_freq, config, main_state, common, width, point)
       end
       local static = pure.partial(text_table.draw_static, tbl)
       local dynamic = pure.partial(text_table.draw_dynamic, tbl)
-      return compile.mk_acc(
+      return common.mk_acc(
          width,
          TABLE_HEIGHT,
          update,
@@ -215,8 +213,7 @@ return function(update_freq, config, main_state, common, width, point)
    -----------------------------------------------------------------------------
    -- main functions
 
-   local rbs = compile.compile_module(
-      common,
+   local rbs = common.compile_module(
       'PROCESSOR',
       point,
       width,
@@ -224,7 +221,7 @@ return function(update_freq, config, main_state, common, width, point)
          {mk_cores, config.show_cores, TEXT_SPACING},
          {mk_hwp_freq, config.show_stats, SEPARATOR_SPACING},
       },
-      compile.mk_section(
+      common.mk_section(
          SEPARATOR_SPACING,
          mk_sep,
          {mk_load_plot, config.show_plot, TABLE_SECTION_BREAK},

@@ -1,5 +1,4 @@
 local i_o = require 'i_o'
-local compile = require 'compile'
 local pure = require 'pure'
 local impure = require 'impure'
 
@@ -19,7 +18,7 @@ return function(config, main_state, common, width, point)
             common.text_row_set(obj, (pid == '') and 'Error' or 'Running')
          end
       end
-      return compile.mk_acc(
+      return common.mk_acc(
          width,
          0,
          update,
@@ -28,7 +27,7 @@ return function(config, main_state, common, width, point)
       )
    end
 
-   local mk_sep = pure.partial(compile.mk_seperator, common, width, point.x)
+   local mk_sep = pure.partial(common.mk_seperator, width, point.x)
 
    -----------------------------------------------------------------------------
    -- filesystem bar chart
@@ -58,7 +57,7 @@ return function(config, main_state, common, width, point)
             impure.ieach(read_fs, CONKY_CMDS)
          end
       end
-      return compile.mk_acc(
+      return common.mk_acc(
          width,
          (#config.fs_paths - 1) * SPACING,
          update,
@@ -70,12 +69,11 @@ return function(config, main_state, common, width, point)
    -----------------------------------------------------------------------------
    -- main functions
 
-   return compile.compile_module(
-      common,
+   return common.compile_module(
       'FILE SYSTEMS',
       point,
       width,
       {{mk_smart, config.show_smart, SEPARATOR_SPACING}},
-      compile.mk_section(SEPARATOR_SPACING, mk_sep, {mk_bars, true, 0})
+      common.mk_section(SEPARATOR_SPACING, mk_sep, {mk_bars, true, 0})
    )
 end

@@ -1,6 +1,5 @@
 local format = require 'format'
 local pure = require 'pure'
-local compile = require 'compile'
 local sys = require 'sys'
 
 return function(update_freq, config, common, width, point)
@@ -34,7 +33,7 @@ return function(update_freq, config, common, width, point)
          update_freq,
          state[key]
       )
-      return compile.mk_acc(
+      return common.mk_acc(
          -- TODO construct this more sanely without referring to hardcoded vars
          width,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
@@ -50,8 +49,7 @@ return function(update_freq, config, common, width, point)
    -----------------------------------------------------------------------------
    -- main drawing functions
 
-   local rbs = compile.compile_module(
-      common,
+   local rbs = common.compile_module(
       'INPUT / OUTPUT',
       point,
       width,

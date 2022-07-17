@@ -1,6 +1,5 @@
 local i_o = require 'i_o'
 local pure = require 'pure'
-local compile = require 'compile'
 
 return function(main_state, common, width, point)
    local TEXT_SPACING = 20
@@ -31,7 +30,7 @@ return function(main_state, common, width, point)
       end
       local static = pure.partial(common.text_rows_draw_static, obj)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, obj)
-      return compile.mk_acc(
+      return common.mk_acc(
          width,
          TEXT_SPACING * 3,
          update,
@@ -40,5 +39,5 @@ return function(main_state, common, width, point)
       )
    end
 
-   return compile.compile_module(common, 'SYSTEM', point, width, {{mk_stats, true, 0}})
+   return common.compile_module('SYSTEM', point, width, {{mk_stats, true, 0}})
 end

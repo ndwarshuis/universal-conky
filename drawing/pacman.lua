@@ -1,4 +1,3 @@
-local compile = require 'compile'
 local pure = require 'pure'
 
 return function(main_state, common, width, point)
@@ -32,7 +31,7 @@ return function(main_state, common, width, point)
             end
          end
       end
-      return compile.mk_acc(
+      return common.mk_acc(
          width,
          TEXT_SPACING * 4,
          update,
@@ -41,8 +40,7 @@ return function(main_state, common, width, point)
       )
    end
 
-   return compile.compile_module(
-      common,
+   return common.compile_module(
       'PACMAN',
       point,
       width,

@@ -2,7 +2,6 @@ local format = require 'format'
 local pure = require 'pure'
 local i_o = require 'i_o'
 local sys = require 'sys'
-local compile = require 'compile'
 
 return function(update_freq, common, width, point)
    local PLOT_SEC_BREAK = 20
@@ -51,7 +50,7 @@ return function(update_freq, common, width, point)
          update_freq,
          state[key]
       )
-      return compile.mk_acc(
+      return common.mk_acc(
          width,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
          function(s) common.update_rate_timeseries(obj, s[key]) end,
@@ -66,8 +65,7 @@ return function(update_freq, common, width, point)
    -----------------------------------------------------------------------------
    -- main drawing functions
 
-   local rbs = compile.compile_module(
-      common,
+   local rbs = common.compile_module(
       'NETWORK',
       point,
       width,
