@@ -1,14 +1,13 @@
 local common = require 'common'
 local pure = require 'pure'
-local geometry = require 'geometry'
 local geom = require 'geom'
 local fill_rect = require 'fill_rect'
 
-local reduce_modules_y = function(modlist, init_x, acc, new)
+local reduce_modules_y = function(modlist, init_x, width, acc, new)
    if type(new) == "number" then
       acc.next_y = acc.next_y + new
    else
-      local r = modlist[new](geom.make_point(init_x, acc.next_y))
+      local r = modlist[new](width, geom.make_point(init_x, acc.next_y))
       table.insert(acc.fgroups, {update = r.update, static = r.static, dynamic = r.dynamic})
       acc.next_x = math.max(acc.next_x, r.next_x)
       acc.next_y = r.next_y
@@ -21,9 +20,9 @@ local reduce_modules_x = function(modlist, init_y, acc, x_mods)
       acc.next_x = acc.next_x + x_mods
    else
       local r = pure.reduce(
-         pure.partial(reduce_modules_y, modlist, acc.next_x),
+         pure.partial(reduce_modules_y, modlist, acc.next_x, x_mods.width),
          {next_x = acc.next_x, next_y = init_y, fgroups = acc.fgroups},
-         x_mods
+         x_mods.blocks
       )
       acc.fgroups = r.fgroups
       acc.next_x = r.next_x
@@ -72,14 +71,17 @@ local build_surface = function(box, fs)
    return {x = cs_x, y = cs_y, s = cs}
 end
 
-local reduce_static = function(mods, y, margins, acc, panel_mods)
+local reduce_static = function(mods, y, acc, panel_mods)
    if type(panel_mods) == "number" then
       acc.next_x = acc.next_x + panel_mods
    else
-      local mpoint = geom.make_point(acc.next_x + margins.x, y + margins.y)
-      local r = arrange_panel_modules(mods, mpoint, panel_mods)
-      local w = r.width + margins.x * 2
-      local h = r.height + margins.y * 2
+      local margins = panel_mods.margins
+      local margin_x = margins[1]
+      local margin_y = margins[2]
+      local mpoint = geom.make_point(acc.next_x + margin_x, y + margin_y)
+      local r = arrange_panel_modules(mods, mpoint, panel_mods.columns)
+      local w = r.width + margin_x * 2
+      local h = r.height + margin_y * 2
       local pbox = geom.make_box(acc.next_x, y, w, h)
       acc.next_x = acc.next_x + w
       acc.static = pure.flatten({acc.static, {build_surface(pbox, r.static)}})
@@ -97,8 +99,7 @@ return function(point, mods, module_sets)
       pure.partial(
          reduce_static,
          mods,
-         point.y,
-         {x = geometry.PANEL_MARGIN_X, y = geometry.PANEL_MARGIN_Y}
+         point.y
       ),
       {next_x = point.x, static = {}, update = {}, dynamic = {}},
       module_sets

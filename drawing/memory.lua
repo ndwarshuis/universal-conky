@@ -2,15 +2,9 @@ local timeseries = require 'timeseries'
 local text_table = require 'text_table'
 local i_o = require 'i_o'
 local common = require 'common'
-local geometry = require 'geometry'
 local pure = require 'pure'
 
-return function(update_freq, config, point)
-   -- local config = {
-   --    show_stats = true,
-   --    show_plot = true,
-   --    show_table = true,
-   -- }
+return function(update_freq, config, width, point)
    local DIAL_THICKNESS = 8
    local DIAL_RADIUS = 32
    local DIAL_SPACING = 40
@@ -33,7 +27,7 @@ return function(update_freq, config, point)
       local DIAL_DIAMETER = DIAL_RADIUS * 2 + DIAL_THICKNESS
       local SWAP_X = MEM_X + DIAL_DIAMETER + DIAL_SPACING
       local CACHE_X = SWAP_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
-      local CACHE_WIDTH = point.x + geometry.SECTION_WIDTH - CACHE_X
+      local CACHE_WIDTH = point.x + width - CACHE_X
       local format_percent = function(x)
          return string.format('%i%%', x)
       end
@@ -84,7 +78,7 @@ return function(update_freq, config, point)
          common.dial_draw_dynamic(swap, cr)
          common.text_rows_draw_dynamic(cache, cr)
       end
-      return common.mk_acc(geometry.SECTION_WIDTH, DIAL_DIAMETER, update, static, dynamic)
+      return common.mk_acc(width, DIAL_DIAMETER, update, static, dynamic)
    end
 
    -----------------------------------------------------------------------------
@@ -94,12 +88,12 @@ return function(update_freq, config, point)
       local obj = common.make_percent_timeseries(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          PLOT_HEIGHT,
          update_freq
       )
       return common.mk_acc(
-         geometry.SECTION_WIDTH,
+         width,
          PLOT_HEIGHT,
          function(s) timeseries.update(obj, s.mem.used_percent) end,
          pure.partial(timeseries.draw_static, obj),
@@ -124,7 +118,7 @@ return function(update_freq, config, point)
       local obj = common.make_text_table(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          TABLE_HEIGHT,
          NUM_ROWS,
          'Mem (%)'
@@ -137,7 +131,7 @@ return function(update_freq, config, point)
          end
       end
       return common.mk_acc(
-         geometry.SECTION_WIDTH,
+         width,
          TABLE_HEIGHT,
          update,
          pure.partial(text_table.draw_static, obj),
@@ -188,7 +182,7 @@ return function(update_freq, config, point)
    local rbs = common.reduce_blocks_(
       'MEMORY',
       point,
-      geometry.SECTION_WIDTH,
+      width,
       {
          {mk_stats, config.show_stats, PLOT_SECTION_BREAK},
          {mk_plot, config.show_plot, TABLE_SECTION_BREAK},

@@ -2,10 +2,9 @@ local format = require 'format'
 local pure = require 'pure'
 local i_o = require 'i_o'
 local common = require 'common'
-local geometry = require 'geometry'
 local sys = require 'sys'
 
-return function(update_freq, point)
+return function(update_freq, width, point)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
    local INTERFACE_PATHS = sys.get_net_interface_paths()
@@ -42,7 +41,7 @@ return function(update_freq, point)
       local obj = common.make_rate_timeseries(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          PLOT_HEIGHT,
          value_format_function,
          common.converted_y_label_format_generator('b'),
@@ -53,7 +52,7 @@ return function(update_freq, point)
          state[key]
       )
       return common.mk_acc(
-         geometry.SECTION_WIDTH,
+         width,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
          function(s) common.update_rate_timeseries(obj, s[key]) end,
          pure.partial(common.tagged_scaled_timeseries_draw_static, obj),
@@ -70,7 +69,7 @@ return function(update_freq, point)
    local rbs = common.reduce_blocks_(
       'NETWORK',
       point,
-      geometry.SECTION_WIDTH,
+      width,
       {
          {mk_rx, true, PLOT_SEC_BREAK},
          {mk_tx, true, 0},

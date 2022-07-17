@@ -33,8 +33,16 @@ modules:
 layout:
   anchor: [12, 11]
   panels:
-    - [[system, 19, graphics, 16, processor]]
+    - columns:
+        - {blocks: [system, 19, graphics, 16, processor], width: 436}
+      margins: [20, 10]
     - 10
-    - [[readwrite], 20, [network]]
+    - columns:
+        - {blocks: [readwrite], width: 436}
+        - 20
+        - {blocks: [network], width: 436}
+      margins: [20, 10]
     - 10
-    - [[pacman, 24, filesystem, 24, power, 19, memory]]
+    - columns:
+        - {blocks: [pacman, 24, filesystem, 24, power, 19, memory], width: 436}
+      margins: [20, 10]

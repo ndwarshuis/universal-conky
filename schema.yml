@@ -124,31 +124,51 @@ properties:
         items:
           type: integer
       panels:
-        description: either a panel (array) or padding between panels (int)
+        description: either a panel (object) or padding between panels (int)
         type: array
         items:
           anyOf:
             - type: integer
               minimum: 0
-            - type: array
-              description: |
-                either a list of columns in a panel (array) or padding between
-                columns (int)
-              minItems: 1
-              items:
-                anyOf:
-                  - type: integer
-                    minimum: 0
-                  - type: array
-                    description: |
-                      either a list of modules in a panel column (array) or
-                      padding between modules
-                    minItems: 1
-                    items:
-                      anyOf:
-                        - type: integer
-                          minimum: 0
-                        - type: string
-                          pattern:
-                            "^system|graphics|processor|readwrite|\
-                            network|pacman|filesystem|power|memory$"
+            - type: object
+              description: layout for a single panel
+              required: [columns, margins]
+              additionalProperties: false
+              properties:
+                margins:
+                  type: array
+                  minItems: 2
+                  maxItems: 2
+                  items:
+                    type: integer
+                columns:
+                  description: |
+                    either the columns in this panel (object) or padding
+                    between columns (int)
+                  type: array
+                  minItems: 1
+                  items:
+                    anyOf:
+                      - type: integer
+                        minimum: 0
+                      - type: object
+                        required: [blocks, width]
+                        additionalProperties: false
+                        properties:
+                          width:
+                            description: the width of all modules in this column
+                            type: integer
+                            minimum: 0
+                          blocks:
+                            description: |
+                              either a module name (string) or padding (int)
+                            type: array
+                            minItems: 1
+                            items:
+                              anyOf:
+                                - type: integer
+                                  minimum: 0
+                                - type: string
+                                  pattern:
+                                    "^system|graphics|processor|readwrite|\
+                                    network|pacman|filesystem|power|memory$"

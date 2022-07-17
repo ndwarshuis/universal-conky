@@ -1,9 +1,8 @@
 local pure			= require 'pure'
 local i_o			= require 'i_o'
 local common		= require 'common'
-local geometry		= require 'geometry'
 
-return function(update_freq, config, point)
+return function(update_freq, config, width, point)
    local SEPARATOR_SPACING = 20
    local TEXT_SPACING = 20
    local PLOT_SEC_BREAK = 20
@@ -29,7 +28,7 @@ return function(update_freq, config, point)
       local obj = common.make_tagged_maybe_percent_timeseries(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          PLOT_HEIGHT,
          PLOT_SEC_BREAK,
          label,
@@ -43,7 +42,7 @@ return function(update_freq, config, point)
       local static = pure.partial(common.tagged_percent_timeseries_draw_static, obj)
       local dynamic = pure.partial(common.tagged_percent_timeseries_draw_dynamic, obj)
       return common.mk_acc(
-         geometry.SECTION_WIDTH,
+         width,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
          update,
          static,
@@ -58,7 +57,7 @@ return function(update_freq, config, point)
       local obj = common.make_text_row(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          'Status'
       )
       local update = function(s)
@@ -70,12 +69,12 @@ return function(update_freq, config, point)
       end
       local static = pure.partial(common.text_row_draw_static, obj)
       local dynamic = pure.partial(common.text_row_draw_dynamic, obj)
-      return common.mk_acc(geometry.SECTION_WIDTH, 0, update, static, dynamic)
+      return common.mk_acc(width, 0, update, static, dynamic)
    end
 
    local mk_sep = pure.partial(
       common.mk_seperator,
-      geometry.SECTION_WIDTH,
+      width,
       point.x
    )
 
@@ -86,7 +85,7 @@ return function(update_freq, config, point)
       local obj = common.make_threshold_text_row(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          'Internal Temperature',
          function(s)
             if s == -1 then return NA else return string.format('%s°C', s) end
@@ -100,7 +99,7 @@ return function(update_freq, config, point)
       )
       local static = pure.partial(common.threshold_text_row_draw_static, obj)
       local dynamic = pure.partial(common.threshold_text_row_draw_dynamic, obj)
-      return common.mk_acc(geometry.SECTION_WIDTH, 0, update, static, dynamic)
+      return common.mk_acc(width, 0, update, static, dynamic)
    end
 
    -----------------------------------------------------------------------------
@@ -110,7 +109,7 @@ return function(update_freq, config, point)
       local obj = common.make_text_rows(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          TEXT_SPACING,
          {'GPU Clock Speed', 'memory Clock Speed'}
       )
@@ -125,7 +124,7 @@ return function(update_freq, config, point)
       end
       local static = pure.partial(common.text_rows_draw_static, obj)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, obj)
-      return common.mk_acc(geometry.SECTION_WIDTH, TEXT_SPACING, update, static, dynamic)
+      return common.mk_acc(width, TEXT_SPACING, update, static, dynamic)
    end
 
    -----------------------------------------------------------------------------
@@ -220,7 +219,7 @@ return function(update_freq, config, point)
    local rbs = common.reduce_blocks_(
       'NVIDIA GRAPHICS',
       point,
-      geometry.SECTION_WIDTH,
+      width,
       {{mk_status, true, SEPARATOR_SPACING}},
       common.mk_section(
          SEPARATOR_SPACING,

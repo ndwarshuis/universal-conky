@@ -1,10 +1,9 @@
 local format = require 'format'
 local pure = require 'pure'
 local common = require 'common'
-local geometry = require 'geometry'
 local sys = require 'sys'
 
-return function(update_freq, config, point)
+return function(update_freq, config, width, point)
    local TEXT_SPACING = 20
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
@@ -31,7 +30,7 @@ return function(update_freq, config, point)
       local obj = common.make_rate_timeseries(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          PLOT_HEIGHT,
          format_rapl,
          power_label_function,
@@ -42,7 +41,7 @@ return function(update_freq, config, point)
          read_joules()
       )
       return common.mk_acc(
-         geometry.SECTION_WIDTH,
+         width,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
          function(_) common.update_rate_timeseries(obj, read_joules()) end,
          mk_static(obj),
@@ -81,7 +80,7 @@ return function(update_freq, config, point)
       local obj = common.make_tagged_scaled_timeseries(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          PLOT_HEIGHT,
          format_ac,
          power_label_function,
@@ -91,7 +90,7 @@ return function(update_freq, config, point)
          update_freq
       )
       return common.mk_acc(
-         geometry.SECTION_WIDTH,
+         width,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
          function()
             common.tagged_scaled_timeseries_set(
@@ -110,7 +109,7 @@ return function(update_freq, config, point)
    return common.reduce_blocks_(
       'POWER',
       point,
-      geometry.SECTION_WIDTH,
+      width,
       pure.concat(
          pure.map(mk_rate_blockspec, config.rapl_specs),
          -- TODO what happens if this is nil?

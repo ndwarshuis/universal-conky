@@ -1,10 +1,9 @@
 local format = require 'format'
 local pure = require 'pure'
 local common = require 'common'
-local geometry = require 'geometry'
 local sys = require 'sys'
 
-return function(update_freq, config, point)
+return function(update_freq, config, width, point)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
    -- TODO currently this will find any block device
@@ -25,7 +24,7 @@ return function(update_freq, config, point)
       local obj = common.make_rate_timeseries(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          PLOT_HEIGHT,
          format_value_function,
          common.converted_y_label_format_generator('B'),
@@ -37,7 +36,7 @@ return function(update_freq, config, point)
       )
       return common.mk_acc(
          -- TODO construct this more sanely without referring to hardcoded vars
-         geometry.SECTION_WIDTH,
+         width,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
          function() common.update_rate_timeseries(obj, state[key]) end,
          pure.partial(common.tagged_scaled_timeseries_draw_static, obj),
@@ -54,7 +53,7 @@ return function(update_freq, config, point)
    local rbs = common.reduce_blocks_(
       'INPUT / OUTPUT',
       point,
-      geometry.SECTION_WIDTH,
+      width,
       {
          {mk_reads, true, PLOT_SEC_BREAK},
          {mk_writes, true, 0},

@@ -1,8 +1,7 @@
 local common = require 'common'
 local pure = require 'pure'
-local geometry = require 'geometry'
 
-return function(main_state, point)
+return function(main_state, width, point)
    local TEXT_SPACING = 20
 
    local __string_match = string.match
@@ -12,7 +11,7 @@ return function(main_state, point)
       local obj = common.make_text_rows(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          TEXT_SPACING,
          {'Total', 'Explicit', 'Outdated', 'Orphaned', 'Local'}
       )
@@ -34,7 +33,7 @@ return function(main_state, point)
          end
       end
       return common.mk_acc(
-         geometry.SECTION_WIDTH,
+         width,
          TEXT_SPACING * 4,
          update,
          pure.partial(common.text_rows_draw_static, obj),
@@ -45,7 +44,7 @@ return function(main_state, point)
    return common.reduce_blocks_(
       'PACMAN',
       point,
-      geometry.SECTION_WIDTH,
+      width,
       {{mk_stats, true, 0}}
    )
 end

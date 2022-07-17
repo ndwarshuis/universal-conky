@@ -1,11 +1,10 @@
 local i_o = require 'i_o'
 local common = require 'common'
-local geometry = require 'geometry'
 local pure = require 'pure'
 local impure = require 'impure'
 
 -- ASSUME pathspecs will be at least 1 long
-return function(config, main_state, point)
+return function(config, main_state, width, point)
    local SPACING = 20
    local BAR_PAD = 100
    local SEPARATOR_SPACING = 20
@@ -14,12 +13,7 @@ return function(config, main_state, point)
    -- smartd
 
    local mk_smart = function(y)
-      local obj = common.make_text_row(
-         point.x,
-         y,
-         geometry.SECTION_WIDTH,
-         'SMART Daemon'
-      )
+      local obj = common.make_text_row(point.x, y, width, 'SMART Daemon')
       local update = function()
          if main_state.trigger10 == 0 then
             local pid = i_o.execute_cmd('pidof smartd', nil, '*n')
@@ -27,7 +21,7 @@ return function(config, main_state, point)
          end
       end
       return common.mk_acc(
-         geometry.SECTION_WIDTH,
+         width,
          0,
          update,
          pure.partial(common.text_row_draw_static, obj),
@@ -35,11 +29,7 @@ return function(config, main_state, point)
       )
    end
 
-   local mk_sep = pure.partial(
-      common.mk_seperator,
-      geometry.SECTION_WIDTH,
-      point.x
-   )
+   local mk_sep = pure.partial(common.mk_seperator, width, point.x)
 
    -----------------------------------------------------------------------------
    -- filesystem bar chart
@@ -55,7 +45,7 @@ return function(config, main_state, point)
       local obj = common.make_compound_bar(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          BAR_PAD,
          names,
          SPACING,
@@ -71,7 +61,7 @@ return function(config, main_state, point)
          end
       end
       return common.mk_acc(
-         geometry.SECTION_WIDTH,
+         width,
          (#config.fs_paths - 1) * SPACING,
          update,
          pure.partial(common.compound_bar_draw_static, obj),
@@ -85,7 +75,7 @@ return function(config, main_state, point)
    return common.reduce_blocks_(
       'FILE SYSTEMS',
       point,
-      geometry.SECTION_WIDTH,
+      width,
       {{mk_smart, config.show_smart, SEPARATOR_SPACING}},
       common.mk_section(SEPARATOR_SPACING, mk_sep, {mk_bars, true, 0})
    )

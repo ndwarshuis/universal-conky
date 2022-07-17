@@ -1,9 +1,8 @@
 local i_o = require 'i_o'
 local pure = require 'pure'
 local common = require 'common'
-local geometry = require 'geometry'
 
-return function(main_state, point)
+return function(main_state, width, point)
    local TEXT_SPACING = 20
 
    local __string_match = string.match
@@ -12,7 +11,7 @@ return function(main_state, point)
       local obj = common.make_text_rows(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          TEXT_SPACING,
          {'Kernel', 'Uptime', 'Last Upgrade', 'Last Sync'}
       )
@@ -33,7 +32,7 @@ return function(main_state, point)
       local static = pure.partial(common.text_rows_draw_static, obj)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, obj)
       return common.mk_acc(
-         geometry.SECTION_WIDTH,
+         width,
          TEXT_SPACING * 3,
          update,
          static,
@@ -44,7 +43,7 @@ return function(main_state, point)
    return common.reduce_blocks_(
       'SYSTEM',
       point,
-      geometry.SECTION_WIDTH,
+      width,
       {{mk_stats, true, 0}}
    )
 end

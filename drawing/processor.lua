@@ -2,13 +2,12 @@ local compound_dial = require 'compound_dial'
 local text_table = require 'text_table'
 local i_o = require 'i_o'
 local common = require 'common'
-local geometry = require 'geometry'
 local cpu = require 'sys'
 local pure = require 'pure'
 
 local __math_floor = math.floor
 
-return function(update_freq, config, main_state, point)
+return function(update_freq, config, main_state, width, point)
    local DIAL_INNER_RADIUS = 30
    local DIAL_OUTER_RADIUS = 42
    local DIAL_THICKNESS = 5.5
@@ -63,7 +62,7 @@ return function(update_freq, config, main_state, point)
       -- TODO what happens when the number of cores changes?
       for c = 1, ncores do
          local dial_x = point.x + DIAL_OUTER_RADIUS +
-            (geometry.SECTION_WIDTH - 2 * DIAL_OUTER_RADIUS) * (c - 1) / 3
+            (width - 2 * DIAL_OUTER_RADIUS) * (c - 1) / 3
          local dial_y = y + DIAL_OUTER_RADIUS
          cores[c] = create_core(dial_x, dial_y)
       end
@@ -93,7 +92,7 @@ return function(update_freq, config, main_state, point)
          end
       end
       return common.mk_acc(
-         geometry.SECTION_WIDTH,
+         width,
          DIAL_OUTER_RADIUS * 2,
          update,
          static,
@@ -109,7 +108,7 @@ return function(update_freq, config, main_state, point)
       local cpu_status = common.make_text_rows(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          TEXT_SPACING,
          {'HWP Preference', 'Ave Freq'}
       )
@@ -125,7 +124,7 @@ return function(update_freq, config, main_state, point)
       local static = pure.partial(common.text_rows_draw_static, cpu_status)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, cpu_status)
       return common.mk_acc(
-         geometry.SECTION_WIDTH,
+         width,
          TEXT_SPACING,
          update,
          static,
@@ -138,7 +137,7 @@ return function(update_freq, config, main_state, point)
 
    local mk_sep = pure.partial(
       common.mk_seperator,
-      geometry.SECTION_WIDTH,
+      width,
       point.x
    )
 
@@ -149,7 +148,7 @@ return function(update_freq, config, main_state, point)
       local total_load = common.make_tagged_percent_timeseries(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          PLOT_HEIGHT,
          PLOT_SECTION_BREAK,
          "Total Load",
@@ -165,7 +164,7 @@ return function(update_freq, config, main_state, point)
       local static = pure.partial(common.tagged_percent_timeseries_draw_static, total_load)
       local dynamic = pure.partial(common.tagged_percent_timeseries_draw_dynamic, total_load)
       return common.mk_acc(
-         geometry.SECTION_WIDTH,
+         width,
          PLOT_HEIGHT + PLOT_SECTION_BREAK,
          update,
          static,
@@ -185,7 +184,7 @@ return function(update_freq, config, main_state, point)
       local tbl = common.make_text_table(
          point.x,
          y,
-         geometry.SECTION_WIDTH,
+         width,
          TABLE_HEIGHT,
          NUM_ROWS,
          'CPU (%)'
@@ -204,7 +203,7 @@ return function(update_freq, config, main_state, point)
       local static = pure.partial(text_table.draw_static, tbl)
       local dynamic = pure.partial(text_table.draw_dynamic, tbl)
       return common.mk_acc(
-         geometry.SECTION_WIDTH,
+         width,
          TABLE_HEIGHT,
          update,
          static,
@@ -218,7 +217,7 @@ return function(update_freq, config, main_state, point)
    local rbs = common.reduce_blocks_(
       'PROCESSOR',
       point,
-      geometry.SECTION_WIDTH,
+      width,
       {
          {mk_cores, config.show_cores, TEXT_SPACING},
          {mk_hwp_freq, config.show_stats, SEPARATOR_SPACING},
