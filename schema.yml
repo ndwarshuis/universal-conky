@@ -172,3 +172,96 @@ properties:
                                   pattern:
                                     "^system|graphics|processor|readwrite|\
                                     network|pacman|filesystem|power|memory$"
+
+  theme:
+    required: [font, patterns]
+    additionalProperties: false
+    properties:
+      font:
+        description: the font to use
+        type: string
+      patterns:
+        required: [header, panel, text, border, plot, indicator]
+        additionalProperties: false
+        properties:
+          header: &pattern
+            oneOf:
+              - type: integer
+              - type: object
+                oneOf:
+                  - required: [color, alpha]
+                  - required: [gradient]
+                  - required: [gradient_alpha]
+                properties:
+                  color:
+                    type: integer
+                  alpha:
+                    anyOf:
+                      - type: "null"
+                      - &alpha {type: number, minimum: 0, maximum: 1}
+                  gradient:
+                    type: array
+                    minItems: 2
+                    items:
+                      type: object
+                      required: [stop, color]
+                      additionalProperties: false
+                      properties: &gradient
+                        stop:
+                          type: number
+                          minimum: 0
+                          maximum: 1
+                        color:
+                          type: integer
+
+                  gradient_alpha:
+                    type: array
+                    minItems: 2
+                    items:
+                      type: object
+                      required: [stop, color, alpha]
+                      additionalProperties: false
+                      properties:
+                        <<: *gradient
+                        alpha: *alpha
+
+          panel:
+            required: [bg]
+            additionalProperties: false
+            properties:
+              bg: *pattern
+
+          text:
+            required: [active, inactive, critical]
+            additionalProperties: false
+            properties:
+              active: *pattern
+              inactive: *pattern
+              critical: *pattern
+
+          border: *pattern
+
+          plot:
+            required: [grid, outline, data]
+            additionalProperties: false
+            properties:
+              grid: *pattern
+              outline: *pattern
+              data:
+                required: [border, fill]
+                additionalProperties: false
+                properties:
+                  border: *pattern
+                  fill: *pattern
+
+          indicator:
+            required: [bg, fg]
+            additionalProperties: false
+            properties:
+              bg: *pattern
+              fg:
+                required: [active, critical]
+                additionalProperties: false
+                properties:
+                  active: *pattern
+                  critical: *pattern

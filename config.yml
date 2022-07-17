@@ -30,6 +30,7 @@ modules:
     show_table: true
   readwrite:
     devices: [sda, nvme0n1]
+
 layout:
   anchor: [12, 11]
   panels:
@@ -46,3 +47,44 @@ layout:
     - columns:
         - {blocks: [pacman, 24, filesystem, 24, power, 19, memory], width: 436}
       margins: [20, 10]
+
+theme:
+  font: Neuropolitical
+  patterns:
+    header: 0xefefef
+    panel:
+      bg: {color: 0x121212, alpha: 0.7}
+    text:
+      active: 0xbfe1ff
+      inactive: 0xc8c8c8
+      critical: 0xff8282
+    border: 0x888888
+    plot:
+      grid: 0x666666
+      outline: 0x777777
+      data:
+        border: 
+          gradient:
+            - {stop: 0, color: 0x003f7c}
+            - {stop: 1, color: 0x1e90ff}
+        fill:
+          gradient_alpha:
+            - {stop: 0.2, color: 0x003f7c, alpha: 0.5}
+            - {stop: 1, color: 0x1e90ff, alpha: 1.0}
+    indicator:
+      bg:
+        gradient:
+          - {stop: 0, color: 0x565656}
+          - {stop: 0.5, color: 0xbfbfbf}
+          - {stop: 1, color: 0x565656}
+      fg:
+        active:
+          gradient:
+            - {stop: 0, color: 0x316BA6}
+            - {stop: 0.5, color: 0x99CEFF}
+            - {stop: 1, color: 0x316BA6}
+        critical:
+          gradient:
+            - {stop: 0, color: 0xFF3333}
+            - {stop: 0.5, color: 0xFFB8B8}
+            - {stop: 1, color: 0xFF3333}
