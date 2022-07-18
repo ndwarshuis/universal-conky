@@ -2,6 +2,7 @@ local timeseries = require 'timeseries'
 local text_table = require 'text_table'
 local i_o = require 'i_o'
 local pure = require 'pure'
+local sys = require 'sys'
 
 return function(update_freq, config, common, width, point)
    local DIAL_THICKNESS = 8
@@ -14,39 +15,25 @@ return function(update_freq, config, common, width, point)
    local PLOT_HEIGHT = 56
    local TABLE_SECTION_BREAK = 20
 
-   local __string_match	= string.match
    local __math_floor = math.floor
 
    -----------------------------------------------------------------------------
    -- state
 
-   local use_swap = false
+   local mod_state = {mem = {total = sys.meminfo_field_reader('MemTotal')()}}
+   local update_state
 
-   local MEMINFO_REGEX = '\nMemFree:%s+(%d+).+'..
-      '\nBuffers:%s+(%d+).+'..
-      '\nCached:%s+(%d+).+'..
-      '\nSwapFree:%s+(%d+).+'..
-      '\nShmem:%s+(%d+).+'..
-      '\nSReclaimable:%s+(%d+)'
-
-   local get_meminfo_field = function(field)
-      return tonumber(i_o.read_file('/proc/meminfo', field..':%s+(%d+)'))
+   if config.show_swap == true then
+      mod_state.swap = {total = sys.meminfo_field_reader('SwapTotal')()}
+      update_state = sys.meminfo_updater_swap(mod_state.mem, mod_state.swap)
+   else
+      update_state = sys.meminfo_updater_noswap(mod_state.mem)
    end
 
-   local mod_state = {
-      mem = {total = get_meminfo_field('MemTotal')},
-      swap = {total = get_meminfo_field('SwapTotal')}
-   }
    local read_state = function()
-      local m = mod_state.mem
+      update_state()
       -- see manpage for free command for formulas
-      m.memfree,
-         m.buffers,
-         m.cached,
-         mod_state.swap.free,
-         m.shmem,
-         m.sreclaimable
-         = __string_match(i_o.read_file('/proc/meminfo'), MEMINFO_REGEX)
+      local m = mod_state.mem
       m.used_percent =
          (m.total -
           m.memfree -
@@ -54,7 +41,6 @@ return function(update_freq, config, common, width, point)
           m.buffers -
           m.sreclaimable) / m.total
    end
-
 
    -----------------------------------------------------------------------------
    -- mem stats (dial + text)
@@ -64,7 +50,7 @@ return function(update_freq, config, common, width, point)
       local DIAL_DIAMETER = DIAL_RADIUS * 2 + DIAL_THICKNESS
       local CACHE_X
       local SWAP_X
-      if use_swap == true then
+      if config.show_swap == true then
          SWAP_X = MEM_X + DIAL_DIAMETER + DIAL_SPACING
          CACHE_X = SWAP_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
       else
@@ -114,7 +100,7 @@ return function(update_freq, config, common, width, point)
       local ret = pure.partial(common.mk_acc, width, DIAL_DIAMETER)
 
       -- add swap bits if needed
-      if use_swap == true then
+      if config.show_swap == true then
          local swap = common.make_dial(
             SWAP_X,
             y + DIAL_RADIUS,

@@ -55,6 +55,9 @@ properties:
           show_stats:
             description: show memory stats/dial
             type: boolean
+          show_swap:
+            description: show swap dial
+            type: boolean
           show_plot:
             description: show the RAM utilization plot
             type: boolean

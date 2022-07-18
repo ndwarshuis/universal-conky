@@ -16,6 +16,7 @@ modules:
     show_vid_util: true
   memory:
     show_stats: true
+    show_swap: false
     show_plot: true
     table_rows: 5
   power:
