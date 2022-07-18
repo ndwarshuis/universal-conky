@@ -20,6 +20,8 @@ return function(update_freq, config, common, width, point)
    -----------------------------------------------------------------------------
    -- state
 
+   local use_swap = false
+
    local MEMINFO_REGEX = '\nMemFree:%s+(%d+).+'..
       '\nBuffers:%s+(%d+).+'..
       '\nCached:%s+(%d+).+'..
@@ -60,23 +62,22 @@ return function(update_freq, config, common, width, point)
    local mk_stats = function(y)
       local MEM_X = point.x + DIAL_RADIUS + DIAL_THICKNESS / 2
       local DIAL_DIAMETER = DIAL_RADIUS * 2 + DIAL_THICKNESS
-      local SWAP_X = MEM_X + DIAL_DIAMETER + DIAL_SPACING
-      local CACHE_X = SWAP_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
+      local CACHE_X
+      local SWAP_X
+      if use_swap == true then
+         SWAP_X = MEM_X + DIAL_DIAMETER + DIAL_SPACING
+         CACHE_X = SWAP_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
+      else
+         CACHE_X = MEM_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
+      end
       local CACHE_WIDTH = point.x + width - CACHE_X
       local format_percent = function(x)
          return string.format('%i%%', x)
       end
+
+      -- memory bits (used no matter what)
       local mem = common.make_dial(
          MEM_X,
-         y + DIAL_RADIUS,
-         DIAL_RADIUS,
-         DIAL_THICKNESS,
-         80,
-         format_percent,
-         __math_floor
-      )
-      local swap = common.make_dial(
-         SWAP_X,
          y + DIAL_RADIUS,
          DIAL_RADIUS,
          DIAL_THICKNESS,
@@ -92,28 +93,51 @@ return function(update_freq, config, common, width, point)
          {'Page Cache', 'Buffers', 'Shared', 'Kernel Slab'},
          '%.1f%%'
       )
-      local update = function()
+      local update_mem = function()
          local m = mod_state.mem
-         local w = mod_state.swap
+         local mtot = m.total
          common.dial_set(mem, m.used_percent * 100)
-         common.dial_set(swap, (w.total - w.free) / w.total * 100)
 
-         common.text_rows_set(cache, 1, m.cached / m.total * 100)
-         common.text_rows_set(cache, 2, m.buffers / m.total * 100)
-         common.text_rows_set(cache, 3, m.shmem / m.total * 100)
-         common.text_rows_set(cache, 4, m.sreclaimable / m.total * 100)
+         common.text_rows_set(cache, 1, m.cached / mtot * 100)
+         common.text_rows_set(cache, 2, m.buffers / mtot * 100)
+         common.text_rows_set(cache, 3, m.shmem / mtot * 100)
+         common.text_rows_set(cache, 4, m.sreclaimable / mtot * 100)
       end
-      local static = function(cr)
+      local static_mem = function(cr)
          common.dial_draw_static(mem, cr)
-         common.dial_draw_static(swap, cr)
          common.text_rows_draw_static(cache, cr)
       end
-      local dynamic = function(cr)
+      local dynamic_mem = function(cr)
          common.dial_draw_dynamic(mem, cr)
-         common.dial_draw_dynamic(swap, cr)
          common.text_rows_draw_dynamic(cache, cr)
       end
-      return common.mk_acc(width, DIAL_DIAMETER, update, static, dynamic)
+      local ret = pure.partial(common.mk_acc, width, DIAL_DIAMETER)
+
+      -- add swap bits if needed
+      if use_swap == true then
+         local swap = common.make_dial(
+            SWAP_X,
+            y + DIAL_RADIUS,
+            DIAL_RADIUS,
+            DIAL_THICKNESS,
+            80,
+            format_percent,
+            __math_floor
+         )
+         local update_swap = function()
+            local w = mod_state.swap
+            common.dial_set(swap, (w.total - w.free) / w.total * 100)
+         end
+         local static_swap = pure.partial(common.dial_draw_static, swap)
+         local dynamic_swap = pure.partial(common.dial_draw_dynamic, swap)
+         return ret(
+            pure.sequence(update_mem, update_swap),
+            pure.sequence(static_mem, static_swap),
+            pure.sequence(dynamic_mem, dynamic_swap)
+         )
+      else
+         return ret(update_mem, static_mem, dynamic_mem)
+      end
    end
 
    -----------------------------------------------------------------------------
