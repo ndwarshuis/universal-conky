@@ -182,7 +182,7 @@ return function(update_freq, config, common, width, point)
       header = 'MEMORY',
       point = point,
       width = width,
-      update_wrapper = function(f) return function(_) read_state() f() end end,
+      set_state = read_state,
       top = {
          {mk_stats, config.show_stats, PLOT_SECTION_BREAK},
          {mk_plot, config.show_plot, TABLE_SECTION_BREAK},

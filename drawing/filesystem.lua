@@ -71,7 +71,7 @@ return function(config, main_state, common, width, point)
       header = 'FILE SYSTEMS',
       point = point,
       width = width,
-      update_wrapper = nil,
+      set_state = nil,
       top = {{mk_smart, config.show_smart, SEPARATOR_SPACING}},
       common.mk_section(SEPARATOR_SPACING, {mk_bars, true, 0})
    }

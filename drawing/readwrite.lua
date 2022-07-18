@@ -5,11 +5,13 @@ local sys = require 'sys'
 return function(update_freq, config, common, width, point)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
-   -- TODO currently this will find any block device
-   local DEVICE_PATHS = sys.get_disk_paths(config.devices)
 
-   local state = {read = 0, write = 0}
-   state.read, state.write = sys.get_total_disk_io(DEVICE_PATHS)
+   local mod_state = {read = 0, write = 0}
+   local device_paths = sys.get_disk_paths(config.devices)
+
+   local update_state = function()
+      mod_state.read, mod_state.write = sys.get_total_disk_io(device_paths)
+   end
 
    local format_value_function = function(bps)
       local unit, value = format.convert_data_val(bps)
@@ -31,13 +33,13 @@ return function(update_freq, config, common, width, point)
          label,
          2,
          update_freq,
-         state[key]
+         mod_state[key]
       )
       return common.mk_acc(
          -- TODO construct this more sanely without referring to hardcoded vars
          width,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
-         function() common.update_rate_timeseries(obj, state[key]) end,
+         function() common.update_rate_timeseries(obj, mod_state[key]) end,
          pure.partial(common.tagged_scaled_timeseries_draw_static, obj),
          pure.partial(common.tagged_scaled_timeseries_draw_dynamic, obj)
       )
@@ -53,12 +55,7 @@ return function(update_freq, config, common, width, point)
       header = 'INPUT / OUTPUT',
       point = point,
       width = width,
-      update_wrapper = function(f)
-         return function(_)
-            state.read, state.write = sys.get_total_disk_io(DEVICE_PATHS)
-            f()
-         end
-      end,
+      set_state = update_state,
       top = {
          {mk_reads, true, PLOT_SEC_BREAK},
          {mk_writes, true, 0},

@@ -208,12 +208,7 @@ return function(update_freq, config, main_state, common, width, point)
       header = 'PROCESSOR',
       point = point,
       width = width,
-      update_wrapper = function(f)
-         return function()
-            update_state()
-            f()
-         end
-      end,
+      set_state = update_state,
       top = {
          {mk_cores, config.show_cores, TEXT_SPACING},
          {mk_hwp_freq, config.show_stats, SEPARATOR_SPACING},

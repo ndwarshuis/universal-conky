@@ -212,7 +212,7 @@ return function(update_freq, config, common, width, point)
       header = 'NVIDIA GRAPHICS',
       point = point,
       width = width,
-      update_wrapper = function(f) return function(_) update_state() f() end end,
+      set_state = update_state,
       top = {{mk_status, true, SEPARATOR_SPACING}},
       common.mk_section(
          SEPARATOR_SPACING,

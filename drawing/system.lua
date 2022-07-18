@@ -43,7 +43,7 @@ return function(main_state, common, width, point)
       header = 'SYSTEM',
       point = point,
       width = width,
-      update_wrapper = nil,
+      set_state = nil,
       top = {{mk_stats, true, 0}}
    }
 end

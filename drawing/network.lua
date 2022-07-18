@@ -68,7 +68,7 @@ return function(update_freq, common, width, point)
       header = 'NETWORK',
       point = point,
       width = width,
-      update_wrapper = function(f) return function(_) read_interfaces() f() end end,
+      set_state = read_interfaces,
       top = {
          {mk_rx, true, PLOT_SEC_BREAK},
          {mk_tx, true, 0},
