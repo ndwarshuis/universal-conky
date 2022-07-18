@@ -56,16 +56,12 @@ return function(config)
    local M = {}
 
    local patterns = compile_patterns(config.theme.patterns)
+   local font = config.theme.font
+   local font_sizes = font.sizes
+   local font_family = font.family
 
    -----------------------------------------------------------------------------
    -- constants
-
-   local FONT = config.theme.font
-
-   local NORMAL_FONT_SIZE = 13
-   local PLOT_LABEL_FONT_SIZE = 8
-   local TABLE_FONT_SIZE = 11
-   local HEADER_FONT_SIZE = 15
 
    local HEADER_HEIGHT = 45
    local HEADER_UNDERLINE_CAP = CAIRO_LINE_CAP_ROUND
@@ -103,13 +99,13 @@ return function(config)
    return {
        family = f,
        size = size,
-       weight = bold and CAIRO_FONT_WEIGHT_BOLD or CAIRO_FONT_WEIGHT_NORMAL,
-       slant = CAIRO_FONT_WEIGHT_NORMAL,
+       weight = bold and CAIRO_font_family_WEIGHT_BOLD or CAIRO_font_family_WEIGHT_NORMAL,
+       slant = CAIRO_font_family_WEIGHT_NORMAL,
    }
    end
 
-   local normal_font_spec = make_font_spec(FONT, NORMAL_FONT_SIZE, false)
-   local label_font_spec = make_font_spec(FONT, PLOT_LABEL_FONT_SIZE, false)
+   local normal_font_spec = make_font_spec(font_family, font_sizes.normal, false)
+   local label_font_spec = make_font_spec(font_family, font_sizes.plot_label, false)
 
    local _text_row_style = function(x_align, color)
       return text.config(normal_font_spec, color, x_align, 'center')
@@ -218,7 +214,7 @@ return function(config)
            geom.make_point(x, y),
            _text,
            text.config(
-               make_font_spec(FONT, HEADER_FONT_SIZE, true),
+               make_font_spec(font_family, font_sizes.header, true),
                patterns.header,
                'left',
                'top'
@@ -629,7 +625,7 @@ return function(config)
    -----------------------------------------------------------------------------
    -- table
 
-   local default_table_font_spec = make_font_spec(FONT, TABLE_FONT_SIZE, false)
+   local default_table_font_spec = make_font_spec(font_family, font_sizes.table, false)
 
    local default_table_config = function(label)
    return tbl.config(
@@ -671,6 +667,10 @@ return function(config)
        n,
        default_table_config(label)
    )
+   end
+
+   M.table_height = function(n)
+      return TABLE_VERT_PAD * 2 + TABLE_HEADER_PAD + 13 * n
    end
 
    -----------------------------------------------------------------------------

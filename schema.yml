@@ -49,7 +49,7 @@ properties:
             type: boolean
 
       memory:
-        required: [show_stats, show_plot, show_table]
+        required: [show_stats, show_plot, table_rows]
         additionalProperties: false
         properties:
           show_stats:
@@ -58,9 +58,10 @@ properties:
           show_plot:
             description: show the RAM utilization plot
             type: boolean
-          show_table:
-            description: show the memory process table
-            type: boolean
+          table_rows: &table
+            descrition: the number of rows in the table (0 for no table)
+            type: integer
+            minimum: 0
 
       power:
         required: [battery, rapl_specs]
@@ -85,21 +86,24 @@ properties:
                   type: string
 
       processor:
-        required: [show_cores, show_stats, show_plot, show_table]
+        required: [core_rows, show_stats, show_plot, table_rows]
         additionalProperties: false
         properties:
-          show_cores:
-            description: show individual CPU cores
-            type: boolean
+          core_rows:
+            description: the number of rows over which to show discrete cores
+            type: integer
+            minimum: 0
+          core_padding:
+            description: horizontal padding to apply to the core layout
+            type: integer
+            minimum: 0
           show_stats:
             description: show frequency/HWP stats
             type: boolean
           show_plot:
             description: show CPU utilization plot
             type: boolean
-          show_table:
-            description: show the CPU process table
-            type: boolean
+          table_rows: *table
 
       readwrite:
         required: [devices]
@@ -178,8 +182,21 @@ properties:
     additionalProperties: false
     properties:
       font:
-        description: the font to use
-        type: string
+        required: [family, sizes]
+        additionalProperties: false
+        properties:
+          family:
+            type: string
+          sizes:
+            required: [normal, plot_label, table, header]
+            additionalProperties: false
+            properties:
+              normal: &font_size
+                type: integer
+                minimum: 5
+              plot_label: *font_size
+              table: *font_size
+              header: *font_size
       patterns:
         required: [header, panel, text, border, plot, indicator]
         additionalProperties: false

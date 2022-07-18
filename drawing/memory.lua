@@ -13,7 +13,6 @@ return function(update_freq, config, common, width, point)
    local PLOT_SECTION_BREAK = 22
    local PLOT_HEIGHT = 56
    local TABLE_SECTION_BREAK = 20
-   local TABLE_HEIGHT = 114
 
    local __string_match	= string.match
    local __math_floor = math.floor
@@ -141,8 +140,9 @@ return function(update_freq, config, common, width, point)
    -- memory top table
 
    local mk_tbl = function(y)
-      local NUM_ROWS = 5
-      local TABLE_CONKY = pure.map_n(
+      local num_rows = config.table_rows
+      local table_height = common.table_height(num_rows)
+      local table_conky = pure.map_n(
          function(i)
             return {
                comm = '${top_mem name '..i..'}',
@@ -150,25 +150,25 @@ return function(update_freq, config, common, width, point)
                mem = '${top_mem mem '..i..'}',
             }
          end,
-         NUM_ROWS)
+         num_rows)
       local obj = common.make_text_table(
          point.x,
          y,
          width,
-         TABLE_HEIGHT,
-         NUM_ROWS,
+         table_height,
+         num_rows,
          'Mem (%)'
       )
       local update = function()
-         for r = 1, NUM_ROWS do
-            text_table.set(obj, 1, r, i_o.conky(TABLE_CONKY[r].comm, '(%S+)'))
-            text_table.set(obj, 2, r, i_o.conky(TABLE_CONKY[r].pid))
-            text_table.set(obj, 3, r, i_o.conky(TABLE_CONKY[r].mem))
+         for r = 1, num_rows do
+            text_table.set(obj, 1, r, i_o.conky(table_conky[r].comm, '(%S+)'))
+            text_table.set(obj, 2, r, i_o.conky(table_conky[r].pid))
+            text_table.set(obj, 3, r, i_o.conky(table_conky[r].mem))
          end
       end
       return common.mk_acc(
          width,
-         TABLE_HEIGHT,
+         table_height,
          update,
          pure.partial(text_table.draw_static, obj),
          pure.partial(text_table.draw_dynamic, obj)
@@ -186,7 +186,7 @@ return function(update_freq, config, common, width, point)
       top = {
          {mk_stats, config.show_stats, PLOT_SECTION_BREAK},
          {mk_plot, config.show_plot, TABLE_SECTION_BREAK},
-         {mk_tbl, config.show_table, 0},
+         {mk_tbl, config.table_rows > 0, 0},
       }
    }
 end

@@ -10,12 +10,12 @@ return function(update_freq, config, main_state, common, width, point)
    local DIAL_INNER_RADIUS = 30
    local DIAL_OUTER_RADIUS = 42
    local DIAL_THICKNESS = 5.5
+   local DIAL_SPACING = 20
    local SEPARATOR_SPACING = 20
    local TEXT_SPACING = 22
    local PLOT_SECTION_BREAK = 23
    local PLOT_HEIGHT = 56
    local TABLE_SECTION_BREAK = 20
-   local TABLE_HEIGHT = 114
 
    -----------------------------------------------------------------------------
    -- processor state
@@ -32,6 +32,22 @@ return function(update_freq, config, main_state, common, width, point)
    local ncpus = cpu.get_cpu_number()
    local ncores = cpu.get_core_number()
    local nthreads = ncpus / ncores
+
+   local show_cores = false
+
+   if config.core_rows > 0 then
+      if math.fmod(ncores, config.core_rows) == 0 then
+         show_cores = true
+      else
+         print(
+            string.format(
+               'WARNING: could not evenly distribute %i cores over %i rows',
+               ncores,
+               config.core_rows
+            )
+         )
+      end
+   end
 
    local create_core = function(x, y)
       return {
@@ -57,12 +73,23 @@ return function(update_freq, config, main_state, common, width, point)
 
    local mk_cores = function(y)
       local coretemp_paths = cpu.get_coretemp_paths()
+      local core_cols = ncores / config.core_rows
       local cores = {}
-      -- TODO what happens when the number of cores changes?
       for c = 1, ncores do
-         local dial_x = point.x + DIAL_OUTER_RADIUS +
-            (width - 2 * DIAL_OUTER_RADIUS) * (c - 1) / 3
-         local dial_y = y + DIAL_OUTER_RADIUS
+         local dial_x
+         local dial_y
+         if core_cols == 1 then
+            dial_x = point.x + width / 2
+            dial_y = y + DIAL_OUTER_RADIUS +
+               (2 * DIAL_OUTER_RADIUS + DIAL_SPACING) * (c - 1)
+         else
+            dial_x = point.x + config.core_padding + DIAL_OUTER_RADIUS +
+               (width - 2 * (DIAL_OUTER_RADIUS + config.core_padding))
+               * math.fmod(c - 1, core_cols) / (core_cols - 1)
+            dial_y = y + DIAL_OUTER_RADIUS +
+               (2 * DIAL_OUTER_RADIUS + DIAL_SPACING)
+               * math.floor((c - 1) / core_cols) / (core_cols - 1)
+         end
          cores[c] = create_core(dial_x, dial_y)
       end
       local update = function()
@@ -92,7 +119,8 @@ return function(update_freq, config, main_state, common, width, point)
       end
       return common.mk_acc(
          width,
-         DIAL_OUTER_RADIUS * 2,
+         (DIAL_OUTER_RADIUS * 2 + DIAL_SPACING) * config.core_rows
+         - DIAL_SPACING,
          update,
          static,
          dynamic
@@ -166,38 +194,36 @@ return function(update_freq, config, main_state, common, width, point)
    -- cpu top table
 
    local mk_tbl = function(y)
-      local NUM_ROWS = 5
-      local TABLE_CONKY = pure.map_n(
+      local num_rows = config.table_rows
+      local table_height = common.table_height(num_rows)
+      local table_conky = pure.map_n(
          function(i) return {pid = '${top pid '..i..'}', cpu = '${top cpu '..i..'}'} end,
-         NUM_ROWS
+         num_rows
       )
       local tbl = common.make_text_table(
          point.x,
          y,
          width,
-         TABLE_HEIGHT,
-         NUM_ROWS,
+         table_height,
+         num_rows,
          'CPU (%)'
       )
-      local update = function(state_)
-         for r = 1, NUM_ROWS do
-            local pid = i_o.conky(TABLE_CONKY[r].pid, '(%d+)') -- may have leading spaces
+      local update = function()
+         for r = 1, num_rows do
+            local pid = i_o.conky(table_conky[r].pid, '(%d+)') -- may have leading spaces
             if pid ~= '' then
                text_table.set(tbl, 1, r, i_o.read_file('/proc/'..pid..'/comm', '(%C+)'))
                text_table.set(tbl, 2, r, pid)
-               text_table.set(tbl, 3, r, i_o.conky(TABLE_CONKY[r].cpu))
+               text_table.set(tbl, 3, r, i_o.conky(table_conky[r].cpu))
             end
          end
-         return state_
       end
-      local static = pure.partial(text_table.draw_static, tbl)
-      local dynamic = pure.partial(text_table.draw_dynamic, tbl)
       return common.mk_acc(
          width,
-         TABLE_HEIGHT,
+         table_height,
          update,
-         static,
-         dynamic
+         pure.partial(text_table.draw_static, tbl),
+         pure.partial(text_table.draw_dynamic, tbl)
       )
    end
 
@@ -210,13 +236,13 @@ return function(update_freq, config, main_state, common, width, point)
       width = width,
       set_state = update_state,
       top = {
-         {mk_cores, config.show_cores, TEXT_SPACING},
+         {mk_cores, show_cores, TEXT_SPACING},
          {mk_hwp_freq, config.show_stats, SEPARATOR_SPACING},
       },
       common.mk_section(
          SEPARATOR_SPACING,
          {mk_load_plot, config.show_plot, TABLE_SECTION_BREAK},
-         {mk_tbl, config.show_table, 0}
+         {mk_tbl, config.table_rows > 0, 0}
       )
    }
 end

@@ -17,17 +17,18 @@ modules:
   memory:
     show_stats: true
     show_plot: true
-    show_table: true
+    table_rows: 5
   power:
     battery: BAT0
     rapl_specs:
       - {name: PKG0, address: intel-rapl:0}
       - {name: DRAM, address: intel-rapl:0:2}
   processor:
-    show_cores: true
+    core_rows: 1
+    core_padding: 0
     show_stats: true
     show_plot: true
-    show_table: true
+    table_rows: 5
   readwrite:
     devices: [sda, nvme0n1]
 
@@ -49,7 +50,13 @@ layout:
       margins: [20, 10]
 
 theme:
-  font: Neuropolitical
+  font:
+    family: Neuropolitical
+    sizes:
+      normal: 13
+      plot_label: 8
+      table: 11
+      header: 15
   patterns:
     header: 0xefefef
     panel:
