@@ -14,6 +14,8 @@ return function(main_state, common, width, point)
          TEXT_SPACING,
          {'Kernel', 'Uptime', 'Last Upgrade', 'Last Sync'}
       )
+      -- just update this once
+      common.text_rows_set(obj, 1, i_o.conky('$kernel'))
       local update = function()
          local last_update, last_sync
          if main_state.pacman_stats then
@@ -22,8 +24,6 @@ return function(main_state, common, width, point)
                "^%d+%s+([^%s]+)%s+([^%s]+).*"
             )
          end
-         -- TODO this doesn't need to be updated every time
-         common.text_rows_set(obj, 1, i_o.conky('$kernel'))
          common.text_rows_set(obj, 2, i_o.conky('$uptime'))
          common.text_rows_set(obj, 3, last_update)
          common.text_rows_set(obj, 4, last_sync)

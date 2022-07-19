@@ -58,6 +58,18 @@ theme:
       plot_label: 8
       table: 11
       header: 15
+  geometry:
+    plot:
+      seconds: 90
+      ticks: [9, 4]
+    table:
+      name_chars: 8
+      padding: [6, 15]
+      header_padding: 20
+      row_spacing: 13
+    header:
+      underline_offset: 26
+      padding: 19
   patterns:
     header: 0xefefef
     panel:

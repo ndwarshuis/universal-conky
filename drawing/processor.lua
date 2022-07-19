@@ -193,7 +193,6 @@ return function(update_freq, config, main_state, common, width, point)
 
    local mk_tbl = function(y)
       local num_rows = config.table_rows
-      local table_height = common.table_height(num_rows)
       local table_conky = pure.map_n(
          function(i) return {pid = '${top pid '..i..'}', cpu = '${top cpu '..i..'}'} end,
          num_rows
@@ -202,7 +201,6 @@ return function(update_freq, config, main_state, common, width, point)
          point.x,
          y,
          width,
-         table_height,
          num_rows,
          'CPU (%)'
       )
@@ -218,7 +216,7 @@ return function(update_freq, config, main_state, common, width, point)
       end
       return common.mk_acc(
          width,
-         table_height,
+         common.table_height(num_rows),
          update,
          pure.partial(text_table.draw_static, tbl),
          pure.partial(text_table.draw_dynamic, tbl)

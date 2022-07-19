@@ -112,8 +112,7 @@ return function(update_freq, config, common, width, point)
       set_state = nil,
       top = pure.concat(
          pure.map(mk_rate_blockspec, config.rapl_specs),
-         -- TODO what happens if this is nil?
-         {{mk_bat, config.battery ~= nil, 0}}
+         {{mk_bat, config.battery ~= '', 0}}
       )
    }
 end

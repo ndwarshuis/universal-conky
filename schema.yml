@@ -71,10 +71,8 @@ properties:
         additionalProperties: false
         properties:
           battery:
-            description: the battery device to use (if applicable)
-            anyOf:
-              - type: string
-              - type: "null"
+            description: the battery device to use (or blank if none)
+            type: string
           rapl_specs:
             description: the Intel RAPL specs for which plots should be made
             type: array
@@ -181,7 +179,7 @@ properties:
                                     network|pacman|filesystem|power|memory$"
 
   theme:
-    required: [font, patterns]
+    required: [font, geometry, patterns]
     additionalProperties: false
     properties:
       font:
@@ -200,6 +198,66 @@ properties:
               plot_label: *font_size
               table: *font_size
               header: *font_size
+
+      geometry:
+        required: [plot, table]
+        additionalProperties: false
+        properties:
+          plot:
+            required: [seconds, ticks]
+            additionalProperties: false
+            properties:
+              seconds:
+                description: the number of seconds on each timeseries plot
+                type: integer
+                minimum: 30
+              ticks:
+                description: the number of ticks on the x/y axes
+                type: array
+                minItems: 2
+                maxItems: 2
+                items:
+                  type: integer
+                  minimum: 2
+          table:
+            required: [name_chars, padding, header_padding]
+            additionalProperties: false
+            properties:
+              name_chars:
+                description: |
+                  the length to which the name column should be trimmed (if any)
+                type: integer
+                minimum: 0
+              padding:
+                description: the x/y padding around the table
+                type: array
+                minItems: 2
+                maxItems: 2
+                items:
+                  type: integer
+                  minimum: 0
+              header_padding:
+                description: the padding beneath the column headers
+                type: integer
+                minimum: 0
+              row_spacing:
+                description: the distance between the center of each row
+                type: integer
+                minimum: 10
+
+          header:
+            required: [underline_offset, padding]
+            additionalProperties: false
+            properties:
+              underline_offset:
+                description: the offset of the underline (from top of header)
+                type: integer
+                minimum: 10
+              padding:
+                description: the padding beneath the underline
+                type: integer
+                minimum: 0
+
       patterns:
         required: [header, panel, text, border, plot, indicator]
         additionalProperties: false
@@ -215,10 +273,10 @@ properties:
                 properties:
                   color:
                     type: integer
-                  alpha:
-                    anyOf:
-                      - type: "null"
-                      - &alpha {type: number, minimum: 0, maximum: 1}
+                  alpha: &alpha
+                    type: number
+                    minimum: 0
+                    maximum: 1
                   gradient:
                     type: array
                     minItems: 2
