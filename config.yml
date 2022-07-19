@@ -16,7 +16,7 @@ modules:
     show_vid_util: true
   memory:
     show_stats: true
-    show_swap: false
+    show_swap: true
     show_plot: true
     table_rows: 5
   power:
@@ -47,7 +47,7 @@ layout:
       margins: [20, 10]
     - 10
     - columns:
-        - {blocks: [pacman, 24, filesystem, 24, power, 19, memory], width: 436}
+        - {blocks: [pacman, 24, filesystem, 23, power, 19, memory], width: 436}
       margins: [20, 10]
 
 theme:

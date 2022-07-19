@@ -11,7 +11,7 @@ return function(update_freq, config, common, width, point)
    local CACHE_Y_OFFSET = 7
    local CACHE_X_OFFSET = 50
    local TEXT_SPACING = 20
-   local PLOT_SECTION_BREAK = 22
+   local PLOT_SECTION_BREAK = 23
    local PLOT_HEIGHT = 56
    local TABLE_SECTION_BREAK = 20
 
@@ -20,10 +20,12 @@ return function(update_freq, config, common, width, point)
    -----------------------------------------------------------------------------
    -- state
 
+   local _show_swap = config.show_stats and config.show_swap
+
    local mod_state = {mem = {total = sys.meminfo_field_reader('MemTotal')()}}
    local update_state
 
-   if config.show_swap == true then
+   if _show_swap == true then
       mod_state.swap = {total = sys.meminfo_field_reader('SwapTotal')()}
       update_state = sys.meminfo_updater_swap(mod_state.mem, mod_state.swap)
    else
@@ -50,7 +52,7 @@ return function(update_freq, config, common, width, point)
       local DIAL_DIAMETER = DIAL_RADIUS * 2 + DIAL_THICKNESS
       local CACHE_X
       local SWAP_X
-      if config.show_swap == true then
+      if _show_swap == true then
          SWAP_X = MEM_X + DIAL_DIAMETER + DIAL_SPACING
          CACHE_X = SWAP_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
       else
@@ -100,7 +102,7 @@ return function(update_freq, config, common, width, point)
       local ret = pure.partial(common.mk_acc, width, DIAL_DIAMETER)
 
       -- add swap bits if needed
-      if config.show_swap == true then
+      if _show_swap == true then
          local swap = common.make_dial(
             SWAP_X,
             y + DIAL_RADIUS,
@@ -129,7 +131,7 @@ return function(update_freq, config, common, width, point)
    -----------------------------------------------------------------------------
    -- memory consumption plot
 
-   local mk_plot = function(y)
+   local mk_bare_plot = function(y)
       local obj = common.make_percent_timeseries(
          point.x,
          y,
@@ -145,6 +147,32 @@ return function(update_freq, config, common, width, point)
          pure.partial(timeseries.draw_dynamic, obj)
       )
    end
+
+   local mk_tagged_plot = function(y)
+      local obj = common.make_tagged_percent_timeseries(
+         point.x,
+         y,
+         width,
+         PLOT_HEIGHT,
+         PLOT_SECTION_BREAK,
+         "Total Memory",
+         update_freq
+      )
+      return common.mk_acc(
+         width,
+         PLOT_HEIGHT + PLOT_SECTION_BREAK,
+         function()
+            common.tagged_percent_timeseries_set(
+               obj,
+               mod_state.mem.used_percent * 100
+            )
+         end,
+         pure.partial(common.tagged_percent_timeseries_draw_static, obj),
+         pure.partial(common.tagged_percent_timeseries_draw_dynamic, obj)
+      )
+   end
+
+   local mk_plot = config.show_stats and mk_bare_plot or mk_tagged_plot
 
    -----------------------------------------------------------------------------
    -- memory top table

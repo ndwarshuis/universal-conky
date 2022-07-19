@@ -179,14 +179,12 @@ return function(update_freq, config, main_state, common, width, point)
          end
          common.tagged_percent_timeseries_set(total_load, s / ncpus * 100)
       end
-      local static = pure.partial(common.tagged_percent_timeseries_draw_static, total_load)
-      local dynamic = pure.partial(common.tagged_percent_timeseries_draw_dynamic, total_load)
       return common.mk_acc(
          width,
          PLOT_HEIGHT + PLOT_SECTION_BREAK,
          update,
-         static,
-         dynamic
+         pure.partial(common.tagged_percent_timeseries_draw_static, total_load),
+         pure.partial(common.tagged_percent_timeseries_draw_dynamic, total_load)
       )
    end
 
