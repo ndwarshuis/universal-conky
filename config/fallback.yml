@@ -1,3 +1,6 @@
+bootstrap:
+  update_interval: 1
+  dimensions: [1920, 1080]
 modules:
   filesystem:
     show_smart: true

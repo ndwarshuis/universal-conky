@@ -8,27 +8,9 @@ local __cairo_create
 local __cairo_surface_destroy
 local __cairo_destroy
 
-function conky_start(update_interval, conky_dir)
-   local subdirs = {
-      '?.lua',
-      'drawing/?.lua',
-      'schema/?.lua',
-      'core/?.lua',
-      'core/widget/?.lua',
-      'core/widget/arc/?.lua',
-      'core/widget/text/?.lua',
-      'core/widget/timeseries/?.lua',
-      'core/widget/rect/?.lua',
-      'core/widget/line/?.lua',
-      'lib/share/lua/5.4/?.lua',
-      'lib/share/lua/5.4/?/init.lua',
-   }
-
-   for i = 1, #subdirs do
-      package.path = package.path..';'..conky_dir..subdirs[i]
-   end
-
-   package.cpath = package.cpath..';'..conky_dir..'lib/lib/lua/5.4/?.so;'
+function conky_start(update_interval, config_path, path, cpath)
+   package.path = package.path..';'..path
+   package.cpath = package.cpath..';'..cpath
 
    require 'cairo'
 
@@ -41,7 +23,7 @@ function conky_start(update_interval, conky_dir)
 
    conky_set_update_interval(update_interval)
 
-   draw_dynamic = compile(update_interval, conky_dir..'config.yml')
+   draw_dynamic = compile(update_interval, config_path)
 end
 
 --------------------------------------------------------------------------------

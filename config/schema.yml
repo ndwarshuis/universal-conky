@@ -4,7 +4,24 @@ required: [modules, layout]
 additionalProperties: false
 properties:
 
+  bootstrap:
+    required: [update_interval, dimensions]
+    additionalProperties: false
+    properties:
+      update_interval:
+        description: the update interval (seconds)
+        type: number
+      dimensions:
+        description: the max width/height of the conky window
+        type: array
+        minItems: 2
+        maxItems: 2
+        items:
+          type: integer
+          minimum: 1
+
   modules:
+    required: [filesystem, graphics, memory, power, processor, readwrite]
     additionalProperties: false
     properties:
       filesystem:
