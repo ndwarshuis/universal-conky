@@ -146,10 +146,7 @@ end
 
 return function(update_interval, config_path)
    local update_freq = 1 / update_interval
-   local default_config = 'config.yml'
-   -- local r = i_o.read_file(config_path) or i_o.read_file(default_config)
-   local r = i_o.read_file(config_path) or i_o.read_file(default_config)
-   local config = yaml.load(r)
+   local config = yaml.load(i_o.read_file(config_path))
    local cmods = config.modules
 
    local main_state = {}
