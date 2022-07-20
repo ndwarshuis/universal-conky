@@ -86,8 +86,9 @@ systemd user timer.
 ## Power
 
 Displays power consumption for the Intel RAPL interface (requires the
-`CONFIG_INTEL_RAPL` kernel option to be enabled at compile time). Also shows
-battery power consumption for laptops.
+`CONFIG_INTEL_RAPL` kernel option to be enabled at compile time and the sysfs
+directories in `/sys/class/powercap/` to be readable). Also shows battery power
+consumption for laptops.
 
 ## Processor
 
