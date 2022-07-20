@@ -165,7 +165,7 @@ return function(update_freq, config, common, width, point)
          y,
          width,
          TEXT_SPACING,
-         {'GPU Clock Speed', 'memory Clock Speed'}
+         {'GPU Clock Speed', 'Memory Clock Speed'}
       )
       local update = function()
          if mod_state.error == false then

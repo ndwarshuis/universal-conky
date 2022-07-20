@@ -61,7 +61,7 @@ save your disks from death).
 ## Graphics
 
 Displays nerdy stats pertaining to the nvidia card (clock speeds, utilization,
-and temperature). In addition to having an nvidia card, also required
+and temperature). In addition to having an nvidia card, also requires
 `nvidia-settings` to be installed.
 
 ## Memory
