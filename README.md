@@ -16,6 +16,16 @@ possible in the startup hook so that the main loop runs efficiently.
 
 Everything is drawn with Lua/Cairo, because I think it's pretty :)
 
+# Gallery
+
+Advanced layout
+
+![Image](screen-full.png)
+
+Minimal layout
+
+![Image](screen-minimal.png)
+
 # Dependencies
 
 Requires conky with Lua bindings and cairo support enabled
