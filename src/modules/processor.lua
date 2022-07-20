@@ -39,12 +39,10 @@ return function(update_freq, config, main_state, common, width, point)
       if math.fmod(ncores, config.core_rows) == 0 then
          show_cores = true
       else
-         print(
-            string.format(
-               'WARNING: could not evenly distribute %i cores over %i rows',
-               ncores,
-               config.core_rows
-            )
+         i_o.warnf(
+            'could not evenly distribute %i cores over %i rows; disabling',
+            ncores,
+            config.core_rows
          )
       end
    end

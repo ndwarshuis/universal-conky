@@ -1,6 +1,8 @@
 local format = require 'format'
 local pure = require 'pure'
 local sys = require 'sys'
+local i_o = require 'i_o'
+local impure = require 'impure'
 
 return function(update_freq, config, common, width, point)
    local PLOT_SEC_BREAK = 20
@@ -8,6 +10,8 @@ return function(update_freq, config, common, width, point)
 
    local mod_state = {read = 0, write = 0}
    local device_paths = sys.get_disk_paths(config.devices)
+
+   impure.each(i_o.assert_file_exists, device_paths)
 
    local update_state = function()
       mod_state.read, mod_state.write = sys.get_total_disk_io(device_paths)

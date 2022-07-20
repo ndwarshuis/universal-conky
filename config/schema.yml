@@ -49,6 +49,9 @@ properties:
         required: [show_temp, show_clock, show_gpu_util, show_mem_util, show_vid_util]
         additionalProperties: false
         properties:
+          dev_power:
+            description: the sysfs path to the graphics card power indicator
+            type: string
           show_temp:
             description: show the GPU temp
             type: boolean

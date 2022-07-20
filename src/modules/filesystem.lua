@@ -10,7 +10,7 @@ return function(config, main_state, common, width, point)
    -----------------------------------------------------------------------------
    -- smartd
 
-   i_o.exe_assert('pidof')
+   i_o.assert_exe_exists('pidof')
 
    local mk_smart = function(y)
       local obj = common.make_text_row(point.x, y, width, 'SMART Daemon')
@@ -35,6 +35,7 @@ return function(config, main_state, common, width, point)
    local mk_bars = function(y)
       local paths = pure.map_keys('path', config.fs_paths)
       local names = pure.map_keys('name', config.fs_paths)
+      impure.each(i_o.assert_file_exists, paths)
       local CONKY_CMDS = pure.map(
          pure.partial(string.format, '${fs_used_perc %s}', true),
          paths

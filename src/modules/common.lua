@@ -19,43 +19,10 @@ local style = require 'style'
 local source = require 'source'
 local pure = require 'pure'
 
-local compile_patterns
-
--- TODO move to color module
-compile_patterns = function(patterns)
-   local r = {}
-   for k, v in pairs(patterns) do
-      if type(v) == "number" then
-         r[k] = color.rgb(v)
-      elseif v.color ~= nil then
-         r[k] = color.rgba(v.color, v.alpha)
-      elseif v.gradient ~= nil then
-         local p = {}
-         local g = v.gradient
-         for i = 1, #g do
-            local _g = g[i]
-            p[_g.stop] = _g.color
-         end
-         r[k] = color.gradient_rgb(p)
-      elseif v.gradient_alpha ~= nil then
-         local p = {}
-         local g = v.gradient_alpha
-         for i = 1, #g do
-            local _g = g[i]
-            p[_g.stop] = {_g.color, _g.alpha}
-         end
-         r[k] = color.gradient_rgba(p)
-      else
-         r[k] = compile_patterns(v)
-      end
-   end
-   return r
-end
-
 return function(config)
    local M = {}
 
-   local patterns = compile_patterns(config.theme.patterns)
+   local patterns = color(config.theme.patterns)
    local font = config.theme.font
    local font_sizes = font.sizes
    local font_family = font.family
