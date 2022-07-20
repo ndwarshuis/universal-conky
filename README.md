@@ -7,7 +7,7 @@ A conky configuration that can be easily adapted for multiple machines.
 Due to me needing to use this on multiple machines with annoyingly different
 hardware, I designed this to be as modular as possible.
 
-The configuration is accomplished via one yaml file which encodeds the theme,
+The configuration is accomplished via one yaml file which encodes the theme,
 refresh rate, interface geometry, hardware queried, etc.
 
 The interface is broken apart into different 'modules' that can be arranged on
@@ -140,7 +140,7 @@ the TLDR. These conclusions were reached simply by timing the main loop with
   file](src/compile.lua) for details.
 * memoize dynamic images: For images that require lots of computation, cache
   them in a table. This works well for things like arcs where one number
-  (preferrably an integer, not a float) can be mapped to a single image.
+  (preferably an integer, not a float) can be mapped to a single image.
 * use sysfs where possible: in some cases it is faster to read a 'file' than
   invoke a conky object
 * use the startup hook: Most of the 'heavy' computation happens once in the
@@ -152,6 +152,6 @@ the TLDR. These conclusions were reached simply by timing the main loop with
   that much), querying the file systems every 10-30 seconds seems reasonable,
   and makes the rest of the interface snappier.
 * run heavy stuff in asynchronous scripts: Some operations are so slow they will
-  make the entire interface noticably lag (even when run less frequently than
+  make the entire interface noticeably lag (even when run less frequently than
   the update interval). For these, run a script using a systemd timer and save
   the output in tmpfs.
