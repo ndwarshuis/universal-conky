@@ -7,11 +7,14 @@ return function(update_freq, config, common, width, point)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
    local NA = 'N/A'
+   local NVIDIA_EXE = 'nvidia-settings'
    local __string_match	= string.match
    local __tonumber = tonumber
 
    -----------------------------------------------------------------------------
    -- nvidia state
+
+   i_o.exe_assert(NVIDIA_EXE)
 
    -- vars to process the nv settings glob
    --
@@ -21,7 +24,8 @@ return function(update_freq, config, common, width, point)
    --   <temp>
    --   <gpu_freq>,<mem_freq>
    --   graphics=<gpu_util>, memory=<mem_util>, video=<vid_util>, PCIe=<pci_util>
-   local NV_QUERY = 'nvidia-settings -t'..
+   local NV_QUERY = NVIDIA_EXE..
+      ' -t'..
       ' -q UsedDedicatedGPUmemory'..
       ' -q TotalDedicatedGPUmemory'..
       ' -q ThermalSensorReading'..

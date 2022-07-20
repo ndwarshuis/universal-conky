@@ -10,6 +10,8 @@ return function(config, main_state, common, width, point)
    -----------------------------------------------------------------------------
    -- smartd
 
+   i_o.exe_assert('pidof')
+
    local mk_smart = function(y)
       local obj = common.make_text_row(point.x, y, width, 'SMART Daemon')
       local update = function()
