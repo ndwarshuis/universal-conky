@@ -2,55 +2,23 @@ bootstrap:
   update_interval: 1
   dimensions: [1920, 1080]
 modules:
-  filesystem:
-    show_smart: true
-    fs_paths:
-      - {path: /,           name: root}
-      - {path: /boot,       name: boot}
-      - {path: /home,       name: home}
-      - {path: /mnt/data,   name: data}
-      - {path: /mnt/dcache, name: dcache}
-      - {path: /tmp,        name: tmpfs}
-  graphics:
-    show_temp: true
-    show_clock: true
-    show_gpu_util: true
-    show_mem_util: true
-    show_vid_util: true
   memory:
-    show_stats: true
-    show_swap: true
+    show_stats: false
+    show_swap: false
     show_plot: true
-    table_rows: 5
-  power:
-    battery: BAT0
-    rapl_specs:
-      - {name: PKG0, address: intel-rapl:0}
-      - {name: DRAM, address: intel-rapl:0:2}
+    table_rows: 3
   processor:
-    core_rows: 1
+    core_rows: 0
     core_padding: 0
-    show_stats: true
+    show_stats: false
     show_plot: true
-    table_rows: 5
-  readwrite:
-    devices: [sda, nvme0n1]
+    table_rows: 3
 
 layout:
   anchor: [12, 11]
   panels:
     - columns:
-        - {blocks: [system, 19, graphics, 16, processor], width: 436}
-      margins: [20, 10]
-    - 10
-    - columns:
-        - {blocks: [readwrite], width: 436}
-        - 20
-        - {blocks: [network], width: 436}
-      margins: [20, 10]
-    - 10
-    - columns:
-        - {blocks: [pacman, 24, filesystem, 23, power, 19, memory], width: 436}
+        - {blocks: [network, 10, memory, 10, processor], width: 436}
       margins: [20, 10]
 
 theme:

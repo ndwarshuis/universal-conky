@@ -20,8 +20,8 @@ properties:
           type: integer
           minimum: 1
 
+  # NOTE none of these are required
   modules:
-    required: [filesystem, graphics, memory, power, processor, readwrite]
     additionalProperties: false
     properties:
       filesystem:
