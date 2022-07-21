@@ -18,15 +18,18 @@ return function(main_state, common, width, point)
       common.text_rows_set(obj, 1, i_o.conky('$kernel'))
       local update = function()
          local last_update, last_sync
+         common.text_rows_set(obj, 2, i_o.conky('$uptime'))
          if main_state.pacman_stats then
             last_update, last_sync = __string_match(
                main_state.pacman_stats,
                "^%d+%s+([^%s]+)%s+([^%s]+).*"
             )
+	    common.text_rows_set(obj, 3, last_update)
+	    common.text_rows_set(obj, 4, last_sync)
+	 else
+	    common.text_rows_set(obj, 3, 'N/A')
+	    common.text_rows_set(obj, 4, 'N/A')
          end
-         common.text_rows_set(obj, 2, i_o.conky('$uptime'))
-         common.text_rows_set(obj, 3, last_update)
-         common.text_rows_set(obj, 4, last_sync)
       end
       local static = pure.partial(common.text_rows_draw_static, obj)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, obj)

@@ -31,7 +31,8 @@ return function(update_freq, config, common, width, point)
       ' -q TotalDedicatedGPUmemory'..
       ' -q ThermalSensorReading'..
       ' -q [gpu:0]/GPUCurrentClockFreqs'..
-      ' -q [gpu:0]/GPUutilization'
+      ' -q [gpu:0]/GPUutilization'..
+      ' 2>/dev/null'
 
    local NV_REGEX = '(%d+)\n'..
       '(%d+)\n'..
@@ -44,8 +45,6 @@ return function(update_freq, config, common, width, point)
       used_memory = 0,
       total_memory = 0,
       temp_reading = 0,
-      gpu_frequency = 0,
-      memory_frequency = 0,
       gpu_utilization = 0,
       vid_utilization = 0
    }

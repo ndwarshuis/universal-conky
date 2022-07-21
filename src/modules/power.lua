@@ -56,15 +56,6 @@ return function(update_freq, config, common, width, point)
    -----------------------------------------------------------------------------
    -- battery power plot
 
-   local _read_battery_power = sys.battery_power_reader(config.battery)
-
-   local read_battery_power = function(is_using_ac)
-      if is_using_ac then
-         return 0
-      else
-         return _read_battery_power()
-      end
-   end
 
    local format_ac = function(watts)
       if watts == 0 then
@@ -75,6 +66,15 @@ return function(update_freq, config, common, width, point)
    end
 
    local mk_bat = function(y)
+      local _read_battery_power = sys.battery_power_reader(config.battery)
+
+      local read_battery_power = function(is_using_ac)
+         if is_using_ac then
+            return 0
+         else
+            return _read_battery_power()
+         end
+      end
       local read_bat_status = sys.battery_status_reader(config.battery)
       local obj = common.make_tagged_scaled_timeseries(
          point.x,
@@ -104,12 +104,13 @@ return function(update_freq, config, common, width, point)
 
    -----------------------------------------------------------------------------
    -- main functions
-
+   
    return {
       header = 'POWER',
       point = point,
       width = width,
       set_state = nil,
+      -- TODO make sure these interfaces actually exist before trying to read them
       top = pure.concat(
          pure.map(mk_rate_blockspec, config.rapl_specs),
          {{mk_bat, config.battery ~= '', 0}}

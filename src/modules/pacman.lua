@@ -15,11 +15,11 @@ return function(main_state, common, width, point)
          {'Total', 'Explicit', 'Outdated', 'Orphaned', 'Local'}
       )
       local update = function()
-         local stats = __string_match(
-            main_state.pacman_stats,
-            '%d+%s+[^%s]+%s+[^%s]+%s+(.*)$'
-         )
-         if stats then
+	 if main_state.pacman_stats then
+            local stats = __string_match(
+               main_state.pacman_stats,
+               '%d+%s+[^%s]+%s+[^%s]+%s+(.*)$'
+            )
             local i = 1
             for v in __string_gmatch(stats, '%d+') do
                common.text_rows_set(obj, i, v)
