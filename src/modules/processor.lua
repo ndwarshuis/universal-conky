@@ -74,20 +74,15 @@ return function(update_freq, config, main_state, common, width, point)
       local core_cols = ncores / config.core_rows
       local cores = {}
       for c = 1, ncores do
-         local dial_x
-         local dial_y
-         if core_cols == 1 then
-            dial_x = point.x + width / 2
-            dial_y = y + DIAL_OUTER_RADIUS +
-               (2 * DIAL_OUTER_RADIUS + DIAL_SPACING) * (c - 1)
-         else
-            dial_x = point.x + config.core_padding + DIAL_OUTER_RADIUS +
-               (width - 2 * (DIAL_OUTER_RADIUS + config.core_padding))
-               * math.fmod(c - 1, core_cols) / (core_cols - 1)
-            dial_y = y + DIAL_OUTER_RADIUS +
-               (2 * DIAL_OUTER_RADIUS + DIAL_SPACING)
-               * math.floor((c - 1) / core_cols) / (core_cols - 1)
-         end
+         local dial_x = point.x +
+            (core_cols == 1
+             and (width / 2)
+             or (config.core_padding + DIAL_OUTER_RADIUS +
+                 (width - 2 * (DIAL_OUTER_RADIUS + config.core_padding))
+                 * math.fmod(c - 1, core_cols) / (core_cols - 1)))
+         local dial_y = y + DIAL_OUTER_RADIUS +
+            (2 * DIAL_OUTER_RADIUS + DIAL_SPACING)
+            * math.floor((c - 1) / core_cols)
          cores[c] = create_core(dial_x, dial_y)
       end
       local update = function()
