@@ -24,11 +24,11 @@ return function(main_state, common, width, point)
                main_state.pacman_stats,
                "^%d+%s+([^%s]+)%s+([^%s]+).*"
             )
-	    common.text_rows_set(obj, 3, last_update)
-	    common.text_rows_set(obj, 4, last_sync)
-	 else
-	    common.text_rows_set(obj, 3, 'N/A')
-	    common.text_rows_set(obj, 4, 'N/A')
+            common.text_rows_set(obj, 3, last_update)
+            common.text_rows_set(obj, 4, last_sync)
+         else
+            common.text_rows_set(obj, 3, 'N/A')
+            common.text_rows_set(obj, 4, 'N/A')
          end
       end
       local static = pure.partial(common.text_rows_draw_static, obj)

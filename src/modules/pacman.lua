@@ -15,7 +15,7 @@ return function(main_state, common, width, point)
          {'Total', 'Explicit', 'Outdated', 'Orphaned', 'Local'}
       )
       local update = function()
-	 if main_state.pacman_stats then
+         if main_state.pacman_stats then
             local stats = __string_match(
                main_state.pacman_stats,
                '%d+%s+[^%s]+%s+[^%s]+%s+(.*)$'
