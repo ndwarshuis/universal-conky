@@ -84,7 +84,7 @@ local SYSFS_RAPL = '/sys/class/powercap'
 
 M.intel_powercap_reader = function(dev)
    local uj = __string_format('%s/%s/energy_uj', SYSFS_RAPL, dev)
-   i_o.assert_file_exists(uj)
+   i_o.assert_file_readable(uj)
    return function()
       return read_micro(uj)
    end
@@ -97,7 +97,7 @@ local SYSFS_POWER = '/sys/class/power_supply'
 
 local format_power_path = function(battery, property)
    local p = __string_format('%s/%s/%s', SYSFS_POWER, battery, property)
-   i_o.assert_file_exists(p)
+   i_o.assert_file_readable(p)
    return p
 end
 

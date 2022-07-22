@@ -88,8 +88,17 @@ M.file_exists = function(path)
    return M.exit_code_cmd('stat '..path..' > /dev/null 2>&1') == 0
 end
 
+M.file_readable = function(path)
+   return M.exit_code_cmd('test -r '..path) == 0
+end
+
 M.assert_file_exists = function(path)
    M.assertf(M.file_exists(path), '%s does not exist', path)
+end
+
+M.assert_file_readable = function(path)
+   M.assertf(M.file_exists(path), '%s does not exist', path)
+   M.assertf(M.file_readable(path), '%s is not readable', path)
 end
 
 --------------------------------------------------------------------------------

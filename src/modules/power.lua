@@ -110,7 +110,6 @@ return function(update_freq, config, common, width, point)
       point = point,
       width = width,
       set_state = nil,
-      -- TODO make sure these interfaces actually exist before trying to read them
       top = pure.concat(
          pure.map(mk_rate_blockspec, config.rapl_specs),
          {{mk_bat, config.battery ~= '', 0}}

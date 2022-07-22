@@ -35,6 +35,8 @@ return function(config, main_state, common, width, point)
    local mk_bars = function(y)
       local paths = pure.map_keys('path', config.fs_paths)
       local names = pure.map_keys('name', config.fs_paths)
+      -- TODO this might not be enough (conky might actually need +x permissions
+      -- to decend into the dir and read its contents)
       impure.each(i_o.assert_file_exists, paths)
       local CONKY_CMDS = pure.map(
          pure.partial(string.format, '${fs_used_perc %s}', true),
