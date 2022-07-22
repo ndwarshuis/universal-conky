@@ -57,7 +57,7 @@ local read_entire_file = function(file, regex, mode)
 	local str = file:read(mode or '*a')
 	file:close()
 	if not str then return end
-	if regex then return __string_match(str, regex) or '' else return str end
+	if regex then return __string_match(str, regex) else return str end
 end
 
 M.read_file = function(path, regex, mode)

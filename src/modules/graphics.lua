@@ -15,7 +15,6 @@ return function(update_freq, config, common, width, point)
    -- nvidia state
 
    i_o.assert_exe_exists(NVIDIA_EXE)
-   i_o.assert_file_exists(config.dev_power)
 
    -- vars to process the nv settings glob
    --
@@ -52,7 +51,7 @@ return function(update_freq, config, common, width, point)
    local update_state = function()
       if i_o.read_file(config.dev_power, nil, '*l') == 'on' then
          local nvidia_settings_glob = i_o.execute_cmd(NV_QUERY)
-         if nvidia_settings_glob == '' then
+         if nvidia_settings_glob == nil then
             mod_state.error = 'Error'
          else
             mod_state.used_memory,
