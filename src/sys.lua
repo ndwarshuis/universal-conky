@@ -151,20 +151,20 @@ end
 
 -- ASSUME realpath exists (part of coreutils)
 
+local NET_DIR = '/sys/class/net'
+
 local get_interfaces = function()
-   local s = i_o.execute_cmd('realpath /sys/class/net/* | grep -v virtual')
-   local interfaces = {}
-   for iface in __string_gmatch(s, '/([^/\n]+)\n') do
-      interfaces[#interfaces + 1] = iface
-   end
-   return interfaces
+   local cmd = string.format('realpath %s/* | grep -v virtual', NET_DIR)
+   local s = i_o.execute_cmd(cmd)
+   local f = pure.partial(pure.gmatch_table, '/([^/\n]+)\n')
+   return pure.maybe({}, f, s)
 end
 
 M.get_net_interface_paths = function()
    local is = get_interfaces()
    return pure.map(
       function(s)
-         local dir = string.format('/sys/class/net/%s/statistics/', s)
+         local dir = string.format('%s/%s/statistics/', NET_DIR, s)
          return {rx = dir..'rx_bytes', tx = dir..'tx_bytes'}
       end,
       is
