@@ -16,8 +16,8 @@ return function(config, main_state, common, width, point)
       local obj = common.make_text_row(point.x, y, width, 'SMART Daemon')
       local update = function()
          if main_state.trigger10 == 0 then
-            local pid = i_o.execute_cmd('pidof smartd', nil, '*n')
-            common.text_row_set(obj, (pid == '') and 'Error' or 'Running')
+            local rc = i_o.exit_code_cmd('pidof smartd > /dev/null')
+            common.text_row_set(obj, (rc == 0) and 'Running' or 'Error')
          end
       end
       return common.mk_acc(
