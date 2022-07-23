@@ -85,7 +85,7 @@ return function(update_freq, config, main_state, common, width, point)
          cores[c] = create_core(dial_x, dial_y)
       end
       local coretemp_paths = cpu.get_coretemp_paths()
-      local update_coretemps = function() end
+      local update_coretemps
       if coretemp_paths ~= nil then
          update_coretemps = function()
             for conky_core_id, path in pairs(coretemp_paths) do
@@ -93,6 +93,9 @@ return function(update_freq, config, main_state, common, width, point)
                common.text_circle_set(cores[conky_core_id].coretemp, temp)
             end
          end
+      else
+         i_o.warnf('could not find coretemp paths; disabling temp readings')
+         update_coretemps = function() end
       end
       local update = function()
          for _, load_data in pairs(mod_state) do
