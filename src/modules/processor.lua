@@ -70,7 +70,6 @@ return function(update_freq, config, main_state, common, width, point)
    end
 
    local mk_cores = function(y)
-      local coretemp_paths = cpu.get_coretemp_paths()
       local core_cols = ncores / config.core_rows
       local cores = {}
       for c = 1, ncores do
@@ -85,6 +84,16 @@ return function(update_freq, config, main_state, common, width, point)
             * math.floor((c - 1) / core_cols)
          cores[c] = create_core(dial_x, dial_y)
       end
+      local coretemp_paths = cpu.get_coretemp_paths()
+      local update_coretemps = function() end
+      if coretemp_paths ~= nil then
+         update_coretemps = function()
+            for conky_core_id, path in pairs(coretemp_paths) do
+               local temp = __math_floor(0.001 * i_o.read_file(path, nil, '*n'))
+               common.text_circle_set(cores[conky_core_id].coretemp, temp)
+            end
+         end
+      end
       local update = function()
          for _, load_data in pairs(mod_state) do
             compound_dial.set(
@@ -93,10 +102,7 @@ return function(update_freq, config, main_state, common, width, point)
                load_data.percent_active * 100
             )
          end
-         for conky_core_id, path in pairs(coretemp_paths) do
-            local temp = __math_floor(0.001 * i_o.read_file(path, nil, '*n'))
-            common.text_circle_set(cores[conky_core_id].coretemp, temp)
-         end
+         update_coretemps()
       end
       local static = function(cr)
          for i = 1, #cores do

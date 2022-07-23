@@ -184,11 +184,10 @@ M.get_cpu_number = function()
    return tonumber(i_o.execute_cmd('nproc', nil, '*n'))
 end
 
--- TODO what if this fails?
 local get_coretemp_dir = function()
    i_o.assert_exe_exists('grep')
    local s = i_o.execute_cmd('grep -l \'^coretemp$\' /sys/class/hwmon/*/name')
-   return dirname(s)
+   if s == nil then return else return dirname(s) end
 end
 
 -- map cores to integer values starting at 1; this is necessary since some cpus
@@ -226,6 +225,7 @@ end
 
 M.get_coretemp_paths = function()
    local d = get_coretemp_dir()
+   if d == nil then return end
    i_o.assert_exe_exists('grep')
    local s = i_o.execute_cmd(string.format('grep Core %s/temp*_label', d))
    local ps = {}
