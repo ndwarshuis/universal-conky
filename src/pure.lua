@@ -2,7 +2,9 @@ local M = {}
 
 local err = require 'err'
 
+local __string_gmatch = string.gmatch
 local __math_floor = math.floor
+local __table_insert = table.insert
 
 --------------------------------------------------------------------------------
 -- zippy functions
@@ -171,6 +173,14 @@ M.table_array = function(tbl)
    local r = {}
    for i = 1, #tbl do
       r[i] = tbl[i]
+   end
+   return r
+end
+
+M.gmatch_table = function(pat, s)
+   local r = {}
+   for m in __string_gmatch(s, pat) do
+      __table_insert(r, m)
    end
    return r
 end
