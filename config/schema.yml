@@ -293,6 +293,7 @@ properties:
                 properties:
                   color:
                     type: integer
+                    maximum: 0xffffff
                   alpha: &alpha
                     type: number
                     minimum: 0
@@ -311,6 +312,7 @@ properties:
                           maximum: 1
                         color:
                           type: integer
+                          maximum: 0xffffff
 
                   gradient_alpha:
                     type: array

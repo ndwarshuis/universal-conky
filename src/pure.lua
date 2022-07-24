@@ -77,6 +77,14 @@ M.imap = function(f, seq)
    return r
 end
 
+M.kmap = function(f, seq)
+   local r = {}
+   for k, v in pairs(seq) do
+      r[k] = f(k, v)
+   end
+   return r
+end
+
 M.map_keys = function(key, tbls)
    local r = {}
    for i = 1, #tbls do
@@ -119,8 +127,8 @@ end
 
 M.array_to_map = function(arr)
    local r = {}
-   for i = 1, #arr do
-      r[arr[i][1]] = arr[i][2]
+   for _, v in pairs(arr) do
+      r[v[1]] = v[2]
    end
    return r
 end
