@@ -292,34 +292,28 @@ M.get_hwp_paths = function()
    )
 end
 
+local HWP_MAP = {
+   power = 'Power',
+   balance_power = 'Bal. Power',
+   balance_performance = 'Bal. Performance',
+   performance = 'Performance',
+   default = 'Default',
+}
+
+local read_hwp_path = function(path)
+   return i_o.read_file(path, nil, "*l")
+end
+
 M.read_hwp = function(hwp_paths)
    -- read HWP of first cpu, then test all others to see if they match
-   local hwp_pref = i_o.read_file(hwp_paths[1], nil, "*l")
+   local hwp_pref = read_hwp_path(hwp_paths[1])
    local mixed = false
    local i = 2
-
    while not mixed and i <= #hwp_paths do
-      if hwp_pref ~= i_o.read_file(hwp_paths[i], nil, '*l') then
-         mixed = true
-      end
+      mixed = hwp_pref ~= read_hwp_path(hwp_paths[i])
       i = i + 1
    end
-
-   if mixed then
-      return 'Mixed'
-   elseif hwp_pref == 'power' then
-      return 'Power'
-   elseif hwp_pref == 'balance_power' then
-      return 'Bal. Power'
-   elseif hwp_pref == 'balance_performance' then
-      return 'Bal. Performance'
-   elseif hwp_pref == 'performance' then
-      return 'Performance'
-   elseif hwp_pref == 'default' then
-      return 'Default'
-   else
-      return 'Unknown'
-   end
+   return mixed and 'Mixed' or (HWP_MAP[hwp_pref] or 'Unknown')
 end
 
 M.init_cpu_loads = function()
