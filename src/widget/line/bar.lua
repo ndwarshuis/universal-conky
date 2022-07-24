@@ -36,9 +36,7 @@ M.make_setter = function(_line, config, threshold_config)
          )
       end
    )
-   return function(percent)
-      return f(pure.round_percent(percent))
-   end
+   return pure.compose(f, pure.round_percent)
 end
 
 M.make = function(p1, p2, bg_config, fg_threshold_config)

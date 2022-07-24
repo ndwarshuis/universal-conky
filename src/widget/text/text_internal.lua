@@ -2,6 +2,7 @@ local M = {}
 
 local err = require 'err'
 local geom = require 'geom'
+local pure = require 'pure'
 
 local __string_sub = string.sub
 local __cairo_toy_font_face_create = cairo_toy_font_face_create
@@ -13,12 +14,14 @@ local __cairo_set_source = cairo_set_source
 local __cairo_move_to = cairo_move_to
 local __cairo_show_text = cairo_show_text
 
+local __string_format = string.format
+
 M.NULL_TEXT_STRING = '<null>'
 
 --------------------------------------------------------------------------------
 -- pure
 
-local trim_to_length = function(text, len)
+local trim_to_length = function(len, text)
    if #text > len then
       return __string_sub(text, 1, len)..'...'
    else
@@ -30,11 +33,11 @@ M.make_format_function = function(format)
    if type(format) == "function" then
       return format
    elseif type(format) == "number" and format > 0 then
-      return function(_text) return trim_to_length(_text, format) end
+      return pure.partial(trim_to_length, format)
    elseif type(format) == "string" then
-      return function(_text) return string.format(format, _text) end
+      return pure.partial(__string_format, format, true)
    elseif format == nil or format == false then
-      return function(_text) return _text end
+      return pure.id
    else
       local msg = "format must be a printf string, positive int, or function: got "
       local t = type(format)
@@ -106,37 +109,31 @@ M.font_height = function(font)
 end
 
 M.x_align_function = function(x_align, font)
-   if x_align == 'left' then
-      return function(text)
+   local funs = {
+      left = function(text)
          local te = set_text_extents(text, font)
          return -te.x_bearing
-      end
-   elseif x_align == 'center' then
-      return function(text)
+      end,
+      center = function(text)
          local te = set_text_extents(text, font)
          return -(te.x_bearing + te.width * 0.5)
-      end
-   elseif x_align == 'right' then
-      return function(text)
+      end,
+      right = function(text)
          local te = set_text_extents(text, font)
          return -(te.x_bearing + te.width)
       end
-   else
-      err.assert_trace(nil, "invalid x_align")
-   end
+   }
+   return funs[x_align] or err.assert_trace(nil, "invalid x_align")
 end
 
 M.get_delta_y = function(y_align, font)
    local fe = set_font_extents(font)
-   if y_align == 'bottom' then
-      return -fe.descent
-   elseif y_align == 'top'	then
-      return fe.height
-   elseif y_align == 'center' then
-      return 0.92 * fe.height * 0.5 - fe.descent
-   else
-      err.assert_trace(nil, "invalid y_align")
-   end
+   local descents = {
+      top = fe.height,
+      center = 0.92 * fe.height * 0.5 - fe.descent,
+      bottom = -fe.descent
+   }
+   return descents[y_align] or err.assert_trace(nil, "invalid y_align")
 end
 
 M.set_font_spec = function(cr, font, source)

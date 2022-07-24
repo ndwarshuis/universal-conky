@@ -17,7 +17,6 @@ local make_y_label_text = function(point, chars, font)
    )
 end
 
-
 -- TODO this function smells funny
 M.make = function(point, h, n, font, y_format, scale_factor)
    local y_labels = {width = 0}

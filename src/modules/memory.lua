@@ -16,6 +16,7 @@ return function(update_freq, config, common, width, point)
    local TABLE_SECTION_BREAK = 20
 
    local __math_floor = math.floor
+   local __string_format = string.format
 
    -----------------------------------------------------------------------------
    -- state
@@ -59,9 +60,7 @@ return function(update_freq, config, common, width, point)
          CACHE_X = MEM_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
       end
       local CACHE_WIDTH = point.x + width - CACHE_X
-      local format_percent = function(x)
-         return string.format('%i%%', x)
-      end
+      local format_percent = pure.partial(__string_format, '%i%%', true)
 
       -- memory bits (used no matter what)
       local mem = common.make_dial(
@@ -188,13 +187,7 @@ return function(update_freq, config, common, width, point)
             }
          end,
          num_rows)
-      local obj = common.make_text_table(
-         point.x,
-         y,
-         width,
-         num_rows,
-         'Mem (%)'
-      )
+      local obj = common.make_text_table(point.x, y, width, num_rows, 'Mem (%)')
       local update = function()
          for r = 1, num_rows do
             text_table.set(obj, 1, r, i_o.conky(table_conky[r].comm, '(%S+)'))

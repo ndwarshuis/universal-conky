@@ -47,11 +47,20 @@ return function(update_freq, config, main_state, common, width, point)
       end
    end
 
-   local create_core = function(x, y)
+   local create_core = function(core_cols, y, c)
+      local dial_x = point.x +
+         (core_cols == 1
+          and (width / 2)
+          or (config.core_padding + DIAL_OUTER_RADIUS +
+              (width - 2 * (DIAL_OUTER_RADIUS + config.core_padding))
+              * math.fmod(c - 1, core_cols) / (core_cols - 1)))
+      local dial_y = y + DIAL_OUTER_RADIUS +
+         (2 * DIAL_OUTER_RADIUS + DIAL_SPACING)
+         * math.floor((c - 1) / core_cols)
       return {
          loads = common.make_compound_dial(
-            x,
-            y,
+            dial_x,
+            dial_y,
             DIAL_OUTER_RADIUS,
             DIAL_INNER_RADIUS,
             DIAL_THICKNESS,
@@ -59,8 +68,8 @@ return function(update_freq, config, main_state, common, width, point)
             nthreads
          ),
          coretemp = common.make_text_circle(
-            x,
-            y,
+            dial_x,
+            dial_y,
             DIAL_INNER_RADIUS - 2,
             '%s°C',
             80,
@@ -71,19 +80,7 @@ return function(update_freq, config, main_state, common, width, point)
 
    local mk_cores = function(y)
       local core_cols = ncores / config.core_rows
-      local cores = {}
-      for c = 1, ncores do
-         local dial_x = point.x +
-            (core_cols == 1
-             and (width / 2)
-             or (config.core_padding + DIAL_OUTER_RADIUS +
-                 (width - 2 * (DIAL_OUTER_RADIUS + config.core_padding))
-                 * math.fmod(c - 1, core_cols) / (core_cols - 1)))
-         local dial_y = y + DIAL_OUTER_RADIUS +
-            (2 * DIAL_OUTER_RADIUS + DIAL_SPACING)
-            * math.floor((c - 1) / core_cols)
-         cores[c] = create_core(dial_x, dial_y)
-      end
+      local cores = pure.map_n(pure.partial(create_core, core_cols, y), ncores)
       local coretemp_paths = cpu.get_coretemp_paths()
       if #coretemp_paths ~= ncores then
          i_o.warnf('could not find all coretemp paths')

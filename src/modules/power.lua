@@ -58,22 +58,14 @@ return function(update_freq, config, common, width, point)
 
 
    local format_ac = function(watts)
-      if watts == 0 then
-         return "A/C"
-      else
-         return format_rapl(watts)
-      end
+      return watts == 0 and "A/C" or format_rapl(watts)
    end
 
    local mk_bat = function(y)
       local _read_battery_power = sys.battery_power_reader(config.battery)
 
       local read_battery_power = function(is_using_ac)
-         if is_using_ac then
-            return 0
-         else
-            return _read_battery_power()
-         end
+         return is_using_ac and 0 or _read_battery_power()
       end
       local read_bat_status = sys.battery_status_reader(config.battery)
       local obj = common.make_tagged_scaled_timeseries(
@@ -104,7 +96,7 @@ return function(update_freq, config, common, width, point)
 
    -----------------------------------------------------------------------------
    -- main functions
-   
+
    return {
       header = 'POWER',
       point = point,

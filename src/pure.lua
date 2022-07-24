@@ -136,6 +136,15 @@ end
 --------------------------------------------------------------------------------
 -- random list things
 
+-- a stupid but composable function
+M.get = function(key, tbl)
+   return tbl[key]
+end
+
+M.getter = function(key)
+   return M.partial(M.get, key)
+end
+
 M.set = function(tbl, key, value)
    local r = {}
    for k, v in pairs(tbl) do
@@ -282,6 +291,8 @@ M.memoize = function(f)
       return r
    end
 end
+
+M.id = function(x) return x end
 
 --------------------------------------------------------------------------------
 -- maybe

@@ -42,9 +42,7 @@ M.make_setter = function(_arc, thickness, threshold_config)
          )
       end
    )
-   return function(percent)
-      return f(pure.round_percent(percent))
-   end
+   return pure.compose(f, pure.round_percent)
 end
 
 M.make = function(_arc, bg_config, fg_threshold_config)

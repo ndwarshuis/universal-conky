@@ -33,7 +33,7 @@ local _make = function(point, chars, config, threshold_config, format)
    local f = threshold_config.pre_function
    local setter
    if f then
-      setter = function(x) return _setter(f(x)) end
+      setter = pure.compose(_setter, f)
    else
       setter = _setter
    end

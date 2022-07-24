@@ -9,6 +9,7 @@ return function(update_freq, config, common, width, point)
    local NA = 'N/A'
    local NVIDIA_EXE = 'nvidia-settings'
    local __string_match	= string.match
+   local __string_format = string.format
    local __tonumber = tonumber
 
    -----------------------------------------------------------------------------
@@ -112,18 +113,9 @@ return function(update_freq, config, common, width, point)
    -- gpu status
 
    local mk_status = function(y)
-      local obj = common.make_text_row(
-         point.x,
-         y,
-         width,
-         'Status'
-      )
+      local obj = common.make_text_row(point.x, y, width, 'Status')
       local update = function()
-         if mod_state.error == false then
-            common.text_row_set(obj, 'On')
-         else
-            common.text_row_set(obj, mod_state.error)
-         end
+         common.text_row_set(obj, mod_state.error == false and 'On' or mod_state.error)
       end
       local static = pure.partial(common.text_row_draw_static, obj)
       local dynamic = pure.partial(common.text_row_draw_dynamic, obj)
@@ -140,13 +132,13 @@ return function(update_freq, config, common, width, point)
          width,
          'Internal Temperature',
          function(s)
-            if s == -1 then return NA else return string.format('%s°C', s) end
+            if s == -1 then return NA else return __string_format('%s°C', s) end
          end,
          80
       )
       local update = _from_state(
          -1,
-         function(s) return __tonumber(s.temp_reading) end,
+         pure.compose(__tonumber, pure.getter("temp_reading")),
          pure.partial(common.threshold_text_row_set, obj)
       )
       local static = pure.partial(common.threshold_text_row_draw_static, obj)
@@ -185,7 +177,7 @@ return function(update_freq, config, common, width, point)
    local mk_gpu_util = pure.partial(
       _mk_plot,
       'GPU utilization',
-      function(s) return s.gpu_utilization end
+      pure.getter("gpu_utilization")
    )
 
    -----------------------------------------------------------------------------
@@ -203,7 +195,7 @@ return function(update_freq, config, common, width, point)
    local mk_vid_util = pure.partial(
       _mk_plot,
       'Video utilization',
-      function(s) return s.vid_utilization end
+      pure.getter("vid_utilization")
    )
 
    -----------------------------------------------------------------------------
