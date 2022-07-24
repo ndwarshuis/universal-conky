@@ -19,6 +19,8 @@ local style = require 'style'
 local source = require 'source'
 local pure = require 'pure'
 
+local __string_format = string.format
+
 return function(config)
    local M = {}
 
@@ -78,16 +80,12 @@ return function(config)
    local _left_text_style = _text_row_style('left', patterns.text.inactive)
    local _right_text_style = _text_row_style('right', patterns.text.active)
 
-   local _bare_text = function(pt, _text, _style)
-      return text.make_plain(pt, _text, _style)
-   end
-
    local _left_text = function(pt, _text)
-      return _bare_text(pt, _text, _left_text_style)
+      return text.make_plain(pt, _text, _left_text_style)
    end
 
    local _right_text = function(pt, _text)
-      return _bare_text(pt, _text, _right_text_style)
+      return text.make_plain(pt, _text, _right_text_style)
    end
 
    -----------------------------------------------------------------------------
@@ -108,11 +106,11 @@ return function(config)
    )
 
    local _format_percent_label = function(_)
-      return function(z) return string.format('%i%%', math.floor(z * 100)) end
+      return function(z) return __string_format('%i%%', math.floor(z * 100)) end
    end
 
    local _format_percent_maybe = function(z)
-      if z == -1 then return 'N/A' else return string.format('%s%%', z) end
+      return z == -1 and 'N/A' or __string_format('%s%%', z)
    end
 
    local _percent_label_config = timeseries.label_config(
@@ -265,7 +263,7 @@ return function(config)
       else
          num_fmt = '%.0f'
       end
-      return string.format('%s %s', num_fmt, unit)
+      return __string_format('%s %s', num_fmt, unit)
    end
 
    M.converted_y_label_format_generator = function(unit)
@@ -274,7 +272,7 @@ return function(config)
          local conversion_factor = plot_max / new_max
          local fmt = M.y_label_format_string(new_max, new_prefix..unit..'/s')
          return function(bytes)
-            return string.format(fmt, bytes / conversion_factor)
+            return __string_format(fmt, bytes / conversion_factor)
          end
       end
    end
@@ -325,11 +323,7 @@ return function(config)
    local make_differential = function(update_frequency)
       return function(x0, x1)
          -- mask overflow
-         if x1 > x0 then
-            return (x1 - x0) * update_frequency
-         else
-            return 0
-         end
+         return x1 > x0 and (x1 - x0) * update_frequency or 0
       end
    end
 
@@ -694,7 +688,7 @@ return function(config)
 
    local active_blocks = function(blockspecs)
       local bs = pure.filter(function(b) return b[2] end, blockspecs)
-      return pure.map(function(b) return mk_block(table.unpack(b)) end, bs)
+      return pure.map(pure.compose(mk_block, table.unpack), bs)
    end
 
    local mk_separator = function(width, x, y)

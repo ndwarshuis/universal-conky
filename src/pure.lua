@@ -239,6 +239,10 @@ M.partial = function(f, ...)
    return load(src, 'partial_apply', 't', {f = f, args = args})()
 end
 
+M.flip = function(f)
+   return function(x, y) return f(y, x) end
+end
+
 M.compose = function(f, ...)
    if #{...} == 0 then
       return f
@@ -270,6 +274,9 @@ M.memoize = function(f)
       return r
    end
 end
+
+--------------------------------------------------------------------------------
+-- maybe
 
 M.maybe = function(def, f, x)
    if x == nil then

@@ -81,7 +81,7 @@ end
 M.meminfo_field_reader = function(field)
    local pattern = fmt_mem_field(field)
    return function()
-      return tonumber(i_o.read_file(MEMINFO_PATH, pattern))
+      return __tonumber(i_o.read_file(MEMINFO_PATH, pattern))
    end
 end
 
@@ -93,9 +93,7 @@ local SYSFS_RAPL = '/sys/class/powercap'
 M.intel_powercap_reader = function(dev)
    local uj = __string_format('%s/%s/energy_uj', SYSFS_RAPL, dev)
    i_o.assert_file_readable(uj)
-   return function()
-      return read_micro(uj)
-   end
+   return function() return read_micro(uj) end
 end
 
 --------------------------------------------------------------------------------
@@ -112,9 +110,7 @@ end
 M.battery_power_reader = function(battery)
    local current = format_power_path(battery, 'current_now')
    local voltage = format_power_path(battery, 'voltage_now')
-   return function()
-      return read_micro(current) * read_micro(voltage)
-   end
+   return function() return read_micro(current) * read_micro(voltage) end
 end
 
 M.battery_status_reader = function(battery)
@@ -127,9 +123,10 @@ end
 --------------------------------------------------------------------------------
 -- disk io
 
-M.get_disk_paths = function(devs)
-   return pure.map(pure.partial(string.format, '/sys/block/%s/stat', true), devs)
-end
+M.get_disk_paths = pure.partial(
+   pure.map,
+   pure.partial(__string_format, '/sys/block/%s/stat', true)
+)
 
 -- fields 3 and 7 (sectors read and written)
 local RW_REGEX = '%s+%d+%s+%d+%s+(%d+)%s+%d+%s+%d+%s+%d+%s+(%d+)'
@@ -138,20 +135,15 @@ local RW_REGEX = '%s+%d+%s+%d+%s+(%d+)%s+%d+%s+%d+%s+%d+%s+(%d+)'
 -- see https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/linux/types.h?id=v4.4-rc6#n121
 local BLOCK_SIZE_BYTES = 512
 
-M.get_disk_io = function(path)
-   local r, w = __string_match(i_o.read_file(path), RW_REGEX)
-   return __tonumber(r) * BLOCK_SIZE_BYTES, __tonumber(w) * BLOCK_SIZE_BYTES
-end
-
 M.get_total_disk_io = function(paths)
    local r = 0
    local w = 0
    for i = 1, #paths do
-      local _r, _w = M.get_disk_io(paths[i])
-      r = r + _r
-      w = w + _w
+      local _r, _w = __string_match(i_o.read_file(paths[i]), RW_REGEX)
+      r = r + __tonumber(_r)
+      w = w + __tonumber(_w)
    end
-   return r, w
+   return r * BLOCK_SIZE_BYTES, w * BLOCK_SIZE_BYTES
 end
 
 --------------------------------------------------------------------------------
@@ -162,19 +154,18 @@ end
 local NET_DIR = '/sys/class/net'
 
 local get_interfaces = function()
-   local cmd = string.format('realpath %s/* | grep -v virtual', NET_DIR)
+   local cmd = __string_format('realpath %s/* | grep -v virtual', NET_DIR)
    local f = pure.partial(gmatch_to_table1, '/([^/\n]+)\n')
    return pure.maybe({}, f, i_o.execute_cmd(cmd))
 end
 
 M.get_net_interface_paths = function()
-   local is = get_interfaces()
    return pure.map(
       function(s)
-         local dir = string.format('%s/%s/statistics/', NET_DIR, s)
+         local dir = __string_format('%s/%s/statistics/', NET_DIR, s)
          return {rx = dir..'rx_bytes', tx = dir..'tx_bytes'}
       end,
-      is
+      get_interfaces()
    )
 end
 
@@ -184,11 +175,11 @@ end
 -- ASSUME nproc and lscpu will always be available
 
 M.get_core_number = function()
-   return tonumber(i_o.read_file('/proc/cpuinfo', 'cpu cores%s+:%s(%d+)'))
+   return __tonumber(i_o.read_file('/proc/cpuinfo', 'cpu cores%s+:%s(%d+)'))
 end
 
 M.get_cpu_number = function()
-   return tonumber(i_o.execute_cmd('nproc', nil, '*n'))
+   return __tonumber(i_o.execute_cmd('nproc', nil, '*n'))
 end
 
 local get_coretemp_dir = function()
@@ -241,14 +232,15 @@ end
 M.get_coretemp_paths = function()
    local get_paths = function(indexer)
       local d = get_coretemp_dir()
-      local get_labels = function(dir)
-         i_o.assert_exe_exists('grep')
-         return i_o.execute_cmd(string.format('grep Core %s/temp*_label', dir))
-      end
+      i_o.assert_exe_exists('grep')
+      local get_labels = pure.compose(
+         i_o.execute_cmd,
+         pure.partial(string.format, 'grep Core %s/temp*_label', true)
+      )
       local to_tuple = function(m)
          return {
             indexer[tonumber(m[2])],
-            string.format('%s/%s_input', d, m[1])
+            __string_format('%s/%s_input', d, m[1])
          }
       end
       local f = pure.compose(
