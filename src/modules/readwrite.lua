@@ -22,6 +22,9 @@ return function(update_freq, config, common, width, point)
       return format.precision_round_to_string(value, 3)..' '..unit..'B/s'
    end
 
+   -- prime state
+   update_state()
+
    -----------------------------------------------------------------------------
    -- r/w plots
 
