@@ -6,7 +6,7 @@ local sys = require 'sys'
 return function(update_freq, common, width, point)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
-   local INTERFACE_PATHS = sys.get_net_interface_paths()
+   local interface_paths = sys.get_net_interface_paths()
 
    local get_bits = function(path)
       return i_o.read_file(path, nil, '*n') * 8
@@ -17,8 +17,8 @@ return function(update_freq, common, width, point)
    local read_interfaces = function()
       mod_state.rx_bits = 0
       mod_state.tx_bits = 0
-      for i = 1, #INTERFACE_PATHS do
-         local p = INTERFACE_PATHS[i]
+      for i = 1, #interface_paths do
+         local p = interface_paths[i]
          mod_state.rx_bits = mod_state.rx_bits + get_bits(p.rx)
          mod_state.tx_bits = mod_state.tx_bits + get_bits(p.tx)
       end
