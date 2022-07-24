@@ -193,7 +193,7 @@ end
 local get_core_id_indexer = function()
    local make_indexer = pure.compose(
       pure.array_to_map,
-      pure.partial(pure.imap, function(i, c) return {tonumber(c), i} end),
+      pure.partial(pure.imap, function(i, c) return {__tonumber(c), i} end),
       pure.partial(gmatch_to_table1, '(%d+)')
    )
    return pure.fmap_maybe(
@@ -203,19 +203,17 @@ local get_core_id_indexer = function()
 end
 
 local get_core_mappings = function()
-   local ncpus = M.get_cpu_number()
    local ncores = M.get_core_number()
-   local nthreads = ncpus / ncores
    local map_ids = function(indexer)
       local f = function(acc, next)
-         local cpu_id = tonumber(next[1]) + 1
+         local cpu_id = __tonumber(next[1]) + 1
          local core_id = next[2]
-         local conky_core_idx = indexer[tonumber(core_id)]
+         local conky_core_idx = indexer[__tonumber(core_id)]
          acc.mappings[cpu_id] = {
             conky_core_idx = conky_core_idx,
             conky_thread_id = acc.thread_ids[conky_core_idx],
          }
-         acc.thread_ids[conky_core_idx] = acc.thread_ids[conky_core_idx] - 1
+         acc.thread_ids[conky_core_idx] = acc.thread_ids[conky_core_idx] + 1
          return acc
       end
       local cpu_to_core_map = pure.maybe(
@@ -223,7 +221,7 @@ local get_core_mappings = function()
          pure.partial(gmatch_to_tableN, '(%d+),(%d+)'),
          i_o.execute_cmd('lscpu -p=cpu,CORE | tail -n+5')
       )
-      local init = {mappings = {}, thread_ids = pure.rep(ncores, nthreads)}
+      local init = {mappings = {}, thread_ids = pure.rep(ncores, 1)}
       return pure.reduce(f, init, cpu_to_core_map).mappings
    end
    return pure.fmap_maybe(map_ids, get_core_id_indexer())
@@ -235,11 +233,11 @@ M.get_coretemp_paths = function()
       i_o.assert_exe_exists('grep')
       local get_labels = pure.compose(
          i_o.execute_cmd,
-         pure.partial(string.format, 'grep Core %s/temp*_label', true)
+         pure.partial(__string_format, 'grep Core %s/temp*_label', true)
       )
       local to_tuple = function(m)
          return {
-            indexer[tonumber(m[2])],
+            indexer[__tonumber(m[2])],
             __string_format('%s/%s_input', d, m[1])
          }
       end
@@ -325,11 +323,10 @@ end
 
 M.read_cpu_loads = function(cpu_loads)
    local ncpus = #cpu_loads
-   local i = 1
    local iter = io.lines('/proc/stat')
    iter() -- ignore first line
-   for ln in iter do
-      if i > ncpus then break end
+   for i = 1, ncpus do
+      local ln = iter()
       local user, system, idle = __string_match(ln, '(%d+) %d+ (%d+) (%d+)', 5)
       local active = user + system
       local total = active + idle
@@ -339,7 +336,6 @@ M.read_cpu_loads = function(cpu_loads)
          c.active_prev = active
          c.total_prev = total
       end
-      i = i + 1
    end
    return cpu_loads
 end
