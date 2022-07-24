@@ -206,8 +206,9 @@ return function(update_freq, config, main_state, common, width, point)
       local update = function()
          for r = 1, num_rows do
             local pid = i_o.conky(table_conky[r].pid, '(%d+)') -- may have leading spaces
+            local name = i_o.read_file('/proc/'..pid..'/comm', '(%C+)') or 'N/A'
             if pid ~= '' then
-               text_table.set(tbl, 1, r, i_o.read_file('/proc/'..pid..'/comm', '(%C+)'))
+               text_table.set(tbl, 1, r, name)
                text_table.set(tbl, 2, r, pid)
                text_table.set(tbl, 3, r, i_o.conky(table_conky[r].cpu))
             end
