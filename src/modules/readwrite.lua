@@ -43,7 +43,6 @@ return function(update_freq, config, common, width, point)
          mod_state[key]
       )
       return common.mk_acc(
-         -- TODO construct this more sanely without referring to hardcoded vars
          width,
          PLOT_HEIGHT + PLOT_SEC_BREAK,
          function() common.update_rate_timeseries(obj, mod_state[key]) end,

@@ -1,6 +1,7 @@
 local M = {}
 
 local geom = require 'geom'
+local pure = require 'pure'
 local text = require 'text'
 local ti = require 'text_internal'
 
@@ -17,25 +18,22 @@ local make_y_label_text = function(point, chars, font)
    )
 end
 
--- TODO this function smells funny
 M.make = function(point, h, n, font, y_format, scale_factor)
-   local y_labels = {width = 0}
    local f = y_format(scale_factor)
-   for i = 1, n do
+   local to_label = function(i)
       local z = (i - 1) / (n - 1)
-      local l = make_y_label_text(
+      return make_y_label_text(
          geom.make_point(point.x, point.y + z * h),
          f((1 - z) * scale_factor),
          font
       )
-      local w = ti.get_width(l.chars, font)
-      if w > y_labels.width then
-         y_labels.width = w
-      end
-      y_labels[i] = l
    end
-   y_labels.width = y_labels.width + Y_LABEL_PAD
-   return y_labels
+   local labels = pure.map_n(to_label, n)
+   local max_width = pure.compose(
+      pure.curry_table(math.max),
+      pure.partial(pure.map, function(l) return ti.get_width(l.chars, font) end)
+   )
+   return { width = max_width(labels) + Y_LABEL_PAD, table.unpack(labels) }
 end
 
 --------------------------------------------------------------------------------

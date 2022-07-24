@@ -219,6 +219,10 @@ M.iter_to_tableN = function(iter)
    return r
 end
 
+M.curry_table = function(f)
+   return function(tbl) return f(table.unpack(tbl)) end
+end
+
 --------------------------------------------------------------------------------
 -- functional functions
 
