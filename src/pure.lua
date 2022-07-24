@@ -2,7 +2,6 @@ local M = {}
 
 local err = require 'err'
 
-local __string_gmatch = string.gmatch
 local __math_floor = math.floor
 local __table_insert = table.insert
 
@@ -118,6 +117,14 @@ M.rep = function(n, x)
    return r
 end
 
+M.array_to_map = function(arr)
+   local r = {}
+   for i = 1, #arr do
+      r[arr[i][1]] = arr[i][2]
+   end
+   return r
+end
+
 --------------------------------------------------------------------------------
 -- random list things
 
@@ -177,10 +184,20 @@ M.table_array = function(tbl)
    return r
 end
 
-M.gmatch_table = function(pat, s)
+M.iter_to_table1 = function(iter)
    local r = {}
-   for m in __string_gmatch(s, pat) do
-      __table_insert(r, m)
+   for next in iter do
+      __table_insert(r, next)
+   end
+   return r
+end
+
+M.iter_to_tableN = function(iter)
+   local r = {}
+   local next = {iter()}
+   while #next > 0 do
+      __table_insert(r, next)
+      next = {iter()}
    end
    return r
 end
@@ -260,6 +277,10 @@ M.maybe = function(def, f, x)
    else
       return f(x)
    end
+end
+
+M.fmap_maybe = function(f, x)
+   return M.maybe(nil, f, x)
 end
 
 -- round to whole numbers since I don't need more granularity and extra values

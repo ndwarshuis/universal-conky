@@ -16,6 +16,14 @@ local read_micro = function(path)
    return i_o.read_file(path, nil, '*n') * 0.000001
 end
 
+local gmatch_to_table1 = function(pat, s)
+   return pure.iter_to_table1(__string_gmatch(s, pat))
+end
+
+local gmatch_to_tableN = function(pat, s)
+   return pure.iter_to_tableN(__string_gmatch(s, pat))
+end
+
 --------------------------------------------------------------------------------
 -- memory
 
@@ -155,9 +163,8 @@ local NET_DIR = '/sys/class/net'
 
 local get_interfaces = function()
    local cmd = string.format('realpath %s/* | grep -v virtual', NET_DIR)
-   local s = i_o.execute_cmd(cmd)
-   local f = pure.partial(pure.gmatch_table, '/([^/\n]+)\n')
-   return pure.maybe({}, f, s)
+   local f = pure.partial(gmatch_to_table1, '/([^/\n]+)\n')
+   return pure.maybe({}, f, i_o.execute_cmd(cmd))
 end
 
 M.get_net_interface_paths = function()
@@ -187,62 +194,74 @@ end
 local get_coretemp_dir = function()
    i_o.assert_exe_exists('grep')
    local s = i_o.execute_cmd('grep -l \'^coretemp$\' /sys/class/hwmon/*/name')
-   if s == nil then return else return dirname(s) end
+   return pure.fmap_maybe(dirname, s)
 end
 
 -- map cores to integer values starting at 1; this is necessary since some cpus
 -- don't report their core id's as a sequence of integers starting at 0
-local get_core_id_mapper = function()
-   local s = i_o.execute_cmd('lscpu -p=CORE | tail -n+5 | sort | uniq')
-   local m = {}
-   local i = 1
-   for core_id in string.gmatch(s, '(%d+)') do
-      m[tonumber(core_id)] = i
-      i = i + 1
-   end
-   return m
+local get_core_id_indexer = function()
+   local make_indexer = pure.compose(
+      pure.array_to_map,
+      pure.partial(pure.imap, function(i, c) return {tonumber(c), i} end),
+      pure.partial(gmatch_to_table1, '(%d+)')
+   )
+   return pure.fmap_maybe(
+      make_indexer,
+      i_o.execute_cmd('lscpu -p=CORE | tail -n+5 | sort | uniq')
+   )
 end
 
 local get_core_mappings = function()
    local ncpus = M.get_cpu_number()
    local ncores = M.get_core_number()
    local nthreads = ncpus / ncores
-   local core_id_mapper = get_core_id_mapper()
-   local conky_thread_ids = pure.rep(ncores, nthreads)
-   local core_mappings = {}
-   local s = i_o.execute_cmd('lscpu -p=cpu,CORE | tail -n+5')
-   for cpu_id, core_id in string.gmatch(s, '(%d+),(%d+)') do
-      local conky_core_id = core_id_mapper[tonumber(core_id)]
-      local conky_cpu_id = tonumber(cpu_id) + 1
-      core_mappings[conky_cpu_id] = {
-         conky_core_id = conky_core_id,
-         conky_thread_id = conky_thread_ids[conky_core_id],
-      }
-      conky_thread_ids[conky_core_id] = conky_thread_ids[conky_core_id] - 1
+   local map_ids = function(indexer)
+      local f = function(acc, next)
+         local cpu_id = tonumber(next[1]) + 1
+         local core_id = next[2]
+         local conky_core_idx = indexer[tonumber(core_id)]
+         acc.mappings[cpu_id] = {
+            conky_core_idx = conky_core_idx,
+            conky_thread_id = acc.thread_ids[conky_core_idx],
+         }
+         acc.thread_ids[conky_core_idx] = acc.thread_ids[conky_core_idx] - 1
+         return acc
+      end
+      local cpu_to_core_map = pure.maybe(
+         {},
+         pure.partial(gmatch_to_tableN, '(%d+),(%d+)'),
+         i_o.execute_cmd('lscpu -p=cpu,CORE | tail -n+5')
+      )
+      local init = {mappings = {}, thread_ids = pure.rep(ncores, nthreads)}
+      return pure.reduce(f, init, cpu_to_core_map).mappings
    end
-   return core_mappings
+   return pure.fmap_maybe(map_ids, get_core_id_indexer())
 end
 
 M.get_coretemp_paths = function()
-   local d = get_coretemp_dir()
-   if d == nil then return end
-   i_o.assert_exe_exists('grep')
-   local s = i_o.execute_cmd(string.format('grep Core %s/temp*_label', d))
-   local ps = {}
-   local core_id_mapper = get_core_id_mapper()
-   for temp_name, core_id in string.gmatch(s, '/([^/\n]+)_label:Core (%d+)\n') do
-      ps[core_id_mapper[tonumber(core_id)]] = string.format('%s/%s_input', d, temp_name)
+   local get_paths = function(indexer)
+      local d = get_coretemp_dir()
+      local get_labels = function(dir)
+         i_o.assert_exe_exists('grep')
+         return i_o.execute_cmd(string.format('grep Core %s/temp*_label', dir))
+      end
+      local to_tuple = function(m)
+         return {
+            indexer[tonumber(m[2])],
+            string.format('%s/%s_input', d, m[1])
+         }
+      end
+      local f = pure.compose(
+         pure.array_to_map,
+         pure.partial(pure.map, to_tuple),
+         pure.partial(gmatch_to_tableN, '/([^/\n]+)_label:Core (%d+)\n')
+      )
+      return pure.maybe({}, f, pure.fmap_maybe(get_labels, d))
    end
-   return ps
+   return pure.maybe({}, get_paths, get_core_id_indexer())
 end
 
-M.read_freq = function()
-   -- NOTE: Using the builtin conky functions for getting cpu freq seems to make
-   -- the entire loop jittery due to high variance latency. Querying
-   -- scaling_cur_freq in sysfs seems to do the same thing. It appears lscpu
-   -- (which queries /proc/cpuinfo) is much faster and doesn't have this jittery
-   -- problem.
-   local c = i_o.execute_cmd('lscpu -p=MHZ')
+local match_freq = function(c)
    local f = 0
    local n = 0
    for s in __string_gmatch(c, '(%d+%.%d+)') do
@@ -252,7 +271,17 @@ M.read_freq = function()
    return __string_format('%.0f Mhz', f / n)
 end
 
+M.read_freq = function()
+   -- NOTE: Using the builtin conky functions for getting cpu freq seems to make
+   -- the entire loop jittery due to high variance latency. Querying
+   -- scaling_cur_freq in sysfs seems to do the same thing. It appears lscpu
+   -- (which queries /proc/cpuinfo) is much faster and doesn't have this jittery
+   -- problem.
+   return pure.maybe('N/A', match_freq, i_o.execute_cmd('lscpu -p=MHZ'))
+end
+
 M.get_hwp_paths = function()
+   -- ASSUME this will never fail
    return pure.map_n(
       function(i)
          return '/sys/devices/system/cpu/cpu'
@@ -301,7 +330,7 @@ M.init_cpu_loads = function()
          active_prev = 0,
          total_prev = 0,
          percent_active = 0,
-         conky_core_id = core.conky_core_id,
+         conky_core_idx = core.conky_core_idx,
          conky_thread_id = core.conky_thread_id,
       }
    end
