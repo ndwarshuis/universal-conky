@@ -189,9 +189,12 @@ return function(update_freq, config, common, width, point)
          num_rows)
       local obj = common.make_text_table(point.x, y, width, num_rows, 'Mem (%)')
       local update = function()
+         -- TODO this is broken in conky 1.12
          for r = 1, num_rows do
             text_table.set(obj, 1, r, i_o.conky(table_conky[r].comm, '(%S+)'))
             text_table.set(obj, 2, r, i_o.conky(table_conky[r].pid))
+            -- NOTE: according to the conky source (top.cc) this is just the RSS
+            -- of a given process divided by the total memory
             text_table.set(obj, 3, r, i_o.conky(table_conky[r].mem))
          end
       end
