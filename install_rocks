@@ -1,3 +1,5 @@
 #!/bin/bash
 
-luarocks --tree=lib install lyaml
+this_dir="$(dirname "$0")"
+
+luarocks --tree="$this_dir/lib" install lyaml
