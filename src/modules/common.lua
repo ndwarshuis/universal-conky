@@ -638,7 +638,7 @@ return function(config)
    end
 
    M.table_height = function(n)
-      return ypad * 2 + gtable.header_padding + gtable.row_spacing * n
+      return ypad * 2 + gtable.header_padding + gtable.row_spacing * (n - 1)
    end
 
    M.make_text_table = function(x, y, w, n, label)
