@@ -52,6 +52,18 @@ return function(config)
    local DIAL_THETA1 = 360
 
    -----------------------------------------------------------------------------
+   -- config helper functions
+
+   -- ASSUME anything set in the yaml file as 'null' will come out as a '{}'
+   local _maybe_config = function(default, x)
+      if x == {} then
+         return default
+      else
+         return x
+      end
+   end
+
+   -----------------------------------------------------------------------------
    -- line helper functions
 
    local _make_horizontal_line = function(x, y, w)
@@ -128,6 +140,8 @@ return function(config)
       )
    end
 
+   local gplot = geometry.plot
+
    local _make_tagged_percent_timeseries = function(x, y, w, h, spacing, label, update_freq, _format)
       return {
          label = _left_text(geom.make_point(x, y), label),
@@ -140,9 +154,9 @@ return function(config)
          ),
          plot = M.make_percent_timeseries(
             x,
-            y + spacing,
+            y + _maybe_config(gplot.spacing, spacing),
             w,
-            h,
+            _maybe_config(gplot.height, h),
             update_freq
          ),
       }

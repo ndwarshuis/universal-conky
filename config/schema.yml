@@ -224,9 +224,17 @@ properties:
         additionalProperties: false
         properties:
           plot:
-            required: [seconds, ticks]
+            required: [seconds, ticks, height, spacing]
             additionalProperties: false
             properties:
+              spacing:
+                description: the spacing between the label and the plot
+                type: integer
+                minimum: 10
+              height:
+                description: the height of the plot
+                type: integer
+                minimum: 10
               seconds:
                 description: the number of seconds on each timeseries plot
                 type: integer
