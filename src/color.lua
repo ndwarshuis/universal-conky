@@ -15,6 +15,7 @@ local rgba = function(hex, alpha)
          a = alpha,
       }
    )
+   print(hex, obj.r, obj.g, obj.b)
    return err.set_type(obj, "color")
 end
 
@@ -65,10 +66,15 @@ compile_patterns = function(patterns)
          r[k] = rgb(v)
       elseif v.color ~= nil then
          r[k] = rgba(v.color, v.alpha)
-      elseif v.gradient ~= nil then
-         r[k] = compile_gradient(v.gradient)
-      elseif v.gradient_alpha ~= nil then
-         r[k] = compile_gradient_alpha(v.gradient_alpha)
+      elseif #v > 0 then
+         if v[1].alpha ~= nil then
+            r[k] = compile_gradient_alpha(v)
+         else
+            -- for k, v in pairs(compile_gradient(v)) do
+            --    print(k, v.r)
+            -- end
+            r[k] = compile_gradient(v)
+         end
       else
          r[k] = compile_patterns(v)
       end

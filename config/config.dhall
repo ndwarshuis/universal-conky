@@ -4,7 +4,9 @@ let Point = Vector2 Natural
 
 let Margin = Vector2 Natural
 
-let FileSystem = { show_smart : Bool, paths : List Text }
+let FSPath = { name : Text, path : Text }
+
+let FileSystem = { show_smart : Bool, fs_paths : List FSPath }
 
 let Graphics =
       { dev_power : Text
@@ -56,14 +58,14 @@ let Modules =
       }
 
 let ModType =
-      < FileSystem
-      | Graphics
-      | Memory
-      | Network
-      | Pacman
-      | Processor
-      | ReadWrite
-      | System
+      < fileSystem
+      | graphics
+      | memory
+      | network
+      | pacman
+      | processor
+      | readwrite
+      | system
       >
 
 let Block = < Pad : Natural | Mod : ModType >
@@ -220,50 +222,40 @@ let Theme =
         { font = Font::{=}, geometry = Geometry::{=}, patterns = Patterns::{=} }
       }
 
-let layout =
-        { anchor = { x = 12, y = 11 }
-        , panels =
-              [ { columns =
-                  [ { blocks =
-                      [ Block.Mod ModType.Network
-                      , Block.Pad 10
-                      , Block.Mod ModType.Memory
-                      , Block.Pad 10
-                      , Block.Mod ModType.Processor
-                      ]
-                    , width = 436
-                    }
-                  ]
-                , margins = { x = 20, y = 10 }
-                }
-              ]
-            : List Panel
-        }
-      : Layout
+let Bootstrap = { update_interval : Natural, dimensions : Point }
 
-let modules =
-      Modules::{
-      , memory = Some
-          (   { show_stats = False
-              , show_swap = False
-              , show_plot = True
-              , table_rows = 3
-              }
-            : Memory
-          )
-      , processor = Some
-          (   { core_rows = 0
-              , core_padding = 0
-              , show_stats = False
-              , show_plot = True
-              , table_rows = 3
-              }
-            : Processor
-          )
+let Config =
+      { bootstrap : Bootstrap
+      , theme : Theme.Type
+      , layout : Layout
+      , modules : Modules.Type
       }
 
-in  { bootstrap = { update_interval = 1, dimensions = { x = 1920, y = 1080 } }
-    , theme = Theme::{=}
-    , layout
-    , modules
+let toConfig =
+      \(i : Natural) ->
+      \(d : Point) ->
+      \(t : Theme.Type) ->
+      \(l : Layout) ->
+      \(m : Modules.Type) ->
+          { bootstrap = { update_interval = i, dimensions = d }
+          , theme = t
+          , layout = l
+          , modules = m
+          }
+        : Config
+
+in  { toConfig
+    , Block
+    , ModType
+    , Layout
+    , Panel
+    , Modules
+    , FSPath
+    , FileSystem
+    , Graphics
+    , Memory
+    , Processor
+    , Power
+    , ReadWrite
+    , Theme
     }

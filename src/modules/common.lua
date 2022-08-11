@@ -104,8 +104,8 @@ return function(config)
    -- timeseries helper functions
 
    local _default_grid_config = timeseries.grid_config(
-      geometry.plot.ticks[1],
-      geometry.plot.ticks[2],
+      geometry.plot.ticks.x,
+      geometry.plot.ticks.y,
       patterns.plot.grid
    )
 
@@ -615,8 +615,8 @@ return function(config)
 
    local gtable = geometry.table
    local padding = gtable.padding
-   local xpad = padding[1]
-   local ypad = padding[2]
+   local xpad = padding.x
+   local ypad = padding.y
 
    local default_table_font_spec = make_font_spec(font_family, font_sizes.table, false)
 

@@ -99,8 +99,8 @@ local reduce_static = function(common_, mods, y, acc, panel_mods)
       acc.next_x = acc.next_x + panel_mods
    else
       local margins = panel_mods.margins
-      local margin_x = margins[1]
-      local margin_y = margins[2]
+      local margin_x = margins.x
+      local margin_y = margins.y
       local mpoint = geom.make_point(acc.next_x + margin_x, y + margin_y)
       local r = arrange_panel_modules(common_, mods, mpoint, panel_mods.columns)
       local w = r.width + margin_x * 2
@@ -163,9 +163,11 @@ return function(update_interval, config_path)
       pacman = pure.partial(pacman, main_state)
    }
 
+   local anchor = config.layout.anchor
+
    local compiled = compile_layout(
       common(config),
-      geom.make_point(table.unpack(config.layout.anchor)),
+      geom.make_point(anchor.x, anchor.y),
       mods,
       config.layout.panels
    )
