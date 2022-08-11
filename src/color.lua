@@ -15,7 +15,6 @@ local rgba = function(hex, alpha)
          a = alpha,
       }
    )
-   print(hex, obj.r, obj.g, obj.b)
    return err.set_type(obj, "color")
 end
 

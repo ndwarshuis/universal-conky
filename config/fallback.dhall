@@ -3,19 +3,21 @@ let C = ./config.dhall
 let layout =
         { anchor = { x = 12, y = 11 }
         , panels =
-              [ { columns =
-                  [ { blocks =
-                      [ C.Block.Mod C.ModType.network
-                      , C.Block.Pad 10
-                      , C.Block.Mod C.ModType.memory
-                      , C.Block.Pad 10
-                      , C.Block.Mod C.ModType.processor
-                      ]
-                    , width = 436
-                    }
-                  ]
-                , margins = { x = 20, y = 10 }
-                }
+              [ C.Panel.PPanel
+                  { columns =
+                    [ C.Column.CCol
+                        { blocks =
+                          [ C.Block.Mod C.ModType.network
+                          , C.Block.Pad 10
+                          , C.Block.Mod C.ModType.memory
+                          , C.Block.Pad 10
+                          , C.Block.Mod C.ModType.processor
+                          ]
+                        , width = 436
+                        }
+                    ]
+                  , margins = { x = 20, y = 10 }
+                  }
               ]
             : List C.Panel
         }

@@ -58,21 +58,26 @@ let Modules =
       }
 
 let ModType =
-      < fileSystem
+      < filesystem
       | graphics
       | memory
       | network
       | pacman
       | processor
+      | power
       | readwrite
       | system
       >
 
 let Block = < Pad : Natural | Mod : ModType >
 
-let Column = { blocks : List Block, width : Natural }
+let Column_ = { blocks : List Block, width : Natural }
 
-let Panel = { columns : List Column, margins : Margin }
+let Column = < CPad : Natural | CCol : Column_ >
+
+let Panel_ = { columns : List Column, margins : Margin }
+
+let Panel = < PPad : Natural | PPanel : Panel_ >
 
 let Layout = { anchor : Point, panels : List Panel }
 
@@ -113,7 +118,7 @@ let TableGeometry =
         { name_chars = 8
         , padding = { x = 6, y = 15 }
         , header_padding = 20
-        , row_spacing = 13
+        , row_spacing = 16
         }
       }
 
@@ -160,7 +165,7 @@ let Patterns =
               , data : { border : Pattern, fill : Pattern }
               }
           , indicator :
-              { bg : Pattern, fg : { active : Pattern, inactive : Pattern } }
+              { bg : Pattern, fg : { active : Pattern, critical : Pattern } }
           }
       , default =
         { header = Pattern.RGB 0xefefef
@@ -201,7 +206,7 @@ let Patterns =
                   , { color = 0x99CEFF, stop = 0.5 }
                   , { color = 0x316BA6, stop = 1.0 }
                   ]
-            , inactive =
+            , critical =
                 Pattern.GradientRGB
                   [ { color = 0xFF3333, stop = 0.0 }
                   , { color = 0xFFB8B8, stop = 0.5 }
@@ -246,6 +251,7 @@ let toConfig =
 
 in  { toConfig
     , Block
+    , Column
     , ModType
     , Layout
     , Panel
