@@ -153,65 +153,74 @@ let Pattern =
       | GradientRGBA : List StopRGBA
       >
 
+let Annotated = \(a : Type) -> { type : Text, data : a }
+
+let annotate =
+      \(a : Pattern) ->
+        { type = showConstructor a, data = a } : Annotated Pattern
+
+let APattern = Annotated Pattern
+
+let symGradient =
+      \(c0 : Natural) ->
+      \(c1 : Natural) ->
+        annotate
+          ( Pattern.GradientRGB
+              [ { color = c0, stop = 0.0 }
+              , { color = c1, stop = 0.5 }
+              , { color = c0, stop = 1.0 }
+              ]
+          )
+
 let Patterns =
       { Type =
-          { header : Pattern
-          , panel : { bg : Pattern }
-          , text : { active : Pattern, inactive : Pattern, critical : Pattern }
-          , border : Pattern
+          { header : APattern
+          , panel : { bg : APattern }
+          , text :
+              { active : APattern, inactive : APattern, critical : APattern }
+          , border : APattern
           , plot :
-              { grid : Pattern
-              , outline : Pattern
-              , data : { border : Pattern, fill : Pattern }
+              { grid : APattern
+              , outline : APattern
+              , data : { border : APattern, fill : APattern }
               }
           , indicator :
-              { bg : Pattern, fg : { active : Pattern, critical : Pattern } }
+              { bg : APattern, fg : { active : APattern, critical : APattern } }
           }
       , default =
-        { header = Pattern.RGB 0xefefef
-        , panel.bg = Pattern.RGBA { color = 0x121212, alpha = 0.7 }
+        { header = annotate (Pattern.RGB 0xefefef)
+        , panel.bg = annotate (Pattern.RGBA { color = 0x121212, alpha = 0.7 })
         , text =
-          { active = Pattern.RGB 0xbfe1ff
-          , inactive = Pattern.RGB 0xc8c8c8
-          , critical = Pattern.RGB 0xff8282
+          { active = annotate (Pattern.RGB 0xbfe1ff)
+          , inactive = annotate (Pattern.RGB 0xc8c8c8)
+          , critical = annotate (Pattern.RGB 0xff8282)
           }
-        , border = Pattern.RGB 0x888888
+        , border = annotate (Pattern.RGB 0x888888)
         , plot =
-          { grid = Pattern.RGB 0x666666
-          , outline = Pattern.RGB 0x777777
+          { grid = annotate (Pattern.RGB 0x666666)
+          , outline = annotate (Pattern.RGB 0x777777)
           , data =
             { border =
-                Pattern.GradientRGB
-                  [ { color = 0x003f7c, stop = 0.0 }
-                  , { color = 0x1e90ff, stop = 1.0 }
-                  ]
+                annotate
+                  ( Pattern.GradientRGB
+                      [ { color = 0x003f7c, stop = 0.0 }
+                      , { color = 0x1e90ff, stop = 1.0 }
+                      ]
+                  )
             , fill =
-                Pattern.GradientRGBA
-                  [ { color = 0x316ece, stop = 0.2, alpha = 0.5 }
-                  , { color = 0x8cc7ff, stop = 1.0, alpha = 1.0 }
-                  ]
+                annotate
+                  ( Pattern.GradientRGBA
+                      [ { color = 0x316ece, stop = 0.2, alpha = 0.5 }
+                      , { color = 0x8cc7ff, stop = 1.0, alpha = 1.0 }
+                      ]
+                  )
             }
           }
         , indicator =
-          { bg =
-              Pattern.GradientRGB
-                [ { color = 0x565656, stop = 0.0 }
-                , { color = 0xbfbfbf, stop = 0.5 }
-                , { color = 0x565656, stop = 1.0 }
-                ]
+          { bg = symGradient 0x565656 0xbfbfbf
           , fg =
-            { active =
-                Pattern.GradientRGB
-                  [ { color = 0x316BA6, stop = 0.0 }
-                  , { color = 0x99CEFF, stop = 0.5 }
-                  , { color = 0x316BA6, stop = 1.0 }
-                  ]
-            , critical =
-                Pattern.GradientRGB
-                  [ { color = 0xFF3333, stop = 0.0 }
-                  , { color = 0xFFB8B8, stop = 0.5 }
-                  , { color = 0xFF3333, stop = 1.0 }
-                  ]
+            { active = symGradient 0x316BA6 0x99CEFF
+            , critical = symGradient 0xFF3333 0xFFB8B8
             }
           }
         }

@@ -61,23 +61,14 @@ local compile_patterns
 compile_patterns = function(patterns)
    local r = {}
    for k, v in pairs(patterns) do
-      -- number -> solid color
-      if type(v) == "number" then
-         r[k] = rgb(v)
-      -- { color = x, alpha = y} -> alpha color
-      elseif v.color ~= nil then
-         r[k] = rgba(v.color, v.alpha)
-      -- ASSUME non-empty array is a gradient
-      elseif #v > 0 then
-         -- ASSUME alpha gradient will have color/stop/alpha records for each
-         -- member, so just check the first
-         if v[1].alpha ~= nil then
-            r[k] = compile_gradient_alpha(v)
-         else
-            r[k] = compile_gradient(v)
-         end
-      -- ASSUME nothing else in the tree is a number, a table with 'color', or
-      -- an array
+      if v.type == "RGB" then
+         r[k] = rgb(v.data)
+      elseif v.type == "RGBA" then
+         r[k] = rgba(v.data.color, v.data.alpha)
+      elseif v.type == "GradientRGB" then
+         r[k] = compile_gradient(v.data)
+      elseif v.type == "GradientRGBA" then
+         r[k] = compile_gradient_alpha(v.data)
       else
          r[k] = compile_patterns(v)
       end
