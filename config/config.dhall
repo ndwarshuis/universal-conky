@@ -38,38 +38,21 @@ let Power = { battery : Text, rapl_specs : List RaplSpec }
 
 let ReadWrite = { devices : List Text }
 
-let Modules =
-      { Type =
-          { filesystem : Optional FileSystem
-          , graphics : Optional Graphics
-          , memory : Optional Memory
-          , processor : Optional Processor
-          , power : Optional Power
-          , readwrite : Optional ReadWrite
-          }
-      , default =
-        { filesystem = None FileSystem
-        , graphics = None Graphics
-        , memory = None Memory
-        , processor = None Processor
-        , power = None Power
-        , readwrite = None ReadWrite
-        }
-      }
-
 let ModType =
-      < filesystem
-      | graphics
-      | memory
+      < filesystem : FileSystem
+      | graphics : Graphics
+      | memory : Memory
       | network
       | pacman
-      | processor
-      | power
-      | readwrite
+      | processor : Processor
+      | power : Power
+      | readwrite : ReadWrite
       | system
       >
 
-let Block = < Pad : Natural | Mod : ModType >
+let Annotated = \(a : Type) -> { type : Text, data : a }
+
+let Block = < Pad : Natural | Mod : Annotated ModType >
 
 let Column_ = { blocks : List Block, width : Natural }
 
@@ -153,18 +136,18 @@ let Pattern =
       | GradientRGBA : List StopRGBA
       >
 
-let Annotated = \(a : Type) -> { type : Text, data : a }
-
-let annotate =
+let annotatePattern =
       \(a : Pattern) ->
         { type = showConstructor a, data = a } : Annotated Pattern
+
+let mod = \(a : ModType) -> Block.Mod { type = showConstructor a, data = a }
 
 let APattern = Annotated Pattern
 
 let symGradient =
       \(c0 : Natural) ->
       \(c1 : Natural) ->
-        annotate
+        annotatePattern
           ( Pattern.GradientRGB
               [ { color = c0, stop = 0.0 }
               , { color = c1, stop = 0.5 }
@@ -188,27 +171,28 @@ let Patterns =
               { bg : APattern, fg : { active : APattern, critical : APattern } }
           }
       , default =
-        { header = annotate (Pattern.RGB 0xefefef)
-        , panel.bg = annotate (Pattern.RGBA { color = 0x121212, alpha = 0.7 })
+        { header = annotatePattern (Pattern.RGB 0xefefef)
+        , panel.bg
+          = annotatePattern (Pattern.RGBA { color = 0x121212, alpha = 0.7 })
         , text =
-          { active = annotate (Pattern.RGB 0xbfe1ff)
-          , inactive = annotate (Pattern.RGB 0xc8c8c8)
-          , critical = annotate (Pattern.RGB 0xff8282)
+          { active = annotatePattern (Pattern.RGB 0xbfe1ff)
+          , inactive = annotatePattern (Pattern.RGB 0xc8c8c8)
+          , critical = annotatePattern (Pattern.RGB 0xff8282)
           }
-        , border = annotate (Pattern.RGB 0x888888)
+        , border = annotatePattern (Pattern.RGB 0x888888)
         , plot =
-          { grid = annotate (Pattern.RGB 0x666666)
-          , outline = annotate (Pattern.RGB 0x777777)
+          { grid = annotatePattern (Pattern.RGB 0x666666)
+          , outline = annotatePattern (Pattern.RGB 0x777777)
           , data =
             { border =
-                annotate
+                annotatePattern
                   ( Pattern.GradientRGB
                       [ { color = 0x003f7c, stop = 0.0 }
                       , { color = 0x1e90ff, stop = 1.0 }
                       ]
                   )
             , fill =
-                annotate
+                annotatePattern
                   ( Pattern.GradientRGBA
                       [ { color = 0x316ece, stop = 0.2, alpha = 0.5 }
                       , { color = 0x8cc7ff, stop = 1.0, alpha = 1.0 }
@@ -238,23 +222,17 @@ let Theme =
 
 let Bootstrap = { update_interval : Natural, dimensions : Point }
 
-let Config =
-      { bootstrap : Bootstrap
-      , theme : Theme.Type
-      , layout : Layout
-      , modules : Modules.Type
-      }
+let Config = { bootstrap : Bootstrap, theme : Theme.Type, layout : Layout }
 
 let toConfig =
       \(i : Natural) ->
-      \(d : Point) ->
+      \(x : Natural) ->
+      \(y : Natural) ->
       \(t : Theme.Type) ->
       \(l : Layout) ->
-      \(m : Modules.Type) ->
-          { bootstrap = { update_interval = i, dimensions = d }
+          { bootstrap = { update_interval = i, dimensions = { x, y } }
           , theme = t
           , layout = l
-          , modules = m
           }
         : Config
 
@@ -264,7 +242,6 @@ in  { toConfig
     , ModType
     , Layout
     , Panel
-    , Modules
     , FSPath
     , FileSystem
     , Graphics
@@ -273,4 +250,5 @@ in  { toConfig
     , Power
     , ReadWrite
     , Theme
+    , mod
     }

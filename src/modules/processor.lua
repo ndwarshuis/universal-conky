@@ -6,7 +6,7 @@ local pure = require 'pure'
 
 local __math_floor = math.floor
 
-return function(update_freq, config, main_state, common, width, point)
+return function(update_freq, main_state, config, common, width, point)
    local DIAL_INNER_RADIUS = 30
    local DIAL_OUTER_RADIUS = 42
    local DIAL_THICKNESS = 5.5

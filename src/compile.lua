@@ -18,7 +18,8 @@ local reduce_modules_y = function(common_, modlist, init_x, width, acc, new)
    if type(new) == "number" then
       acc.next_y = acc.next_y + new
    else
-      local m = modlist[new](common_, width, geom.make_point(init_x, acc.next_y))
+      local m = modlist[new.type](new.data, common_, width, geom.make_point(init_x, acc.next_y))
+      -- local m = modlist[new](common_, width, geom.make_point(init_x, acc.next_y))
       local r = common_.compile_module(
          m.header,
          m.point,
@@ -147,19 +148,18 @@ end
 return function(update_interval, config_path)
    local update_freq = 1 / update_interval
    local config = yaml.load(i_o.read_file(config_path))
-   local cmods = config.modules
 
    local main_state = {}
 
-   local mods = {
-      memory = pure.partial(memory, update_freq, cmods.memory),
-      readwrite = pure.partial(readwrite, update_freq, cmods.readwrite),
+   local modlist = {
+      memory = pure.partial(memory, update_freq),
+      readwrite = pure.partial(readwrite, update_freq),
       network = pure.partial(network, update_freq),
-      power = pure.partial(power, update_freq, cmods.power),
-      filesystem = pure.partial(filesystem, cmods.filesystem, main_state),
+      power = pure.partial(power, update_freq),
+      filesystem = pure.partial(filesystem, main_state),
       system = pure.partial(system, main_state),
-      graphics = pure.partial(graphics, update_freq, cmods.graphics),
-      processor = pure.partial(processor, update_freq, cmods.processor, main_state),
+      graphics = pure.partial(graphics, update_freq),
+      processor = pure.partial(processor, update_freq, main_state),
       pacman = pure.partial(pacman, main_state)
    }
 
@@ -168,7 +168,7 @@ return function(update_interval, config_path)
    local compiled = compile_layout(
       common(config),
       geom.make_point(anchor.x, anchor.y),
-      mods,
+      modlist,
       config.layout.panels
    )
 

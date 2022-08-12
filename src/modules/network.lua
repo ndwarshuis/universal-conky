@@ -3,7 +3,7 @@ local pure = require 'pure'
 local i_o = require 'i_o'
 local sys = require 'sys'
 
-return function(update_freq, common, width, point)
+return function(update_freq, _, common, width, point)
    local PLOT_SEC_BREAK = 20
    local PLOT_HEIGHT = 56
    local interface_paths = sys.get_net_interface_paths()

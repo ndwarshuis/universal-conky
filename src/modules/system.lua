@@ -1,7 +1,7 @@
 local i_o = require 'i_o'
 local pure = require 'pure'
 
-return function(main_state, common, width, point)
+return function(main_state, _, common, width, point)
    local TEXT_SPACING = 20
 
    local __string_match = string.match

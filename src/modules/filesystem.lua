@@ -2,7 +2,7 @@ local i_o = require 'i_o'
 local pure = require 'pure'
 local impure = require 'impure'
 
-return function(config, main_state, common, width, point)
+return function(main_state, config, common, width, point)
    local SPACING = 20
    local BAR_PAD = 100
    local SEPARATOR_SPACING = 20
