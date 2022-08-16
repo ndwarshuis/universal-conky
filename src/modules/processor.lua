@@ -7,15 +7,16 @@ local pure = require 'pure'
 local __math_floor = math.floor
 
 return function(update_freq, main_state, config, common, width, point)
+   local geo = config.geometry
    local DIAL_INNER_RADIUS = 30
    local DIAL_OUTER_RADIUS = 42
    local DIAL_THICKNESS = 5.5
-   local DIAL_SPACING = 20
-   local SEPARATOR_SPACING = 20
-   local TEXT_SPACING = 22
-   local PLOT_SECTION_BREAK = 23
-   local PLOT_HEIGHT = 56
-   local TABLE_SECTION_BREAK = 20
+   local DIAL_Y_SPACING = 20
+   local SEPARATOR_SPACING = geo.sep_spacing
+   local TEXT_SPACING = geo.text_spacing
+   local PLOT_SECTION_BREAK = geo.plot.sec_break
+   local PLOT_HEIGHT = geo.plot.height
+   local TABLE_SECTION_BREAK = geo.table.sec_break
 
    -----------------------------------------------------------------------------
    -- processor state
@@ -55,7 +56,7 @@ return function(update_freq, main_state, config, common, width, point)
               (width - 2 * (DIAL_OUTER_RADIUS + config.core_padding))
               * math.fmod(c - 1, core_cols) / (core_cols - 1)))
       local dial_y = y + DIAL_OUTER_RADIUS +
-         (2 * DIAL_OUTER_RADIUS + DIAL_SPACING)
+         (2 * DIAL_OUTER_RADIUS + DIAL_Y_SPACING)
          * math.floor((c - 1) / core_cols)
       return {
          loads = common.make_compound_dial(
@@ -115,8 +116,8 @@ return function(update_freq, main_state, config, common, width, point)
       end
       return common.mk_acc(
          width,
-         (DIAL_OUTER_RADIUS * 2 + DIAL_SPACING) * config.core_rows
-         - DIAL_SPACING,
+         (DIAL_OUTER_RADIUS * 2 + DIAL_Y_SPACING) * config.core_rows
+         - DIAL_Y_SPACING,
          update,
          static,
          dynamic

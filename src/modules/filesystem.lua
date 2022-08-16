@@ -4,8 +4,7 @@ local impure = require 'impure'
 
 return function(main_state, config, common, width, point)
    local geo = config.geometry
-   local SPACING = geo.spacing
-   local BAR_PAD = geo.bar_pad
+   local SPACING = geo.bar_spacing
    local SEPARATOR_SPACING = geo.sep_spacing
 
    -----------------------------------------------------------------------------
@@ -47,7 +46,9 @@ return function(main_state, config, common, width, point)
          point.x,
          y,
          width,
-         BAR_PAD,
+         -- TODO this isn't actually padding, it would be padding if it was
+         -- relative to the right edge of the text column
+         geo.bar_pad,
          names,
          SPACING,
          12,

@@ -11,10 +11,9 @@ return function(update_freq, config, common, width, point)
    local DIAL_X_SPACING = 40
    local CACHE_Y_OFFSET = 7
    local CACHE_X_OFFSET = 50
-   local TEXT_SPACING = geo.text_spacing
    local PLOT_SECTION_BREAK = geo.plot.sec_break
    local PLOT_HEIGHT = geo.plot.height
-   local TABLE_SECTION_BREAK = 20
+   local TABLE_SECTION_BREAK = geo.table.sec_break
 
    local __math_floor = math.floor
    local __string_format = string.format
@@ -77,7 +76,7 @@ return function(update_freq, config, common, width, point)
          CACHE_X,
          y + CACHE_Y_OFFSET,
          CACHE_WIDTH,
-         TEXT_SPACING,
+         geo.text_spacing,
          {'Page Cache', 'Buffers', 'Shared', 'Kernel Slab'},
          '%.1f%%'
       )

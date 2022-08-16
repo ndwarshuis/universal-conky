@@ -4,7 +4,6 @@ local sys = require 'sys'
 
 return function(update_freq, config, common, width, point)
    local geo = config.geometry
-   local TEXT_SPACING = geo.text_spacing
    local PLOT_SEC_BREAK = geo.plot.sec_break
    local PLOT_HEIGHT = geo.plot.height
 
@@ -51,7 +50,7 @@ return function(update_freq, config, common, width, point)
 
    local mk_rate_blockspec = function(spec)
       local f = pure.partial(mk_rate_plot, spec.name, spec.address)
-      return {f, true, TEXT_SPACING}
+      return {f, true, geo.text_spacing}
    end
 
    -----------------------------------------------------------------------------

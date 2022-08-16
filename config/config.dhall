@@ -6,26 +6,51 @@ let Margin = Vector2 Natural
 
 let FSPath = { name : Text, path : Text }
 
+let TextGeo = { Type = { text_spacing : Natural }, default.text_spacing = 20 }
+
+let SepGeo = { Type = { sep_spacing : Natural }, default.sep_spacing = 20 }
+
+let PlotGeo_ =
+      { Type = { sec_break : Natural, height : Natural }
+      , default = { sec_break = 20, height = 56 }
+      }
+
+let PlotGeo = { Type = { plot : PlotGeo_.Type }, default.plot = PlotGeo_::{=} }
+
+let TableGeo_ = { Type = { sec_break : Natural }, default.sec_break = 20 }
+
+let TableGeo =
+      { Type = { table : TableGeo_.Type }, default.table = TableGeo_::{=} }
+
 let FSGeo =
-      { Type = { spacing : Natural, bar_pad : Natural, sep_spacing : Natural }
-      , default = { spacing = 20, bar_pad = 100, sep_spacing = 20 }
+      { Type = { bar_spacing : Natural, bar_pad : Natural } //\\ SepGeo.Type
+      , default = { bar_spacing = 20, bar_pad = 100 } /\ SepGeo::{=}
+      }
+
+let GfxGeo =
+      { Type = SepGeo.Type //\\ PlotGeo.Type //\\ TextGeo.Type
+      , default = SepGeo::{=} /\ PlotGeo::{=} /\ TextGeo::{=}
+      }
+
+let MemGeo =
+      { Type = TextGeo.Type //\\ PlotGeo.Type //\\ TableGeo.Type
+      , default = TextGeo::{=} /\ PlotGeo::{=} /\ TableGeo::{=}
+      }
+
+let ProcGeo =
+      { Type = GfxGeo.Type //\\ TableGeo.Type
+      , default = GfxGeo::{=} /\ TableGeo::{=}
+      }
+
+let PwrGeo =
+      { Type = TextGeo.Type //\\ PlotGeo.Type
+      , default = TextGeo::{=} /\ PlotGeo::{=}
       }
 
 let FileSystem =
       { Type =
           { show_smart : Bool, fs_paths : List FSPath, geometry : FSGeo.Type }
       , default.geometry = FSGeo::{=}
-      }
-
-let PlotGeo =
-      { Type = { sec_break : Natural, height : Natural }
-      , default = { sec_break = 20, height = 56 }
-      }
-
-let GfxGeo =
-      { Type =
-          { sep_spacing : Natural, text_spacing : Natural, plot : PlotGeo.Type }
-      , default = { sep_spacing = 20, text_spacing = 20, plot = PlotGeo::{=} }
       }
 
 let Graphics =
@@ -41,11 +66,6 @@ let Graphics =
       , default.geometry = GfxGeo::{=}
       }
 
-let MemGeo =
-      { Type = { text_spacing : Natural, plot : PlotGeo.Type }
-      , default = { plot = PlotGeo::{=}, text_spacing = 20 }
-      }
-
 let Memory =
       { Type =
           { show_stats : Bool
@@ -58,11 +78,7 @@ let Memory =
       }
 
 let Network =
-      { Type = { geometry : { plot : PlotGeo.Type } }
-      , default.geometry.plot = PlotGeo::{=}
-      }
-
-let ProcGeo = { Type = { plot : PlotGeo.Type }, default.plot = PlotGeo::{=} }
+      { Type = { geometry : PlotGeo.Type }, default.geometry = PlotGeo::{=} }
 
 let Processor =
       { Type =
@@ -78,15 +94,8 @@ let Processor =
 
 let RaplSpec = { name : Text, address : Text }
 
-let PwrGeo =
-      { Type = { text_spacing : Natural, plot : PlotGeo.Type }
-      , default = { text_spacing = 20, plot = PlotGeo::{=} }
-      }
-
 let Pacman =
-      { Type = { geometry : { text_spacing : Natural } }
-      , default.geometry.text_spacing = 20
-      }
+      { Type = { geometry : TextGeo.Type }, default.geometry = TextGeo::{=} }
 
 let Power =
       { Type =
@@ -94,11 +103,9 @@ let Power =
       , default.geometry = PwrGeo::{=}
       }
 
-let RWGeo = { Type = { plot : PlotGeo.Type }, default.plot = PlotGeo::{=} }
-
 let ReadWrite =
-      { Type = { devices : List Text, geometry : RWGeo.Type }
-      , default.geometry = RWGeo::{=}
+      { Type = { devices : List Text, geometry : PlotGeo.Type }
+      , default.geometry = PlotGeo::{=}
       }
 
 let System = Pacman
