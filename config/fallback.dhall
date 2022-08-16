@@ -2,7 +2,8 @@ let C = ./config.dhall
 
 let memory =
       C.ModType.memory
-        { show_stats = False
+        C.Memory::{
+        , show_stats = False
         , show_swap = False
         , show_plot = True
         , table_rows = 3
@@ -10,7 +11,8 @@ let memory =
 
 let processor =
       C.ModType.processor
-        { core_rows = 0
+        C.Processor::{
+        , core_rows = 0
         , core_padding = 0
         , show_stats = False
         , show_plot = True
@@ -24,7 +26,7 @@ let layout =
             { columns =
               [ C.Column.CCol
                   { blocks =
-                    [ C.mod C.ModType.network
+                    [ C.mod (C.ModType.network C.Network::{=})
                     , C.Block.Pad 10
                     , C.mod memory
                     , C.Block.Pad 10

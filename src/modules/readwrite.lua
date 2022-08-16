@@ -5,8 +5,9 @@ local i_o = require 'i_o'
 local impure = require 'impure'
 
 return function(update_freq, config, common, width, point)
-   local PLOT_SEC_BREAK = 20
-   local PLOT_HEIGHT = 56
+   local geo = config.geometry
+   local PLOT_SEC_BREAK = geo.plot.sec_break
+   local PLOT_HEIGHT = geo.plot.height
 
    local mod_state = {read = 0, write = 0}
    local device_paths = sys.get_disk_paths(config.devices)

@@ -3,9 +3,10 @@ local pure = require 'pure'
 local i_o = require 'i_o'
 local sys = require 'sys'
 
-return function(update_freq, _, common, width, point)
-   local PLOT_SEC_BREAK = 20
-   local PLOT_HEIGHT = 56
+return function(update_freq, config, common, width, point)
+   local geo = config.geometry
+   local PLOT_SEC_BREAK = geo.plot.sec_break
+   local PLOT_HEIGHT = geo.plot.height
    local interface_paths = sys.get_net_interface_paths()
 
    local get_bits = function(path)

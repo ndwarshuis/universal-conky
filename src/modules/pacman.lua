@@ -1,7 +1,7 @@
 local pure = require 'pure'
 
-return function(main_state, _, common, width, point)
-   local TEXT_SPACING = 20
+return function(main_state, config, common, width, point)
+   local TEXT_SPACING = config.geometry.text_spacing
 
    local __string_match = string.match
    local __string_gmatch = string.gmatch

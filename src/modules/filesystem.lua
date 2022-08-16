@@ -3,9 +3,10 @@ local pure = require 'pure'
 local impure = require 'impure'
 
 return function(main_state, config, common, width, point)
-   local SPACING = 20
-   local BAR_PAD = 100
-   local SEPARATOR_SPACING = 20
+   local geo = config.geometry
+   local SPACING = geo.spacing
+   local BAR_PAD = geo.bar_pad
+   local SEPARATOR_SPACING = geo.sep_spacing
 
    -----------------------------------------------------------------------------
    -- smartd

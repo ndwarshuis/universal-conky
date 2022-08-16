@@ -6,48 +6,113 @@ let Margin = Vector2 Natural
 
 let FSPath = { name : Text, path : Text }
 
-let FileSystem = { show_smart : Bool, fs_paths : List FSPath }
+let FSGeo =
+      { Type = { spacing : Natural, bar_pad : Natural, sep_spacing : Natural }
+      , default = { spacing = 20, bar_pad = 100, sep_spacing = 20 }
+      }
+
+let FileSystem =
+      { Type =
+          { show_smart : Bool, fs_paths : List FSPath, geometry : FSGeo.Type }
+      , default.geometry = FSGeo::{=}
+      }
+
+let PlotGeo =
+      { Type = { sec_break : Natural, height : Natural }
+      , default = { sec_break = 20, height = 56 }
+      }
+
+let GfxGeo =
+      { Type =
+          { sep_spacing : Natural, text_spacing : Natural, plot : PlotGeo.Type }
+      , default = { sep_spacing = 20, text_spacing = 20, plot = PlotGeo::{=} }
+      }
 
 let Graphics =
-      { dev_power : Text
-      , show_temp : Bool
-      , show_clock : Bool
-      , show_gpu_util : Bool
-      , show_mem_util : Bool
-      , show_vid_util : Bool
+      { Type =
+          { dev_power : Text
+          , show_temp : Bool
+          , show_clock : Bool
+          , show_gpu_util : Bool
+          , show_mem_util : Bool
+          , show_vid_util : Bool
+          , geometry : GfxGeo.Type
+          }
+      , default.geometry = GfxGeo::{=}
+      }
+
+let MemGeo =
+      { Type = { text_spacing : Natural, plot : PlotGeo.Type }
+      , default = { plot = PlotGeo::{=}, text_spacing = 20 }
       }
 
 let Memory =
-      { show_stats : Bool
-      , show_plot : Bool
-      , show_swap : Bool
-      , table_rows : Natural
+      { Type =
+          { show_stats : Bool
+          , show_plot : Bool
+          , show_swap : Bool
+          , table_rows : Natural
+          , geometry : MemGeo.Type
+          }
+      , default.geometry = MemGeo::{=}
       }
 
+let Network =
+      { Type = { geometry : { plot : PlotGeo.Type } }
+      , default.geometry.plot = PlotGeo::{=}
+      }
+
+let ProcGeo = { Type = { plot : PlotGeo.Type }, default.plot = PlotGeo::{=} }
+
 let Processor =
-      { core_rows : Natural
-      , core_padding : Natural
-      , show_stats : Bool
-      , show_plot : Bool
-      , table_rows : Natural
+      { Type =
+          { core_rows : Natural
+          , core_padding : Natural
+          , show_stats : Bool
+          , show_plot : Bool
+          , table_rows : Natural
+          , geometry : ProcGeo.Type
+          }
+      , default.geometry = ProcGeo::{=}
       }
 
 let RaplSpec = { name : Text, address : Text }
 
-let Power = { battery : Text, rapl_specs : List RaplSpec }
+let PwrGeo =
+      { Type = { text_spacing : Natural, plot : PlotGeo.Type }
+      , default = { text_spacing = 20, plot = PlotGeo::{=} }
+      }
 
-let ReadWrite = { devices : List Text }
+let Pacman =
+      { Type = { geometry : { text_spacing : Natural } }
+      , default.geometry.text_spacing = 20
+      }
+
+let Power =
+      { Type =
+          { battery : Text, rapl_specs : List RaplSpec, geometry : PwrGeo.Type }
+      , default.geometry = PwrGeo::{=}
+      }
+
+let RWGeo = { Type = { plot : PlotGeo.Type }, default.plot = PlotGeo::{=} }
+
+let ReadWrite =
+      { Type = { devices : List Text, geometry : RWGeo.Type }
+      , default.geometry = RWGeo::{=}
+      }
+
+let System = Pacman
 
 let ModType =
-      < filesystem : FileSystem
-      | graphics : Graphics
-      | memory : Memory
-      | network
-      | pacman
-      | processor : Processor
-      | power : Power
-      | readwrite : ReadWrite
-      | system
+      < filesystem : FileSystem.Type
+      | graphics : Graphics.Type
+      | memory : Memory.Type
+      | network : Network.Type
+      | pacman : Pacman.Type
+      | processor : Processor.Type
+      | power : Power.Type
+      | readwrite : ReadWrite.Type
+      | system : System.Type
       >
 
 let Annotated = \(a : Type) -> { type : Text, data : a }
@@ -246,9 +311,12 @@ in  { toConfig
     , FileSystem
     , Graphics
     , Memory
+    , Network
+    , Pacman
     , Processor
     , Power
     , ReadWrite
+    , System
     , Theme
     , mod
     }

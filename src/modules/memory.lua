@@ -5,14 +5,15 @@ local pure = require 'pure'
 local sys = require 'sys'
 
 return function(update_freq, config, common, width, point)
+   local geo = config.geometry
    local DIAL_THICKNESS = 8
    local DIAL_RADIUS = 32
-   local DIAL_SPACING = 40
+   local DIAL_X_SPACING = 40
    local CACHE_Y_OFFSET = 7
    local CACHE_X_OFFSET = 50
-   local TEXT_SPACING = 20
-   local PLOT_SECTION_BREAK = 23
-   local PLOT_HEIGHT = 56
+   local TEXT_SPACING = geo.text_spacing
+   local PLOT_SECTION_BREAK = geo.plot.sec_break
+   local PLOT_HEIGHT = geo.plot.height
    local TABLE_SECTION_BREAK = 20
 
    local __math_floor = math.floor
@@ -54,7 +55,7 @@ return function(update_freq, config, common, width, point)
       local CACHE_X
       local SWAP_X
       if _show_swap == true then
-         SWAP_X = MEM_X + DIAL_DIAMETER + DIAL_SPACING
+         SWAP_X = MEM_X + DIAL_DIAMETER + DIAL_X_SPACING
          CACHE_X = SWAP_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
       else
          CACHE_X = MEM_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
