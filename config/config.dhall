@@ -152,13 +152,8 @@ let Font =
       }
 
 let PlotGeometry =
-      { Type =
-          { spacing : Natural
-          , height : Natural
-          , seconds : Natural
-          , ticks_x : Natural
-          }
-      , default = { seconds = 90, ticks_x = 9, height = 56, spacing = 20 }
+      { Type = { seconds : Natural, ticks_x : Natural }
+      , default = { seconds = 90, ticks_x = 9 }
       }
 
 let TableGeometry =
