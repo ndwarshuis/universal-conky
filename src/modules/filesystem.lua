@@ -4,8 +4,8 @@ local impure = require 'impure'
 
 return function(main_state, config, common, width, point)
    local geo = config.geometry
-   local SPACING = geo.bar_spacing
-   local SEPARATOR_SPACING = geo.sep_spacing
+   local bar_spacing = geo.bar_spacing
+   local separator_bar_spacing = geo.sep_spacing
 
    -----------------------------------------------------------------------------
    -- smartd
@@ -50,7 +50,7 @@ return function(main_state, config, common, width, point)
          -- relative to the right edge of the text column
          geo.bar_pad,
          names,
-         SPACING,
+         bar_spacing,
          12,
          80
       )
@@ -64,7 +64,7 @@ return function(main_state, config, common, width, point)
       end
       return common.mk_acc(
          width,
-         (#config.fs_paths - 1) * SPACING,
+         (#config.fs_paths - 1) * bar_spacing,
          update,
          pure.partial(common.compound_bar_draw_static, obj),
          pure.partial(common.compound_bar_draw_dynamic, obj)
@@ -79,7 +79,7 @@ return function(main_state, config, common, width, point)
       point = point,
       width = width,
       set_state = nil,
-      top = {{mk_smart, config.show_smart, SEPARATOR_SPACING}},
-      common.mk_section(SEPARATOR_SPACING, {mk_bars, true, 0})
+      top = {{mk_smart, config.show_smart, separator_bar_spacing}},
+      common.mk_section(separator_bar_spacing, {mk_bars, true, 0})
    }
 end

@@ -2,13 +2,15 @@ local pure			= require 'pure'
 local i_o			= require 'i_o'
 
 return function(update_freq, config, common, width, point)
+   local NA = 'N/A'
+   local NVIDIA_EXE = 'nvidia-settings'
+
    local geo = config.geometry
    local sep_spacing = geo.sep_spacing
    local text_spacing = geo.text_spacing
    local plot_sec_break = geo.plot.sec_break
    local plot_height = geo.plot.height
-   local NA = 'N/A'
-   local NVIDIA_EXE = 'nvidia-settings'
+
    local __string_match	= string.match
    local __string_format = string.format
    local __tonumber = tonumber

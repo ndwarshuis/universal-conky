@@ -5,12 +5,13 @@ local pure = require 'pure'
 local sys = require 'sys'
 
 return function(update_freq, config, common, width, point)
-   local geo = config.geometry
    local dial_thickness = 8
    local dial_radius = 32
    local dial_x_spacing = 40
    local cache_y_offset = 7
    local cache_x_offset = 50
+
+   local geo = config.geometry
    local plot_sec_break = geo.plot.sec_break
    local plot_height = geo.plot.height
    local table_sec_break = geo.table.sec_break
