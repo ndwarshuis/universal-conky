@@ -11,8 +11,8 @@ let TextGeo = { Type = { text_spacing : Natural }, default.text_spacing = 20 }
 let SepGeo = { Type = { sep_spacing : Natural }, default.sep_spacing = 20 }
 
 let PlotGeo_ =
-      { Type = { sec_break : Natural, height : Natural }
-      , default = { sec_break = 20, height = 56 }
+      { Type = { sec_break : Natural, height : Natural, ticks_y : Natural }
+      , default = { sec_break = 20, height = 56, ticks_y = 4 }
       }
 
 let PlotGeo = { Type = { plot : PlotGeo_.Type }, default.plot = PlotGeo_::{=} }
@@ -156,10 +156,9 @@ let PlotGeometry =
           { spacing : Natural
           , height : Natural
           , seconds : Natural
-          , ticks : Vector2 Natural
+          , ticks_x : Natural
           }
-      , default =
-        { seconds = 90, ticks = { x = 9, y = 4 }, height = 56, spacing = 20 }
+      , default = { seconds = 90, ticks_x = 9, height = 56, spacing = 20 }
       }
 
 let TableGeometry =

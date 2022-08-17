@@ -4,8 +4,8 @@ local sys = require 'sys'
 
 return function(update_freq, config, common, width, point)
    local geo = config.geometry
-   local PLOT_SEC_BREAK = geo.plot.sec_break
-   local PLOT_HEIGHT = geo.plot.height
+   local plot_sec_break = geo.plot.sec_break
+   local plot_height = geo.plot.height
 
    local power_label_function = function(plot_max)
       local fmt = common.y_label_format_string(plot_max, 'W')
@@ -30,10 +30,11 @@ return function(update_freq, config, common, width, point)
          point.x,
          y,
          width,
-         PLOT_HEIGHT,
+         plot_height,
+         geo.plot.ticks_y,
          format_rapl,
          power_label_function,
-         PLOT_SEC_BREAK,
+         plot_sec_break,
          label,
          0,
          update_freq,
@@ -41,7 +42,7 @@ return function(update_freq, config, common, width, point)
       )
       return common.mk_acc(
          width,
-         PLOT_HEIGHT + PLOT_SEC_BREAK,
+         plot_height + plot_sec_break,
          function(_) common.update_rate_timeseries(obj, read_joules()) end,
          mk_static(obj),
          mk_dynamic(obj)
@@ -72,17 +73,18 @@ return function(update_freq, config, common, width, point)
          point.x,
          y,
          width,
-         PLOT_HEIGHT,
+         plot_height,
+         geo.plot.ticks_y,
          format_ac,
          power_label_function,
-         PLOT_SEC_BREAK,
+         plot_sec_break,
          'Battery Draw',
          0,
          update_freq
       )
       return common.mk_acc(
          width,
-         PLOT_HEIGHT + PLOT_SEC_BREAK,
+         plot_height + plot_sec_break,
          function()
             common.tagged_scaled_timeseries_set(
                obj,

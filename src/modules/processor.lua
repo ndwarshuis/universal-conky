@@ -7,16 +7,16 @@ local pure = require 'pure'
 local __math_floor = math.floor
 
 return function(update_freq, main_state, config, common, width, point)
+   local dial_inner_radius = 30
+   local dial_outer_radius = 42
+   local dial_thickness = 5.5
+   local dial_y_spacing = 20
+
    local geo = config.geometry
-   local DIAL_INNER_RADIUS = 30
-   local DIAL_OUTER_RADIUS = 42
-   local DIAL_THICKNESS = 5.5
-   local DIAL_Y_SPACING = 20
-   local SEPARATOR_SPACING = geo.sep_spacing
-   local TEXT_SPACING = geo.text_spacing
-   local PLOT_SECTION_BREAK = geo.plot.sec_break
-   local PLOT_HEIGHT = geo.plot.height
-   local TABLE_SECTION_BREAK = geo.table.sec_break
+   local sep_spacing = geo.sep_spacing
+   local text_spacing = geo.text_spacing
+   local plot_sec_break = geo.plot.sec_break
+   local plot_height = geo.plot.height
 
    -----------------------------------------------------------------------------
    -- processor state
@@ -52,26 +52,26 @@ return function(update_freq, main_state, config, common, width, point)
       local dial_x = point.x +
          (core_cols == 1
           and (width / 2)
-          or (config.core_padding + DIAL_OUTER_RADIUS +
-              (width - 2 * (DIAL_OUTER_RADIUS + config.core_padding))
+          or (config.core_padding + dial_outer_radius +
+              (width - 2 * (dial_outer_radius + config.core_padding))
               * math.fmod(c - 1, core_cols) / (core_cols - 1)))
-      local dial_y = y + DIAL_OUTER_RADIUS +
-         (2 * DIAL_OUTER_RADIUS + DIAL_Y_SPACING)
+      local dial_y = y + dial_outer_radius +
+         (2 * dial_outer_radius + dial_y_spacing)
          * math.floor((c - 1) / core_cols)
       return {
          loads = common.make_compound_dial(
             dial_x,
             dial_y,
-            DIAL_OUTER_RADIUS,
-            DIAL_INNER_RADIUS,
-            DIAL_THICKNESS,
+            dial_outer_radius,
+            dial_inner_radius,
+            dial_thickness,
             80,
             nthreads
          ),
          coretemp = common.make_text_circle(
             dial_x,
             dial_y,
-            DIAL_INNER_RADIUS - 2,
+            dial_inner_radius - 2,
             '%s°C',
             80,
             __math_floor
@@ -116,8 +116,8 @@ return function(update_freq, main_state, config, common, width, point)
       end
       return common.mk_acc(
          width,
-         (DIAL_OUTER_RADIUS * 2 + DIAL_Y_SPACING) * config.core_rows
-         - DIAL_Y_SPACING,
+         (dial_outer_radius * 2 + dial_y_spacing) * config.core_rows
+         - dial_y_spacing,
          update,
          static,
          dynamic
@@ -133,7 +133,7 @@ return function(update_freq, main_state, config, common, width, point)
          point.x,
          y,
          width,
-         TEXT_SPACING,
+         text_spacing,
          {'HWP Preference', 'Ave Freq'}
       )
       local update = function()
@@ -149,7 +149,7 @@ return function(update_freq, main_state, config, common, width, point)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, cpu_status)
       return common.mk_acc(
          width,
-         TEXT_SPACING,
+         text_spacing,
          update,
          static,
          dynamic
@@ -164,8 +164,9 @@ return function(update_freq, main_state, config, common, width, point)
          point.x,
          y,
          width,
-         PLOT_HEIGHT,
-         PLOT_SECTION_BREAK,
+         plot_height,
+         geo.plot.ticks_y,
+         plot_sec_break,
          "Total Load",
          update_freq
       )
@@ -178,7 +179,7 @@ return function(update_freq, main_state, config, common, width, point)
       end
       return common.mk_acc(
          width,
-         PLOT_HEIGHT + PLOT_SECTION_BREAK,
+         plot_height + plot_sec_break,
          update,
          pure.partial(common.tagged_percent_timeseries_draw_static, total_load),
          pure.partial(common.tagged_percent_timeseries_draw_dynamic, total_load)
@@ -230,12 +231,12 @@ return function(update_freq, main_state, config, common, width, point)
       width = width,
       set_state = update_state,
       top = {
-         {mk_cores, show_cores, TEXT_SPACING},
-         {mk_hwp_freq, config.show_stats, SEPARATOR_SPACING},
+         {mk_cores, show_cores, text_spacing},
+         {mk_hwp_freq, config.show_stats, sep_spacing},
       },
       common.mk_section(
-         SEPARATOR_SPACING,
-         {mk_load_plot, config.show_plot, TABLE_SECTION_BREAK},
+         sep_spacing,
+         {mk_load_plot, config.show_plot, geo.table.sec_break},
          {mk_tbl, config.table_rows > 0, 0}
       )
    }

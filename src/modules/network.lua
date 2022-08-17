@@ -5,8 +5,8 @@ local sys = require 'sys'
 
 return function(update_freq, config, common, width, point)
    local geo = config.geometry
-   local PLOT_SEC_BREAK = geo.plot.sec_break
-   local PLOT_HEIGHT = geo.plot.height
+   local plot_sec_break = geo.plot.sec_break
+   local plot_height = geo.plot.height
    local interface_paths = sys.get_net_interface_paths()
 
    local get_bits = function(path)
@@ -41,10 +41,11 @@ return function(update_freq, config, common, width, point)
          point.x,
          y,
          width,
-         PLOT_HEIGHT,
+         plot_height,
+         geo.plot.ticks_y,
          value_format_function,
          common.converted_y_label_format_generator('b'),
-         PLOT_SEC_BREAK,
+         plot_sec_break,
          label,
          2,
          update_freq,
@@ -52,7 +53,7 @@ return function(update_freq, config, common, width, point)
       )
       return common.mk_acc(
          width,
-         PLOT_HEIGHT + PLOT_SEC_BREAK,
+         plot_height + plot_sec_break,
          function() common.update_rate_timeseries(obj, mod_state[key]) end,
          pure.partial(common.tagged_scaled_timeseries_draw_static, obj),
          pure.partial(common.tagged_scaled_timeseries_draw_dynamic, obj)
@@ -71,7 +72,7 @@ return function(update_freq, config, common, width, point)
       width = width,
       set_state = read_interfaces,
       top = {
-         {mk_rx, true, PLOT_SEC_BREAK},
+         {mk_rx, true, plot_sec_break},
          {mk_tx, true, 0},
       }
    }

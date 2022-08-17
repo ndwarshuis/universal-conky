@@ -6,8 +6,8 @@ local impure = require 'impure'
 
 return function(update_freq, config, common, width, point)
    local geo = config.geometry
-   local PLOT_SEC_BREAK = geo.plot.sec_break
-   local PLOT_HEIGHT = geo.plot.height
+   local plot_sec_break = geo.plot.sec_break
+   local plot_height = geo.plot.height
 
    local mod_state = {read = 0, write = 0}
    local device_paths = sys.get_disk_paths(config.devices)
@@ -34,10 +34,11 @@ return function(update_freq, config, common, width, point)
          point.x,
          y,
          width,
-         PLOT_HEIGHT,
+         plot_height,
+         geo.plot.ticks_y,
          format_value_function,
          common.converted_y_label_format_generator('B'),
-         PLOT_SEC_BREAK,
+         plot_sec_break,
          label,
          2,
          update_freq,
@@ -45,7 +46,7 @@ return function(update_freq, config, common, width, point)
       )
       return common.mk_acc(
          width,
-         PLOT_HEIGHT + PLOT_SEC_BREAK,
+         plot_height + plot_sec_break,
          function() common.update_rate_timeseries(obj, mod_state[key]) end,
          pure.partial(common.tagged_scaled_timeseries_draw_static, obj),
          pure.partial(common.tagged_scaled_timeseries_draw_dynamic, obj)
@@ -64,7 +65,7 @@ return function(update_freq, config, common, width, point)
       width = width,
       set_state = update_state,
       top = {
-         {mk_reads, true, PLOT_SEC_BREAK},
+         {mk_reads, true, plot_sec_break},
          {mk_writes, true, 0},
       }
    }
