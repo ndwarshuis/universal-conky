@@ -10,17 +10,17 @@ let TextGeo = { Type = { text_spacing : Natural }, default.text_spacing = 20 }
 
 let SepGeo = { Type = { sep_spacing : Natural }, default.sep_spacing = 20 }
 
-let PlotGeo_ =
+let PlotGeo =
       { Type = { sec_break : Natural, height : Natural, ticks_y : Natural }
       , default = { sec_break = 20, height = 56, ticks_y = 4 }
       }
 
-let PlotGeo = { Type = { plot : PlotGeo_.Type }, default.plot = PlotGeo_::{=} }
+let PlotGeo_ = { Type = { plot : PlotGeo.Type }, default.plot = PlotGeo::{=} }
 
-let TableGeo_ = { Type = { sec_break : Natural }, default.sec_break = 20 }
+let TableGeo = { Type = { sec_break : Natural }, default.sec_break = 20 }
 
-let TableGeo =
-      { Type = { table : TableGeo_.Type }, default.table = TableGeo_::{=} }
+let TableGeo_ =
+      { Type = { table : TableGeo.Type }, default.table = TableGeo::{=} }
 
 let FSGeo =
       { Type = { bar_spacing : Natural, bar_pad : Natural } //\\ SepGeo.Type
@@ -28,24 +28,27 @@ let FSGeo =
       }
 
 let GfxGeo =
-      { Type = SepGeo.Type //\\ PlotGeo.Type //\\ TextGeo.Type
-      , default = SepGeo::{=} /\ PlotGeo::{=} /\ TextGeo::{=}
+      { Type = SepGeo.Type //\\ PlotGeo_.Type //\\ TextGeo.Type
+      , default = SepGeo::{=} /\ PlotGeo_::{=} /\ TextGeo::{=}
       }
 
 let MemGeo =
-      { Type = TextGeo.Type //\\ PlotGeo.Type //\\ TableGeo.Type
-      , default = TextGeo::{=} /\ PlotGeo::{=} /\ TableGeo::{=}
+      { Type = TextGeo.Type //\\ PlotGeo_.Type //\\ TableGeo_.Type
+      , default = TextGeo::{=} /\ PlotGeo_::{=} /\ TableGeo_::{=}
       }
 
 let ProcGeo =
-      { Type = GfxGeo.Type //\\ TableGeo.Type
-      , default = GfxGeo::{=} /\ TableGeo::{=}
+      { Type = GfxGeo.Type //\\ TableGeo_.Type
+      , default = GfxGeo::{=} /\ TableGeo_::{=}
       }
 
 let PwrGeo =
-      { Type = TextGeo.Type //\\ PlotGeo.Type
-      , default = TextGeo::{=} /\ PlotGeo::{=}
+      { Type = TextGeo.Type //\\ PlotGeo_.Type
+      , default = TextGeo::{=} /\ PlotGeo_::{=}
       }
+
+let AllGeo =
+      { TextGeo, PlotGeo, TableGeo, FSGeo, GfxGeo, MemGeo, ProcGeo, PwrGeo }
 
 let FileSystem =
       { Type =
@@ -78,7 +81,7 @@ let Memory =
       }
 
 let Network =
-      { Type = { geometry : PlotGeo.Type }, default.geometry = PlotGeo::{=} }
+      { Type = { geometry : PlotGeo_.Type }, default.geometry = PlotGeo_::{=} }
 
 let Processor =
       { Type =
@@ -104,11 +107,23 @@ let Power =
       }
 
 let ReadWrite =
-      { Type = { devices : List Text, geometry : PlotGeo.Type }
-      , default.geometry = PlotGeo::{=}
+      { Type = { devices : List Text, geometry : PlotGeo_.Type }
+      , default.geometry = PlotGeo_::{=}
       }
 
 let System = Pacman
+
+let AllModules =
+      { FileSystem
+      , Graphics
+      , Memory
+      , Network
+      , Pacman
+      , Power
+      , Processor
+      , ReadWrite
+      , System
+      }
 
 let ModType =
       < filesystem : FileSystem.Type
@@ -302,22 +317,6 @@ let toConfig =
           }
         : Config
 
-in  { toConfig
-    , Block
-    , Column
-    , ModType
-    , Layout
-    , Panel
-    , FSPath
-    , FileSystem
-    , Graphics
-    , Memory
-    , Network
-    , Pacman
-    , Processor
-    , Power
-    , ReadWrite
-    , System
-    , Theme
-    , mod
-    }
+in      { toConfig, Block, Column, ModType, Layout, Panel, FSPath, Theme, mod }
+    /\  AllModules
+    /\  AllGeo
