@@ -5,15 +5,16 @@ local pure = require 'pure'
 local sys = require 'sys'
 
 return function(update_freq, config, common, width, point)
-   local DIAL_THICKNESS = 8
-   local DIAL_RADIUS = 32
-   local DIAL_SPACING = 40
-   local CACHE_Y_OFFSET = 7
-   local CACHE_X_OFFSET = 50
-   local TEXT_SPACING = 20
-   local PLOT_SECTION_BREAK = 23
-   local PLOT_HEIGHT = 56
-   local TABLE_SECTION_BREAK = 20
+   local dial_thickness = 8
+   local dial_radius = 32
+   local dial_x_spacing = 40
+   local cache_y_offset = 7
+   local cache_x_offset = 50
+
+   local geo = config.geometry
+   local plot_sec_break = geo.plot.sec_break
+   local plot_height = geo.plot.height
+   local table_sec_break = geo.table.sec_break
 
    local __math_floor = math.floor
    local __string_format = string.format
@@ -49,34 +50,34 @@ return function(update_freq, config, common, width, point)
    -- mem stats (dial + text)
 
    local mk_stats = function(y)
-      local MEM_X = point.x + DIAL_RADIUS + DIAL_THICKNESS / 2
-      local DIAL_DIAMETER = DIAL_RADIUS * 2 + DIAL_THICKNESS
-      local CACHE_X
-      local SWAP_X
+      local mem_x = point.x + dial_radius + dial_thickness / 2
+      local dial_diameter = dial_radius * 2 + dial_thickness
+      local cache_x
+      local swap_x
       if _show_swap == true then
-         SWAP_X = MEM_X + DIAL_DIAMETER + DIAL_SPACING
-         CACHE_X = SWAP_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
+         swap_x = mem_x + dial_diameter + dial_x_spacing
+         cache_x = swap_x + cache_x_offset + dial_diameter / 2
       else
-         CACHE_X = MEM_X + CACHE_X_OFFSET + DIAL_DIAMETER / 2
+         cache_x = mem_x + cache_x_offset + dial_diameter / 2
       end
-      local CACHE_WIDTH = point.x + width - CACHE_X
+      local cache_width = point.x + width - cache_x
       local format_percent = pure.partial(__string_format, '%i%%', true)
 
       -- memory bits (used no matter what)
       local mem = common.make_dial(
-         MEM_X,
-         y + DIAL_RADIUS,
-         DIAL_RADIUS,
-         DIAL_THICKNESS,
+         mem_x,
+         y + dial_radius,
+         dial_radius,
+         dial_thickness,
          80,
          format_percent,
          __math_floor
       )
       local cache = common.make_text_rows_formatted(
-         CACHE_X,
-         y + CACHE_Y_OFFSET,
-         CACHE_WIDTH,
-         TEXT_SPACING,
+         cache_x,
+         y + cache_y_offset,
+         cache_width,
+         geo.text_spacing,
          {'Page Cache', 'Buffers', 'Shared', 'Kernel Slab'},
          '%.1f%%'
       )
@@ -98,15 +99,15 @@ return function(update_freq, config, common, width, point)
          common.dial_draw_dynamic(mem, cr)
          common.text_rows_draw_dynamic(cache, cr)
       end
-      local ret = pure.partial(common.mk_acc, width, DIAL_DIAMETER)
+      local ret = pure.partial(common.mk_acc, width, dial_diameter)
 
       -- add swap bits if needed
       if _show_swap == true then
          local swap = common.make_dial(
-            SWAP_X,
-            y + DIAL_RADIUS,
-            DIAL_RADIUS,
-            DIAL_THICKNESS,
+            swap_x,
+            y + dial_radius,
+            dial_radius,
+            dial_thickness,
             80,
             format_percent,
             __math_floor
@@ -135,12 +136,13 @@ return function(update_freq, config, common, width, point)
          point.x,
          y,
          width,
-         PLOT_HEIGHT,
+         plot_height,
+         geo.plot.ticks_y,
          update_freq
       )
       return common.mk_acc(
          width,
-         PLOT_HEIGHT,
+         plot_height,
          function() timeseries.update(obj, mod_state.mem.used_percent) end,
          pure.partial(timeseries.draw_static, obj),
          pure.partial(timeseries.draw_dynamic, obj)
@@ -152,14 +154,15 @@ return function(update_freq, config, common, width, point)
          point.x,
          y,
          width,
-         PLOT_HEIGHT,
-         PLOT_SECTION_BREAK,
+         plot_height,
+         geo.plot.ticks_y,
+         plot_sec_break,
          "Total Memory",
          update_freq
       )
       return common.mk_acc(
          width,
-         PLOT_HEIGHT + PLOT_SECTION_BREAK,
+         plot_height + plot_sec_break,
          function()
             common.tagged_percent_timeseries_set(
                obj,
@@ -216,8 +219,8 @@ return function(update_freq, config, common, width, point)
       width = width,
       set_state = read_state,
       top = {
-         {mk_stats, config.show_stats, PLOT_SECTION_BREAK},
-         {mk_plot, config.show_plot, TABLE_SECTION_BREAK},
+         {mk_stats, config.show_stats, plot_sec_break},
+         {mk_plot, config.show_plot, table_sec_break},
          {mk_tbl, config.table_rows > 0, 0},
       }
    }

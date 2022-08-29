@@ -61,14 +61,14 @@ local compile_patterns
 compile_patterns = function(patterns)
    local r = {}
    for k, v in pairs(patterns) do
-      if type(v) == "number" then
-         r[k] = rgb(v)
-      elseif v.color ~= nil then
-         r[k] = rgba(v.color, v.alpha)
-      elseif v.gradient ~= nil then
-         r[k] = compile_gradient(v.gradient)
-      elseif v.gradient_alpha ~= nil then
-         r[k] = compile_gradient_alpha(v.gradient_alpha)
+      if v.type == "RGB" then
+         r[k] = rgb(v.data)
+      elseif v.type == "RGBA" then
+         r[k] = rgba(v.data.color, v.data.alpha)
+      elseif v.type == "GradientRGB" then
+         r[k] = compile_gradient(v.data)
+      elseif v.type == "GradientRGBA" then
+         r[k] = compile_gradient_alpha(v.data)
       else
          r[k] = compile_patterns(v)
       end

@@ -2,12 +2,15 @@ local pure			= require 'pure'
 local i_o			= require 'i_o'
 
 return function(update_freq, config, common, width, point)
-   local SEPARATOR_SPACING = 20
-   local TEXT_SPACING = 20
-   local PLOT_SEC_BREAK = 20
-   local PLOT_HEIGHT = 56
    local NA = 'N/A'
    local NVIDIA_EXE = 'nvidia-settings'
+
+   local geo = config.geometry
+   local sep_spacing = geo.sep_spacing
+   local text_spacing = geo.text_spacing
+   local plot_sec_break = geo.plot.sec_break
+   local plot_height = geo.plot.height
+
    local __string_match	= string.match
    local __string_format = string.format
    local __tonumber = tonumber
@@ -88,8 +91,9 @@ return function(update_freq, config, common, width, point)
          point.x,
          y,
          width,
-         PLOT_HEIGHT,
-         PLOT_SEC_BREAK,
+         plot_height,
+         geo.plot.ticks_y,
+         plot_sec_break,
          label,
          update_freq
       )
@@ -102,7 +106,7 @@ return function(update_freq, config, common, width, point)
       local dynamic = pure.partial(common.tagged_percent_timeseries_draw_dynamic, obj)
       return common.mk_acc(
          width,
-         PLOT_HEIGHT + PLOT_SEC_BREAK,
+         plot_height + plot_sec_break,
          update,
          static,
          dynamic
@@ -154,7 +158,7 @@ return function(update_freq, config, common, width, point)
          point.x,
          y,
          width,
-         TEXT_SPACING,
+         text_spacing,
          {'GPU Clock Speed', 'Memory Clock Speed'}
       )
       local update = function()
@@ -168,7 +172,7 @@ return function(update_freq, config, common, width, point)
       end
       local static = pure.partial(common.text_rows_draw_static, obj)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, obj)
-      return common.mk_acc(width, TEXT_SPACING, update, static, dynamic)
+      return common.mk_acc(width, text_spacing, update, static, dynamic)
    end
 
    -----------------------------------------------------------------------------
@@ -206,19 +210,19 @@ return function(update_freq, config, common, width, point)
       point = point,
       width = width,
       set_state = update_state,
-      top = {{mk_status, true, SEPARATOR_SPACING}},
+      top = {{mk_status, true, sep_spacing}},
       common.mk_section(
-         SEPARATOR_SPACING,
-         {mk_temp, config.show_temp, SEPARATOR_SPACING}
+         sep_spacing,
+         {mk_temp, config.show_temp, sep_spacing}
       ),
       common.mk_section(
-         SEPARATOR_SPACING,
-         {mk_clock, config.show_clock, SEPARATOR_SPACING}
+         sep_spacing,
+         {mk_clock, config.show_clock, sep_spacing}
       ),
       common.mk_section(
-         SEPARATOR_SPACING,
-         {mk_gpu_util, config.show_gpu_util, PLOT_SEC_BREAK},
-         {mk_mem_util, config.show_mem_util, PLOT_SEC_BREAK},
+         sep_spacing,
+         {mk_gpu_util, config.show_gpu_util, plot_sec_break},
+         {mk_mem_util, config.show_mem_util, plot_sec_break},
          {mk_vid_util, config.show_vid_util, 0}
       )
    }

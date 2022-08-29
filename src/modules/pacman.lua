@@ -1,7 +1,7 @@
 local pure = require 'pure'
 
-return function(main_state, common, width, point)
-   local TEXT_SPACING = 20
+return function(main_state, config, common, width, point)
+   local text_spacing = config.geometry.text_spacing
 
    local __string_match = string.match
    local __string_gmatch = string.gmatch
@@ -11,7 +11,7 @@ return function(main_state, common, width, point)
          point.x,
          y,
          width,
-         TEXT_SPACING,
+         text_spacing,
          {'Total', 'Explicit', 'Outdated', 'Orphaned', 'Local'}
       )
       local update = function()
@@ -33,7 +33,7 @@ return function(main_state, common, width, point)
       end
       return common.mk_acc(
          width,
-         TEXT_SPACING * 4,
+         text_spacing * 4,
          update,
          pure.partial(common.text_rows_draw_static, obj),
          pure.partial(common.text_rows_draw_dynamic, obj)

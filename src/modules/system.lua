@@ -1,8 +1,8 @@
 local i_o = require 'i_o'
 local pure = require 'pure'
 
-return function(main_state, common, width, point)
-   local TEXT_SPACING = 20
+return function(main_state, config, common, width, point)
+   local text_spacing = config.geometry.text_spacing
 
    local __string_match = string.match
 
@@ -11,7 +11,7 @@ return function(main_state, common, width, point)
          point.x,
          y,
          width,
-         TEXT_SPACING,
+         text_spacing,
          {'Kernel', 'Uptime', 'Last Upgrade', 'Last Sync'}
       )
       -- just update this once
@@ -35,7 +35,7 @@ return function(main_state, common, width, point)
       local dynamic = pure.partial(common.text_rows_draw_dynamic, obj)
       return common.mk_acc(
          width,
-         TEXT_SPACING * 3,
+         text_spacing * 3,
          update,
          static,
          dynamic

@@ -103,19 +103,23 @@ return function(config)
    -----------------------------------------------------------------------------
    -- timeseries helper functions
 
-   local _default_grid_config = timeseries.grid_config(
-      geometry.plot.ticks[1],
-      geometry.plot.ticks[2],
-      patterns.plot.grid
-   )
+   local _default_grid_config = function(ticks_y)
+      return timeseries.grid_config(
+         geometry.plot.ticks_x,
+         ticks_y,
+         patterns.plot.grid
+      )
+   end
 
-   local _default_plot_config = timeseries.config(
-      geometry.plot.seconds,
-      patterns.plot.outline,
-      patterns.plot.data.border,
-      patterns.plot.data.fill,
-      _default_grid_config
-   )
+   local _default_plot_config = function(ticks_y)
+      return timeseries.config(
+         geometry.plot.seconds,
+         patterns.plot.outline,
+         patterns.plot.data.border,
+         patterns.plot.data.fill,
+         _default_grid_config(ticks_y)
+      )
+   end
 
    local _format_percent_label = function(_)
       return function(z) return __string_format('%i%%', math.floor(z * 100)) end
@@ -131,18 +135,20 @@ return function(config)
       _format_percent_label
    )
 
-   local _make_timeseries = function(x, y, w, h, label_config, update_freq)
+   local _make_timeseries = function(x, y, w, h, ticks_y, label_config, update_freq)
       return timeseries.make(
          geom.make_box(x, y, w, h),
          update_freq,
-         _default_plot_config,
+         _default_plot_config(ticks_y),
          label_config
       )
    end
 
    local gplot = geometry.plot
 
-   local _make_tagged_percent_timeseries = function(x, y, w, h, spacing, label, update_freq, _format)
+   local _make_tagged_percent_timeseries = function(x, y, w, h, ticks_y,
+                                                    spacing, label, update_freq,
+                                                    _format)
       return {
          label = _left_text(geom.make_point(x, y), label),
          value = text_threshold.make_formatted(
@@ -157,6 +163,7 @@ return function(config)
             y + _maybe_config(gplot.spacing, spacing),
             w,
             _maybe_config(gplot.height, h),
+            ticks_y,
             update_freq
          ),
       }
@@ -169,11 +176,11 @@ return function(config)
       return scaled_timeseries.scaling_parameters(2, m, 0.9)
    end
 
-   local _make_scaled_timeseries = function(x, y, w, h, f, min_domain, update_freq)
+   local _make_scaled_timeseries = function(x, y, w, h, ticks_y, f, min_domain, update_freq)
       return scaled_timeseries.make(
          geom.make_box(x, y, w, h),
          update_freq,
-         _default_plot_config,
+         _default_plot_config(ticks_y),
          timeseries.label_config(patterns.text.inactive, label_font_spec, f),
          _base_2_scale_data(min_domain)
       )
@@ -216,22 +223,24 @@ return function(config)
    -----------------------------------------------------------------------------
    -- percent timeseries
 
-   M.make_percent_timeseries = function(x, y, w, h, update_freq)
-      return _make_timeseries(x, y, w, h, _percent_label_config, update_freq)
+   M.make_percent_timeseries = function(x, y, w, h, ticks_y, update_freq)
+      return _make_timeseries(x, y, w, h, ticks_y, _percent_label_config, update_freq)
    end
 
    -----------------------------------------------------------------------------
    -- tagged percent timeseries
 
-   M.make_tagged_percent_timeseries = function(x, y, w, h, spacing, label, update_freq)
+   M.make_tagged_percent_timeseries = function(x, y, w, h, ticks_y, spacing,
+                                               label, update_freq)
       return _make_tagged_percent_timeseries(
-         x, y, w, h, spacing, label, update_freq, '%s%%'
+         x, y, w, h, ticks_y, spacing, label, update_freq, '%s%%'
       )
    end
 
-   M.make_tagged_maybe_percent_timeseries = function(x, y, w, h, spacing, label, update_freq)
+   M.make_tagged_maybe_percent_timeseries = function(x, y, w, h, ticks_y,
+                                                     spacing, label, update_freq)
       return _make_tagged_percent_timeseries(
-         x, y, w, h, spacing, label, update_freq, _format_percent_maybe
+         x, y, w, h, ticks_y, spacing, label, update_freq, _format_percent_maybe
       )
    end
 
@@ -294,9 +303,9 @@ return function(config)
    -----------------------------------------------------------------------------
    -- tagged scaled plot
 
-   M.make_tagged_scaled_timeseries = function(x, y, w, h, format_fun, label_fun,
-                                              spacing, label, min_domain,
-                                              update_freq)
+   M.make_tagged_scaled_timeseries = function(x, y, w, h, ticks_y, format_fun,
+                                              label_fun, spacing, label,
+                                              min_domain, update_freq)
       return {
          label = _left_text(geom.make_point(x, y), label),
          value = text.make_formatted(
@@ -310,6 +319,7 @@ return function(config)
             y + spacing,
             w,
             h,
+            ticks_y,
             label_fun,
             min_domain,
             update_freq
@@ -341,8 +351,9 @@ return function(config)
       end
    end
 
-   M.make_rate_timeseries = function(x, y, w, h, format_fun, label_fun, spacing,
-                                     label, min_domain, update_freq, init)
+   M.make_rate_timeseries = function(x, y, w, h, ticks_y, format_fun,
+                                     label_fun, spacing, label, min_domain,
+                                     update_freq, init)
       return {
          label = _left_text(geom.make_point(x, y), label),
          value = text.make_formatted(
@@ -356,6 +367,7 @@ return function(config)
             y + spacing,
             w,
             h,
+            ticks_y,
             label_fun,
             min_domain,
             update_freq
@@ -615,8 +627,8 @@ return function(config)
 
    local gtable = geometry.table
    local padding = gtable.padding
-   local xpad = padding[1]
-   local ypad = padding[2]
+   local xpad = padding.x
+   local ypad = padding.y
 
    local default_table_font_spec = make_font_spec(font_family, font_sizes.table, false)
 
