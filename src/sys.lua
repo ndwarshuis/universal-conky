@@ -327,7 +327,7 @@ M.read_cpu_loads = function(cpu_loads)
    iter() -- ignore first line
    for i = 1, ncpus do
       local ln = iter()
-      local user, system, idle = __string_match(ln, '(%d+) %d+ (%d+) (%d+)', 5)
+      local user, system, idle = __string_match(ln, '%d+ (%d+) %d+ (%d+) (%d+)', 4)
       local active = user + system
       local total = active + idle
       local c = cpu_loads[i]
