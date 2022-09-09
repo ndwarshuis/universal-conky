@@ -121,8 +121,14 @@ return function(config)
       )
    end
 
+   -- a conventional rounding function that behaves the way most humans were
+   -- taught in preschool
+   local _round = function(x)
+      return math.floor(x + 0.5)
+   end
+
    local _format_percent_label = function(_)
-      return function(z) return __string_format('%i%%', math.floor(z * 100)) end
+      return function(z) return __string_format('%i%%', _round(z * 100)) end
    end
 
    local _format_percent_maybe = function(z)
